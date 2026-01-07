@@ -3,21 +3,31 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import StatCard from '@/components/cards/StatCard.astro';
 import TemplateCard from '@/components/cards/TemplateCard.astro';
 import { fetchTemplates, aggregateNodeUsage } from '@/lib/api/n8n';
+import { fetchGitHubStats } from '@/lib/api/github';
+import { fetchForumStats } from '@/lib/api/discourse';
 
-// Fetch data at build time
-const templatesResponse = await fetchTemplates({ rows: 6, sort: 'trendingScore:desc' });
+// Fetch all data at build time (with error handling)
+const [templatesResponse, githubStats, forumStats] = await Promise.all([
+  fetchTemplates({ rows: 6, sort: 'trendingScore:desc' }),
+  fetchGitHubStats().catch(() => ({ stars: 0, forks: 0, watchers: 0, openIssues: 0, subscribers: 0 })),
+  fetchForumStats().catch(() => ({ usersCount: 0, topicsCount: 0, postsCount: 0, likesCount: 0, activeUsers7Days: 0, postsLast7Days: 0 })),
+]);
+
 const { totalWorkflows, workflows: trendingTemplates } = templatesResponse;
 
 // Get node usage from trending templates (just for display, full aggregation needs more data)
 const nodeUsage = aggregateNodeUsage(trendingTemplates).slice(0, 5);
 
-// TODO: Fetch these from NocoDB for historical tracking
+// Compile stats (integrations count still hardcoded - no public API found)
 const stats = {
   templates: totalWorkflows,
-  githubStars: 166509, // Will be dynamic
-  forumUsers: 124053, // Will be dynamic
-  integrations: 1313, // Will be dynamic
+  githubStars: githubStats.stars,
+  forumUsers: forumStats.usersCount,
+  integrations: 1313, // Hardcoded - scraped from n8n.io/integrations
 };
+
+// Build timestamp for "last updated"
+const buildTime = new Date().toISOString();
 ---
 
 <BaseLayout title="Dashboard">
@@ -29,7 +39,16 @@ const stats = {
       </h1>
       <p class="text-xl text-gray-400 max-w-2xl mx-auto">
         Explore popular templates, trending nodes, and community activity.
-        Updated daily.
+      </p>
+      <p class="text-sm text-gray-500 mt-2">
+        Last updated: {new Date(buildTime).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZoneName: 'short'
+        })}
       </p>
     </div>
 
