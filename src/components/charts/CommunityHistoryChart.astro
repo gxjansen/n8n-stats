@@ -77,10 +77,10 @@
 
   interface CommunityDataPoint {
     date: string;
-    users: number;
-    topics: number;
-    posts: number;
-    likes: number;
+    users: number | null;
+    topics: number | null;
+    posts: number | null;
+    likes: number | null;
   }
 
   interface CommunityHistory {
@@ -165,13 +165,15 @@
 
     return metrics.map(metric => ({
       label: metricLabels[metric],
-      data: data.map(d => d[metric as keyof CommunityDataPoint] as number),
+      // Chart.js handles null values as gaps in the line
+      data: data.map(d => d[metric as keyof CommunityDataPoint] as number | null),
       borderColor: COMMUNITY_COLORS[metric as keyof typeof COMMUNITY_COLORS].border,
       backgroundColor: isArea ? COMMUNITY_COLORS[metric as keyof typeof COMMUNITY_COLORS].background : COMMUNITY_COLORS[metric as keyof typeof COMMUNITY_COLORS].border,
       fill: isArea,
       tension: 0.3,
       pointRadius: data.length > 60 ? 0 : 3,
       pointHoverRadius: 5,
+      spanGaps: false, // Don't connect points across null values
       // Use secondary Y axis for posts (much larger scale)
       yAxisID: metric === 'posts' ? 'y1' : 'y',
     }));

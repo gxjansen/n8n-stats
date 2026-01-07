@@ -15,10 +15,10 @@ import { join } from 'path';
 // Types
 interface CommunityDataPoint {
   date: string;
-  users: number;
-  topics: number;
-  posts: number;
-  likes: number;
+  users: number | null;
+  topics: number | null;
+  posts: number | null;
+  likes: number | null;
 }
 
 interface CommunityHistory {
