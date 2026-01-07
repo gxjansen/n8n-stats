@@ -1,0 +1,85 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { fetchTemplates, aggregateNodeUsage } from '@/lib/api/n8n';
+import { formatNumber } from '@/lib/utils/formatters';
+
+// Fetch more templates to get better node aggregation
+const { workflows } = await fetchTemplates({ rows: 100 });
+const nodeUsage = aggregateNodeUsage(workflows);
+
+// Group by category (rough categorization based on node names)
+const categorizeNode = (name: string) => {
+  const lower = name.toLowerCase();
+  if (lower.includes('google') || lower.includes('gmail') || lower.includes('sheets') || lower.includes('drive')) return 'Google';
+  if (lower.includes('slack') || lower.includes('discord') || lower.includes('telegram') || lower.includes('teams')) return 'Communication';
+  if (lower.includes('http') || lower.includes('webhook') || lower.includes('api')) return 'HTTP & Webhooks';
+  if (lower.includes('openai') || lower.includes('ai') || lower.includes('llm') || lower.includes('anthropic')) return 'AI';
+  if (lower.includes('mysql') || lower.includes('postgres') || lower.includes('mongo') || lower.includes('database')) return 'Database';
+  if (lower.includes('if') || lower.includes('switch') || lower.includes('merge') || lower.includes('split') || lower.includes('loop')) return 'Flow Control';
+  if (lower.includes('code') || lower.includes('function') || lower.includes('set') || lower.includes('edit')) return 'Data Transform';
+  return 'Other';
+};
+
+const nodesByCategory = nodeUsage.reduce((acc, node) => {
+  const category = categorizeNode(node.displayName);
+  if (!acc[category]) acc[category] = [];
+  acc[category].push(node);
+  return acc;
+}, {} as Record<string, typeof nodeUsage>);
+
+const categoryOrder = ['HTTP & Webhooks', 'AI', 'Google', 'Communication', 'Data Transform', 'Flow Control', 'Database', 'Other'];
+---
+
+<BaseLayout title="Node Statistics" description="Most popular nodes in n8n workflow templates">
+  <div class="container-narrow py-12">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-white mb-2">Node Statistics</h1>
+      <p class="text-gray-400">
+        Most used nodes across {formatNumber(100)} analyzed templates
+      </p>
+    </div>
+
+    <!-- Top 10 Overall -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Top 10 Most Used Nodes</h2>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {nodeUsage.slice(0, 10).map((node, index) => (
+          <div class="card text-center">
+            <div class="text-3xl font-bold text-n8n-primary mb-2">#{index + 1}</div>
+            <div class="font-medium text-white">{node.displayName}</div>
+            <div class="text-sm text-gray-400 mt-1">
+              {node.count} templates
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- By Category -->
+    {categoryOrder.map((category) => {
+      const nodes = nodesByCategory[category];
+      if (!nodes || nodes.length === 0) return null;
+      return (
+        <section class="mb-10">
+          <h2 class="text-xl font-bold text-white mb-4">{category}</h2>
+          <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {nodes.slice(0, 12).map((node) => (
+              <div class="card py-3 px-4">
+                <div class="font-medium text-white text-sm">{node.displayName}</div>
+                <div class="text-xs text-gray-400 mt-1">
+                  {node.count} uses
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      );
+    })}
+
+    <!-- Note -->
+    <p class="text-sm text-gray-500 text-center mt-8">
+      Statistics based on analysis of trending templates. Full node catalog coming soon.
+    </p>
+  </div>
+</BaseLayout>

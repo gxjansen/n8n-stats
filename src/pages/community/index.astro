@@ -1,0 +1,99 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import StatCard from '@/components/cards/StatCard.astro';
+import { fetchForumStats, fetchForumCategories } from '@/lib/api/discourse';
+import { formatNumber } from '@/lib/utils/formatters';
+
+// Fetch forum data
+const [forumStats, categories] = await Promise.all([
+  fetchForumStats(),
+  fetchForumCategories(),
+]);
+
+// Get top categories by topic count
+const topCategories = categories
+  .filter(c => c.topic_count > 0)
+  .sort((a, b) => b.topic_count - a.topic_count)
+  .slice(0, 8);
+---
+
+<BaseLayout title="Community Stats" description="n8n community forum activity and engagement">
+  <div class="container-narrow py-12">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-white mb-2">Community Stats</h1>
+      <p class="text-gray-400">
+        Activity from the <a href="https://community.n8n.io" target="_blank" rel="noopener" class="text-n8n-primary hover:underline">n8n community forum</a>
+      </p>
+    </div>
+
+    <!-- Overall Stats -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Overview</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard label="Total Members" value={forumStats.usersCount} />
+        <StatCard label="Total Topics" value={forumStats.topicsCount} />
+        <StatCard label="Total Posts" value={forumStats.postsCount} />
+        <StatCard label="Total Likes" value={forumStats.likesCount} />
+      </div>
+    </section>
+
+    <!-- Recent Activity -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Last 7 Days</h2>
+      <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
+        <StatCard label="Active Users" value={forumStats.activeUsers7Days} />
+        <StatCard label="New Posts" value={forumStats.postsLast7Days} />
+      </div>
+    </section>
+
+    <!-- Top Categories -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Popular Categories</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {topCategories.map((category) => (
+          <a
+            href={`https://community.n8n.io/c/${category.slug}/${category.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="card hover:border-n8n-primary/30 transition-colors"
+          >
+            <div class="flex items-start justify-between">
+              <div>
+                <h3 class="font-semibold text-white">{category.name}</h3>
+                {category.description_text && (
+                  <p class="text-sm text-gray-400 mt-1 line-clamp-2">
+                    {category.description_text}
+                  </p>
+                )}
+              </div>
+              <div
+                class="w-4 h-4 rounded-full flex-shrink-0 ml-4"
+                style={`background-color: #${category.color}`}
+              />
+            </div>
+            <div class="flex items-center gap-4 mt-4 text-sm text-gray-400">
+              <span>{formatNumber(category.topic_count)} topics</span>
+              <span>{formatNumber(category.post_count)} posts</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- Link to Forum -->
+    <div class="text-center">
+      <a
+        href="https://community.n8n.io"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-n8n-primary text-white rounded-lg font-medium hover:bg-n8n-primary/90 transition-colors"
+      >
+        Visit the Community Forum
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</BaseLayout>
