@@ -1,0 +1,65 @@
+---
+import { formatNumber, truncate } from '@/lib/utils/formatters';
+import type { Template } from '@/lib/types';
+
+interface Props {
+  template: Template;
+}
+
+const { template } = Astro.props;
+
+const displayNodes = template.nodes.slice(0, 3);
+const remainingCount = Math.max(0, template.nodes.length - 3);
+---
+
+<article class="card hover:border-n8n-primary/30 transition-colors group">
+  <!-- Node icons -->
+  <div class="flex items-center gap-2 mb-4">
+    {displayNodes.map((node) => (
+      <div
+        class="w-10 h-10 rounded-lg bg-n8n-darker flex items-center justify-center text-xs font-medium text-gray-300 border border-n8n-border"
+        title={node.displayName}
+      >
+        {node.displayName.slice(0, 2).toUpperCase()}
+      </div>
+    ))}
+    {remainingCount > 0 && (
+      <div class="w-10 h-10 rounded-lg bg-n8n-darker flex items-center justify-center text-xs font-medium text-gray-400 border border-n8n-border">
+        +{remainingCount}
+      </div>
+    )}
+  </div>
+
+  <!-- Title -->
+  <h3 class="font-semibold text-white group-hover:text-n8n-primary transition-colors">
+    <a
+      href={`https://n8n.io/workflows/${template.id}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="hover:underline"
+    >
+      {truncate(template.name, 60)}
+    </a>
+  </h3>
+
+  <!-- Meta -->
+  <div class="flex items-center justify-between mt-4 text-sm text-gray-400">
+    <div class="flex items-center gap-2">
+      <span class="flex items-center gap-1">
+        {template.user.verified && (
+          <svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+        )}
+        {template.user.name || template.user.username}
+      </span>
+    </div>
+    <span class="flex items-center gap-1">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+      </svg>
+      {formatNumber(template.totalViews)}
+    </span>
+  </div>
+</article>

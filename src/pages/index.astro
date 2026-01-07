@@ -1,0 +1,82 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import StatCard from '@/components/cards/StatCard.astro';
+import TemplateCard from '@/components/cards/TemplateCard.astro';
+import { fetchTemplates, aggregateNodeUsage } from '@/lib/api/n8n';
+
+// Fetch data at build time
+const templatesResponse = await fetchTemplates({ rows: 6, sort: 'trendingScore:desc' });
+const { totalWorkflows, workflows: trendingTemplates } = templatesResponse;
+
+// Get node usage from trending templates (just for display, full aggregation needs more data)
+const nodeUsage = aggregateNodeUsage(trendingTemplates).slice(0, 5);
+
+// TODO: Fetch these from NocoDB for historical tracking
+const stats = {
+  templates: totalWorkflows,
+  githubStars: 166509, // Will be dynamic
+  forumUsers: 124053, // Will be dynamic
+  integrations: 1313, // Will be dynamic
+};
+---
+
+<BaseLayout title="Dashboard">
+  <div class="container-narrow py-12">
+    <!-- Hero -->
+    <div class="text-center mb-12">
+      <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
+        The pulse of the <span class="text-n8n-primary">n8n</span> community
+      </h1>
+      <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+        Explore popular templates, trending nodes, and community activity.
+        Updated daily.
+      </p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+      <StatCard label="Workflow Templates" value={stats.templates} />
+      <StatCard label="GitHub Stars" value={stats.githubStars} />
+      <StatCard label="Community Members" value={stats.forumUsers} />
+      <StatCard label="Integrations" value={stats.integrations} />
+    </div>
+
+    <!-- Trending Templates -->
+    <section class="mb-12">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-white">Trending Templates</h2>
+        <a href="/templates" class="text-n8n-primary hover:underline">
+          View all &rarr;
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {trendingTemplates.map((template) => (
+          <TemplateCard template={template} />
+        ))}
+      </div>
+    </section>
+
+    <!-- Top Nodes -->
+    <section>
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-white">Most Used Nodes</h2>
+        <a href="/nodes" class="text-n8n-primary hover:underline">
+          View all &rarr;
+        </a>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {nodeUsage.map((node, index) => (
+          <div class="card text-center">
+            <div class="text-3xl font-bold text-n8n-primary mb-2">#{index + 1}</div>
+            <div class="font-medium text-white">{node.displayName}</div>
+            <div class="text-sm text-gray-400 mt-1">
+              {node.count} templates
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  </div>
+</BaseLayout>

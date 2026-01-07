@@ -1,0 +1,82 @@
+---
+import '@/styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'Community health dashboard and ecosystem explorer for n8n' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title} | n8n-stats</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body class="min-h-screen bg-n8n-darker">
+    <header class="border-b border-n8n-border">
+      <nav class="container-narrow py-4">
+        <div class="flex items-center justify-between">
+          <a href="/" class="flex items-center gap-2 text-xl font-bold text-white">
+            <svg class="h-8 w-8 text-n8n-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" />
+              <path d="M2 17l10 5 10-5" />
+              <path d="M2 12l10 5 10-5" />
+            </svg>
+            n8n-stats
+          </a>
+
+          <div class="flex items-center gap-6">
+            <a href="/templates" class="text-gray-300 hover:text-white transition-colors">
+              Templates
+            </a>
+            <a href="/nodes" class="text-gray-300 hover:text-white transition-colors">
+              Nodes
+            </a>
+            <a href="/community" class="text-gray-300 hover:text-white transition-colors">
+              Community
+            </a>
+            <a href="/github" class="text-gray-300 hover:text-white transition-colors">
+              GitHub
+            </a>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="border-t border-n8n-border mt-16">
+      <div class="container-narrow py-8">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-400">
+          <p>
+            Built with n8n, for n8n. Data updated daily.
+          </p>
+          <div class="flex items-center gap-4">
+            <a href="https://n8n.io" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+              n8n.io
+            </a>
+            <a href="https://community.n8n.io" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+              Community
+            </a>
+            <a href="https://github.com/n8n-io/n8n" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+              GitHub
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

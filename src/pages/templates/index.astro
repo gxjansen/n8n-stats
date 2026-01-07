@@ -1,0 +1,100 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import TemplateCard from '@/components/cards/TemplateCard.astro';
+import { fetchTemplates, type Category, type SortOption } from '@/lib/api/n8n';
+import { formatNumber } from '@/lib/utils/formatters';
+
+// Get query params (for static, we'll show default; for dynamic, use Astro.url.searchParams)
+const sort: SortOption = 'trendingScore:desc';
+const category: Category | undefined = undefined;
+
+// Fetch templates
+const { totalWorkflows, workflows } = await fetchTemplates({
+  sort,
+  category,
+  rows: 24,
+});
+
+const categories: { label: string; value: Category | 'all' }[] = [
+  { label: 'All', value: 'all' },
+  { label: 'AI', value: 'AI' },
+  { label: 'Sales', value: 'Sales' },
+  { label: 'IT Ops', value: 'IT Ops' },
+  { label: 'Marketing', value: 'Marketing' },
+  { label: 'Document Ops', value: 'Document Ops' },
+  { label: 'Support', value: 'Support' },
+  { label: 'Other', value: 'Other' },
+];
+
+const sortOptions: { label: string; value: SortOption }[] = [
+  { label: 'Trending', value: 'trendingScore:desc' },
+  { label: 'Most Views', value: 'totalViews:desc' },
+  { label: 'Newest', value: 'createdAt:desc' },
+];
+---
+
+<BaseLayout title="Template Explorer" description="Discover popular n8n workflow templates">
+  <div class="container-narrow py-12">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-white mb-2">Template Explorer</h1>
+      <p class="text-gray-400">
+        Discover {formatNumber(totalWorkflows)} workflow templates from the n8n community
+      </p>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-wrap items-center gap-4 mb-8">
+      <!-- Categories -->
+      <div class="flex flex-wrap gap-2">
+        {categories.map((cat) => (
+          <a
+            href={cat.value === 'all' ? '/templates' : `/templates?category=${cat.value}`}
+            class={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              (category === undefined && cat.value === 'all') || category === cat.value
+                ? 'bg-n8n-primary text-white'
+                : 'bg-n8n-card border border-n8n-border text-gray-300 hover:border-n8n-primary/50'
+            }`}
+          >
+            {cat.label}
+          </a>
+        ))}
+      </div>
+
+      <!-- Sort -->
+      <div class="ml-auto">
+        <select
+          class="bg-n8n-card border border-n8n-border rounded-lg px-4 py-2 text-gray-300 focus:outline-none focus:border-n8n-primary"
+        >
+          {sortOptions.map((option) => (
+            <option value={option.value} selected={sort === option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+
+    <!-- Template Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {workflows.map((template) => (
+        <TemplateCard template={template} />
+      ))}
+    </div>
+
+    <!-- Load More (placeholder for future pagination) -->
+    {workflows.length < totalWorkflows && (
+      <div class="text-center mt-8">
+        <p class="text-gray-400 mb-4">
+          Showing {workflows.length} of {formatNumber(totalWorkflows)} templates
+        </p>
+        <button
+          class="px-6 py-3 bg-n8n-primary text-white rounded-lg font-medium hover:bg-n8n-primary/90 transition-colors"
+          disabled
+        >
+          Load More (coming soon)
+        </button>
+      </div>
+    )}
+  </div>
+</BaseLayout>
