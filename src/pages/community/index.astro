@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import StatCard from '@/components/cards/StatCard.astro';
+import CommunityHistoryChart from '@/components/charts/CommunityHistoryChart.astro';
 import { fetchForumStats, fetchForumCategories } from '@/lib/api/discourse';
 import { formatNumber } from '@/lib/utils/formatters';
 
@@ -45,6 +46,15 @@ const topCategories = categories
         <StatCard label="Active Users" value={forumStats.activeUsers7Days} />
         <StatCard label="New Posts" value={forumStats.postsLast7Days} />
       </div>
+    </section>
+
+    <!-- Historical Trends -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Historical Trends</h2>
+      <p class="text-gray-400 mb-6">
+        Community growth from November 2019 to present. Toggle metrics, adjust date range, and switch chart types.
+      </p>
+      <CommunityHistoryChart />
     </section>
 
     <!-- Top Categories -->

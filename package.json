@@ -5,12 +5,14 @@
   "description": "Community health dashboard and ecosystem explorer for n8n",
   "scripts": {
     "dev": "astro dev",
-    "build": "npm run update-history && astro build",
+    "build": "npm run update-all-history && astro build",
     "build:only": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "fetch-data": "tsx scripts/fetch-data.ts",
-    "update-history": "tsx scripts/update-github-history.ts"
+    "update-github-history": "tsx scripts/update-github-history.ts",
+    "update-community-history": "tsx scripts/update-community-history.ts",
+    "update-all-history": "npm run update-github-history && npm run update-community-history"
   },
   "keywords": [
     "n8n",
