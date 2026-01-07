@@ -170,7 +170,7 @@
       borderColor: COMMUNITY_COLORS[metric as keyof typeof COMMUNITY_COLORS].border,
       backgroundColor: isArea ? COMMUNITY_COLORS[metric as keyof typeof COMMUNITY_COLORS].background : COMMUNITY_COLORS[metric as keyof typeof COMMUNITY_COLORS].border,
       fill: isArea,
-      tension: 0.3,
+      tension: 0,
       pointRadius: data.length > 60 ? 0 : 3,
       pointHoverRadius: 5,
       spanGaps: false, // Don't connect points across null values
