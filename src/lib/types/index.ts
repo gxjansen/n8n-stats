@@ -103,6 +103,28 @@ export interface DailySnapshot {
   templateCount: number;
 }
 
+// GitHub history data point
+export interface GitHubDataPoint {
+  date: string;  // ISO date string
+  stars: number;
+  forks: number;
+  watchers: number;
+  openIssues: number;
+}
+
+// Aggregated history with multiple granularities
+export interface GitHubHistory {
+  lastUpdated: string;
+  daily: GitHubDataPoint[];    // Last 90 days
+  weekly: GitHubDataPoint[];   // Last 2 years
+  monthly: GitHubDataPoint[];  // All time
+}
+
+// Raw daily log (internal, for building aggregates)
+export interface GitHubDailyLog {
+  entries: GitHubDataPoint[];
+}
+
 // Dashboard summary
 export interface DashboardStats {
   templates: {

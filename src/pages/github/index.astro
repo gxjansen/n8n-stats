@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import StatCard from '@/components/cards/StatCard.astro';
+import GitHubHistoryChart from '@/components/charts/GitHubHistoryChart.astro';
 import { fetchGitHubStats, fetchGitHubReleases } from '@/lib/api/github';
 import { formatNumber } from '@/lib/utils/formatters';
 
@@ -42,6 +43,12 @@ const recentReleases = releases.slice(0, 5);
         <StatCard label="Watchers" value={githubStats.subscribers} />
         <StatCard label="Open Issues" value={githubStats.openIssues} />
       </div>
+    </section>
+
+    <!-- Historical Chart -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Historical Trends</h2>
+      <GitHubHistoryChart />
     </section>
 
     <!-- Recent Releases -->

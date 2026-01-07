@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for committing back
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -33,8 +35,21 @@ jobs:
           NOCODB_API_TOKEN: ${{ secrets.NOCODB_API_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Update GitHub history
+        run: npm run update-history
+
+      - name: Commit history data
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add public/data/
+          git diff --staged --quiet || git commit -m "Update GitHub history data [skip ci]"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build site
-        run: npm run build
+        run: npm run build:only
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v3
