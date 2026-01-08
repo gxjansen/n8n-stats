@@ -6,6 +6,7 @@
  * - Loads history data from /data/github-history.json
  * - Renders Chart.js line/area chart
  * - Allows filtering by date range, metrics, and chart type
+ * - Shows dashed lines for scaled/estimated historical data
  */
 ---
 
@@ -39,6 +40,12 @@
     <canvas id="github-history-chart"></canvas>
   </div>
 
+  <!-- Legend note for scaled data -->
+  <p id="github-chart-note" class="text-xs text-gray-500 mt-2 text-center">
+    <span class="inline-block border-t-2 border-dashed border-gray-400 w-4 align-middle mr-1"></span>
+    Dashed lines indicate scaled historical data from ossinsight.io
+  </p>
+
   <!-- Loading/Error States -->
   <div id="chart-loading" class="absolute inset-0 flex items-center justify-center bg-n8n-card/80">
     <span class="text-gray-400">Loading chart data...</span>
@@ -60,6 +67,7 @@
     forks: number;
     watchers: number;
     openIssues: number;
+    source?: string;
   }
 
   interface GitHubHistory {
@@ -71,10 +79,18 @@
 
   let chart: Chart | null = null;
   let historyData: GitHubHistory | null = null;
+  let currentChartData: GitHubDataPoint[] = [];
 
   const COLORS = {
     stars: { border: '#ff6384', background: 'rgba(255, 99, 132, 0.1)' },
   };
+
+  // Sources that indicate scaled/estimated data
+  const SCALED_SOURCES = ['ossinsight'];
+
+  function isScaledData(source?: string): boolean {
+    return SCALED_SOURCES.includes(source || '');
+  }
 
   async function loadData(): Promise<GitHubHistory | null> {
     try {
@@ -116,6 +132,15 @@
       tension: 0.1,
       pointRadius: data.length > 60 ? 0 : 3,
       pointHoverRadius: 5,
+      // Use dashed line segments for scaled/estimated data
+      segment: {
+        borderDash: (ctx: any) => {
+          const index = ctx.p0DataIndex;
+          const isEstimated = isScaledData(data[index]?.source) ||
+                              isScaledData(data[index + 1]?.source);
+          return isEstimated ? [5, 5] : [];
+        },
+      },
     }];
   }
 
@@ -133,6 +158,9 @@
       return;
     }
     document.getElementById('chart-no-data')?.classList.add('hidden');
+
+    // Store for tooltip access
+    currentChartData = filteredData;
 
     const labels = filteredData.map(d => d.date);
     const datasets = createDataset(filteredData, isArea);
@@ -169,6 +197,10 @@
     const isArea = isAreaChart();
 
     const filteredData = filterByMonths(historyData.monthly, range);
+
+    // Store for tooltip access
+    currentChartData = filteredData;
+
     const labels = filteredData.map(d => d.date);
     const datasets = createDataset(filteredData, isArea);
 
@@ -195,7 +227,10 @@
             callbacks: {
               label: (context) => {
                 const value = context.parsed.y;
-                return `Stars: ${value.toLocaleString()}`;
+                const dataPoint = currentChartData[context.dataIndex];
+                const isScaled = isScaledData(dataPoint?.source);
+                const suffix = isScaled ? ' (scaled)' : '';
+                return `Stars: ${value.toLocaleString()}${suffix}`;
               },
             },
           },
