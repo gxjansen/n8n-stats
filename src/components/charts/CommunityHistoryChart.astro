@@ -118,14 +118,14 @@
   }
 
   function getCommunityDataForRange(data: CommunityHistory, rangeDays: number | 'all'): CommunityDataPoint[] {
+    // Use daily data only when we have enough entries and range is short
+    // Otherwise use monthly data since weekly is too sparse (only ~1/month)
     if (rangeDays === 'all') {
       return data.monthly;
-    } else if (rangeDays <= 90) {
+    } else if (rangeDays <= 90 && data.daily.length >= 7) {
       return data.daily;
-    } else if (rangeDays <= 730) {
-      return data.weekly;
     } else {
-      // For 3 years (1095 days) or more, use monthly data
+      // Use monthly data for all other ranges - it has proper coverage
       return data.monthly;
     }
   }
