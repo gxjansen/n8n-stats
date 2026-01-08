@@ -75,6 +75,13 @@ export interface ForumCategory {
   description?: string;
 }
 
+// Discord types
+export interface DiscordStats {
+  memberCount: number;
+  onlineCount: number;
+  guildName: string;
+}
+
 // GitHub types
 export interface GitHubStats {
   stars: number;
