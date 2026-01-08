@@ -92,6 +92,7 @@ interface AllTemplatesData {
     total: number;
     unique: number;
     top100: NodeUsage[];
+    allUsed: NodeUsage[];  // All unique nodes used in templates
   };
 
   // Creator stats
@@ -256,6 +257,7 @@ function calculateNodeUsage(templates: Template[]): AllTemplatesData['nodes'] {
     total: allNodes.reduce((sum, n) => sum + n.count, 0),
     unique: allNodes.length,
     top100: allNodes.slice(0, 100),
+    allUsed: allNodes,  // Store all unique nodes for coverage analysis
   };
 }
 

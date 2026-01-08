@@ -51,7 +51,6 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
 const hasCompleteData = !!allTemplatesData;
 const completeDataStats = allTemplatesData ? {
   totalCreators: allTemplatesData.creators.total,
-  verifiedCreators: allTemplatesData.creators.verified,
   uniqueNodes: allTemplatesData.nodes.unique,
   avgComplexity: allTemplatesData.complexity.average,
   medianComplexity: allTemplatesData.complexity.median,
@@ -71,7 +70,7 @@ const completeDataStats = allTemplatesData ? {
 
     <!-- Overview Stats -->
     <section class="mb-12">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-3 gap-4">
         <div class="card text-center">
           <div class="text-3xl font-bold text-n8n-primary mb-1">
             {formatNumber(analytics.totalWorkflows)}
@@ -82,19 +81,13 @@ const completeDataStats = allTemplatesData ? {
           <div class="text-3xl font-bold text-purple-400 mb-1">
             {completeDataStats?.uniqueNodes || analytics.topNodes.length}
           </div>
-          <div class="text-sm text-gray-400">Unique Nodes</div>
+          <div class="text-sm text-gray-400">Unique Nodes Used</div>
         </div>
         <div class="card text-center">
           <div class="text-3xl font-bold text-cyan-400 mb-1">
             {formatNumber(completeDataStats?.totalCreators || 0)}
           </div>
           <div class="text-sm text-gray-400">Template Creators</div>
-        </div>
-        <div class="card text-center">
-          <div class="text-3xl font-bold text-green-400 mb-1">
-            {completeDataStats ? Math.round((completeDataStats.verifiedCreators / completeDataStats.totalCreators) * 100) : analytics.verifiedPercentage}%
-          </div>
-          <div class="text-sm text-gray-400">Verified Creators</div>
         </div>
       </div>
     </section>
