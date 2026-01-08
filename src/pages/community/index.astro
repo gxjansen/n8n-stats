@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import StatCard from '@/components/cards/StatCard.astro';
 import CommunityHistoryChart from '@/components/charts/CommunityHistoryChart.astro';
+import CommunityTreemapChart from '@/components/charts/CommunityTreemapChart.astro';
 import { fetchForumStats, fetchForumCategories } from '@/lib/api/discourse';
 import { formatNumber } from '@/lib/utils/formatters';
 
@@ -11,11 +12,11 @@ const [forumStats, categories] = await Promise.all([
   fetchForumCategories(),
 ]);
 
-// Get top categories by topic count
+// Get top categories by topic count (more for treemap)
 const topCategories = categories
   .filter(c => c.topicCount > 0)
   .sort((a, b) => b.topicCount - a.topicCount)
-  .slice(0, 8);
+  .slice(0, 15);
 ---
 
 <BaseLayout title="Community Stats" description="n8n community forum activity and engagement">
@@ -60,31 +61,8 @@ const topCategories = categories
     <!-- Top Categories -->
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">Popular Categories</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {topCategories.map((category) => (
-          <a
-            href={`https://community.n8n.io/c/${category.slug}/${category.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="card hover:border-n8n-primary/30 transition-colors"
-          >
-            <div class="flex items-start justify-between">
-              <div>
-                <h3 class="font-semibold text-white">{category.name}</h3>
-                {category.description && (
-                  <p class="text-sm text-gray-400 mt-1 line-clamp-2">
-                    {category.description}
-                  </p>
-                )}
-              </div>
-            </div>
-            <div class="flex items-center gap-4 mt-4 text-sm text-gray-400">
-              <span>{formatNumber(category.topicCount)} topics</span>
-              <span>{formatNumber(category.postCount)} posts</span>
-            </div>
-          </a>
-        ))}
-      </div>
+      <p class="text-gray-400 mb-4">Categories sized by number of topics. Click to visit.</p>
+      <CommunityTreemapChart data={topCategories} />
     </section>
 
     <!-- Link to Forum -->
