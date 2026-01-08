@@ -178,7 +178,7 @@ export function getTopCreators(templates: Template[]): Array<{
 export async function fetchTemplateStats(): Promise<TemplateStats> {
   const response = await fetch(`${API_BASE}/templates/search?rows=1`, {
     headers: {
-      'User-Agent': 'n8n-stats',
+      'User-Agent': 'n8n-pulse',
     },
   });
 
@@ -269,7 +269,7 @@ export async function fetchTemplateAnalytics(): Promise<TemplateAnalytics> {
   // Fetch templates with full data (100 for trending sample)
   const response = await fetch(`${API_BASE}/templates/search?rows=100`, {
     headers: {
-      'User-Agent': 'n8n-stats',
+      'User-Agent': 'n8n-pulse',
     },
   });
 
@@ -386,7 +386,7 @@ export async function fetchTemplateAnalytics(): Promise<TemplateAnalytics> {
     topCreatorsBase.map(async (creator) => {
       try {
         const response = await fetch(`${API_BASE}/creators/${creator.username}`, {
-          headers: { 'User-Agent': 'n8n-stats' },
+          headers: { 'User-Agent': 'n8n-pulse' },
         });
         if (response.ok) {
           const creatorData = await response.json();
