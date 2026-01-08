@@ -19,6 +19,8 @@ interface GitHubDataPoint {
   forks: number;
   watchers: number;
   openIssues: number;
+  source?: string;
+  sourceDetail?: string;
 }
 
 interface GitHubHistory {
@@ -61,6 +63,8 @@ async function fetchGitHubStats(): Promise<GitHubDataPoint> {
     forks: data.forks_count,
     watchers: data.subscribers_count, // "watchers" in API is actually subscribers
     openIssues: data.open_issues_count,
+    source: 'github-api',
+    sourceDetail: 'api.github.com',
   };
 }
 
