@@ -2,23 +2,25 @@
 /**
  * Release Timeline Chart
  *
- * Shows n8n releases on a horizontal timeline over the past 2 years.
+ * Shows n8n releases on a horizontal timeline starting from 1.0.
  * - Excludes pre-releases
  * - Different colors for 1.x (blue) and 2.x (orange/primary) series
  */
 
-import { fetchGitHubReleases } from '@/lib/api/github';
+import { fetchAllGitHubReleases } from '@/lib/api/github';
 
-// Fetch enough releases to cover ~2 years (n8n releases frequently)
-const allReleases = await fetchGitHubReleases(200);
+// Fetch all releases (paginated)
+const allReleases = await fetchAllGitHubReleases();
 
-// Filter out pre-releases and get only official releases from the past 2 years
-const twoYearsAgo = new Date();
-twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
-
+// Filter: official releases only, starting from 1.0 (no 0.x versions)
 const releases = allReleases
   .filter(r => !r.prerelease)
-  .filter(r => new Date(r.publishedAt) >= twoYearsAgo)
+  .filter(r => {
+    // Include 1.x and 2.x releases only
+    const tag = r.tagName;
+    return tag.startsWith('n8n@1.') || tag.startsWith('n8n@2.') ||
+           tag.startsWith('1.') || tag.startsWith('2.');
+  })
   .map(r => ({
     tag: r.tagName,
     date: r.publishedAt,

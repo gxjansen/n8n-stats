@@ -32,7 +32,7 @@ export async function fetchGitHubStats(): Promise<GitHubStats> {
 }
 
 /**
- * Fetch recent releases from GitHub
+ * Fetch releases from GitHub (single page)
  */
 export async function fetchGitHubReleases(limit = 10): Promise<GitHubRelease[]> {
   const response = await fetch(`https://api.github.com/repos/${REPO}/releases?per_page=${limit}`, {
@@ -58,6 +58,54 @@ export async function fetchGitHubReleases(limit = 10): Promise<GitHubRelease[]> 
     prerelease: release.prerelease,
     body: release.body,
   }));
+}
+
+/**
+ * Fetch all releases from GitHub (paginated)
+ * Use this when you need the complete release history
+ */
+export async function fetchAllGitHubReleases(): Promise<GitHubRelease[]> {
+  const allReleases: GitHubRelease[] = [];
+  let page = 1;
+  const perPage = 100;
+
+  while (true) {
+    const response = await fetch(
+      `https://api.github.com/repos/${REPO}/releases?per_page=${perPage}&page=${page}`,
+      {
+        headers: {
+          'Accept': 'application/vnd.github.v3+json',
+          ...(import.meta.env.GITHUB_TOKEN && {
+            'Authorization': `token ${import.meta.env.GITHUB_TOKEN}`
+          }),
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch GitHub releases: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (data.length === 0) break;
+
+    const releases = data.map((release: Record<string, unknown>) => ({
+      tagName: release.tag_name,
+      name: release.name,
+      publishedAt: release.published_at,
+      htmlUrl: release.html_url,
+      prerelease: release.prerelease,
+      body: release.body,
+    }));
+
+    allReleases.push(...releases);
+
+    if (data.length < perPage) break;
+    page++;
+  }
+
+  return allReleases;
 }
 
 /**
