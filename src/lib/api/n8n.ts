@@ -237,7 +237,9 @@ export interface TemplateAnalytics {
     username: string;
     name: string;
     verified: boolean;
-    templateCount: number;
+    avatar: string | null;
+    templateCount: number;      // Count in trending sample
+    totalTemplates: number;     // Total templates on n8n.io
     totalViews: number;
   }>;
   verifiedPercentage: number;
@@ -346,6 +348,7 @@ export async function fetchTemplateAnalytics(): Promise<TemplateAnalytics> {
     username: string;
     name: string;
     verified: boolean;
+    avatar: string | null;
     templateCount: number;
     totalViews: number;
   }>();
@@ -366,15 +369,42 @@ export async function fetchTemplateAnalytics(): Promise<TemplateAnalytics> {
         username: user.username,
         name: user.name || user.username,
         verified: user.verified || false,
+        avatar: user.avatar || null,
         templateCount: 1,
         totalViews: w.totalViews || 0,
       });
     }
   }
 
-  const topCreators = Array.from(creatorMap.values())
+  // Get top 10 creators from trending sample
+  const topCreatorsBase = Array.from(creatorMap.values())
     .sort((a, b) => b.templateCount - a.templateCount)
     .slice(0, 10);
+
+  // Fetch total template counts for top creators from the creators API
+  const topCreators = await Promise.all(
+    topCreatorsBase.map(async (creator) => {
+      try {
+        const response = await fetch(`${API_BASE}/creators/${creator.username}`, {
+          headers: { 'User-Agent': 'n8n-stats' },
+        });
+        if (response.ok) {
+          const creatorData = await response.json();
+          return {
+            ...creator,
+            totalTemplates: creatorData.data?.workflowsCount || creator.templateCount,
+            avatar: creatorData.data?.avatar || creator.avatar,
+          };
+        }
+      } catch {
+        // Ignore errors, use default values
+      }
+      return {
+        ...creator,
+        totalTemplates: creator.templateCount,
+      };
+    })
+  );
 
   const verifiedPercentage = workflows.length > 0
     ? Math.round((verifiedCount / workflows.length) * 100)
