@@ -11,10 +11,6 @@ const analytics = await fetchTemplateAnalytics();
 // Sort categories by count
 const sortedCategories = [...analytics.categories].sort((a, b) => b.count - a.count);
 
-// Get top and bottom nodes
-const topNodes = analytics.topNodes.slice(0, 15);
-const bottomNodes = analytics.topNodes.slice(-10).reverse();
-
 // Prepare chart data
 const viewsData = [
   { label: 'Viral (100K+)', value: analytics.viewsDistribution.viral, color: '#ff6384' },
@@ -23,16 +19,11 @@ const viewsData = [
   { label: 'New (<1K)', value: analytics.viewsDistribution.new, color: '#4bc0c0' },
 ];
 
-const complexityData = [
-  { label: 'Simple (1-3 nodes)', value: analytics.complexityDistribution.simple, color: '#4bc0c0' },
-  { label: 'Medium (4-7 nodes)', value: analytics.complexityDistribution.medium, color: '#ffce56' },
-  { label: 'Complex (8+ nodes)', value: analytics.complexityDistribution.complex, color: '#ff6384' },
-];
+// Node count breakdown for bar chart
+const nodeCountData = analytics.nodeCountBreakdown;
 
-const aiData = [
-  { label: 'AI Templates', value: analytics.aiStats.aiTemplates, color: '#9966ff' },
-  { label: 'Other Templates', value: analytics.aiStats.nonAiTemplates, color: '#7c8798' },
-];
+// AI categories breakdown for horizontal bar chart
+const aiCategoriesData = analytics.aiStats.aiCategories;
 
 const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
   name: c.value,
@@ -89,9 +80,9 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
       <TemplatesHistoryChart />
     </section>
 
-    <!-- Views & Complexity Distribution -->
+    <!-- Views Distribution -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">Template Performance & Complexity</h2>
+      <h2 class="text-2xl font-bold text-white mb-6">Template Performance</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Views Distribution -->
         <div>
@@ -106,7 +97,7 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
           </div>
         </div>
 
-        <!-- Complexity Distribution -->
+        <!-- Workflow Complexity Bar Chart -->
         <div>
           <h3 class="text-lg font-semibold text-white mb-4">Workflow Complexity</h3>
           <p class="text-gray-400 text-sm mb-4">
@@ -125,29 +116,49 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">AI Template Dominance</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="card">
-          <div class="relative" style="height: 280px;">
-            <canvas id="ai-chart"></canvas>
-          </div>
-        </div>
         <div class="flex flex-col justify-center">
           <div class="text-6xl font-bold text-purple-400 mb-2">
             {analytics.aiStats.aiPercentage}%
           </div>
-          <div class="text-xl text-gray-300 mb-4">of templates are AI-related</div>
-          <p class="text-gray-400">
-            AI, Multimodal AI, AI Summarization, and AI Chatbot categories dominate
-            the template library, reflecting the strong focus on AI automation in
-            the n8n ecosystem.
+          <div class="text-xl text-gray-300 mb-4">of category assignments are AI-related</div>
+          <p class="text-gray-400 mb-4">
+            AI, Multimodal AI, AI Summarization, and AI Chatbot categories represent
+            a major portion of template classifications, reflecting the strong focus
+            on AI automation in the n8n ecosystem.
           </p>
-          <div class="mt-4 grid grid-cols-2 gap-4">
-            <div class="bg-n8n-darker rounded-lg p-3">
-              <div class="text-2xl font-bold text-purple-400">{formatNumber(analytics.aiStats.aiTemplates)}</div>
-              <div class="text-sm text-gray-400">AI Templates</div>
-            </div>
-            <div class="bg-n8n-darker rounded-lg p-3">
-              <div class="text-2xl font-bold text-gray-400">{formatNumber(analytics.aiStats.nonAiTemplates)}</div>
-              <div class="text-sm text-gray-400">Other Templates</div>
+          <p class="text-sm text-gray-500">
+            Note: Templates can have multiple categories, so totals may exceed 100%.
+          </p>
+        </div>
+        <div class="card">
+          <h4 class="text-lg font-semibold text-white mb-4">AI Category Breakdown</h4>
+          <div class="space-y-3">
+            {analytics.aiStats.aiCategories.map((cat, index) => {
+              const maxCount = analytics.aiStats.aiCategories[0]?.count || 1;
+              const percentage = (cat.count / maxCount) * 100;
+              const colors = ['#9966ff', '#b366ff', '#cc99ff', '#7733ff'];
+              return (
+                <div class="flex items-center gap-4">
+                  <div class="w-32 text-sm text-gray-300 truncate" title={cat.value}>
+                    {cat.value}
+                  </div>
+                  <div class="flex-1 h-6 bg-n8n-darker rounded overflow-hidden">
+                    <div
+                      class="h-full rounded transition-all duration-500"
+                      style={`width: ${percentage}%; background-color: ${colors[index % colors.length]};`}
+                    ></div>
+                  </div>
+                  <div class="w-16 text-right text-sm text-gray-400">
+                    {formatNumber(cat.count)}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div class="mt-4 pt-4 border-t border-gray-700">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-400">Total AI category assignments:</span>
+              <span class="text-purple-400 font-bold">{formatNumber(analytics.aiStats.aiCategoryCount)}</span>
             </div>
           </div>
         </div>
@@ -172,6 +183,7 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
       <h2 class="text-2xl font-bold text-white mb-6">Templates by Category</h2>
       <p class="text-gray-400 mb-4">
         Rectangle size represents the number of templates in each category.
+        <span class="text-n8n-primary">Click any category to browse templates on n8n.io.</span>
       </p>
       <CategoryTreemapChart data={sortedCategories.map(c => ({ name: c.value, count: c.count }))} />
     </section>
@@ -211,13 +223,30 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
 
     <!-- Top Creators -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">Top Template Creators</h2>
-      <p class="text-gray-400 mb-4">
-        Most prolific contributors (from trending templates)
-      </p>
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-2xl font-bold text-white">Top Template Creators</h2>
+          <p class="text-gray-400 mt-1">
+            Most active contributors among trending templates
+          </p>
+        </div>
+        <a
+          href="https://n8n.io/creators"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-n8n-primary hover:text-n8n-primary/80 text-sm font-medium transition-colors"
+        >
+          View all creators &rarr;
+        </a>
+      </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         {analytics.topCreators.slice(0, 10).map((creator, index) => (
-          <div class="card flex items-center gap-4">
+          <a
+            href={`https://n8n.io/creators/${creator.username}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="card flex items-center gap-4 hover:bg-n8n-darker/50 transition-colors"
+          >
             <div class={`text-2xl font-bold w-10 ${index < 3 ? 'text-n8n-primary' : 'text-gray-500'}`}>
               #{index + 1}
             </div>
@@ -232,25 +261,38 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
             </div>
             <div class="text-right">
               <div class="font-bold text-white">{creator.templateCount}</div>
-              <div class="text-xs text-gray-400">templates</div>
+              <div class="text-xs text-gray-400">in trending</div>
             </div>
             <div class="text-right">
               <div class="font-bold text-cyan-400">{formatNumber(creator.totalViews)}</div>
               <div class="text-xs text-gray-400">views</div>
             </div>
-          </div>
+          </a>
         ))}
       </div>
+      <p class="text-sm text-gray-500 mt-4">
+        Based on 100 trending templates. Click a creator to see their full profile.
+      </p>
     </section>
 
     <!-- Most Used Nodes -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">Most Used Nodes in Templates</h2>
-      <p class="text-gray-400 mb-4">
-        The most popular nodes across all workflow templates.
-      </p>
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-2xl font-bold text-white">Most Used Nodes in Templates</h2>
+          <p class="text-gray-400 mt-1">
+            The most popular nodes across all workflow templates.
+          </p>
+        </div>
+        <a
+          href="/nodes"
+          class="text-n8n-primary hover:text-n8n-primary/80 text-sm font-medium transition-colors"
+        >
+          View all nodes &rarr;
+        </a>
+      </div>
       <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        {topNodes.map((node, index) => (
+        {analytics.topNodes.slice(0, 10).map((node, index) => (
           <div class="card py-3 px-4 flex items-center gap-3">
             <div class={`text-lg font-bold ${index < 3 ? 'text-n8n-primary' : 'text-gray-500'}`}>
               #{index + 1}
@@ -268,25 +310,6 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
       </div>
     </section>
 
-    <!-- Least Used Nodes -->
-    <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">Least Used Nodes</h2>
-      <p class="text-gray-400 mb-4">
-        Nodes with the fewest template appearances - potential opportunities for new workflows!
-      </p>
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-        {bottomNodes.map((node) => (
-          <div class="card py-3 px-4">
-            <div class="font-medium text-white text-sm truncate" title={node.value}>
-              {node.value}
-            </div>
-            <div class="text-xs text-gray-400 mt-1">
-              {formatNumber(node.count)} templates
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
 
     <!-- Link to explore templates -->
     <div class="text-center mt-8">
@@ -310,8 +333,8 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
   </div>
 </BaseLayout>
 
-<script define:vars={{ viewsData, complexityData, aiData, creationTimeline: analytics.creationTimeline }}>
-  window.__templateChartData = { viewsData, complexityData, aiData, creationTimeline };
+<script define:vars={{ viewsData, nodeCountData, creationTimeline: analytics.creationTimeline }}>
+  window.__templateChartData = { viewsData, nodeCountData, creationTimeline };
 </script>
 
 <script>
@@ -323,6 +346,11 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
     color: string;
   }
 
+  interface NodeCountItem {
+    nodes: string;
+    count: number;
+  }
+
   interface TimelineItem {
     month: string;
     count: number;
@@ -332,10 +360,9 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
     const data = (window as any).__templateChartData;
     if (!data) return;
 
-    const { viewsData, complexityData, aiData, creationTimeline } = data as {
+    const { viewsData, nodeCountData, creationTimeline } = data as {
       viewsData: ChartDataItem[];
-      complexityData: ChartDataItem[];
-      aiData: ChartDataItem[];
+      nodeCountData: NodeCountItem[];
       creationTimeline: TimelineItem[];
     };
 
@@ -375,72 +402,68 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
       });
     }
 
-    // Complexity Distribution Chart
+    // Complexity Distribution Chart - Bar chart showing node counts
     const complexityCanvas = document.getElementById('complexity-chart') as HTMLCanvasElement;
-    if (complexityCanvas) {
+    if (complexityCanvas && nodeCountData.length > 0) {
+      // Generate gradient colors from teal to pink
+      const colors = nodeCountData.map((_, i) => {
+        const ratio = i / (nodeCountData.length - 1);
+        // Gradient from teal (#4bc0c0) through yellow (#ffce56) to pink (#ff6384)
+        if (ratio < 0.5) {
+          return `hsl(${174 - ratio * 100}, 70%, 55%)`;
+        } else {
+          return `hsl(${74 - (ratio - 0.5) * 148}, 80%, 60%)`;
+        }
+      });
+
       new Chart(complexityCanvas, {
-        type: 'doughnut',
+        type: 'bar',
         data: {
-          labels: complexityData.map(d => d.label),
+          labels: nodeCountData.map(d => d.nodes),
           datasets: [{
-            data: complexityData.map(d => d.value),
-            backgroundColor: complexityData.map(d => d.color),
+            label: 'Templates',
+            data: nodeCountData.map(d => d.count),
+            backgroundColor: colors,
             borderColor: '#1a1a2e',
-            borderWidth: 2,
+            borderWidth: 1,
+            borderRadius: 4,
           }],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          cutout: '55%',
           plugins: {
-            legend: {
-              display: true,
-              position: 'bottom',
-              labels: { color: '#9ca3af', padding: 12, usePointStyle: true },
-            },
+            legend: { display: false },
             tooltip: {
               backgroundColor: '#1e1e1e',
               titleColor: '#fff',
               bodyColor: '#9ca3af',
               borderColor: '#333',
               borderWidth: 1,
+              callbacks: {
+                label: (ctx) => `${ctx.parsed.y} templates`,
+              },
             },
           },
-        },
-      });
-    }
-
-    // AI Distribution Chart
-    const aiCanvas = document.getElementById('ai-chart') as HTMLCanvasElement;
-    if (aiCanvas) {
-      new Chart(aiCanvas, {
-        type: 'doughnut',
-        data: {
-          labels: aiData.map(d => d.label),
-          datasets: [{
-            data: aiData.map(d => d.value),
-            backgroundColor: aiData.map(d => d.color),
-            borderColor: '#1a1a2e',
-            borderWidth: 2,
-          }],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '65%',
-          plugins: {
-            legend: {
-              display: true,
-              position: 'bottom',
-              labels: { color: '#9ca3af', padding: 12, usePointStyle: true },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Nodes per template',
+                color: '#6b7280',
+              },
+              grid: { display: false },
+              ticks: { color: '#6b7280' },
             },
-            tooltip: {
-              backgroundColor: '#1e1e1e',
-              titleColor: '#fff',
-              bodyColor: '#9ca3af',
-              borderColor: '#333',
-              borderWidth: 1,
+            y: {
+              title: {
+                display: true,
+                text: 'Templates',
+                color: '#6b7280',
+              },
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#6b7280' },
+              beginAtZero: true,
             },
           },
         },

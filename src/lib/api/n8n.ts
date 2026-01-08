@@ -219,12 +219,18 @@ export interface TemplateAnalytics {
     new: number;        // <1K views
   };
 
-  // Template complexity
+  // Template complexity - individual node counts
   complexityDistribution: {
-    simple: number;     // 1-3 nodes
+    simple: number;     // 1-3 nodes (for backwards compat)
     medium: number;     // 4-7 nodes
     complex: number;    // 8+ nodes
   };
+
+  // Detailed node count breakdown (1, 2, 3, ... 10+)
+  nodeCountBreakdown: Array<{
+    nodes: string;  // "1", "2", ... "10+"
+    count: number;
+  }>;
 
   // Creator stats
   topCreators: Array<{
@@ -245,11 +251,12 @@ export interface TemplateAnalytics {
     count: number;
   }>;
 
-  // AI vs non-AI
+  // AI category breakdown (not AI vs non-AI because templates can have multiple categories)
   aiStats: {
-    aiTemplates: number;
-    nonAiTemplates: number;
-    aiPercentage: number;
+    aiCategoryCount: number;  // Sum of all AI category counts
+    totalCategoryCount: number;  // Sum of all category counts
+    aiPercentage: number;  // Percentage of category assignments that are AI-related
+    aiCategories: FilterCount[];  // Individual AI category breakdowns
   };
 }
 
@@ -301,12 +308,38 @@ export async function fetchTemplateAnalytics(): Promise<TemplateAnalytics> {
     complex: 0,
   };
 
+  // Detailed node count breakdown (1-10+)
+  const nodeCountMap = new Map<number, number>();
+  for (let i = 1; i <= 10; i++) {
+    nodeCountMap.set(i, 0);
+  }
+  nodeCountMap.set(11, 0); // 10+ bucket
+
   for (const w of workflows) {
     const nodeCount = w.nodes?.length || 0;
     if (nodeCount <= 3) complexityDistribution.simple++;
     else if (nodeCount <= 7) complexityDistribution.medium++;
     else complexityDistribution.complex++;
+
+    // Add to detailed breakdown
+    if (nodeCount >= 10) {
+      nodeCountMap.set(11, (nodeCountMap.get(11) || 0) + 1);
+    } else if (nodeCount >= 1) {
+      nodeCountMap.set(nodeCount, (nodeCountMap.get(nodeCount) || 0) + 1);
+    }
   }
+
+  // Convert to array format
+  const nodeCountBreakdown = Array.from(nodeCountMap.entries())
+    .map(([nodes, count]) => ({
+      nodes: nodes === 11 ? '10+' : String(nodes),
+      count,
+    }))
+    .sort((a, b) => {
+      const aNum = a.nodes === '10+' ? 11 : parseInt(a.nodes);
+      const bNum = b.nodes === '10+' ? 11 : parseInt(b.nodes);
+      return aNum - bNum;
+    });
 
   // Calculate top creators
   const creatorMap = new Map<string, {
@@ -375,20 +408,24 @@ export async function fetchTemplateAnalytics(): Promise<TemplateAnalytics> {
     .map(([month, count]) => ({ month, count }))
     .sort((a, b) => a.month.localeCompare(b.month));
 
-  // Calculate AI vs non-AI
-  const aiCategories = ['AI', 'Multimodal AI', 'AI Summarization', 'AI Chatbot'];
-  const aiTemplateCount = categories
-    .filter(c => aiCategories.includes(c.value))
-    .reduce((sum, c) => sum + c.count, 0);
+  // Calculate AI category stats
+  // Note: Templates can have multiple categories, so we can't calculate exact AI vs non-AI
+  // Instead we show the breakdown of AI-related categories
+  const aiCategoryNames = ['AI', 'Multimodal AI', 'AI Summarization', 'AI Chatbot'];
+  const aiCategoriesFiltered = categories
+    .filter(c => aiCategoryNames.includes(c.value))
+    .sort((a, b) => b.count - a.count);
 
-  const totalFromCategories = categories.reduce((sum, c) => sum + c.count, 0);
+  const aiCategoryCount = aiCategoriesFiltered.reduce((sum, c) => sum + c.count, 0);
+  const totalCategoryCount = categories.reduce((sum, c) => sum + c.count, 0);
 
   const aiStats = {
-    aiTemplates: aiTemplateCount,
-    nonAiTemplates: Math.max(0, data.totalWorkflows - aiTemplateCount),
-    aiPercentage: totalFromCategories > 0
-      ? Math.round((aiTemplateCount / totalFromCategories) * 100)
+    aiCategoryCount,
+    totalCategoryCount,
+    aiPercentage: totalCategoryCount > 0
+      ? Math.round((aiCategoryCount / totalCategoryCount) * 100)
       : 0,
+    aiCategories: aiCategoriesFiltered,
   };
 
   return {
@@ -397,6 +434,7 @@ export async function fetchTemplateAnalytics(): Promise<TemplateAnalytics> {
     topNodes,
     viewsDistribution,
     complexityDistribution,
+    nodeCountBreakdown,
     topCreators,
     verifiedPercentage,
     nodeCategories,

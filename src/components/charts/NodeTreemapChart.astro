@@ -133,8 +133,11 @@ const { data } = Astro.props;
                 if (!items.length) return '';
                 const item = items[0].raw;
 
-                // Leaf node (individual node) has _data with the original data
-                if (item._data?.name) {
+                // Leaf node: _data is an object with name/count/category
+                // Group node: _data is undefined or an array
+                const isLeaf = item._data && typeof item._data === 'object' && !Array.isArray(item._data) && 'name' in item._data;
+
+                if (isLeaf) {
                   return `Node: ${item._data.name}`;
                 }
 
@@ -144,8 +147,10 @@ const { data } = Astro.props;
               label: (ctx: any) => {
                 const item = ctx.raw;
 
-                // Leaf node (individual node)
-                if (item._data?.name) {
+                // Leaf node: _data is an object with name/count/category
+                const isLeaf = item._data && typeof item._data === 'object' && !Array.isArray(item._data) && 'name' in item._data;
+
+                if (isLeaf) {
                   const count = item._data.count || 0;
                   const percentage = totalTemplates > 0
                     ? ((count / totalTemplates) * 100).toFixed(1)
@@ -162,7 +167,7 @@ const { data } = Astro.props;
                 const percentage = totalTemplates > 0
                   ? ((count / totalTemplates) * 100).toFixed(1)
                   : '0';
-                return [`Used in ${count} templates (${percentage}%)`];
+                return `Used in ${count} templates (${percentage}%)`;
               },
             },
           },

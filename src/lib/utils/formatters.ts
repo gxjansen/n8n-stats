@@ -73,3 +73,15 @@ export function truncate(text: string, maxLength: number): string {
   }
   return `${text.slice(0, maxLength - 3)}...`;
 }
+
+/**
+ * Generate n8n integrations page URL from node display name
+ * e.g., "HTTP Request" -> "https://n8n.io/integrations/http-request/"
+ */
+export function getNodeIntegrationUrl(displayName: string): string {
+  const slug = displayName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')  // Replace non-alphanumeric with dashes
+    .replace(/^-+|-+$/g, '');      // Trim leading/trailing dashes
+  return `https://n8n.io/integrations/${slug}/`;
+}

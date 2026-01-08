@@ -2,7 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import NodeTreemapChart from '@/components/charts/NodeTreemapChart.astro';
 import { fetchTemplates, aggregateNodeUsage } from '@/lib/api/n8n';
-import { formatNumber } from '@/lib/utils/formatters';
+import { formatNumber, getNodeIntegrationUrl } from '@/lib/utils/formatters';
 
 // Fetch more templates to get better node aggregation
 const { workflows } = await fetchTemplates({ rows: 100 });
@@ -74,7 +74,14 @@ const treemapData = nodeUsage.slice(0, 50).map(node => ({
         {nodeUsage.slice(0, 10).map((node, index) => (
           <div class="card text-center">
             <div class="text-3xl font-bold text-n8n-primary mb-2">#{index + 1}</div>
-            <div class="font-medium text-white">{node.displayName}</div>
+            <a
+              href={getNodeIntegrationUrl(node.displayName)}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="font-medium text-white hover:text-n8n-primary transition-colors"
+            >
+              {node.displayName}
+            </a>
             <div class="text-sm text-gray-400 mt-1">
               {node.count} templates
             </div>
@@ -92,12 +99,17 @@ const treemapData = nodeUsage.slice(0, 50).map(node => ({
           <h2 class="text-xl font-bold text-white mb-4">{category}</h2>
           <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {nodes.slice(0, 12).map((node) => (
-              <div class="card py-3 px-4">
+              <a
+                href={getNodeIntegrationUrl(node.displayName)}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="card py-3 px-4 hover:border-n8n-primary transition-colors"
+              >
                 <div class="font-medium text-white text-sm">{node.displayName}</div>
                 <div class="text-xs text-gray-400 mt-1">
                   {node.count} uses
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </section>

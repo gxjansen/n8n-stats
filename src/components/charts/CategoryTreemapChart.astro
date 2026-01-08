@@ -84,7 +84,7 @@ const { data } = Astro.props;
       color: getColorForCategory(item.name, index),
     }));
 
-    new Chart(canvas, {
+    const chart = new Chart(canvas, {
       type: 'treemap',
       data: {
         datasets: [{
@@ -122,6 +122,24 @@ const { data } = Astro.props;
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        onClick: (_event: any, elements: any[]) => {
+          if (elements.length > 0) {
+            const element = elements[0];
+            const item = (chart.data.datasets[0] as any).tree[element.index];
+            const categoryName = item?.name || '';
+            if (categoryName) {
+              // Open n8n.io filtered by category
+              const url = `https://n8n.io/workflows/?category=${encodeURIComponent(categoryName)}`;
+              window.open(url, '_blank', 'noopener,noreferrer');
+            }
+          }
+        },
+        onHover: (event: any, elements: any[]) => {
+          const target = event.native?.target as HTMLElement;
+          if (target) {
+            target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+          }
+        },
         plugins: {
           legend: {
             display: false,
@@ -143,6 +161,7 @@ const { data } = Astro.props;
                 const count = item._data?.count || item.v || 0;
                 return `${count.toLocaleString()} templates`;
               },
+              afterLabel: () => 'Click to view on n8n.io',
             },
           },
         },
