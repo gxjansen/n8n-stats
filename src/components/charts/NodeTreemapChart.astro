@@ -1,0 +1,159 @@
+---
+/**
+ * Node Usage Treemap Chart
+ *
+ * Visualizes node usage as a treemap where:
+ * - Rectangle size = number of templates using the node
+ * - Color = category
+ */
+
+interface Props {
+  data: Array<{
+    name: string;
+    count: number;
+    category: string;
+  }>;
+}
+
+const { data } = Astro.props;
+---
+
+<div id="node-treemap-container" class="card">
+  <div class="relative" style="height: 400px;">
+    <canvas id="node-treemap-chart"></canvas>
+  </div>
+  <div id="treemap-loading" class="absolute inset-0 flex items-center justify-center bg-n8n-card/80">
+    <span class="text-gray-400">Loading treemap...</span>
+  </div>
+</div>
+
+<script define:vars={{ data }}>
+  window.__treemapData = data;
+</script>
+
+<script>
+  import Chart from 'chart.js/auto';
+  import { TreemapController, TreemapElement } from 'chartjs-chart-treemap';
+
+  // Register the treemap plugin
+  Chart.register(TreemapController, TreemapElement);
+
+  interface TreemapDataPoint {
+    name: string;
+    count: number;
+    category: string;
+  }
+
+  const CATEGORY_COLORS: Record<string, string> = {
+    'HTTP & Webhooks': '#ff6384',
+    'AI': '#9966ff',
+    'Google': '#4bc0c0',
+    'Communication': '#36a2eb',
+    'Data Transform': '#ffce56',
+    'Flow Control': '#ff9f40',
+    'Database': '#c9cbcf',
+    'Other': '#7c8798',
+  };
+
+  function initTreemap() {
+    const canvas = document.getElementById('node-treemap-chart') as HTMLCanvasElement;
+    const loadingEl = document.getElementById('treemap-loading');
+    const data = (window as any).__treemapData as TreemapDataPoint[];
+
+    if (!data || data.length === 0) {
+      loadingEl?.classList.add('hidden');
+      return;
+    }
+
+    loadingEl?.classList.add('hidden');
+
+    new Chart(canvas, {
+      type: 'treemap',
+      data: {
+        datasets: [{
+          label: 'Node Usage',
+          tree: data,
+          key: 'count',
+          groups: ['category', 'name'],
+          backgroundColor: (ctx: any) => {
+            if (ctx.type !== 'data') return 'transparent';
+            const item = ctx.raw;
+            // Get category from the data item
+            const category = item._data?.category || item.g || 'Other';
+            return CATEGORY_COLORS[category] || CATEGORY_COLORS['Other'];
+          },
+          borderColor: '#1a1a2e',
+          borderWidth: 2,
+          spacing: 1,
+          labels: {
+            display: true,
+            align: 'center',
+            position: 'middle',
+            formatter: (ctx: any) => {
+              const item = ctx.raw;
+              if (item.w < 60 || item.h < 30) return '';
+              return item._data?.name || item.g || '';
+            },
+            color: '#fff',
+            font: {
+              size: 11,
+              weight: 'bold',
+            },
+          },
+          captions: {
+            display: true,
+            align: 'center',
+            color: '#fff',
+            font: {
+              size: 13,
+              weight: 'bold',
+            },
+            padding: 6,
+          },
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#fff',
+            bodyColor: '#9ca3af',
+            borderColor: '#333',
+            borderWidth: 1,
+            callbacks: {
+              title: (items: any[]) => {
+                if (!items.length) return '';
+                const item = items[0].raw;
+                return item._data?.name || item.g || '';
+              },
+              label: (ctx: any) => {
+                const item = ctx.raw;
+                const count = item._data?.count || item.v || 0;
+                const category = item._data?.category || '';
+                return [`${count} templates`, category ? `Category: ${category}` : ''];
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTreemap);
+  } else {
+    initTreemap();
+  }
+</script>
+
+<style>
+  #node-treemap-container {
+    position: relative;
+  }
+</style>

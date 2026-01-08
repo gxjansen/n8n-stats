@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import NodeTreemapChart from '@/components/charts/NodeTreemapChart.astro';
 import { fetchTemplates, aggregateNodeUsage } from '@/lib/api/n8n';
 import { formatNumber } from '@/lib/utils/formatters';
 
@@ -28,6 +29,13 @@ const nodesByCategory = nodeUsage.reduce((acc, node) => {
 }, {} as Record<string, typeof nodeUsage>);
 
 const categoryOrder = ['HTTP & Webhooks', 'AI', 'Google', 'Communication', 'Data Transform', 'Flow Control', 'Database', 'Other'];
+
+// Prepare treemap data (top 50 nodes with categories)
+const treemapData = nodeUsage.slice(0, 50).map(node => ({
+  name: node.displayName,
+  count: node.count,
+  category: categorizeNode(node.displayName),
+}));
 ---
 
 <BaseLayout title="Node Statistics" description="Most popular nodes in n8n workflow templates">
@@ -39,6 +47,25 @@ const categoryOrder = ['HTTP & Webhooks', 'AI', 'Google', 'Communication', 'Data
         Most used nodes across {formatNumber(100)} analyzed templates
       </p>
     </div>
+
+    <!-- Node Usage Treemap -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-4">Node Usage Overview</h2>
+      <p class="text-gray-400 mb-6">
+        Rectangle size represents usage frequency. Colors indicate category.
+      </p>
+      <NodeTreemapChart data={treemapData} />
+      <div class="flex flex-wrap gap-4 mt-4 text-sm">
+        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded" style="background: #ff6384"></span> HTTP & Webhooks</span>
+        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded" style="background: #9966ff"></span> AI</span>
+        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded" style="background: #4bc0c0"></span> Google</span>
+        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded" style="background: #36a2eb"></span> Communication</span>
+        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded" style="background: #ffce56"></span> Data Transform</span>
+        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded" style="background: #ff9f40"></span> Flow Control</span>
+        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded" style="background: #c9cbcf"></span> Database</span>
+        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded" style="background: #7c8798"></span> Other</span>
+      </div>
+    </section>
 
     <!-- Top 10 Overall -->
     <section class="mb-12">
