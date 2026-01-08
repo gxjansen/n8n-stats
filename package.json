@@ -12,7 +12,8 @@
     "fetch-data": "tsx scripts/fetch-data.ts",
     "update-github-history": "tsx scripts/update-github-history.ts",
     "update-community-history": "tsx scripts/update-community-history.ts",
-    "update-all-history": "npm run update-github-history && npm run update-community-history"
+    "update-templates-history": "tsx scripts/update-templates-history.ts",
+    "update-all-history": "npm run update-github-history && npm run update-community-history && npm run update-templates-history"
   },
   "keywords": [
     "n8n",

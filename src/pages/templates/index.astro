@@ -1,100 +1,211 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import TemplateCard from '@/components/cards/TemplateCard.astro';
-import { fetchTemplates, type Category, type SortOption } from '@/lib/api/n8n';
+import TemplatesHistoryChart from '@/components/charts/TemplatesHistoryChart.astro';
+import { fetchTemplateStats } from '@/lib/api/n8n';
 import { formatNumber } from '@/lib/utils/formatters';
 
-// Get query params (for static, we'll show default; for dynamic, use Astro.url.searchParams)
-const sort: SortOption = 'trendingScore:desc';
-const category: Category | undefined = undefined;
+// Fetch current template statistics
+const stats = await fetchTemplateStats();
 
-// Fetch templates
-const { totalWorkflows, workflows } = await fetchTemplates({
-  sort,
-  category,
-  rows: 24,
-});
+// Sort categories by count
+const sortedCategories = [...stats.categories].sort((a, b) => b.count - a.count);
+const totalCategoryCount = sortedCategories.reduce((sum, c) => sum + c.count, 0);
 
-const categories: { label: string; value: Category | 'all' }[] = [
-  { label: 'All', value: 'all' },
-  { label: 'AI', value: 'AI' },
-  { label: 'Sales', value: 'Sales' },
-  { label: 'IT Ops', value: 'IT Ops' },
-  { label: 'Marketing', value: 'Marketing' },
-  { label: 'Document Ops', value: 'Document Ops' },
-  { label: 'Support', value: 'Support' },
-  { label: 'Other', value: 'Other' },
-];
+// Get top and bottom nodes
+const topNodes = stats.topNodes.slice(0, 15);
+const bottomNodes = stats.topNodes.slice(-10).reverse();
 
-const sortOptions: { label: string; value: SortOption }[] = [
-  { label: 'Trending', value: 'trendingScore:desc' },
-  { label: 'Most Views', value: 'totalViews:desc' },
-  { label: 'Newest', value: 'createdAt:desc' },
-];
+// Category colors for the chart
+const categoryColors: Record<string, string> = {
+  'AI': '#9966ff',
+  'Multimodal AI': '#b366ff',
+  'AI Summarization': '#cc99ff',
+  'AI Chatbot': '#7733ff',
+  'Marketing': '#ff6384',
+  'Sales': '#36a2eb',
+  'IT Ops': '#4bc0c0',
+  'Content Creation': '#ffce56',
+  'Document Ops': '#ff9f40',
+  'Support': '#c9cbcf',
+  'Other': '#7c8798',
+};
 ---
 
-<BaseLayout title="Template Explorer" description="Discover popular n8n workflow templates">
+<BaseLayout title="Template Statistics" description="Statistics and trends for n8n workflow templates">
   <div class="container-narrow py-12">
     <!-- Header -->
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-white mb-2">Template Explorer</h1>
+      <h1 class="text-3xl font-bold text-white mb-2">Template Statistics</h1>
       <p class="text-gray-400">
-        Discover {formatNumber(totalWorkflows)} workflow templates from the n8n community
+        Insights into the n8n workflow template library
       </p>
     </div>
 
-    <!-- Filters -->
-    <div class="flex flex-wrap items-center gap-4 mb-8">
-      <!-- Categories -->
-      <div class="flex flex-wrap gap-2">
-        {categories.map((cat) => (
-          <a
-            href={cat.value === 'all' ? '/templates' : `/templates?category=${cat.value}`}
-            class={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              (category === undefined && cat.value === 'all') || category === cat.value
-                ? 'bg-n8n-primary text-white'
-                : 'bg-n8n-card border border-n8n-border text-gray-300 hover:border-n8n-primary/50'
-            }`}
-          >
-            {cat.label}
-          </a>
+    <!-- Overview Stats -->
+    <section class="mb-12">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="card text-center">
+          <div class="text-3xl font-bold text-n8n-primary mb-1">
+            {formatNumber(stats.totalWorkflows)}
+          </div>
+          <div class="text-sm text-gray-400">Total Templates</div>
+        </div>
+        <div class="card text-center">
+          <div class="text-3xl font-bold text-purple-400 mb-1">
+            {stats.categories.length}
+          </div>
+          <div class="text-sm text-gray-400">Categories</div>
+        </div>
+        <div class="card text-center">
+          <div class="text-3xl font-bold text-cyan-400 mb-1">
+            {stats.topNodes.length}
+          </div>
+          <div class="text-sm text-gray-400">Unique Nodes Used</div>
+        </div>
+        <div class="card text-center">
+          <div class="text-3xl font-bold text-yellow-400 mb-1">
+            {sortedCategories[0]?.value || 'AI'}
+          </div>
+          <div class="text-sm text-gray-400">Top Category</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Growth Chart -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-4">Template Growth Over Time</h2>
+      <p class="text-gray-400 mb-6">
+        Track how the template library has grown. Data collection started today - check back for trends!
+      </p>
+      <TemplatesHistoryChart />
+    </section>
+
+    <!-- Category Breakdown -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Templates by Category</h2>
+      <div class="card">
+        <div class="space-y-3">
+          {sortedCategories.map((category) => {
+            const percentage = ((category.count / totalCategoryCount) * 100).toFixed(1);
+            const color = categoryColors[category.value] || '#7c8798';
+            return (
+              <div class="flex items-center gap-4">
+                <div class="w-32 md:w-48 text-sm text-gray-300 truncate" title={category.value}>
+                  {category.value}
+                </div>
+                <div class="flex-1 h-6 bg-n8n-darker rounded overflow-hidden">
+                  <div
+                    class="h-full rounded transition-all duration-500"
+                    style={`width: ${percentage}%; background-color: ${color};`}
+                  ></div>
+                </div>
+                <div class="w-20 text-right text-sm text-gray-400">
+                  {formatNumber(category.count)}
+                </div>
+                <div class="w-12 text-right text-sm text-gray-500">
+                  {percentage}%
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+
+    <!-- Most Used Nodes -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Most Used Nodes in Templates</h2>
+      <p class="text-gray-400 mb-4">
+        The most popular nodes across all workflow templates.
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        {topNodes.map((node, index) => (
+          <div class="card py-3 px-4 flex items-center gap-3">
+            <div class={`text-lg font-bold ${index < 3 ? 'text-n8n-primary' : 'text-gray-500'}`}>
+              #{index + 1}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-white text-sm truncate" title={node.value}>
+                {node.value}
+              </div>
+              <div class="text-xs text-gray-400">
+                {formatNumber(node.count)} templates
+              </div>
+            </div>
+          </div>
         ))}
       </div>
+    </section>
 
-      <!-- Sort -->
-      <div class="ml-auto">
-        <select
-          class="bg-n8n-card border border-n8n-border rounded-lg px-4 py-2 text-gray-300 focus:outline-none focus:border-n8n-primary"
-        >
-          {sortOptions.map((option) => (
-            <option value={option.value} selected={sort === option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+    <!-- Least Used Nodes -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Least Used Nodes</h2>
+      <p class="text-gray-400 mb-4">
+        Nodes with the fewest template appearances - potential opportunities for new workflows!
+      </p>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {bottomNodes.map((node) => (
+          <div class="card py-3 px-4">
+            <div class="font-medium text-white text-sm truncate" title={node.value}>
+              {node.value}
+            </div>
+            <div class="text-xs text-gray-400 mt-1">
+              {formatNumber(node.count)} templates
+            </div>
+          </div>
+        ))}
       </div>
+    </section>
+
+    <!-- Key Insights -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Key Insights</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card">
+          <h3 class="text-lg font-semibold text-white mb-3">AI Dominance</h3>
+          <p class="text-gray-400 text-sm">
+            {(() => {
+              const aiCategories = sortedCategories.filter(c =>
+                c.value.toLowerCase().includes('ai') || c.value.toLowerCase().includes('multimodal')
+              );
+              const aiTotal = aiCategories.reduce((sum, c) => sum + c.count, 0);
+              const aiPercentage = ((aiTotal / totalCategoryCount) * 100).toFixed(0);
+              return `AI-related categories account for approximately ${aiPercentage}% of all templates,
+                      reflecting the strong focus on AI automation in the n8n ecosystem.`;
+            })()}
+          </p>
+        </div>
+        <div class="card">
+          <h3 class="text-lg font-semibold text-white mb-3">Core Utility Nodes</h3>
+          <p class="text-gray-400 text-sm">
+            {(() => {
+              const topThree = topNodes.slice(0, 3).map(n => n.value).join(', ');
+              return `${topThree} are the most commonly used nodes, appearing in thousands of templates
+                      as essential building blocks for automation workflows.`;
+            })()}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Link to explore templates -->
+    <div class="text-center mt-8">
+      <p class="text-gray-400 mb-4">
+        Want to explore individual templates?
+      </p>
+      <a
+        href="https://n8n.io/workflows"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-block px-6 py-3 bg-n8n-primary text-white rounded-lg font-medium hover:bg-n8n-primary/90 transition-colors"
+      >
+        Browse Templates on n8n.io
+      </a>
     </div>
 
-    <!-- Template Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {workflows.map((template) => (
-        <TemplateCard template={template} />
-      ))}
-    </div>
-
-    <!-- Load More (placeholder for future pagination) -->
-    {workflows.length < totalWorkflows && (
-      <div class="text-center mt-8">
-        <p class="text-gray-400 mb-4">
-          Showing {workflows.length} of {formatNumber(totalWorkflows)} templates
-        </p>
-        <button
-          class="px-6 py-3 bg-n8n-primary text-white rounded-lg font-medium hover:bg-n8n-primary/90 transition-colors"
-          disabled
-        >
-          Load More (coming soon)
-        </button>
-      </div>
-    )}
+    <!-- Note -->
+    <p class="text-sm text-gray-500 text-center mt-8">
+      Statistics are updated daily during site builds. Historical tracking started {new Date().toISOString().split('T')[0]}.
+    </p>
   </div>
 </BaseLayout>

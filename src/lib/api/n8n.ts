@@ -2,6 +2,22 @@ import type { Template, TemplatesResponse, NodeUsage } from '../types';
 
 const API_BASE = 'https://api.n8n.io/api';
 
+export interface FilterCount {
+  value: string;
+  count: number;
+}
+
+export interface ApiFilter {
+  field_name: string;
+  counts: FilterCount[];
+}
+
+export interface TemplateStats {
+  totalWorkflows: number;
+  categories: FilterCount[];
+  topNodes: FilterCount[];
+}
+
 export type SortOption = 'trendingScore:desc' | 'createdAt:desc' | 'totalViews:desc';
 export type Category = 'AI' | 'Sales' | 'IT Ops' | 'Marketing' | 'Document Ops' | 'Other' | 'Support';
 
@@ -154,4 +170,35 @@ export function getTopCreators(templates: Template[]): Array<{
 
   return Array.from(creatorMap.values())
     .sort((a, b) => b.templateCount - a.templateCount);
+}
+
+/**
+ * Fetch template statistics including category and node counts from API filters
+ */
+export async function fetchTemplateStats(): Promise<TemplateStats> {
+  const response = await fetch(`${API_BASE}/templates/search?rows=1`, {
+    headers: {
+      'User-Agent': 'n8n-stats',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch template stats: ${response.status}`);
+  }
+
+  const data = await response.json();
+
+  // Extract category counts from filters
+  const categoryFilter = data.filters?.find((f: ApiFilter) => f.field_name === 'categories');
+  const categories: FilterCount[] = categoryFilter?.counts || [];
+
+  // Extract node counts from filters (apps field)
+  const nodesFilter = data.filters?.find((f: ApiFilter) => f.field_name === 'apps');
+  const topNodes: FilterCount[] = nodesFilter?.counts || [];
+
+  return {
+    totalWorkflows: data.totalWorkflows,
+    categories,
+    topNodes,
+  };
 }
