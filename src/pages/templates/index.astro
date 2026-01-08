@@ -80,39 +80,7 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
       <TemplatesHistoryChart />
     </section>
 
-    <!-- Views Distribution -->
-    <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">Template Performance</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Views Distribution -->
-        <div>
-          <h3 class="text-lg font-semibold text-white mb-4">Views Distribution</h3>
-          <p class="text-gray-400 text-sm mb-4">
-            Based on 100 trending templates
-          </p>
-          <div class="card">
-            <div class="relative" style="height: 280px;">
-              <canvas id="views-chart"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Workflow Complexity Bar Chart -->
-        <div>
-          <h3 class="text-lg font-semibold text-white mb-4">Workflow Complexity</h3>
-          <p class="text-gray-400 text-sm mb-4">
-            Number of nodes per template
-          </p>
-          <div class="card">
-            <div class="relative" style="height: 280px;">
-              <canvas id="complexity-chart"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- AI Dominance -->
+    <!-- AI Dominance - uses complete API data -->
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">AI Template Dominance</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -165,19 +133,6 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
       </div>
     </section>
 
-    <!-- Creation Timeline -->
-    <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-4">Template Creation Timeline</h2>
-      <p class="text-gray-400 mb-6">
-        Monthly trend of new template submissions (from trending templates sample)
-      </p>
-      <div class="card">
-        <div class="relative" style="height: 300px;">
-          <canvas id="timeline-chart"></canvas>
-        </div>
-      </div>
-    </section>
-
     <!-- Category Breakdown -->
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">Templates by Category</h2>
@@ -186,39 +141,6 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
         <span class="text-n8n-primary">Click any category to browse templates on n8n.io.</span>
       </p>
       <CategoryTreemapChart data={sortedCategories.map(c => ({ name: c.value, count: c.count }))} />
-    </section>
-
-    <!-- Node Type Categories -->
-    <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">Node Type Distribution</h2>
-      <p class="text-gray-400 mb-4">
-        Technical categories of nodes used in templates (AI, Core Nodes, Data & Storage, etc.)
-      </p>
-      <div class="card">
-        <div class="space-y-3">
-          {analytics.nodeCategories.slice(0, 12).map((cat, index) => {
-            const maxCount = analytics.nodeCategories[0]?.count || 1;
-            const percentage = ((cat.count / maxCount) * 100).toFixed(0);
-            const colors = ['#9966ff', '#ff6384', '#36a2eb', '#4bc0c0', '#ffce56', '#ff9f40', '#c9cbcf', '#7c8798', '#b366ff', '#45b7d1', '#96ceb4', '#ffeaa7'];
-            return (
-              <div class="flex items-center gap-4">
-                <div class="w-32 md:w-40 text-sm text-gray-300 truncate" title={cat.value}>
-                  {cat.value}
-                </div>
-                <div class="flex-1 h-6 bg-n8n-darker rounded overflow-hidden">
-                  <div
-                    class="h-full rounded transition-all duration-500"
-                    style={`width: ${percentage}%; background-color: ${colors[index % colors.length]};`}
-                  ></div>
-                </div>
-                <div class="w-16 text-right text-sm text-gray-400">
-                  {formatNumber(cat.count)}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
     </section>
 
     <!-- Top Creators -->
@@ -322,6 +244,43 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
       </div>
     </section>
 
+    <!-- Trending Templates Sample Analysis -->
+    <section class="mb-12">
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold text-white mb-2">Trending Templates Analysis</h2>
+        <p class="text-gray-400">
+          Insights from the top 100 trending templates. This sample shows what makes popular templates successful.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Views Distribution -->
+        <div>
+          <h3 class="text-lg font-semibold text-white mb-2">Views Distribution</h3>
+          <p class="text-gray-500 text-sm mb-4">
+            How views are distributed among trending templates
+          </p>
+          <div class="card">
+            <div class="relative" style="height: 280px;">
+              <canvas id="views-chart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workflow Complexity Bar Chart -->
+        <div>
+          <h3 class="text-lg font-semibold text-white mb-2">Workflow Complexity</h3>
+          <p class="text-gray-500 text-sm mb-4">
+            Number of nodes per trending template
+          </p>
+          <div class="card">
+            <div class="relative" style="height: 280px;">
+              <canvas id="complexity-chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Link to explore templates -->
     <div class="text-center mt-8">
@@ -340,13 +299,13 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
 
     <!-- Note -->
     <p class="text-sm text-gray-500 text-center mt-8">
-      Statistics based on analysis of trending templates. Data refreshed on each build.
+      Complete data from n8n.io API. Trending sample analysis based on 100 templates.
     </p>
   </div>
 </BaseLayout>
 
-<script define:vars={{ viewsData, nodeCountData, creationTimeline: analytics.creationTimeline }}>
-  window.__templateChartData = { viewsData, nodeCountData, creationTimeline };
+<script define:vars={{ viewsData, nodeCountData }}>
+  window.__templateChartData = { viewsData, nodeCountData };
 </script>
 
 <script>
@@ -363,19 +322,13 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
     count: number;
   }
 
-  interface TimelineItem {
-    month: string;
-    count: number;
-  }
-
   function initCharts() {
     const data = (window as any).__templateChartData;
     if (!data) return;
 
-    const { viewsData, nodeCountData, creationTimeline } = data as {
+    const { viewsData, nodeCountData } = data as {
       viewsData: ChartDataItem[];
       nodeCountData: NodeCountItem[];
-      creationTimeline: TimelineItem[];
     };
 
     // Views Distribution Chart
@@ -482,49 +435,6 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
       });
     }
 
-    // Timeline Chart
-    const timelineCanvas = document.getElementById('timeline-chart') as HTMLCanvasElement;
-    if (timelineCanvas && creationTimeline.length > 0) {
-      new Chart(timelineCanvas, {
-        type: 'bar',
-        data: {
-          labels: creationTimeline.map(d => d.month),
-          datasets: [{
-            label: 'Templates Created',
-            data: creationTimeline.map(d => d.count),
-            backgroundColor: '#ff6b9d',
-            borderColor: '#ff6b9d',
-            borderWidth: 0,
-            borderRadius: 4,
-          }],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: '#1e1e1e',
-              titleColor: '#fff',
-              bodyColor: '#9ca3af',
-              borderColor: '#333',
-              borderWidth: 1,
-            },
-          },
-          scales: {
-            x: {
-              grid: { color: 'rgba(255,255,255,0.05)' },
-              ticks: { color: '#6b7280' },
-            },
-            y: {
-              grid: { color: 'rgba(255,255,255,0.05)' },
-              ticks: { color: '#6b7280' },
-              beginAtZero: true,
-            },
-          },
-        },
-      });
-    }
   }
 
   if (document.readyState === 'loading') {
