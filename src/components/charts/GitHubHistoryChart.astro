@@ -40,18 +40,6 @@
         <input type="checkbox" id="toggle-stars" checked class="accent-[#ff6384]" />
         <span class="text-sm text-gray-300">Stars</span>
       </label>
-      <label class="flex items-center gap-1.5 cursor-pointer">
-        <input type="checkbox" id="toggle-forks" checked class="accent-[#36a2eb]" />
-        <span class="text-sm text-gray-300">Forks</span>
-      </label>
-      <label class="flex items-center gap-1.5 cursor-pointer">
-        <input type="checkbox" id="toggle-watchers" class="accent-[#ffce56]" />
-        <span class="text-sm text-gray-300">Watchers</span>
-      </label>
-      <label class="flex items-center gap-1.5 cursor-pointer">
-        <input type="checkbox" id="toggle-issues" class="accent-[#4bc0c0]" />
-        <span class="text-sm text-gray-300">Issues</span>
-      </label>
     </div>
   </div>
 
@@ -95,9 +83,6 @@
 
   const COLORS = {
     stars: { border: '#ff6384', background: 'rgba(255, 99, 132, 0.1)' },
-    forks: { border: '#36a2eb', background: 'rgba(54, 162, 235, 0.1)' },
-    watchers: { border: '#ffce56', background: 'rgba(255, 206, 86, 0.1)' },
-    openIssues: { border: '#4bc0c0', background: 'rgba(75, 192, 192, 0.1)' },
   };
 
   async function loadData(): Promise<GitHubHistory | null> {
@@ -137,9 +122,6 @@
   function getVisibleMetrics(): string[] {
     const metrics: string[] = [];
     if ((document.getElementById('toggle-stars') as HTMLInputElement).checked) metrics.push('stars');
-    if ((document.getElementById('toggle-forks') as HTMLInputElement).checked) metrics.push('forks');
-    if ((document.getElementById('toggle-watchers') as HTMLInputElement).checked) metrics.push('watchers');
-    if ((document.getElementById('toggle-issues') as HTMLInputElement).checked) metrics.push('openIssues');
     return metrics;
   }
 
@@ -159,9 +141,6 @@
   function createDatasets(data: GitHubDataPoint[], metrics: string[], chartType: 'line' | 'bar', isArea: boolean) {
     const metricLabels: Record<string, string> = {
       stars: 'Stars',
-      forks: 'Forks',
-      watchers: 'Watchers',
-      openIssues: 'Open Issues',
     };
 
     return metrics.map(metric => ({
@@ -173,8 +152,6 @@
       tension: 0,
       pointRadius: data.length > 60 ? 0 : 3,
       pointHoverRadius: 5,
-      // Use secondary Y axis for issues (different scale)
-      yAxisID: metric === 'openIssues' ? 'y1' : 'y',
     }));
   }
 
@@ -198,26 +175,10 @@
     const labels = filteredData.map(d => d.date);
     const datasets = createDatasets(filteredData, metrics, chartType, isArea);
 
-    const hasIssues = metrics.includes('openIssues');
-    const hasOtherMetrics = metrics.some(m => m !== 'openIssues');
-
     if (chart) {
       chart.data.labels = labels;
       chart.data.datasets = datasets;
       chart.config.type = chartType === 'bar' ? 'bar' : 'line';
-
-      // Update scales visibility
-      if (chart.options.scales) {
-        chart.options.scales.y = {
-          ...chart.options.scales.y,
-          display: hasOtherMetrics,
-        };
-        chart.options.scales.y1 = {
-          ...chart.options.scales.y1,
-          display: hasIssues,
-        };
-      }
-
       chart.update();
     }
   }
@@ -306,21 +267,6 @@
               },
             },
           },
-          y1: {
-            type: 'linear',
-            display: metrics.includes('openIssues'),
-            position: 'right',
-            grid: { drawOnChartArea: false },
-            ticks: {
-              color: '#4bc0c0',
-              callback: (value) => {
-                if (typeof value === 'number' && value >= 1000) {
-                  return (value / 1000).toFixed(1) + 'K';
-                }
-                return value;
-              },
-            },
-          },
         },
       },
     });
@@ -329,9 +275,6 @@
     document.getElementById('date-range')?.addEventListener('change', updateChart);
     document.getElementById('chart-type')?.addEventListener('change', updateChart);
     document.getElementById('toggle-stars')?.addEventListener('change', updateChart);
-    document.getElementById('toggle-forks')?.addEventListener('change', updateChart);
-    document.getElementById('toggle-watchers')?.addEventListener('change', updateChart);
-    document.getElementById('toggle-issues')?.addEventListener('change', updateChart);
   }
 
   // Initialize when DOM is ready

@@ -3,8 +3,8 @@
  * Interactive Templates History Chart
  *
  * Client-side component that:
- * - Loads history data from /data/templates-history.json
- * - Renders Chart.js line chart for template growth
+ * - Loads timeline data from /data/all-templates-data.json
+ * - Renders Chart.js line chart for template growth over time
  * - Allows filtering by date range and chart type
  */
 ---
@@ -16,9 +16,9 @@
     <div class="flex items-center gap-2">
       <label class="text-sm text-gray-400">Range:</label>
       <select id="templates-date-range" class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary">
-        <option value="30">Last 30 days</option>
-        <option value="90">Last 90 days</option>
-        <option value="365">Last year</option>
+        <option value="12">Last 12 months</option>
+        <option value="24">Last 24 months</option>
+        <option value="36">Last 3 years</option>
         <option value="all" selected>All time</option>
       </select>
     </div>
@@ -54,35 +54,49 @@
 <script>
   import Chart from 'chart.js/auto';
 
-  interface TemplatesDataPoint {
-    date: string;
-    total: number;
-    categories: Record<string, number>;
-    topNodes: Array<{ name: string; count: number }>;
+  interface TimelinePoint {
+    month: string;
+    count: number;
+    cumulative: number;
   }
 
-  interface TemplatesHistory {
-    lastUpdated: string;
-    daily: TemplatesDataPoint[];
-    weekly: TemplatesDataPoint[];
-    monthly: TemplatesDataPoint[];
+  interface AllTemplatesData {
+    timeline: {
+      monthly: TimelinePoint[];
+      firstTemplate: string;
+      latestTemplate: string;
+    };
+  }
+
+  interface ChartDataPoint {
+    date: string;
+    total: number;
+    newCount: number;
   }
 
   let chart: Chart | null = null;
-  let historyData: TemplatesHistory | null = null;
+  let chartData: ChartDataPoint[] = [];
 
   const COLORS = {
     total: { border: '#ff6b9d', background: 'rgba(255, 107, 157, 0.1)' },
+    newCount: { border: '#4bc0c0', background: 'rgba(75, 192, 192, 0.3)' },
   };
 
-  async function loadData(): Promise<TemplatesHistory | null> {
+  async function loadData(): Promise<ChartDataPoint[]> {
     try {
-      const response = await fetch('/data/templates-history.json');
+      const response = await fetch('/data/all-templates-data.json');
       if (!response.ok) throw new Error('Failed to fetch');
-      return await response.json();
+      const data: AllTemplatesData = await response.json();
+
+      // Convert timeline data to chart format
+      return data.timeline.monthly.map(point => ({
+        date: point.month,
+        total: point.cumulative,
+        newCount: point.count,
+      }));
     } catch (error) {
-      console.error('Failed to load templates history data:', error);
-      return null;
+      console.error('Failed to load templates data:', error);
+      return [];
     }
   }
 
