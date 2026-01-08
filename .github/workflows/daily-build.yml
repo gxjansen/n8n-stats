@@ -28,22 +28,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Fetch fresh data
-        run: npm run fetch-data
+      - name: Fetch external data (n8n Arena)
+        run: npm run fetch-external
+        continue-on-error: true  # Don't fail build if external source unavailable
+
+      - name: Update all history data
+        run: npm run update-all-history
         env:
-          NOCODB_URL: ${{ secrets.NOCODB_URL }}
-          NOCODB_API_TOKEN: ${{ secrets.NOCODB_API_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update GitHub history
-        run: npm run update-history
-
-      - name: Commit history data
+      - name: Commit data updates
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add public/data/
-          git diff --staged --quiet || git commit -m "Update GitHub history data [skip ci]"
+          git diff --staged --quiet || git commit -m "Update data [skip ci]"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
