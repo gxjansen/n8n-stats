@@ -68,7 +68,7 @@ const { data } = Astro.props;
     loadingEl?.classList.add('hidden');
 
     // Calculate total for percentage display
-    const totalTemplates = data.reduce((sum, d) => sum + d.count, 0);
+    const totalCount = data.reduce((sum, d) => sum + d.count, 0);
 
     new Chart(canvas, {
       type: 'treemap',
@@ -77,12 +77,11 @@ const { data } = Astro.props;
           label: 'Node Usage',
           tree: data,
           key: 'count',
-          groups: ['category', 'name'],
+          // No groups - flat structure so each node is individually hoverable
           backgroundColor: (ctx: any) => {
             if (ctx.type !== 'data') return 'transparent';
             const item = ctx.raw;
-            // Get category from the data item
-            const category = item._data?.category || item.g || 'Other';
+            const category = item._data?.category || 'Other';
             return CATEGORY_COLORS[category] || CATEGORY_COLORS['Other'];
           },
           borderColor: '#1a1a2e',
@@ -94,24 +93,15 @@ const { data } = Astro.props;
             position: 'middle',
             formatter: (ctx: any) => {
               const item = ctx.raw;
+              // Only show label if rectangle is large enough
               if (item.w < 60 || item.h < 30) return '';
-              return item._data?.name || item.g || '';
+              return item._data?.name || '';
             },
             color: '#fff',
             font: {
               size: 11,
               weight: 'bold',
             },
-          },
-          captions: {
-            display: true,
-            align: 'center',
-            color: '#fff',
-            font: {
-              size: 13,
-              weight: 'bold',
-            },
-            padding: 6,
           },
         }],
       },
@@ -123,51 +113,37 @@ const { data } = Astro.props;
             display: false,
           },
           tooltip: {
+            enabled: true,
             backgroundColor: '#1e1e1e',
             titleColor: '#fff',
             bodyColor: '#9ca3af',
             borderColor: '#333',
             borderWidth: 1,
+            padding: 12,
+            displayColors: false,
             callbacks: {
               title: (items: any[]) => {
                 if (!items.length) return '';
                 const item = items[0].raw;
-
-                // With groups: ['category', 'name'], level 1 (l=1) is leaf level
-                // Leaf nodes have _data with count property from original data
-                const isLeaf = item.l === 1 && item._data && typeof item._data.count === 'number';
-
-                if (isLeaf) {
-                  return `Node: ${item._data.name || item.g}`;
-                }
-
-                // Group node (category) - level 0
-                return `Node Category: ${item.g || 'Unknown'}`;
+                // Flat structure: _data contains the original data object
+                const name = item._data?.name || 'Unknown';
+                return name;
               },
               label: (ctx: any) => {
                 const item = ctx.raw;
+                const nodeData = item._data;
+                if (!nodeData) return '';
 
-                // With groups: ['category', 'name'], level 1 (l=1) is leaf level
-                const isLeaf = item.l === 1 && item._data && typeof item._data.count === 'number';
-
-                if (isLeaf) {
-                  const count = item._data.count;
-                  const percentage = totalTemplates > 0
-                    ? ((count / totalTemplates) * 100).toFixed(1)
-                    : '0';
-                  const category = item._data.category || 'Other';
-                  return [
-                    `Used in ${count} templates (${percentage}%)`,
-                    `Node category: ${category}`
-                  ];
-                }
-
-                // Group node (category) - item.v contains aggregated sum
-                const count = item.v || 0;
-                const percentage = totalTemplates > 0
-                  ? ((count / totalTemplates) * 100).toFixed(1)
+                const count = nodeData.count || 0;
+                const category = nodeData.category || 'Other';
+                const percentage = totalCount > 0
+                  ? ((count / totalCount) * 100).toFixed(1)
                   : '0';
-                return `Used in ${count} templates (${percentage}%)`;
+
+                return [
+                  `Templates: ${count.toLocaleString()} (${percentage}%)`,
+                  `Category: ${category}`
+                ];
               },
             },
           },
