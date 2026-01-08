@@ -100,26 +100,10 @@
     }
   }
 
-  function getDataForRange(data: TemplatesHistory, rangeDays: number | 'all'): TemplatesDataPoint[] {
-    if (rangeDays === 'all') {
-      return data.monthly;
-    } else if (rangeDays <= 90) {
-      return data.daily;
-    } else if (rangeDays <= 365) {
-      return data.weekly;
-    } else {
-      return data.monthly;
-    }
-  }
-
-  function filterByDateRange(points: TemplatesDataPoint[], rangeDays: number | 'all'): TemplatesDataPoint[] {
-    if (rangeDays === 'all') return points;
-
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - rangeDays);
-    const cutoffStr = cutoff.toISOString().split('T')[0];
-
-    return points.filter(p => p.date >= cutoffStr);
+  function filterByMonths(points: ChartDataPoint[], months: number | 'all'): ChartDataPoint[] {
+    if (months === 'all') return points;
+    // Return last N months
+    return points.slice(-months);
   }
 
   function getChartType(): 'line' | 'bar' {
@@ -136,14 +120,13 @@
   }
 
   function updateChart() {
-    if (!historyData) return;
+    if (chartData.length === 0) return;
 
     const range = getDateRange();
     const chartType = getChartType();
     const isArea = isAreaChart();
 
-    const rawData = getDataForRange(historyData, range);
-    const filteredData = filterByDateRange(rawData, range);
+    const filteredData = filterByMonths(chartData, range);
 
     if (filteredData.length === 0) {
       document.getElementById('templates-chart-no-data')?.classList.remove('hidden');
@@ -158,7 +141,7 @@
       borderColor: COLORS.total.border,
       backgroundColor: isArea ? COLORS.total.background : COLORS.total.border,
       fill: isArea,
-      tension: 0,
+      tension: 0.1,
       pointRadius: filteredData.length > 60 ? 0 : 3,
       pointHoverRadius: 5,
     }];
@@ -166,7 +149,7 @@
     if (chart) {
       chart.data.labels = labels;
       chart.data.datasets = datasets;
-      chart.config.type = chartType === 'bar' ? 'bar' : 'line';
+      (chart.config as any).type = chartType === 'bar' ? 'bar' : 'line';
       chart.update();
     }
   }
@@ -177,25 +160,19 @@
     const errorEl = document.getElementById('templates-chart-error');
     const noDataEl = document.getElementById('templates-chart-no-data');
 
-    historyData = await loadData();
+    chartData = await loadData();
 
     loadingEl?.classList.add('hidden');
 
-    if (!historyData) {
+    if (chartData.length === 0) {
       errorEl?.classList.remove('hidden');
-      return;
-    }
-
-    if (historyData.daily.length === 0 && historyData.weekly.length === 0 && historyData.monthly.length === 0) {
-      noDataEl?.classList.remove('hidden');
       return;
     }
 
     const range = getDateRange();
     const isArea = isAreaChart();
 
-    const rawData = getDataForRange(historyData, range);
-    const filteredData = filterByDateRange(rawData, range);
+    const filteredData = filterByMonths(chartData, range);
     const labels = filteredData.map(d => d.date);
     const datasets = [{
       label: 'Total Templates',
@@ -203,7 +180,7 @@
       borderColor: COLORS.total.border,
       backgroundColor: isArea ? COLORS.total.background : COLORS.total.border,
       fill: isArea,
-      tension: 0,
+      tension: 0.1,
       pointRadius: filteredData.length > 60 ? 0 : 3,
       pointHoverRadius: 5,
     }];
