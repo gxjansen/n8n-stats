@@ -57,7 +57,7 @@ const recentReleases = releases.slice(0, 5);
       <div class="space-y-4">
         {recentReleases.map((release, index) => (
           <a
-            href={release.html_url}
+            href={release.htmlUrl}
             target="_blank"
             rel="noopener noreferrer"
             class="card block hover:border-n8n-primary/30 transition-colors"
@@ -65,7 +65,7 @@ const recentReleases = releases.slice(0, 5);
             <div class="flex items-start justify-between">
               <div>
                 <div class="flex items-center gap-3">
-                  <h3 class="font-semibold text-white">{release.tag_name}</h3>
+                  <h3 class="font-semibold text-white">{release.tagName}</h3>
                   {index === 0 && (
                     <span class="px-2 py-0.5 text-xs font-medium bg-n8n-primary/20 text-n8n-primary rounded-full">
                       Latest
@@ -77,11 +77,11 @@ const recentReleases = releases.slice(0, 5);
                     </span>
                   )}
                 </div>
-                {release.name && release.name !== release.tag_name && (
+                {release.name && release.name !== release.tagName && (
                   <p class="text-sm text-gray-400 mt-1">{release.name}</p>
                 )}
               </div>
-              <span class="text-sm text-gray-500">{formatDate(release.published_at)}</span>
+              <span class="text-sm text-gray-500">{formatDate(release.publishedAt)}</span>
             </div>
           </a>
         ))}

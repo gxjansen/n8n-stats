@@ -88,6 +88,8 @@ export interface GitHubRelease {
   tagName: string;
   name: string;
   publishedAt: string;
+  htmlUrl: string;
+  prerelease: boolean;
   body?: string;
 }
 

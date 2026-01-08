@@ -54,6 +54,8 @@ export async function fetchGitHubReleases(limit = 10): Promise<GitHubRelease[]> 
     tagName: release.tag_name,
     name: release.name,
     publishedAt: release.published_at,
+    htmlUrl: release.html_url,
+    prerelease: release.prerelease,
     body: release.body,
   }));
 }

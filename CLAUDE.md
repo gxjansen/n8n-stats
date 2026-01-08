@@ -7,22 +7,25 @@ Community health dashboard and ecosystem explorer for n8n. Shows social proof an
 ## Project Overview
 
 - **Stack**: Astro 5 + Tailwind CSS + Chart.js
-- **Data**: NocoDB (historical) + direct API calls (build-time)
+- **Data**: Flat JSON files (version controlled) + API calls (daily via GitHub Actions)
 - **Hosting**: Netlify (static)
-- **Updates**: Daily via GitHub Actions
+- **Updates**: Daily at 06:00 UTC
 
 ## Architecture
 
 ```
-Data Sources          Storage              Frontend
-─────────────────────────────────────────────────────
-Discourse API    ─┐
-GitHub API       ─┼──▶  NocoDB      ──▶   Astro
-npm API          ─┤     (Elestio)         (Netlify)
-YouTube API      ─┘
-      │
-      └── Collected by n8n workflow (daily cron)
+EXTRACT (Daily)              TRANSFORM                    LOAD (Build)
+─────────────────────────────────────────────────────────────────────────
+n8n Templates API ─┐
+GitHub API ────────┼──► data/snapshots/  ──► data/history/  ──► Astro
+Discourse API ─────┤    (raw responses)      (time series)      (Netlify)
+npm API ───────────┘
+
+n8n Arena ─────────────► data/external/  ──► (merged into history)
+(creator metrics)        (cached + attributed)
 ```
+
+See `docs/DATA-STRATEGY.md` for full ETL documentation.
 
 ## Data Sources
 
@@ -52,59 +55,16 @@ YouTube API      ─┘
 - **Endpoint**: `https://api.npmjs.org/downloads/point/last-month/n8n`
 - **Data**: Download counts
 
-### 5. YouTube Data API (Future)
+### 5. n8n Arena (External)
+- **URL**: `https://raw.githubusercontent.com/teds-tech-talks/n8n-community-leaderboard/main/stats_aggregate_creators.json`
+- **Data**: Creator metrics (inserters, views), rich profiles
+- **Why**: n8n API doesn't expose inserter data
+- **Attribution**: Display "Creator metrics powered by n8n Arena"
+
+### 6. YouTube Data API (Future)
 - **Search**: Videos with "n8n" keyword
 - **Data**: View counts, channel stats
 - **Auth**: API key required
-
-## NocoDB Schema
-
-Database URL: `https://nocodb-nkhcx-u31496.vm.elestio.app/`
-
-### Tables (planned)
-
-```
-daily_snapshots
-├── id (auto)
-├── date (date)
-├── github_stars (int)
-├── github_forks (int)
-├── npm_downloads_monthly (int)
-├── forum_users (int)
-├── forum_topics (int)
-├── forum_posts (int)
-├── template_count (int)
-└── created_at (datetime)
-
-templates
-├── id (int, from API)
-├── name (text)
-├── total_views (int)
-├── creator_username (text)
-├── creator_verified (bool)
-├── node_count (int)
-├── nodes_json (json)
-├── category (text)
-├── created_at (datetime)
-├── last_fetched (datetime)
-└── trending_score (float)
-
-nodes_usage
-├── id (auto)
-├── node_name (text)
-├── display_name (text)
-├── template_count (int)
-├── category (text)
-└── last_updated (datetime)
-
-top_contributors
-├── id (auto)
-├── username (text)
-├── source (enum: forum, github, templates)
-├── metric_value (int)
-├── period (text)
-└── snapshot_date (date)
-```
 
 ## Project Structure
 
@@ -126,7 +86,6 @@ top_contributors
 │   │   └── github/          # GitHub stats
 │   ├── lib/
 │   │   ├── api/
-│   │   │   ├── nocodb.ts    # NocoDB client
 │   │   │   ├── n8n.ts       # n8n templates API
 │   │   │   ├── discourse.ts # Forum API
 │   │   │   └── github.ts    # GitHub API
@@ -138,12 +97,18 @@ top_contributors
 │   └── styles/
 │       └── global.css
 ├── public/
-│   └── favicon.svg
-├── n8n/
-│   └── data-collector.json  # n8n workflow export
+│   ├── favicon.svg
+│   └── data/                # All data files (version controlled)
+│       ├── snapshots/       # Raw API responses by date
+│       ├── external/        # Cached external data (n8n Arena)
+│       ├── history/         # Time series for charts
+│       └── seed/            # Historical backfill data
 ├── scripts/
-│   ├── fetch-data.ts        # Build-time data fetch
-│   └── seed-nocodb.ts       # Initial DB setup
+│   ├── fetch-daily.ts       # Daily data collection
+│   ├── fetch-external.ts    # External source fetching
+│   └── build-history.ts     # Transform snapshots → history
+├── docs/
+│   └── DATA-STRATEGY.md     # ETL architecture documentation
 ├── .github/
 │   └── workflows/
 │       └── daily-build.yml
@@ -177,10 +142,6 @@ npm run fetch-data
 ## Environment Variables
 
 ```env
-# NocoDB
-NOCODB_URL=https://nocodb-nkhcx-u31496.vm.elestio.app
-NOCODB_API_TOKEN=           # Add from NocoDB dashboard
-
 # GitHub (optional, for higher rate limits)
 GITHUB_TOKEN=
 
@@ -224,10 +185,11 @@ YOUTUBE_API_KEY=
 ## Build Process
 
 1. GitHub Action triggers daily at 06:00 UTC
-2. `fetch-data.ts` runs, pulling from all APIs
-3. Data stored in NocoDB for historical tracking
-4. Astro builds static site with fresh data
-5. Deploys to Netlify
+2. `fetch-daily.ts` pulls from all primary APIs → `data/snapshots/`
+3. `fetch-external.ts` pulls n8n Arena data → `data/external/`
+4. `build-history.ts` transforms snapshots → `data/history/`
+5. Astro builds static site reading from `data/history/`
+6. Deploys to Netlify
 
 ## Code Style
 
@@ -272,6 +234,7 @@ Then provide the specific task with clear completion criteria.
 ## Related Resources
 
 - [n8n Templates API](https://api.n8n.io/api/templates/search)
+- [n8n Arena](https://n8narena.com) - Creator leaderboard (external data source)
 - [Discourse API Docs](https://docs.discourse.org/)
 - [Astro Documentation](https://docs.astro.build/)
 - [Chart.js Documentation](https://www.chartjs.org/docs/)
