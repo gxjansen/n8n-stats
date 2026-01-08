@@ -5,6 +5,7 @@
  * Shows n8n releases on a horizontal timeline starting from 1.0.
  * - Excludes pre-releases
  * - Different colors for 1.x (blue) and 2.x (orange/primary) series
+ * - Filterable by date range
  */
 
 import { fetchAllGitHubReleases } from '@/lib/api/github';
@@ -34,8 +35,17 @@ const releaseData = JSON.stringify(releases);
 ---
 
 <div id="release-timeline-container" class="card">
-  <div class="flex items-center justify-between mb-4">
+  <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
     <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2">
+        <label class="text-sm text-gray-400">Range:</label>
+        <select id="release-date-range" class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary">
+          <option value="12">Last 12 months</option>
+          <option value="24" selected>Last 24 months</option>
+          <option value="36">Last 3 years</option>
+          <option value="all">All time</option>
+        </select>
+      </div>
       <span class="flex items-center gap-2 text-sm">
         <span class="w-3 h-3 rounded-full bg-[#36a2eb]"></span>
         <span class="text-gray-400">1.x series</span>
@@ -45,7 +55,7 @@ const releaseData = JSON.stringify(releases);
         <span class="text-gray-400">2.x series</span>
       </span>
     </div>
-    <span class="text-sm text-gray-500">{releases.length} releases</span>
+    <span id="release-count" class="text-sm text-gray-500">{releases.length} releases</span>
   </div>
 
   <div class="relative" style="height: 200px;">
@@ -77,30 +87,35 @@ const releaseData = JSON.stringify(releases);
     '2.x': { bg: '#ff6d5a', border: '#ff6d5a' },
   };
 
-  function initReleaseTimeline() {
-    const canvas = document.getElementById('release-timeline-chart') as HTMLCanvasElement;
-    const loadingEl = document.getElementById('release-timeline-loading');
-    const releases: Release[] = (window as any).__releaseData || [];
+  let chart: Chart | null = null;
+  let allReleases: Release[] = [];
 
-    loadingEl?.classList.add('hidden');
+  function getDateRange(): number | 'all' {
+    const value = (document.getElementById('release-date-range') as HTMLSelectElement).value;
+    return value === 'all' ? 'all' : parseInt(value, 10);
+  }
 
-    if (releases.length === 0) return;
+  function filterByMonths(releases: Release[], months: number | 'all'): Release[] {
+    if (months === 'all') return releases;
 
-    // Group releases by series
+    const now = new Date();
+    const cutoffDate = new Date(now);
+    cutoffDate.setMonth(cutoffDate.getMonth() - months);
+
+    return releases.filter(r => new Date(r.date) >= cutoffDate);
+  }
+
+  function calcY(index: number, total: number): number {
+    const minY = 0.5;
+    const maxY = 4.5;
+    if (total <= 1) return (minY + maxY) / 2;
+    return minY + (index / (total - 1)) * (maxY - minY);
+  }
+
+  function createDatasets(releases: Release[]) {
     const series1x = releases.filter(r => r.series === '1.x');
     const series2x = releases.filter(r => r.series === '2.x');
-
-    // Calculate Y positions - each release slightly higher than the previous
-    // 1.x series: 0.5 to 4.5, 2.x series: 0.5 to 4.5 (both climb from bottom)
-    const calcY = (index: number, total: number) => {
-      const minY = 0.5;
-      const maxY = 4.5;
-      if (total <= 1) return (minY + maxY) / 2;
-      return minY + (index / (total - 1)) * (maxY - minY);
-    };
-
-    // Create datasets
-    const datasets = [];
+    const datasets: any[] = [];
 
     if (series1x.length > 0) {
       datasets.push({
@@ -136,13 +151,67 @@ const releaseData = JSON.stringify(releases);
       });
     }
 
-    // Calculate date range - start from first release, end at now
-    const now = new Date();
-    const firstReleaseDate = new Date(releases[0].date);
-    // Add a small padding before first release
-    firstReleaseDate.setDate(firstReleaseDate.getDate() - 14);
+    return datasets;
+  }
 
-    new Chart(canvas, {
+  function getDateBounds(releases: Release[]): { min: Date; max: Date } {
+    const now = new Date();
+    const max = new Date(now);
+    max.setDate(max.getDate() + 14); // Add padding after current date
+
+    let min: Date;
+    if (releases.length > 0) {
+      min = new Date(releases[0].date);
+      min.setDate(min.getDate() - 14); // Add padding before first release
+    } else {
+      min = new Date(now);
+      min.setMonth(min.getMonth() - 24);
+    }
+
+    return { min, max };
+  }
+
+  function updateChart() {
+    if (!chart || allReleases.length === 0) return;
+
+    const range = getDateRange();
+    const filteredReleases = filterByMonths(allReleases, range);
+    const datasets = createDatasets(filteredReleases);
+    const { min, max } = getDateBounds(filteredReleases);
+
+    // Update release count
+    const countEl = document.getElementById('release-count');
+    if (countEl) {
+      countEl.textContent = `${filteredReleases.length} releases`;
+    }
+
+    chart.data.datasets = datasets;
+    (chart.options.scales!.x as any).min = min.getTime();
+    (chart.options.scales!.x as any).max = max.getTime();
+    chart.update();
+  }
+
+  function initReleaseTimeline() {
+    const canvas = document.getElementById('release-timeline-chart') as HTMLCanvasElement;
+    const loadingEl = document.getElementById('release-timeline-loading');
+    allReleases = (window as any).__releaseData || [];
+
+    loadingEl?.classList.add('hidden');
+
+    if (allReleases.length === 0) return;
+
+    const range = getDateRange();
+    const filteredReleases = filterByMonths(allReleases, range);
+    const datasets = createDatasets(filteredReleases);
+    const { min, max } = getDateBounds(filteredReleases);
+
+    // Update initial release count
+    const countEl = document.getElementById('release-count');
+    if (countEl) {
+      countEl.textContent = `${filteredReleases.length} releases`;
+    }
+
+    chart = new Chart(canvas, {
       type: 'scatter',
       data: { datasets },
       options: {
@@ -179,8 +248,8 @@ const releaseData = JSON.stringify(releases);
         scales: {
           x: {
             type: 'time',
-            min: firstReleaseDate.getTime(),
-            max: now.getTime(),
+            min: min.getTime(),
+            max: max.getTime(),
             time: {
               unit: 'month',
               displayFormats: {
@@ -203,11 +272,11 @@ const releaseData = JSON.stringify(releases);
           },
         },
         onClick: (_event, elements) => {
-          if (elements.length > 0) {
+          if (elements.length > 0 && chart) {
             const element = elements[0];
             const datasetIndex = element.datasetIndex;
             const index = element.index;
-            const data = datasets[datasetIndex].data[index] as any;
+            const data = chart.data.datasets[datasetIndex].data[index] as any;
             if (data.url) {
               window.open(data.url, '_blank');
             }
@@ -221,6 +290,9 @@ const releaseData = JSON.stringify(releases);
         },
       },
     });
+
+    // Attach event listener for range changes
+    document.getElementById('release-date-range')?.addEventListener('change', updateChart);
   }
 
   if (document.readyState === 'loading') {
