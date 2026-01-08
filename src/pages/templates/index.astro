@@ -24,11 +24,15 @@ const sortedCategories = [...analytics.categories].sort((a, b) => b.count - a.co
 
 // Prepare chart data
 const viewsData = [
-  { label: 'Viral (100K+)', value: analytics.viewsDistribution.viral, color: '#ff6384' },
-  { label: 'Popular (10K-100K)', value: analytics.viewsDistribution.popular, color: '#36a2eb' },
-  { label: 'Growing (1K-10K)', value: analytics.viewsDistribution.growing, color: '#ffce56' },
-  { label: 'New (<1K)', value: analytics.viewsDistribution.new, color: '#4bc0c0' },
+  { label: 'Viral (100K+)', value: analytics.viewsDistribution.viral, color: '#ff6384', tier: 'viral' },
+  { label: 'Popular (10K-100K)', value: analytics.viewsDistribution.popular, color: '#36a2eb', tier: 'popular' },
+  { label: 'Growing (1K-10K)', value: analytics.viewsDistribution.growing, color: '#ffce56', tier: 'growing' },
+  { label: 'New (<1K)', value: analytics.viewsDistribution.new, color: '#4bc0c0', tier: 'new' },
 ];
+
+// Templates by views tier (for expandable sections)
+const templatesByViews = analytics.templatesByViews;
+const topTemplatesByViews = analytics.topTemplatesByViews;
 
 // Use complete data for complexity if available, otherwise fall back to sample
 const complexityData = allTemplatesData?.complexity?.distribution || analytics.nodeCountBreakdown.map(n => ({

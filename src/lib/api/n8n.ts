@@ -206,6 +206,17 @@ export async function fetchTemplateStats(): Promise<TemplateStats> {
 /**
  * Comprehensive template analytics data
  */
+// Template summary for display
+export interface TemplateSummary {
+  id: number;
+  name: string;
+  totalViews: number;
+  createdAt: string;
+  username: string;
+  verified: boolean;
+  nodeCount: number;
+}
+
 export interface TemplateAnalytics {
   totalWorkflows: number;
   categories: FilterCount[];
@@ -218,6 +229,17 @@ export interface TemplateAnalytics {
     growing: number;    // 1K-10K views
     new: number;        // <1K views
   };
+
+  // Templates grouped by views tier
+  templatesByViews: {
+    viral: TemplateSummary[];
+    popular: TemplateSummary[];
+    growing: TemplateSummary[];
+    new: TemplateSummary[];
+  };
+
+  // Top templates by views (sorted)
+  topTemplatesByViews: TemplateSummary[];
 
   // Template complexity - individual node counts
   complexityDistribution: {
@@ -287,7 +309,7 @@ export async function fetchTemplateAnalytics(): Promise<TemplateAnalytics> {
   const nodesFilter = data.filters?.find((f: ApiFilter) => f.field_name === 'apps');
   const topNodes: FilterCount[] = nodesFilter?.counts || [];
 
-  // Calculate views distribution
+  // Calculate views distribution and collect templates by tier
   const viewsDistribution = {
     viral: 0,
     popular: 0,
@@ -295,13 +317,58 @@ export async function fetchTemplateAnalytics(): Promise<TemplateAnalytics> {
     new: 0,
   };
 
+  const templatesByViews: {
+    viral: TemplateSummary[];
+    popular: TemplateSummary[];
+    growing: TemplateSummary[];
+    new: TemplateSummary[];
+  } = {
+    viral: [],
+    popular: [],
+    growing: [],
+    new: [],
+  };
+
+  // Helper to create template summary
+  const toSummary = (w: any): TemplateSummary => ({
+    id: w.id,
+    name: w.name,
+    totalViews: w.totalViews || 0,
+    createdAt: w.createdAt,
+    username: w.user?.username || 'unknown',
+    verified: w.user?.verified || false,
+    nodeCount: w.nodes?.length || 0,
+  });
+
   for (const w of workflows) {
     const views = w.totalViews || 0;
-    if (views > 100000) viewsDistribution.viral++;
-    else if (views > 10000) viewsDistribution.popular++;
-    else if (views > 1000) viewsDistribution.growing++;
-    else viewsDistribution.new++;
+    const summary = toSummary(w);
+    if (views > 100000) {
+      viewsDistribution.viral++;
+      templatesByViews.viral.push(summary);
+    } else if (views > 10000) {
+      viewsDistribution.popular++;
+      templatesByViews.popular.push(summary);
+    } else if (views > 1000) {
+      viewsDistribution.growing++;
+      templatesByViews.growing.push(summary);
+    } else {
+      viewsDistribution.new++;
+      templatesByViews.new.push(summary);
+    }
   }
+
+  // Sort each tier by views (descending)
+  templatesByViews.viral.sort((a, b) => b.totalViews - a.totalViews);
+  templatesByViews.popular.sort((a, b) => b.totalViews - a.totalViews);
+  templatesByViews.growing.sort((a, b) => b.totalViews - a.totalViews);
+  templatesByViews.new.sort((a, b) => b.totalViews - a.totalViews);
+
+  // Top templates by views across all tiers
+  const topTemplatesByViews = workflows
+    .map(toSummary)
+    .sort((a, b) => b.totalViews - a.totalViews)
+    .slice(0, 20);
 
   // Calculate complexity distribution
   const complexityDistribution = {
@@ -463,6 +530,8 @@ export async function fetchTemplateAnalytics(): Promise<TemplateAnalytics> {
     categories,
     topNodes,
     viewsDistribution,
+    templatesByViews,
+    topTemplatesByViews,
     complexityDistribution,
     nodeCountBreakdown,
     topCreators,

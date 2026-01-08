@@ -19,6 +19,7 @@ interface CommunityDataPoint {
   topics: number | null;
   posts: number | null;
   likes: number | null;
+  source?: string;
 }
 
 interface CommunityHistory {
@@ -119,11 +120,26 @@ function aggregateByPeriod(
   return aggregated.sort((a, b) => a.date.localeCompare(b.date));
 }
 
+function loadExistingHistory(): CommunityHistory | null {
+  if (!existsSync(HISTORY_PATH)) {
+    return null;
+  }
+  try {
+    const content = readFileSync(HISTORY_PATH, 'utf-8');
+    return JSON.parse(content);
+  } catch {
+    return null;
+  }
+}
+
 function generateHistory(rawLog: CommunityDailyLog): CommunityHistory {
   const now = new Date();
   const entries = rawLog.entries;
 
-  // Daily: last 90 days
+  // Load existing history to preserve backfilled data
+  const existingHistory = loadExistingHistory();
+
+  // Daily: last 90 days from raw log
   const dailyCutoff = new Date(now);
   dailyCutoff.setDate(dailyCutoff.getDate() - DAILY_RETENTION_DAYS);
   const dailyCutoffStr = dailyCutoff.toISOString().split('T')[0];
@@ -132,16 +148,47 @@ function generateHistory(rawLog: CommunityDailyLog): CommunityHistory {
     .filter(e => e.date >= dailyCutoffStr)
     .sort((a, b) => a.date.localeCompare(b.date));
 
-  // Weekly: last 2 years
-  const weeklyCutoff = new Date(now);
-  weeklyCutoff.setDate(weeklyCutoff.getDate() - WEEKLY_RETENTION_DAYS);
-  const weeklyCutoffStr = weeklyCutoff.toISOString().split('T')[0];
+  // Weekly: preserve existing backfilled data, add new from raw log
+  let weekly: CommunityDataPoint[];
+  if (existingHistory?.weekly?.length) {
+    // Keep existing weekly data (includes backfilled)
+    const existingWeeklyMap = new Map(existingHistory.weekly.map(w => [w.date, w]));
+    // Add/update from raw log
+    const weeklyCutoff = new Date(now);
+    weeklyCutoff.setDate(weeklyCutoff.getDate() - WEEKLY_RETENTION_DAYS);
+    const weeklyCutoffStr = weeklyCutoff.toISOString().split('T')[0];
+    const weeklyEntries = entries.filter(e => e.date >= weeklyCutoffStr);
+    const newWeekly = aggregateByPeriod(weeklyEntries, getWeekKey);
+    for (const entry of newWeekly) {
+      existingWeeklyMap.set(entry.date, { ...entry, source: 'daily-log' });
+    }
+    weekly = Array.from(existingWeeklyMap.values()).sort((a, b) => a.date.localeCompare(b.date));
+  } else {
+    const weeklyCutoff = new Date(now);
+    weeklyCutoff.setDate(weeklyCutoff.getDate() - WEEKLY_RETENTION_DAYS);
+    const weeklyCutoffStr = weeklyCutoff.toISOString().split('T')[0];
+    const weeklyEntries = entries.filter(e => e.date >= weeklyCutoffStr);
+    weekly = aggregateByPeriod(weeklyEntries, getWeekKey);
+  }
 
-  const weeklyEntries = entries.filter(e => e.date >= weeklyCutoffStr);
-  const weekly = aggregateByPeriod(weeklyEntries, getWeekKey);
-
-  // Monthly: all time
-  const monthly = aggregateByPeriod(entries, getMonthKey);
+  // Monthly: preserve existing backfilled data, add/update from raw log
+  let monthly: CommunityDataPoint[];
+  if (existingHistory?.monthly?.length) {
+    // Keep existing monthly data (includes backfilled historical data)
+    const existingMonthlyMap = new Map(existingHistory.monthly.map(m => [m.date, m]));
+    // Add/update current month from raw log
+    const newMonthly = aggregateByPeriod(entries, getMonthKey);
+    for (const entry of newMonthly) {
+      // Only update if no source (raw log data) or if it's the current/recent month
+      const existing = existingMonthlyMap.get(entry.date);
+      if (!existing || !existing.source || existing.source === 'daily-log' || existing.source === 'discourse-api') {
+        existingMonthlyMap.set(entry.date, { ...entry, source: 'discourse-api' });
+      }
+    }
+    monthly = Array.from(existingMonthlyMap.values()).sort((a, b) => a.date.localeCompare(b.date));
+  } else {
+    monthly = aggregateByPeriod(entries, getMonthKey);
+  }
 
   return {
     lastUpdated: now.toISOString(),
