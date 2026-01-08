@@ -193,13 +193,12 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
               </div>
               <div class="text-sm text-gray-400">@{creator.username}</div>
             </div>
-            <div class="text-right">
-              <div class="font-bold text-white">{creator.totalTemplates}</div>
-              <div class="text-xs text-gray-400">templates</div>
-            </div>
-            <div class="text-right">
-              <div class="font-bold text-cyan-400">{formatNumber(creator.totalViews)}</div>
-              <div class="text-xs text-gray-400">views</div>
+            <div class="text-right text-sm">
+              <div class="text-white">
+                <span class="font-bold text-n8n-primary">{creator.templateCount}</span>
+                <span class="text-gray-400"> of {creator.totalTemplates} trending</span>
+              </div>
+              <div class="text-gray-500">{formatNumber(creator.totalViews)} views</div>
             </div>
           </a>
         ))}
