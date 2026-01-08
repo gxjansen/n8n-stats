@@ -3,26 +3,56 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import NodeTreemapChart from '@/components/charts/NodeTreemapChart.astro';
 import { fetchTemplates, aggregateNodeUsage } from '@/lib/api/n8n';
 import { formatNumber, getNodeIntegrationUrl } from '@/lib/utils/formatters';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
-// Fetch more templates to get better node aggregation
-const { workflows } = await fetchTemplates({ rows: 100 });
-const nodeUsage = aggregateNodeUsage(workflows);
+// Load complete template data (fetched weekly)
+let allTemplatesData: any = null;
+try {
+  const dataPath = join(process.cwd(), 'public', 'data', 'all-templates-data.json');
+  allTemplatesData = JSON.parse(readFileSync(dataPath, 'utf-8'));
+} catch (e) {
+  console.warn('all-templates-data.json not found, using sample data');
+}
+
+// Also fetch trending templates for comparison
+const { workflows: trendingWorkflows } = await fetchTemplates({ rows: 100 });
+const trendingNodeUsage = aggregateNodeUsage(trendingWorkflows);
+
+// Use complete data if available, otherwise fall back to trending
+const hasCompleteData = !!allTemplatesData?.nodes?.top100;
+const nodeUsage = hasCompleteData
+  ? allTemplatesData.nodes.top100.map((n: any) => ({
+      name: n.name,
+      displayName: n.displayName,
+      count: n.count,
+      percentage: n.percentage,
+      categories: n.categories || [],
+    }))
+  : trendingNodeUsage;
+
+const totalTemplates = allTemplatesData?.totalTemplates || 100;
+const uniqueNodes = allTemplatesData?.nodes?.unique || nodeUsage.length;
+const totalNodeUsages = allTemplatesData?.nodes?.total || 0;
 
 // Group by category (rough categorization based on node names)
-const categorizeNode = (name: string) => {
+const categorizeNode = (name: string, categories?: string[]) => {
+  // Use API categories if available
+  if (categories?.includes('AI') || categories?.includes('Langchain')) return 'AI';
+
   const lower = name.toLowerCase();
   if (lower.includes('google') || lower.includes('gmail') || lower.includes('sheets') || lower.includes('drive')) return 'Google';
   if (lower.includes('slack') || lower.includes('discord') || lower.includes('telegram') || lower.includes('teams')) return 'Communication';
   if (lower.includes('http') || lower.includes('webhook') || lower.includes('api')) return 'HTTP & Webhooks';
-  if (lower.includes('openai') || lower.includes('ai') || lower.includes('llm') || lower.includes('anthropic')) return 'AI';
-  if (lower.includes('mysql') || lower.includes('postgres') || lower.includes('mongo') || lower.includes('database')) return 'Database';
+  if (lower.includes('openai') || lower.includes('ai') || lower.includes('llm') || lower.includes('anthropic') || lower.includes('langchain')) return 'AI';
+  if (lower.includes('mysql') || lower.includes('postgres') || lower.includes('mongo') || lower.includes('database') || lower.includes('redis')) return 'Database';
   if (lower.includes('if') || lower.includes('switch') || lower.includes('merge') || lower.includes('split') || lower.includes('loop')) return 'Flow Control';
-  if (lower.includes('code') || lower.includes('function') || lower.includes('set') || lower.includes('edit')) return 'Data Transform';
+  if (lower.includes('code') || lower.includes('function') || lower.includes('set') || lower.includes('edit') || lower.includes('aggregate')) return 'Data Transform';
   return 'Other';
 };
 
-const nodesByCategory = nodeUsage.reduce((acc, node) => {
-  const category = categorizeNode(node.displayName);
+const nodesByCategory = nodeUsage.reduce((acc: Record<string, typeof nodeUsage>, node: any) => {
+  const category = categorizeNode(node.displayName, node.categories);
   if (!acc[category]) acc[category] = [];
   acc[category].push(node);
   return acc;
@@ -31,11 +61,36 @@ const nodesByCategory = nodeUsage.reduce((acc, node) => {
 const categoryOrder = ['HTTP & Webhooks', 'AI', 'Google', 'Communication', 'Data Transform', 'Flow Control', 'Database', 'Other'];
 
 // Prepare treemap data (top 50 nodes with categories)
-const treemapData = nodeUsage.slice(0, 50).map(node => ({
+const treemapData = nodeUsage.slice(0, 50).map((node: any) => ({
   name: node.displayName,
   count: node.count,
-  category: categorizeNode(node.displayName),
+  category: categorizeNode(node.displayName, node.categories),
 }));
+
+// Get trending-specific nodes (nodes that appear more in trending than overall)
+const getTrendingBoost = () => {
+  if (!hasCompleteData) return [];
+
+  const overallMap = new Map(nodeUsage.map((n: any) => [n.name, n.percentage || 0]));
+
+  return trendingNodeUsage
+    .slice(0, 30)
+    .map(n => {
+      const overallPct = overallMap.get(n.name) || 0;
+      const trendingPct = (n.count / 100) * 100; // percentage in trending
+      return {
+        ...n,
+        trendingPct,
+        overallPct,
+        boost: trendingPct - overallPct,
+      };
+    })
+    .filter(n => n.boost > 5) // Nodes that are 5%+ more popular in trending
+    .sort((a, b) => b.boost - a.boost)
+    .slice(0, 10);
+};
+
+const trendingBoostNodes = getTrendingBoost();
 ---
 
 <BaseLayout title="Node Statistics" description="Most popular nodes in n8n workflow templates">
@@ -44,15 +99,45 @@ const treemapData = nodeUsage.slice(0, 50).map(node => ({
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-white mb-2">Node Statistics</h1>
       <p class="text-gray-400">
-        Most used nodes across {formatNumber(100)} analyzed templates
+        Most used nodes across {formatNumber(totalTemplates)} workflow templates
       </p>
     </div>
+
+    <!-- Overview Stats -->
+    <section class="mb-12">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="card text-center">
+          <div class="text-3xl font-bold text-n8n-primary mb-1">
+            {formatNumber(totalTemplates)}
+          </div>
+          <div class="text-sm text-gray-400">Templates Analyzed</div>
+        </div>
+        <div class="card text-center">
+          <div class="text-3xl font-bold text-purple-400 mb-1">
+            {uniqueNodes}
+          </div>
+          <div class="text-sm text-gray-400">Unique Nodes</div>
+        </div>
+        <div class="card text-center">
+          <div class="text-3xl font-bold text-cyan-400 mb-1">
+            {formatNumber(totalNodeUsages)}
+          </div>
+          <div class="text-sm text-gray-400">Total Node Usages</div>
+        </div>
+        <div class="card text-center">
+          <div class="text-3xl font-bold text-green-400 mb-1">
+            {hasCompleteData ? (totalNodeUsages / totalTemplates).toFixed(1) : '~4'}
+          </div>
+          <div class="text-sm text-gray-400">Avg Nodes/Template</div>
+        </div>
+      </div>
+    </section>
 
     <!-- Node Usage Treemap -->
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-4">Node Usage Overview</h2>
       <p class="text-gray-400 mb-6">
-        Rectangle size represents usage frequency. Colors indicate category.
+        Rectangle size represents usage frequency across all templates. Colors indicate category.
       </p>
       <NodeTreemapChart data={treemapData} />
       <div class="flex flex-wrap gap-4 mt-4 text-sm">
@@ -71,7 +156,7 @@ const treemapData = nodeUsage.slice(0, 50).map(node => ({
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">Top 10 Most Used Nodes</h2>
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {nodeUsage.slice(0, 10).map((node, index) => (
+        {nodeUsage.slice(0, 10).map((node: any, index: number) => (
           <div class="card text-center">
             <div class="text-3xl font-bold text-n8n-primary mb-2">#{index + 1}</div>
             <a
@@ -83,12 +168,46 @@ const treemapData = nodeUsage.slice(0, 50).map(node => ({
               {node.displayName}
             </a>
             <div class="text-sm text-gray-400 mt-1">
-              {node.count} templates
+              {formatNumber(node.count)} templates
             </div>
+            {node.percentage && (
+              <div class="text-xs text-gray-500">
+                {node.percentage}% of all
+              </div>
+            )}
           </div>
         ))}
       </div>
     </section>
+
+    <!-- Trending Boost Section -->
+    {trendingBoostNodes.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold text-white mb-2">Hot in Trending Templates</h2>
+        <p class="text-gray-400 mb-6">
+          Nodes that appear significantly more often in trending templates than overall - what successful templates are using now.
+        </p>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+          {trendingBoostNodes.map((node: any) => (
+            <a
+              href={getNodeIntegrationUrl(node.displayName)}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="card text-center hover:border-n8n-primary transition-colors"
+            >
+              <div class="font-medium text-white mb-1">{node.displayName}</div>
+              <div class="text-sm">
+                <span class="text-green-400">+{node.boost.toFixed(0)}%</span>
+                <span class="text-gray-500"> vs overall</span>
+              </div>
+              <div class="text-xs text-gray-500 mt-1">
+                {node.trendingPct.toFixed(0)}% trending vs {node.overallPct.toFixed(0)}% overall
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
 
     <!-- By Category -->
     {categoryOrder.map((category) => {
@@ -98,7 +217,7 @@ const treemapData = nodeUsage.slice(0, 50).map(node => ({
         <section class="mb-10">
           <h2 class="text-xl font-bold text-white mb-4">{category}</h2>
           <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {nodes.slice(0, 12).map((node) => (
+            {nodes.slice(0, 12).map((node: any) => (
               <a
                 href={getNodeIntegrationUrl(node.displayName)}
                 target="_blank"
@@ -107,7 +226,8 @@ const treemapData = nodeUsage.slice(0, 50).map(node => ({
               >
                 <div class="font-medium text-white text-sm">{node.displayName}</div>
                 <div class="text-xs text-gray-400 mt-1">
-                  {node.count} uses
+                  {formatNumber(node.count)} uses
+                  {node.percentage && <span class="text-gray-500"> ({node.percentage}%)</span>}
                 </div>
               </a>
             ))}
@@ -118,7 +238,10 @@ const treemapData = nodeUsage.slice(0, 50).map(node => ({
 
     <!-- Note -->
     <p class="text-sm text-gray-500 text-center mt-8">
-      Statistics based on analysis of trending templates. Full node catalog coming soon.
+      {hasCompleteData
+        ? `Complete data from ${formatNumber(totalTemplates)} templates. Updated weekly.`
+        : 'Statistics based on trending templates sample. Full data coming soon.'
+      }
     </p>
   </div>
 </BaseLayout>

@@ -15,6 +15,7 @@ const APIS = {
   discourse: 'https://community.n8n.io/about.json',
   npm: 'https://api.npmjs.org/downloads/point/last-month/n8n',
   templates: 'https://api.n8n.io/api/templates/search?rows=1', // Just for total count
+  creators: 'https://raw.githubusercontent.com/teds-tech-talks/n8n-community-leaderboard/main/stats_aggregate_creators.json',
 };
 
 interface GitHubSnapshot {
@@ -45,6 +46,13 @@ interface TemplatesSnapshot {
   topNodes: Array<{ name: string; count: number }>;
 }
 
+interface CreatorsSnapshot {
+  total: number;
+  verified: number;
+  totalViews: number;
+  totalInserters: number;
+}
+
 interface DailySnapshot {
   date: string;
   fetchedAt: string;
@@ -52,6 +60,7 @@ interface DailySnapshot {
   discourse: DiscourseSnapshot;
   npm: NpmSnapshot;
   templates: TemplatesSnapshot;
+  creators: CreatorsSnapshot;
   _meta: {
     sources: string[];
     errors: string[];
@@ -163,6 +172,35 @@ async function fetchTemplates(): Promise<TemplatesSnapshot> {
   };
 }
 
+async function fetchCreators(): Promise<CreatorsSnapshot> {
+  console.log('Fetching creators stats (n8n Arena)...');
+
+  const response = await fetch(APIS.creators, {
+    headers: { 'User-Agent': 'n8n-pulse' },
+  });
+
+  if (!response.ok) {
+    throw new Error(`n8n Arena API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+
+  // Filter out n8n-team and calculate totals
+  const creators = data.filter((c: any) => c.user_username && c.user_username !== 'n8n-team');
+
+  const total = creators.length;
+  const verified = creators.filter((c: any) => c.user?.verified).length;
+  const totalViews = creators.reduce((sum: number, c: any) => sum + (c.sum_unique_visitors || 0), 0);
+  const totalInserters = creators.reduce((sum: number, c: any) => sum + (c.sum_unique_inserters || 0), 0);
+
+  return {
+    total,
+    verified,
+    totalViews,
+    totalInserters,
+  };
+}
+
 async function main() {
   const today = new Date().toISOString().split('T')[0];
 
@@ -178,6 +216,7 @@ async function main() {
     discourse: { users: 0, topics: 0, posts: 0, likes: 0, activeUsers7d: 0, activeUsers30d: 0 },
     npm: { downloads: 0, period: '' },
     templates: { total: 0, categories: {}, topNodes: [] },
+    creators: { total: 0, verified: 0, totalViews: 0, totalInserters: 0 },
     _meta: {
       sources: [],
       errors: [],
@@ -219,6 +258,15 @@ async function main() {
   } catch (error) {
     console.error('  Templates error:', error);
     snapshot._meta.errors.push(`templates: ${error}`);
+  }
+
+  try {
+    snapshot.creators = await fetchCreators();
+    snapshot._meta.sources.push('creators');
+    console.log(`  Creators: ${snapshot.creators.total.toLocaleString()} total (${snapshot.creators.verified} verified)`);
+  } catch (error) {
+    console.error('  Creators error:', error);
+    snapshot._meta.errors.push(`creators: ${error}`);
   }
 
   // Save snapshot
