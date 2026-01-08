@@ -133,25 +133,25 @@ const { data } = Astro.props;
                 if (!items.length) return '';
                 const item = items[0].raw;
 
-                // Leaf node: _data is an object with name/count/category
-                // Group node: _data is undefined or an array
-                const isLeaf = item._data && typeof item._data === 'object' && !Array.isArray(item._data) && 'name' in item._data;
+                // With groups: ['category', 'name'], level 1 (l=1) is leaf level
+                // Leaf nodes have _data with count property from original data
+                const isLeaf = item.l === 1 && item._data && typeof item._data.count === 'number';
 
                 if (isLeaf) {
-                  return `Node: ${item._data.name}`;
+                  return `Node: ${item._data.name || item.g}`;
                 }
 
-                // Group node (category)
+                // Group node (category) - level 0
                 return `Node Category: ${item.g || 'Unknown'}`;
               },
               label: (ctx: any) => {
                 const item = ctx.raw;
 
-                // Leaf node: _data is an object with name/count/category
-                const isLeaf = item._data && typeof item._data === 'object' && !Array.isArray(item._data) && 'name' in item._data;
+                // With groups: ['category', 'name'], level 1 (l=1) is leaf level
+                const isLeaf = item.l === 1 && item._data && typeof item._data.count === 'number';
 
                 if (isLeaf) {
-                  const count = item._data.count || 0;
+                  const count = item._data.count;
                   const percentage = totalTemplates > 0
                     ? ((count / totalTemplates) * 100).toFixed(1)
                     : '0';
