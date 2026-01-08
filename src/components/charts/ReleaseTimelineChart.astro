@@ -1,0 +1,225 @@
+---
+/**
+ * Release Timeline Chart
+ *
+ * Shows n8n releases on a horizontal timeline over the past 2 years.
+ * - Excludes pre-releases
+ * - Different colors for 1.x (blue) and 2.x (orange/primary) series
+ */
+
+import { fetchGitHubReleases } from '@/lib/api/github';
+
+// Fetch enough releases to cover ~2 years (n8n releases frequently)
+const allReleases = await fetchGitHubReleases(200);
+
+// Filter out pre-releases and get only official releases from the past 2 years
+const twoYearsAgo = new Date();
+twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+
+const releases = allReleases
+  .filter(r => !r.prerelease)
+  .filter(r => new Date(r.publishedAt) >= twoYearsAgo)
+  .map(r => ({
+    tag: r.tagName,
+    date: r.publishedAt,
+    url: r.htmlUrl,
+    series: r.tagName.startsWith('n8n@1.') || r.tagName.startsWith('1.') ? '1.x' : '2.x',
+  }))
+  .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+// Pass data to client
+const releaseData = JSON.stringify(releases);
+---
+
+<div id="release-timeline-container" class="card">
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-4">
+      <span class="flex items-center gap-2 text-sm">
+        <span class="w-3 h-3 rounded-full bg-[#36a2eb]"></span>
+        <span class="text-gray-400">1.x series</span>
+      </span>
+      <span class="flex items-center gap-2 text-sm">
+        <span class="w-3 h-3 rounded-full bg-[#ff6d5a]"></span>
+        <span class="text-gray-400">2.x series</span>
+      </span>
+    </div>
+    <span class="text-sm text-gray-500">{releases.length} releases (past 2 years)</span>
+  </div>
+
+  <div class="relative" style="height: 200px;">
+    <canvas id="release-timeline-chart"></canvas>
+  </div>
+
+  <div id="release-timeline-loading" class="absolute inset-0 flex items-center justify-center bg-n8n-card/80">
+    <span class="text-gray-400">Loading releases...</span>
+  </div>
+</div>
+
+<script define:vars={{ releaseData }}>
+  window.__releaseData = JSON.parse(releaseData);
+</script>
+
+<script>
+  import Chart from 'chart.js/auto';
+  import 'chartjs-adapter-date-fns';
+
+  interface Release {
+    tag: string;
+    date: string;
+    url: string;
+    series: '1.x' | '2.x';
+  }
+
+  const COLORS = {
+    '1.x': { bg: '#36a2eb', border: '#36a2eb' },
+    '2.x': { bg: '#ff6d5a', border: '#ff6d5a' },
+  };
+
+  function initReleaseTimeline() {
+    const canvas = document.getElementById('release-timeline-chart') as HTMLCanvasElement;
+    const loadingEl = document.getElementById('release-timeline-loading');
+    const releases: Release[] = (window as any).__releaseData || [];
+
+    loadingEl?.classList.add('hidden');
+
+    if (releases.length === 0) return;
+
+    // Group releases by series
+    const series1x = releases.filter(r => r.series === '1.x');
+    const series2x = releases.filter(r => r.series === '2.x');
+
+    // Create datasets
+    const datasets = [];
+
+    if (series1x.length > 0) {
+      datasets.push({
+        label: '1.x releases',
+        data: series1x.map(r => ({
+          x: new Date(r.date),
+          y: 1,
+          tag: r.tag,
+          url: r.url,
+        })),
+        backgroundColor: COLORS['1.x'].bg,
+        borderColor: COLORS['1.x'].border,
+        pointRadius: 6,
+        pointHoverRadius: 9,
+        showLine: false,
+      });
+    }
+
+    if (series2x.length > 0) {
+      datasets.push({
+        label: '2.x releases',
+        data: series2x.map(r => ({
+          x: new Date(r.date),
+          y: 2,
+          tag: r.tag,
+          url: r.url,
+        })),
+        backgroundColor: COLORS['2.x'].bg,
+        borderColor: COLORS['2.x'].border,
+        pointRadius: 6,
+        pointHoverRadius: 9,
+        showLine: false,
+      });
+    }
+
+    // Calculate date range (fixed 2 years)
+    const now = new Date();
+    const twoYearsAgo = new Date();
+    twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+
+    new Chart(canvas, {
+      type: 'scatter',
+      data: { datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#fff',
+            bodyColor: '#9ca3af',
+            borderColor: '#333',
+            borderWidth: 1,
+            callbacks: {
+              title: (items) => {
+                const item = items[0];
+                const data = item.raw as any;
+                return data.tag;
+              },
+              label: (item) => {
+                const data = item.raw as any;
+                const date = new Date(data.x);
+                return date.toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                });
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            type: 'time',
+            min: twoYearsAgo.getTime(),
+            max: now.getTime(),
+            time: {
+              unit: 'month',
+              displayFormats: {
+                month: 'MMM yyyy',
+              },
+            },
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: '#6b7280',
+              maxRotation: 45,
+            },
+          },
+          y: {
+            min: 0,
+            max: 3,
+            grid: { display: false },
+            ticks: {
+              display: false,
+            },
+          },
+        },
+        onClick: (_event, elements) => {
+          if (elements.length > 0) {
+            const element = elements[0];
+            const datasetIndex = element.datasetIndex;
+            const index = element.index;
+            const data = datasets[datasetIndex].data[index] as any;
+            if (data.url) {
+              window.open(data.url, '_blank');
+            }
+          }
+        },
+        onHover: (event, elements) => {
+          const canvas = event.native?.target as HTMLCanvasElement;
+          if (canvas) {
+            canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+          }
+        },
+      },
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initReleaseTimeline);
+  } else {
+    initReleaseTimeline();
+  }
+</script>
+
+<style>
+  #release-timeline-container {
+    position: relative;
+  }
+</style>
