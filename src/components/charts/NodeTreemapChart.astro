@@ -67,6 +67,9 @@ const { data } = Astro.props;
 
     loadingEl?.classList.add('hidden');
 
+    // Calculate total for percentage display
+    const totalTemplates = data.reduce((sum, d) => sum + d.count, 0);
+
     new Chart(canvas, {
       type: 'treemap',
       data: {
@@ -129,13 +132,37 @@ const { data } = Astro.props;
               title: (items: any[]) => {
                 if (!items.length) return '';
                 const item = items[0].raw;
-                return item._data?.name || item.g || '';
+
+                // Leaf node (individual node) has _data with the original data
+                if (item._data?.name) {
+                  return `Node: ${item._data.name}`;
+                }
+
+                // Group node (category)
+                return `Node Category: ${item.g || 'Unknown'}`;
               },
               label: (ctx: any) => {
                 const item = ctx.raw;
-                const count = item._data?.count || item.v || 0;
-                const category = item._data?.category || '';
-                return [`${count} templates`, category ? `Category: ${category}` : ''];
+
+                // Leaf node (individual node)
+                if (item._data?.name) {
+                  const count = item._data.count || 0;
+                  const percentage = totalTemplates > 0
+                    ? ((count / totalTemplates) * 100).toFixed(1)
+                    : '0';
+                  const category = item._data.category || 'Other';
+                  return [
+                    `Used in ${count} templates (${percentage}%)`,
+                    `Node category: ${category}`
+                  ];
+                }
+
+                // Group node (category) - item.v contains aggregated sum
+                const count = item.v || 0;
+                const percentage = totalTemplates > 0
+                  ? ((count / totalTemplates) * 100).toFixed(1)
+                  : '0';
+                return [`Used in ${count} templates (${percentage}%)`];
               },
             },
           },
