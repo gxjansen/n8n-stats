@@ -59,6 +59,12 @@
     <canvas id="community-history-chart"></canvas>
   </div>
 
+  <!-- Legend note for estimated data -->
+  <p id="community-chart-note" class="text-xs text-gray-500 mt-2 text-center">
+    <span class="inline-block border-t-2 border-dashed border-gray-400 w-4 align-middle mr-1"></span>
+    Dashed lines indicate estimated data based on available historical snapshots
+  </p>
+
   <!-- Loading/Error States -->
   <div id="community-chart-loading" class="absolute inset-0 flex items-center justify-center bg-n8n-card/80">
     <span class="text-gray-400">Loading chart data...</span>
@@ -80,6 +86,7 @@
     topics: number | null;
     posts: number | null;
     likes: number | null;
+    source?: string;
   }
 
   interface CommunityHistory {
@@ -163,6 +170,9 @@
       likes: 'Likes',
     };
 
+    // Check if any data is interpolated
+    const hasInterpolated = data.some(d => d.source === 'interpolated');
+
     return metrics.map(metric => ({
       label: metricLabels[metric],
       // Chart.js handles null values as gaps in the line
@@ -176,8 +186,21 @@
       spanGaps: false, // Don't connect points across null values
       // Use secondary Y axis for posts (much larger scale)
       yAxisID: metric === 'posts' ? 'y1' : 'y',
+      // Use dashed line segments for estimated data
+      segment: {
+        borderDash: (ctx: any) => {
+          const index = ctx.p0DataIndex;
+          const estimatedSources = ['interpolated', 'wayback-estimated', 'wayback-partial'];
+          const isEstimated = estimatedSources.includes(data[index]?.source || '') ||
+                              estimatedSources.includes(data[index + 1]?.source || '');
+          return isEstimated ? [5, 5] : [];
+        },
+      },
     }));
   }
+
+  // Store data reference for tooltip access
+  let currentChartData: CommunityDataPoint[] = [];
 
   function updateCommunityChart() {
     if (!communityHistoryData) return;
@@ -195,6 +218,9 @@
       return;
     }
     document.getElementById('community-chart-no-data')?.classList.add('hidden');
+
+    // Store for tooltip access
+    currentChartData = filteredData;
 
     const labels = filteredData.map(d => d.date);
     const datasets = createCommunityDatasets(filteredData, metrics, chartType, isArea);
@@ -280,7 +306,12 @@
             callbacks: {
               label: (context) => {
                 const value = context.parsed.y;
-                return `${context.dataset.label}: ${value.toLocaleString()}`;
+                const dataPoint = currentChartData[context.dataIndex];
+                const isEstimated = dataPoint?.source === 'interpolated' ||
+                                    dataPoint?.source === 'wayback-estimated' ||
+                                    dataPoint?.source === 'wayback-partial';
+                const suffix = isEstimated ? ' (estimated)' : '';
+                return `${context.dataset.label}: ${value.toLocaleString()}${suffix}`;
               },
             },
           },
