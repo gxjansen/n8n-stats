@@ -1,0 +1,165 @@
+---
+/**
+ * Category Treemap Chart
+ *
+ * Visualizes category distribution as a treemap where:
+ * - Rectangle size = number of templates in category
+ * - Color = distinct color per category
+ */
+
+interface Props {
+  data: Array<{
+    name: string;
+    count: number;
+  }>;
+}
+
+const { data } = Astro.props;
+---
+
+<div id="category-treemap-container" class="card">
+  <div class="relative" style="height: 350px;">
+    <canvas id="category-treemap-chart"></canvas>
+  </div>
+  <div id="category-treemap-loading" class="absolute inset-0 flex items-center justify-center bg-n8n-card/80">
+    <span class="text-gray-400">Loading treemap...</span>
+  </div>
+</div>
+
+<script define:vars={{ data }}>
+  window.__categoryTreemapData = data;
+</script>
+
+<script>
+  import Chart from 'chart.js/auto';
+  import { TreemapController, TreemapElement } from 'chartjs-chart-treemap';
+
+  // Register the treemap plugin
+  Chart.register(TreemapController, TreemapElement);
+
+  interface CategoryDataPoint {
+    name: string;
+    count: number;
+  }
+
+  const CATEGORY_COLORS: Record<string, string> = {
+    'AI': '#9966ff',
+    'Multimodal AI': '#b366ff',
+    'AI Summarization': '#cc99ff',
+    'AI Chatbot': '#7733ff',
+    'Marketing': '#ff6384',
+    'Sales': '#36a2eb',
+    'IT Ops': '#4bc0c0',
+    'Content Creation': '#ffce56',
+    'Document Ops': '#ff9f40',
+    'Support': '#c9cbcf',
+    'Other': '#7c8798',
+  };
+
+  // Fallback colors for unknown categories
+  const FALLBACK_COLORS = [
+    '#ff6b9d', '#45b7d1', '#96ceb4', '#ffeaa7', '#dfe6e9',
+    '#fd79a8', '#74b9ff', '#55efc4', '#ffeaa7', '#b2bec3',
+  ];
+
+  function getColorForCategory(name: string, index: number): string {
+    return CATEGORY_COLORS[name] || FALLBACK_COLORS[index % FALLBACK_COLORS.length];
+  }
+
+  function initTreemap() {
+    const canvas = document.getElementById('category-treemap-chart') as HTMLCanvasElement;
+    const loadingEl = document.getElementById('category-treemap-loading');
+    const data = (window as any).__categoryTreemapData as CategoryDataPoint[];
+
+    if (!data || data.length === 0) {
+      loadingEl?.classList.add('hidden');
+      return;
+    }
+
+    loadingEl?.classList.add('hidden');
+
+    // Add color to each data point
+    const coloredData = data.map((item, index) => ({
+      ...item,
+      color: getColorForCategory(item.name, index),
+    }));
+
+    new Chart(canvas, {
+      type: 'treemap',
+      data: {
+        datasets: [{
+          label: 'Templates by Category',
+          tree: coloredData,
+          key: 'count',
+          groups: ['name'],
+          backgroundColor: (ctx: any) => {
+            if (ctx.type !== 'data') return 'transparent';
+            const item = ctx.raw;
+            return item._data?.color || '#7c8798';
+          },
+          borderColor: '#1a1a2e',
+          borderWidth: 2,
+          spacing: 2,
+          labels: {
+            display: true,
+            align: 'center',
+            position: 'middle',
+            formatter: (ctx: any) => {
+              const item = ctx.raw;
+              if (item.w < 80 || item.h < 40) return '';
+              const name = item._data?.name || item.g || '';
+              const count = item._data?.count || item.v || 0;
+              return [name, count.toLocaleString()];
+            },
+            color: '#fff',
+            font: {
+              size: 12,
+              weight: 'bold',
+            },
+          },
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#fff',
+            bodyColor: '#9ca3af',
+            borderColor: '#333',
+            borderWidth: 1,
+            callbacks: {
+              title: (items: any[]) => {
+                if (!items.length) return '';
+                const item = items[0].raw;
+                return item._data?.name || item.g || '';
+              },
+              label: (ctx: any) => {
+                const item = ctx.raw;
+                const count = item._data?.count || item.v || 0;
+                return `${count.toLocaleString()} templates`;
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTreemap);
+  } else {
+    initTreemap();
+  }
+</script>
+
+<style>
+  #category-treemap-container {
+    position: relative;
+  }
+</style>

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TemplatesHistoryChart from '@/components/charts/TemplatesHistoryChart.astro';
+import CategoryTreemapChart from '@/components/charts/CategoryTreemapChart.astro';
 import { fetchTemplateStats } from '@/lib/api/n8n';
 import { formatNumber } from '@/lib/utils/formatters';
 
@@ -14,21 +15,6 @@ const totalCategoryCount = sortedCategories.reduce((sum, c) => sum + c.count, 0)
 // Get top and bottom nodes
 const topNodes = stats.topNodes.slice(0, 15);
 const bottomNodes = stats.topNodes.slice(-10).reverse();
-
-// Category colors for the chart
-const categoryColors: Record<string, string> = {
-  'AI': '#9966ff',
-  'Multimodal AI': '#b366ff',
-  'AI Summarization': '#cc99ff',
-  'AI Chatbot': '#7733ff',
-  'Marketing': '#ff6384',
-  'Sales': '#36a2eb',
-  'IT Ops': '#4bc0c0',
-  'Content Creation': '#ffce56',
-  'Document Ops': '#ff9f40',
-  'Support': '#c9cbcf',
-  'Other': '#7c8798',
-};
 ---
 
 <BaseLayout title="Template Statistics" description="Statistics and trends for n8n workflow templates">
@@ -83,33 +69,10 @@ const categoryColors: Record<string, string> = {
     <!-- Category Breakdown -->
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">Templates by Category</h2>
-      <div class="card">
-        <div class="space-y-3">
-          {sortedCategories.map((category) => {
-            const percentage = ((category.count / totalCategoryCount) * 100).toFixed(1);
-            const color = categoryColors[category.value] || '#7c8798';
-            return (
-              <div class="flex items-center gap-4">
-                <div class="w-32 md:w-48 text-sm text-gray-300 truncate" title={category.value}>
-                  {category.value}
-                </div>
-                <div class="flex-1 h-6 bg-n8n-darker rounded overflow-hidden">
-                  <div
-                    class="h-full rounded transition-all duration-500"
-                    style={`width: ${percentage}%; background-color: ${color};`}
-                  ></div>
-                </div>
-                <div class="w-20 text-right text-sm text-gray-400">
-                  {formatNumber(category.count)}
-                </div>
-                <div class="w-12 text-right text-sm text-gray-500">
-                  {percentage}%
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      <p class="text-gray-400 mb-4">
+        Rectangle size represents the number of templates in each category.
+      </p>
+      <CategoryTreemapChart data={sortedCategories.map(c => ({ name: c.value, count: c.count }))} />
     </section>
 
     <!-- Most Used Nodes -->
