@@ -16,11 +16,10 @@
     <div class="flex items-center gap-2">
       <label class="text-sm text-gray-400">Range:</label>
       <select id="date-range" class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary">
-        <option value="30">Last 30 days</option>
-        <option value="90">Last 90 days</option>
-        <option value="365">Last year</option>
-        <option value="730">Last 2 years</option>
-        <option value="all" selected>All time</option>
+        <option value="12">Last 12 months</option>
+        <option value="24" selected>Last 24 months</option>
+        <option value="36">Last 3 years</option>
+        <option value="all">All time</option>
       </select>
     </div>
 
@@ -28,18 +27,10 @@
     <div class="flex items-center gap-2">
       <label class="text-sm text-gray-400">Type:</label>
       <select id="chart-type" class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary">
-        <option value="line" selected>Line</option>
-        <option value="area">Area</option>
+        <option value="line">Line</option>
+        <option value="area" selected>Area</option>
         <option value="bar">Bar</option>
       </select>
-    </div>
-
-    <!-- Metrics Toggle -->
-    <div class="flex items-center gap-3 ml-auto">
-      <label class="flex items-center gap-1.5 cursor-pointer">
-        <input type="checkbox" id="toggle-stars" checked class="accent-[#ff6384]" />
-        <span class="text-sm text-gray-300">Stars</span>
-      </label>
     </div>
   </div>
 
@@ -96,33 +87,10 @@
     }
   }
 
-  function getDataForRange(data: GitHubHistory, rangeDays: number | 'all'): GitHubDataPoint[] {
-    // Choose appropriate granularity based on range
-    if (rangeDays === 'all') {
-      return data.monthly;
-    } else if (rangeDays <= 90) {
-      return data.daily;
-    } else if (rangeDays <= 730) {
-      return data.weekly;
-    } else {
-      return data.monthly;
-    }
-  }
-
-  function filterByDateRange(points: GitHubDataPoint[], rangeDays: number | 'all'): GitHubDataPoint[] {
-    if (rangeDays === 'all') return points;
-
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - rangeDays);
-    const cutoffStr = cutoff.toISOString().split('T')[0];
-
-    return points.filter(p => p.date >= cutoffStr);
-  }
-
-  function getVisibleMetrics(): string[] {
-    const metrics: string[] = [];
-    if ((document.getElementById('toggle-stars') as HTMLInputElement).checked) metrics.push('stars');
-    return metrics;
+  function filterByMonths(points: GitHubDataPoint[], months: number | 'all'): GitHubDataPoint[] {
+    if (months === 'all') return points;
+    // Return last N months
+    return points.slice(-months);
   }
 
   function getChartType(): 'line' | 'bar' {
@@ -138,33 +106,27 @@
     return value === 'all' ? 'all' : parseInt(value, 10);
   }
 
-  function createDatasets(data: GitHubDataPoint[], metrics: string[], chartType: 'line' | 'bar', isArea: boolean) {
-    const metricLabels: Record<string, string> = {
-      stars: 'Stars',
-    };
-
-    return metrics.map(metric => ({
-      label: metricLabels[metric],
-      data: data.map(d => d[metric as keyof GitHubDataPoint] as number),
-      borderColor: COLORS[metric as keyof typeof COLORS].border,
-      backgroundColor: isArea ? COLORS[metric as keyof typeof COLORS].background : COLORS[metric as keyof typeof COLORS].border,
+  function createDataset(data: GitHubDataPoint[], isArea: boolean) {
+    return [{
+      label: 'Stars',
+      data: data.map(d => d.stars),
+      borderColor: COLORS.stars.border,
+      backgroundColor: isArea ? COLORS.stars.background : COLORS.stars.border,
       fill: isArea,
-      tension: 0,
+      tension: 0.1,
       pointRadius: data.length > 60 ? 0 : 3,
       pointHoverRadius: 5,
-    }));
+    }];
   }
 
   function updateChart() {
     if (!historyData) return;
 
     const range = getDateRange();
-    const metrics = getVisibleMetrics();
     const chartType = getChartType();
     const isArea = isAreaChart();
 
-    const rawData = getDataForRange(historyData, range);
-    const filteredData = filterByDateRange(rawData, range);
+    const filteredData = filterByMonths(historyData.monthly, range);
 
     if (filteredData.length === 0) {
       document.getElementById('chart-no-data')?.classList.remove('hidden');
@@ -173,12 +135,12 @@
     document.getElementById('chart-no-data')?.classList.add('hidden');
 
     const labels = filteredData.map(d => d.date);
-    const datasets = createDatasets(filteredData, metrics, chartType, isArea);
+    const datasets = createDataset(filteredData, isArea);
 
     if (chart) {
       chart.data.labels = labels;
       chart.data.datasets = datasets;
-      chart.config.type = chartType === 'bar' ? 'bar' : 'line';
+      (chart.config as any).type = chartType === 'bar' ? 'bar' : 'line';
       chart.update();
     }
   }
@@ -198,19 +160,17 @@
       return;
     }
 
-    if (historyData.daily.length === 0 && historyData.weekly.length === 0 && historyData.monthly.length === 0) {
+    if (historyData.monthly.length === 0) {
       noDataEl?.classList.remove('hidden');
       return;
     }
 
     const range = getDateRange();
-    const metrics = getVisibleMetrics();
     const isArea = isAreaChart();
 
-    const rawData = getDataForRange(historyData, range);
-    const filteredData = filterByDateRange(rawData, range);
+    const filteredData = filterByMonths(historyData.monthly, range);
     const labels = filteredData.map(d => d.date);
-    const datasets = createDatasets(filteredData, metrics, 'line', isArea);
+    const datasets = createDataset(filteredData, isArea);
 
     chart = new Chart(canvas, {
       type: 'line',
@@ -224,13 +184,7 @@
         },
         plugins: {
           legend: {
-            display: true,
-            position: 'bottom',
-            labels: {
-              color: '#9ca3af',
-              usePointStyle: true,
-              padding: 20,
-            },
+            display: false,
           },
           tooltip: {
             backgroundColor: '#1e1e1e',
@@ -241,7 +195,7 @@
             callbacks: {
               label: (context) => {
                 const value = context.parsed.y;
-                return `${context.dataset.label}: ${value.toLocaleString()}`;
+                return `Stars: ${value.toLocaleString()}`;
               },
             },
           },
@@ -274,7 +228,6 @@
     // Attach event listeners
     document.getElementById('date-range')?.addEventListener('change', updateChart);
     document.getElementById('chart-type')?.addEventListener('change', updateChart);
-    document.getElementById('toggle-stars')?.addEventListener('change', updateChart);
   }
 
   // Initialize when DOM is ready

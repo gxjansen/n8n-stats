@@ -12,12 +12,23 @@
 <div id="creators-chart-container" class="card">
   <!-- Controls -->
   <div class="flex flex-wrap items-center gap-4 mb-6">
+    <!-- Date Range -->
+    <div class="flex items-center gap-2">
+      <label class="text-sm text-gray-400">Range:</label>
+      <select id="creators-date-range" class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary">
+        <option value="12">Last 12 months</option>
+        <option value="24" selected>Last 24 months</option>
+        <option value="36">Last 3 years</option>
+        <option value="all">All time</option>
+      </select>
+    </div>
+
     <!-- Chart Type -->
     <div class="flex items-center gap-2">
       <label class="text-sm text-gray-400">Type:</label>
       <select id="creators-chart-type" class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary">
-        <option value="line" selected>Line</option>
-        <option value="area">Area</option>
+        <option value="line">Line</option>
+        <option value="area" selected>Area</option>
       </select>
     </div>
 
@@ -100,6 +111,16 @@
     return (document.getElementById('creators-chart-type') as HTMLSelectElement).value === 'area';
   }
 
+  function getCreatorsDateRange(): number | 'all' {
+    const value = (document.getElementById('creators-date-range') as HTMLSelectElement).value;
+    return value === 'all' ? 'all' : parseInt(value, 10);
+  }
+
+  function filterCreatorsByMonths(points: CreatorStats[], months: number | 'all'): CreatorStats[] {
+    if (months === 'all') return points;
+    return points.slice(-months);
+  }
+
   function createCreatorsDatasets(data: CreatorStats[], metrics: string[], isArea: boolean) {
     const metricLabels: Record<string, string> = {
       total: 'Total Creators',
@@ -123,12 +144,13 @@
 
     const metrics = getCreatorsVisibleMetrics();
     const isArea = isCreatorsAreaChart();
+    const range = getCreatorsDateRange();
 
-    // Use weekly data for the chart
-    const data = creatorsHistoryData.weekly;
+    // Use weekly data filtered by date range
+    const filteredData = filterCreatorsByMonths(creatorsHistoryData.weekly, range);
 
-    const labels = data.map(d => d.date);
-    const datasets = createCreatorsDatasets(data, metrics, isArea);
+    const labels = filteredData.map(d => d.date);
+    const datasets = createCreatorsDatasets(filteredData, metrics, isArea);
 
     if (creatorsChart) {
       creatorsChart.data.labels = labels;
@@ -158,10 +180,11 @@
 
     const metrics = getCreatorsVisibleMetrics();
     const isArea = isCreatorsAreaChart();
+    const range = getCreatorsDateRange();
 
-    const data = creatorsHistoryData.weekly;
-    const labels = data.map(d => d.date);
-    const datasets = createCreatorsDatasets(data, metrics, isArea);
+    const filteredData = filterCreatorsByMonths(creatorsHistoryData.weekly, range);
+    const labels = filteredData.map(d => d.date);
+    const datasets = createCreatorsDatasets(filteredData, metrics, isArea);
 
     creatorsChart = new Chart(canvas, {
       type: 'line',
@@ -223,6 +246,7 @@
     });
 
     // Attach event listeners
+    document.getElementById('creators-date-range')?.addEventListener('change', updateCreatorsChart);
     document.getElementById('creators-chart-type')?.addEventListener('change', updateCreatorsChart);
     document.getElementById('creators-toggle-total')?.addEventListener('change', updateCreatorsChart);
     document.getElementById('creators-toggle-verified')?.addEventListener('change', updateCreatorsChart);

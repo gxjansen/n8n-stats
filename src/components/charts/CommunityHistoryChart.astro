@@ -16,11 +16,10 @@
     <div class="flex items-center gap-2">
       <label class="text-sm text-gray-400">Range:</label>
       <select id="community-date-range" class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary">
-        <option value="30">Last 30 days</option>
-        <option value="90">Last 90 days</option>
-        <option value="365">Last year</option>
-        <option value="730">Last 2 years</option>
-        <option value="all" selected>All time</option>
+        <option value="365">Last 12 months</option>
+        <option value="730" selected>Last 24 months</option>
+        <option value="1095">Last 3 years</option>
+        <option value="all">All time</option>
       </select>
     </div>
 
@@ -28,8 +27,8 @@
     <div class="flex items-center gap-2">
       <label class="text-sm text-gray-400">Type:</label>
       <select id="community-chart-type" class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary">
-        <option value="line" selected>Line</option>
-        <option value="area">Area</option>
+        <option value="line">Line</option>
+        <option value="area" selected>Area</option>
         <option value="bar">Bar</option>
       </select>
     </div>
@@ -119,6 +118,7 @@
     } else if (rangeDays <= 730) {
       return data.weekly;
     } else {
+      // For 3 years (1095 days) or more, use monthly data
       return data.monthly;
     }
   }
