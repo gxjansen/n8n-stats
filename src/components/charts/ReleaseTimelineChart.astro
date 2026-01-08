@@ -43,7 +43,7 @@ const releaseData = JSON.stringify(releases);
         <span class="text-gray-400">2.x series</span>
       </span>
     </div>
-    <span class="text-sm text-gray-500">{releases.length} releases (past 2 years)</span>
+    <span class="text-sm text-gray-500">{releases.length} releases</span>
   </div>
 
   <div class="relative" style="height: 200px;">
@@ -88,22 +88,31 @@ const releaseData = JSON.stringify(releases);
     const series1x = releases.filter(r => r.series === '1.x');
     const series2x = releases.filter(r => r.series === '2.x');
 
+    // Calculate Y positions - each release slightly higher than the previous
+    // 1.x series: 0.5 to 4.5, 2.x series: 0.5 to 4.5 (both climb from bottom)
+    const calcY = (index: number, total: number) => {
+      const minY = 0.5;
+      const maxY = 4.5;
+      if (total <= 1) return (minY + maxY) / 2;
+      return minY + (index / (total - 1)) * (maxY - minY);
+    };
+
     // Create datasets
     const datasets = [];
 
     if (series1x.length > 0) {
       datasets.push({
         label: '1.x releases',
-        data: series1x.map(r => ({
+        data: series1x.map((r, i) => ({
           x: new Date(r.date),
-          y: 1,
+          y: calcY(i, series1x.length),
           tag: r.tag,
           url: r.url,
         })),
         backgroundColor: COLORS['1.x'].bg,
         borderColor: COLORS['1.x'].border,
-        pointRadius: 6,
-        pointHoverRadius: 9,
+        pointRadius: 5,
+        pointHoverRadius: 8,
         showLine: false,
       });
     }
@@ -111,24 +120,25 @@ const releaseData = JSON.stringify(releases);
     if (series2x.length > 0) {
       datasets.push({
         label: '2.x releases',
-        data: series2x.map(r => ({
+        data: series2x.map((r, i) => ({
           x: new Date(r.date),
-          y: 2,
+          y: calcY(i, series2x.length),
           tag: r.tag,
           url: r.url,
         })),
         backgroundColor: COLORS['2.x'].bg,
         borderColor: COLORS['2.x'].border,
-        pointRadius: 6,
-        pointHoverRadius: 9,
+        pointRadius: 5,
+        pointHoverRadius: 8,
         showLine: false,
       });
     }
 
-    // Calculate date range (fixed 2 years)
+    // Calculate date range - start from first release, end at now
     const now = new Date();
-    const twoYearsAgo = new Date();
-    twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+    const firstReleaseDate = new Date(releases[0].date);
+    // Add a small padding before first release
+    firstReleaseDate.setDate(firstReleaseDate.getDate() - 14);
 
     new Chart(canvas, {
       type: 'scatter',
@@ -167,7 +177,7 @@ const releaseData = JSON.stringify(releases);
         scales: {
           x: {
             type: 'time',
-            min: twoYearsAgo.getTime(),
+            min: firstReleaseDate.getTime(),
             max: now.getTime(),
             time: {
               unit: 'month',
@@ -183,7 +193,7 @@ const releaseData = JSON.stringify(releases);
           },
           y: {
             min: 0,
-            max: 3,
+            max: 5,
             grid: { display: false },
             ticks: {
               display: false,
