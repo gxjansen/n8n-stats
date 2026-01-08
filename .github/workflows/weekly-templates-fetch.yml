@@ -1,0 +1,40 @@
+name: Weekly Full Templates Fetch
+
+on:
+  schedule:
+    # Run every Sunday at 04:00 UTC (before daily build at 06:00)
+    - cron: '0 4 * * 0'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  fetch-all-templates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # Script takes ~16 min, add buffer
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch all templates from n8n API
+        run: npx tsx scripts/fetch-all-templates.ts
+
+      - name: Commit updated data
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add public/data/all-templates-data.json
+          git diff --staged --quiet || git commit -m "Update full templates data (weekly) [skip ci]"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
