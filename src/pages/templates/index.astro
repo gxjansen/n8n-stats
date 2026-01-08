@@ -2,28 +2,51 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TemplatesHistoryChart from '@/components/charts/TemplatesHistoryChart.astro';
 import CategoryTreemapChart from '@/components/charts/CategoryTreemapChart.astro';
-import { fetchTemplateStats } from '@/lib/api/n8n';
+import { fetchTemplateAnalytics } from '@/lib/api/n8n';
 import { formatNumber } from '@/lib/utils/formatters';
 
-// Fetch current template statistics
-const stats = await fetchTemplateStats();
+// Fetch comprehensive analytics
+const analytics = await fetchTemplateAnalytics();
 
 // Sort categories by count
-const sortedCategories = [...stats.categories].sort((a, b) => b.count - a.count);
-const totalCategoryCount = sortedCategories.reduce((sum, c) => sum + c.count, 0);
+const sortedCategories = [...analytics.categories].sort((a, b) => b.count - a.count);
 
 // Get top and bottom nodes
-const topNodes = stats.topNodes.slice(0, 15);
-const bottomNodes = stats.topNodes.slice(-10).reverse();
+const topNodes = analytics.topNodes.slice(0, 15);
+const bottomNodes = analytics.topNodes.slice(-10).reverse();
+
+// Prepare chart data
+const viewsData = [
+  { label: 'Viral (100K+)', value: analytics.viewsDistribution.viral, color: '#ff6384' },
+  { label: 'Popular (10K-100K)', value: analytics.viewsDistribution.popular, color: '#36a2eb' },
+  { label: 'Growing (1K-10K)', value: analytics.viewsDistribution.growing, color: '#ffce56' },
+  { label: 'New (<1K)', value: analytics.viewsDistribution.new, color: '#4bc0c0' },
+];
+
+const complexityData = [
+  { label: 'Simple (1-3 nodes)', value: analytics.complexityDistribution.simple, color: '#4bc0c0' },
+  { label: 'Medium (4-7 nodes)', value: analytics.complexityDistribution.medium, color: '#ffce56' },
+  { label: 'Complex (8+ nodes)', value: analytics.complexityDistribution.complex, color: '#ff6384' },
+];
+
+const aiData = [
+  { label: 'AI Templates', value: analytics.aiStats.aiTemplates, color: '#9966ff' },
+  { label: 'Other Templates', value: analytics.aiStats.nonAiTemplates, color: '#7c8798' },
+];
+
+const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
+  name: c.value,
+  count: c.count,
+}));
 ---
 
-<BaseLayout title="Template Statistics" description="Statistics and trends for n8n workflow templates">
+<BaseLayout title="Template Statistics" description="Comprehensive statistics and insights for n8n workflow templates">
   <div class="container-narrow py-12">
     <!-- Header -->
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-white mb-2">Template Statistics</h1>
       <p class="text-gray-400">
-        Insights into the n8n workflow template library
+        Comprehensive insights into the n8n workflow template ecosystem
       </p>
     </div>
 
@@ -32,27 +55,27 @@ const bottomNodes = stats.topNodes.slice(-10).reverse();
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="card text-center">
           <div class="text-3xl font-bold text-n8n-primary mb-1">
-            {formatNumber(stats.totalWorkflows)}
+            {formatNumber(analytics.totalWorkflows)}
           </div>
           <div class="text-sm text-gray-400">Total Templates</div>
         </div>
         <div class="card text-center">
           <div class="text-3xl font-bold text-purple-400 mb-1">
-            {stats.categories.length}
+            {analytics.categories.length}
           </div>
           <div class="text-sm text-gray-400">Categories</div>
         </div>
         <div class="card text-center">
           <div class="text-3xl font-bold text-cyan-400 mb-1">
-            {stats.topNodes.length}
+            {analytics.topCreators.length}+
           </div>
-          <div class="text-sm text-gray-400">Unique Nodes Used</div>
+          <div class="text-sm text-gray-400">Active Creators</div>
         </div>
         <div class="card text-center">
-          <div class="text-3xl font-bold text-yellow-400 mb-1">
-            {sortedCategories[0]?.value || 'AI'}
+          <div class="text-3xl font-bold text-green-400 mb-1">
+            {analytics.verifiedPercentage}%
           </div>
-          <div class="text-sm text-gray-400">Top Category</div>
+          <div class="text-sm text-gray-400">Verified Creators</div>
         </div>
       </div>
     </section>
@@ -61,9 +84,87 @@ const bottomNodes = stats.topNodes.slice(-10).reverse();
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-4">Template Growth Over Time</h2>
       <p class="text-gray-400 mb-6">
-        Track how the template library has grown. Data collection started today - check back for trends!
+        Track how the template library grows. Historical data builds daily.
       </p>
       <TemplatesHistoryChart />
+    </section>
+
+    <!-- Views & Complexity Distribution -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Template Performance & Complexity</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Views Distribution -->
+        <div>
+          <h3 class="text-lg font-semibold text-white mb-4">Views Distribution</h3>
+          <p class="text-gray-400 text-sm mb-4">
+            Based on 100 trending templates
+          </p>
+          <div class="card">
+            <div class="relative" style="height: 280px;">
+              <canvas id="views-chart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Complexity Distribution -->
+        <div>
+          <h3 class="text-lg font-semibold text-white mb-4">Workflow Complexity</h3>
+          <p class="text-gray-400 text-sm mb-4">
+            Number of nodes per template
+          </p>
+          <div class="card">
+            <div class="relative" style="height: 280px;">
+              <canvas id="complexity-chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI Dominance -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">AI Template Dominance</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card">
+          <div class="relative" style="height: 280px;">
+            <canvas id="ai-chart"></canvas>
+          </div>
+        </div>
+        <div class="flex flex-col justify-center">
+          <div class="text-6xl font-bold text-purple-400 mb-2">
+            {analytics.aiStats.aiPercentage}%
+          </div>
+          <div class="text-xl text-gray-300 mb-4">of templates are AI-related</div>
+          <p class="text-gray-400">
+            AI, Multimodal AI, AI Summarization, and AI Chatbot categories dominate
+            the template library, reflecting the strong focus on AI automation in
+            the n8n ecosystem.
+          </p>
+          <div class="mt-4 grid grid-cols-2 gap-4">
+            <div class="bg-n8n-darker rounded-lg p-3">
+              <div class="text-2xl font-bold text-purple-400">{formatNumber(analytics.aiStats.aiTemplates)}</div>
+              <div class="text-sm text-gray-400">AI Templates</div>
+            </div>
+            <div class="bg-n8n-darker rounded-lg p-3">
+              <div class="text-2xl font-bold text-gray-400">{formatNumber(analytics.aiStats.nonAiTemplates)}</div>
+              <div class="text-sm text-gray-400">Other Templates</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Creation Timeline -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-4">Template Creation Timeline</h2>
+      <p class="text-gray-400 mb-6">
+        Monthly trend of new template submissions (from trending templates sample)
+      </p>
+      <div class="card">
+        <div class="relative" style="height: 300px;">
+          <canvas id="timeline-chart"></canvas>
+        </div>
+      </div>
     </section>
 
     <!-- Category Breakdown -->
@@ -73,6 +174,73 @@ const bottomNodes = stats.topNodes.slice(-10).reverse();
         Rectangle size represents the number of templates in each category.
       </p>
       <CategoryTreemapChart data={sortedCategories.map(c => ({ name: c.value, count: c.count }))} />
+    </section>
+
+    <!-- Node Type Categories -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Node Type Distribution</h2>
+      <p class="text-gray-400 mb-4">
+        Technical categories of nodes used in templates (AI, Core Nodes, Data & Storage, etc.)
+      </p>
+      <div class="card">
+        <div class="space-y-3">
+          {analytics.nodeCategories.slice(0, 12).map((cat, index) => {
+            const maxCount = analytics.nodeCategories[0]?.count || 1;
+            const percentage = ((cat.count / maxCount) * 100).toFixed(0);
+            const colors = ['#9966ff', '#ff6384', '#36a2eb', '#4bc0c0', '#ffce56', '#ff9f40', '#c9cbcf', '#7c8798', '#b366ff', '#45b7d1', '#96ceb4', '#ffeaa7'];
+            return (
+              <div class="flex items-center gap-4">
+                <div class="w-32 md:w-40 text-sm text-gray-300 truncate" title={cat.value}>
+                  {cat.value}
+                </div>
+                <div class="flex-1 h-6 bg-n8n-darker rounded overflow-hidden">
+                  <div
+                    class="h-full rounded transition-all duration-500"
+                    style={`width: ${percentage}%; background-color: ${colors[index % colors.length]};`}
+                  ></div>
+                </div>
+                <div class="w-16 text-right text-sm text-gray-400">
+                  {formatNumber(cat.count)}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+
+    <!-- Top Creators -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Top Template Creators</h2>
+      <p class="text-gray-400 mb-4">
+        Most prolific contributors (from trending templates)
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {analytics.topCreators.slice(0, 10).map((creator, index) => (
+          <div class="card flex items-center gap-4">
+            <div class={`text-2xl font-bold w-10 ${index < 3 ? 'text-n8n-primary' : 'text-gray-500'}`}>
+              #{index + 1}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="font-medium text-white truncate">{creator.name}</span>
+                {creator.verified && (
+                  <span class="text-blue-400 text-xs" title="Verified Creator">✓</span>
+                )}
+              </div>
+              <div class="text-sm text-gray-400">@{creator.username}</div>
+            </div>
+            <div class="text-right">
+              <div class="font-bold text-white">{creator.templateCount}</div>
+              <div class="text-xs text-gray-400">templates</div>
+            </div>
+            <div class="text-right">
+              <div class="font-bold text-cyan-400">{formatNumber(creator.totalViews)}</div>
+              <div class="text-xs text-gray-400">views</div>
+            </div>
+          </div>
+        ))}
+      </div>
     </section>
 
     <!-- Most Used Nodes -->
@@ -120,37 +288,6 @@ const bottomNodes = stats.topNodes.slice(-10).reverse();
       </div>
     </section>
 
-    <!-- Key Insights -->
-    <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">Key Insights</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="card">
-          <h3 class="text-lg font-semibold text-white mb-3">AI Dominance</h3>
-          <p class="text-gray-400 text-sm">
-            {(() => {
-              const aiCategories = sortedCategories.filter(c =>
-                c.value.toLowerCase().includes('ai') || c.value.toLowerCase().includes('multimodal')
-              );
-              const aiTotal = aiCategories.reduce((sum, c) => sum + c.count, 0);
-              const aiPercentage = ((aiTotal / totalCategoryCount) * 100).toFixed(0);
-              return `AI-related categories account for approximately ${aiPercentage}% of all templates,
-                      reflecting the strong focus on AI automation in the n8n ecosystem.`;
-            })()}
-          </p>
-        </div>
-        <div class="card">
-          <h3 class="text-lg font-semibold text-white mb-3">Core Utility Nodes</h3>
-          <p class="text-gray-400 text-sm">
-            {(() => {
-              const topThree = topNodes.slice(0, 3).map(n => n.value).join(', ');
-              return `${topThree} are the most commonly used nodes, appearing in thousands of templates
-                      as essential building blocks for automation workflows.`;
-            })()}
-          </p>
-        </div>
-      </div>
-    </section>
-
     <!-- Link to explore templates -->
     <div class="text-center mt-8">
       <p class="text-gray-400 mb-4">
@@ -168,7 +305,196 @@ const bottomNodes = stats.topNodes.slice(-10).reverse();
 
     <!-- Note -->
     <p class="text-sm text-gray-500 text-center mt-8">
-      Statistics are updated daily during site builds. Historical tracking started {new Date().toISOString().split('T')[0]}.
+      Statistics based on analysis of trending templates. Data refreshed on each build.
     </p>
   </div>
 </BaseLayout>
+
+<script define:vars={{ viewsData, complexityData, aiData, creationTimeline: analytics.creationTimeline }}>
+  window.__templateChartData = { viewsData, complexityData, aiData, creationTimeline };
+</script>
+
+<script>
+  import Chart from 'chart.js/auto';
+
+  interface ChartDataItem {
+    label: string;
+    value: number;
+    color: string;
+  }
+
+  interface TimelineItem {
+    month: string;
+    count: number;
+  }
+
+  function initCharts() {
+    const data = (window as any).__templateChartData;
+    if (!data) return;
+
+    const { viewsData, complexityData, aiData, creationTimeline } = data as {
+      viewsData: ChartDataItem[];
+      complexityData: ChartDataItem[];
+      aiData: ChartDataItem[];
+      creationTimeline: TimelineItem[];
+    };
+
+    // Views Distribution Chart
+    const viewsCanvas = document.getElementById('views-chart') as HTMLCanvasElement;
+    if (viewsCanvas) {
+      new Chart(viewsCanvas, {
+        type: 'doughnut',
+        data: {
+          labels: viewsData.map(d => d.label),
+          datasets: [{
+            data: viewsData.map(d => d.value),
+            backgroundColor: viewsData.map(d => d.color),
+            borderColor: '#1a1a2e',
+            borderWidth: 2,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '55%',
+          plugins: {
+            legend: {
+              display: true,
+              position: 'bottom',
+              labels: { color: '#9ca3af', padding: 12, usePointStyle: true },
+            },
+            tooltip: {
+              backgroundColor: '#1e1e1e',
+              titleColor: '#fff',
+              bodyColor: '#9ca3af',
+              borderColor: '#333',
+              borderWidth: 1,
+            },
+          },
+        },
+      });
+    }
+
+    // Complexity Distribution Chart
+    const complexityCanvas = document.getElementById('complexity-chart') as HTMLCanvasElement;
+    if (complexityCanvas) {
+      new Chart(complexityCanvas, {
+        type: 'doughnut',
+        data: {
+          labels: complexityData.map(d => d.label),
+          datasets: [{
+            data: complexityData.map(d => d.value),
+            backgroundColor: complexityData.map(d => d.color),
+            borderColor: '#1a1a2e',
+            borderWidth: 2,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '55%',
+          plugins: {
+            legend: {
+              display: true,
+              position: 'bottom',
+              labels: { color: '#9ca3af', padding: 12, usePointStyle: true },
+            },
+            tooltip: {
+              backgroundColor: '#1e1e1e',
+              titleColor: '#fff',
+              bodyColor: '#9ca3af',
+              borderColor: '#333',
+              borderWidth: 1,
+            },
+          },
+        },
+      });
+    }
+
+    // AI Distribution Chart
+    const aiCanvas = document.getElementById('ai-chart') as HTMLCanvasElement;
+    if (aiCanvas) {
+      new Chart(aiCanvas, {
+        type: 'doughnut',
+        data: {
+          labels: aiData.map(d => d.label),
+          datasets: [{
+            data: aiData.map(d => d.value),
+            backgroundColor: aiData.map(d => d.color),
+            borderColor: '#1a1a2e',
+            borderWidth: 2,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '65%',
+          plugins: {
+            legend: {
+              display: true,
+              position: 'bottom',
+              labels: { color: '#9ca3af', padding: 12, usePointStyle: true },
+            },
+            tooltip: {
+              backgroundColor: '#1e1e1e',
+              titleColor: '#fff',
+              bodyColor: '#9ca3af',
+              borderColor: '#333',
+              borderWidth: 1,
+            },
+          },
+        },
+      });
+    }
+
+    // Timeline Chart
+    const timelineCanvas = document.getElementById('timeline-chart') as HTMLCanvasElement;
+    if (timelineCanvas && creationTimeline.length > 0) {
+      new Chart(timelineCanvas, {
+        type: 'bar',
+        data: {
+          labels: creationTimeline.map(d => d.month),
+          datasets: [{
+            label: 'Templates Created',
+            data: creationTimeline.map(d => d.count),
+            backgroundColor: '#ff6b9d',
+            borderColor: '#ff6b9d',
+            borderWidth: 0,
+            borderRadius: 4,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e1e1e',
+              titleColor: '#fff',
+              bodyColor: '#9ca3af',
+              borderColor: '#333',
+              borderWidth: 1,
+            },
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#6b7280' },
+            },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#6b7280' },
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCharts);
+  } else {
+    initCharts();
+  }
+</script>

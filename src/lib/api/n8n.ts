@@ -202,3 +202,205 @@ export async function fetchTemplateStats(): Promise<TemplateStats> {
     topNodes,
   };
 }
+
+/**
+ * Comprehensive template analytics data
+ */
+export interface TemplateAnalytics {
+  totalWorkflows: number;
+  categories: FilterCount[];
+  topNodes: FilterCount[];
+
+  // Views distribution
+  viewsDistribution: {
+    viral: number;      // >100K views
+    popular: number;    // 10K-100K views
+    growing: number;    // 1K-10K views
+    new: number;        // <1K views
+  };
+
+  // Template complexity
+  complexityDistribution: {
+    simple: number;     // 1-3 nodes
+    medium: number;     // 4-7 nodes
+    complex: number;    // 8+ nodes
+  };
+
+  // Creator stats
+  topCreators: Array<{
+    username: string;
+    name: string;
+    verified: boolean;
+    templateCount: number;
+    totalViews: number;
+  }>;
+  verifiedPercentage: number;
+
+  // Node categories (from codex)
+  nodeCategories: FilterCount[];
+
+  // Creation timeline (monthly)
+  creationTimeline: Array<{
+    month: string;
+    count: number;
+  }>;
+
+  // AI vs non-AI
+  aiStats: {
+    aiTemplates: number;
+    nonAiTemplates: number;
+    aiPercentage: number;
+  };
+}
+
+/**
+ * Fetch comprehensive template analytics
+ */
+export async function fetchTemplateAnalytics(): Promise<TemplateAnalytics> {
+  // Fetch templates with full data (100 for trending sample)
+  const response = await fetch(`${API_BASE}/templates/search?rows=100`, {
+    headers: {
+      'User-Agent': 'n8n-stats',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch template analytics: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const workflows = data.workflows || [];
+
+  // Extract filter counts
+  const categoryFilter = data.filters?.find((f: ApiFilter) => f.field_name === 'categories');
+  const categories: FilterCount[] = categoryFilter?.counts || [];
+
+  const nodesFilter = data.filters?.find((f: ApiFilter) => f.field_name === 'apps');
+  const topNodes: FilterCount[] = nodesFilter?.counts || [];
+
+  // Calculate views distribution
+  const viewsDistribution = {
+    viral: 0,
+    popular: 0,
+    growing: 0,
+    new: 0,
+  };
+
+  for (const w of workflows) {
+    const views = w.totalViews || 0;
+    if (views > 100000) viewsDistribution.viral++;
+    else if (views > 10000) viewsDistribution.popular++;
+    else if (views > 1000) viewsDistribution.growing++;
+    else viewsDistribution.new++;
+  }
+
+  // Calculate complexity distribution
+  const complexityDistribution = {
+    simple: 0,
+    medium: 0,
+    complex: 0,
+  };
+
+  for (const w of workflows) {
+    const nodeCount = w.nodes?.length || 0;
+    if (nodeCount <= 3) complexityDistribution.simple++;
+    else if (nodeCount <= 7) complexityDistribution.medium++;
+    else complexityDistribution.complex++;
+  }
+
+  // Calculate top creators
+  const creatorMap = new Map<string, {
+    username: string;
+    name: string;
+    verified: boolean;
+    templateCount: number;
+    totalViews: number;
+  }>();
+
+  let verifiedCount = 0;
+  for (const w of workflows) {
+    const user = w.user;
+    if (!user) continue;
+
+    if (user.verified) verifiedCount++;
+
+    const existing = creatorMap.get(user.username);
+    if (existing) {
+      existing.templateCount++;
+      existing.totalViews += w.totalViews || 0;
+    } else {
+      creatorMap.set(user.username, {
+        username: user.username,
+        name: user.name || user.username,
+        verified: user.verified || false,
+        templateCount: 1,
+        totalViews: w.totalViews || 0,
+      });
+    }
+  }
+
+  const topCreators = Array.from(creatorMap.values())
+    .sort((a, b) => b.templateCount - a.templateCount)
+    .slice(0, 10);
+
+  const verifiedPercentage = workflows.length > 0
+    ? Math.round((verifiedCount / workflows.length) * 100)
+    : 0;
+
+  // Calculate node categories from codex
+  const nodeCategoryMap = new Map<string, number>();
+  for (const w of workflows) {
+    for (const node of w.nodes || []) {
+      const cats = node.codex?.data?.categories || [];
+      for (const cat of cats) {
+        nodeCategoryMap.set(cat, (nodeCategoryMap.get(cat) || 0) + 1);
+      }
+    }
+  }
+
+  const nodeCategories = Array.from(nodeCategoryMap.entries())
+    .map(([value, count]) => ({ value, count }))
+    .sort((a, b) => b.count - a.count);
+
+  // Calculate creation timeline
+  const monthMap = new Map<string, number>();
+  for (const w of workflows) {
+    if (w.createdAt) {
+      const month = w.createdAt.slice(0, 7); // YYYY-MM
+      monthMap.set(month, (monthMap.get(month) || 0) + 1);
+    }
+  }
+
+  const creationTimeline = Array.from(monthMap.entries())
+    .map(([month, count]) => ({ month, count }))
+    .sort((a, b) => a.month.localeCompare(b.month));
+
+  // Calculate AI vs non-AI
+  const aiCategories = ['AI', 'Multimodal AI', 'AI Summarization', 'AI Chatbot'];
+  const aiTemplateCount = categories
+    .filter(c => aiCategories.includes(c.value))
+    .reduce((sum, c) => sum + c.count, 0);
+
+  const totalFromCategories = categories.reduce((sum, c) => sum + c.count, 0);
+
+  const aiStats = {
+    aiTemplates: aiTemplateCount,
+    nonAiTemplates: Math.max(0, data.totalWorkflows - aiTemplateCount),
+    aiPercentage: totalFromCategories > 0
+      ? Math.round((aiTemplateCount / totalFromCategories) * 100)
+      : 0,
+  };
+
+  return {
+    totalWorkflows: data.totalWorkflows,
+    categories,
+    topNodes,
+    viewsDistribution,
+    complexityDistribution,
+    topCreators,
+    verifiedPercentage,
+    nodeCategories,
+    creationTimeline,
+    aiStats,
+  };
+}
