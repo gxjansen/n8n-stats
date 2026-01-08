@@ -4,9 +4,20 @@ import TemplatesHistoryChart from '@/components/charts/TemplatesHistoryChart.ast
 import CategoryTreemapChart from '@/components/charts/CategoryTreemapChart.astro';
 import { fetchTemplateAnalytics } from '@/lib/api/n8n';
 import { formatNumber } from '@/lib/utils/formatters';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 // Fetch comprehensive analytics
 const analytics = await fetchTemplateAnalytics();
+
+// Load complete template data (fetched weekly)
+let allTemplatesData: any = null;
+try {
+  const dataPath = join(process.cwd(), 'public', 'data', 'all-templates-data.json');
+  allTemplatesData = JSON.parse(readFileSync(dataPath, 'utf-8'));
+} catch (e) {
+  console.warn('all-templates-data.json not found, using sample data');
+}
 
 // Sort categories by count
 const sortedCategories = [...analytics.categories].sort((a, b) => b.count - a.count);
@@ -19,8 +30,14 @@ const viewsData = [
   { label: 'New (<1K)', value: analytics.viewsDistribution.new, color: '#4bc0c0' },
 ];
 
-// Node count breakdown for bar chart
-const nodeCountData = analytics.nodeCountBreakdown;
+// Use complete data for complexity if available, otherwise fall back to sample
+const complexityData = allTemplatesData?.complexity?.distribution || analytics.nodeCountBreakdown.map(n => ({
+  label: n.nodes,
+  count: n.count,
+}));
+
+// Creation timeline from complete data
+const creationTimeline = allTemplatesData?.timeline?.monthly || [];
 
 // AI categories breakdown for horizontal bar chart
 const aiCategoriesData = analytics.aiStats.aiCategories;
@@ -29,6 +46,17 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
   name: c.value,
   count: c.count,
 }));
+
+// Complete data stats
+const hasCompleteData = !!allTemplatesData;
+const completeDataStats = allTemplatesData ? {
+  totalCreators: allTemplatesData.creators.total,
+  verifiedCreators: allTemplatesData.creators.verified,
+  uniqueNodes: allTemplatesData.nodes.unique,
+  avgComplexity: allTemplatesData.complexity.average,
+  medianComplexity: allTemplatesData.complexity.median,
+  lastUpdated: allTemplatesData.lastUpdated,
+} : null;
 ---
 
 <BaseLayout title="Template Statistics" description="Comprehensive statistics and insights for n8n workflow templates">
@@ -52,19 +80,19 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
         </div>
         <div class="card text-center">
           <div class="text-3xl font-bold text-purple-400 mb-1">
-            {analytics.categories.length}
+            {completeDataStats?.uniqueNodes || analytics.topNodes.length}
           </div>
-          <div class="text-sm text-gray-400">Categories</div>
+          <div class="text-sm text-gray-400">Unique Nodes</div>
         </div>
         <div class="card text-center">
           <div class="text-3xl font-bold text-cyan-400 mb-1">
-            {analytics.topCreators.length}+
+            {formatNumber(completeDataStats?.totalCreators || 0)}
           </div>
-          <div class="text-sm text-gray-400">Active Creators</div>
+          <div class="text-sm text-gray-400">Template Creators</div>
         </div>
         <div class="card text-center">
           <div class="text-3xl font-bold text-green-400 mb-1">
-            {analytics.verifiedPercentage}%
+            {completeDataStats ? Math.round((completeDataStats.verifiedCreators / completeDataStats.totalCreators) * 100) : analytics.verifiedPercentage}%
           </div>
           <div class="text-sm text-gray-400">Verified Creators</div>
         </div>
@@ -143,11 +171,11 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
       <CategoryTreemapChart data={sortedCategories.map(c => ({ name: c.value, count: c.count }))} />
     </section>
 
-    <!-- Top Creators -->
+    <!-- Trending Creators -->
     <section class="mb-12">
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h2 class="text-2xl font-bold text-white">Top Template Creators</h2>
+          <h2 class="text-2xl font-bold text-white">Trending Template Creators</h2>
           <p class="text-gray-400 mt-1">
             Most active contributors among trending templates
           </p>
@@ -243,6 +271,46 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
       </div>
     </section>
 
+    <!-- Workflow Complexity - Complete Data -->
+    <section class="mb-12">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-2xl font-bold text-white">Workflow Complexity</h2>
+          <p class="text-gray-400 mt-1">
+            Distribution of nodes per template across all {formatNumber(analytics.totalWorkflows)} templates
+          </p>
+        </div>
+        <div class="text-right">
+          <div class="text-sm text-gray-400">
+            Average: <span class="text-white font-medium">{completeDataStats?.avgComplexity || 4} nodes</span>
+          </div>
+          <div class="text-sm text-gray-400">
+            Median: <span class="text-white font-medium">{completeDataStats?.medianComplexity || 4} nodes</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="relative" style="height: 300px;">
+          <canvas id="complexity-chart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Template Creation Timeline - Complete Data -->
+    {creationTimeline.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold text-white mb-4">Template Creation Timeline</h2>
+        <p class="text-gray-400 mb-6">
+          Monthly breakdown of template submissions since {creationTimeline[0]?.month || '2019'}
+        </p>
+        <div class="card">
+          <div class="relative" style="height: 300px;">
+            <canvas id="timeline-chart"></canvas>
+          </div>
+        </div>
+      </section>
+    )}
+
     <!-- Trending Templates Sample Analysis -->
     <section class="mb-12">
       <div class="mb-6">
@@ -252,31 +320,13 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
         </p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Views Distribution -->
-        <div>
-          <h3 class="text-lg font-semibold text-white mb-2">Views Distribution</h3>
-          <p class="text-gray-500 text-sm mb-4">
-            How views are distributed among trending templates
-          </p>
-          <div class="card">
-            <div class="relative" style="height: 280px;">
-              <canvas id="views-chart"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Workflow Complexity Bar Chart -->
-        <div>
-          <h3 class="text-lg font-semibold text-white mb-2">Workflow Complexity</h3>
-          <p class="text-gray-500 text-sm mb-4">
-            Number of nodes per trending template
-          </p>
-          <div class="card">
-            <div class="relative" style="height: 280px;">
-              <canvas id="complexity-chart"></canvas>
-            </div>
-          </div>
+      <div class="card">
+        <h3 class="text-lg font-semibold text-white mb-2">Views Distribution</h3>
+        <p class="text-gray-500 text-sm mb-4">
+          How views are distributed among trending templates
+        </p>
+        <div class="relative" style="height: 280px;">
+          <canvas id="views-chart"></canvas>
         </div>
       </div>
     </section>
@@ -303,8 +353,8 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
   </div>
 </BaseLayout>
 
-<script define:vars={{ viewsData, nodeCountData }}>
-  window.__templateChartData = { viewsData, nodeCountData };
+<script define:vars={{ viewsData, complexityData, creationTimeline }}>
+  window.__templateChartData = { viewsData, complexityData, creationTimeline };
 </script>
 
 <script>
@@ -316,18 +366,25 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
     color: string;
   }
 
-  interface NodeCountItem {
-    nodes: string;
+  interface ComplexityItem {
+    label: string;
     count: number;
+  }
+
+  interface TimelineItem {
+    month: string;
+    count: number;
+    cumulative: number;
   }
 
   function initCharts() {
     const data = (window as any).__templateChartData;
     if (!data) return;
 
-    const { viewsData, nodeCountData } = data as {
+    const { viewsData, complexityData, creationTimeline } = data as {
       viewsData: ChartDataItem[];
-      nodeCountData: NodeCountItem[];
+      complexityData: ComplexityItem[];
+      creationTimeline: TimelineItem[];
     };
 
     // Views Distribution Chart
@@ -368,10 +425,10 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
 
     // Complexity Distribution Chart - Bar chart showing node counts
     const complexityCanvas = document.getElementById('complexity-chart') as HTMLCanvasElement;
-    if (complexityCanvas && nodeCountData.length > 0) {
+    if (complexityCanvas && complexityData.length > 0) {
       // Generate gradient colors from teal to pink
-      const colors = nodeCountData.map((_, i) => {
-        const ratio = i / (nodeCountData.length - 1);
+      const colors = complexityData.map((_, i) => {
+        const ratio = i / (complexityData.length - 1);
         // Gradient from teal (#4bc0c0) through yellow (#ffce56) to pink (#ff6384)
         if (ratio < 0.5) {
           return `hsl(${174 - ratio * 100}, 70%, 55%)`;
@@ -383,10 +440,10 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
       new Chart(complexityCanvas, {
         type: 'bar',
         data: {
-          labels: nodeCountData.map(d => d.nodes),
+          labels: complexityData.map(d => d.label),
           datasets: [{
             label: 'Templates',
-            data: nodeCountData.map(d => d.count),
+            data: complexityData.map(d => d.count),
             backgroundColor: colors,
             borderColor: '#1a1a2e',
             borderWidth: 1,
@@ -405,7 +462,7 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
               borderColor: '#333',
               borderWidth: 1,
               callbacks: {
-                label: (ctx) => `${ctx.parsed.y} templates`,
+                label: (ctx) => `${ctx.parsed.y.toLocaleString()} templates`,
               },
             },
           },
@@ -423,6 +480,77 @@ const nodeCategoryData = analytics.nodeCategories.slice(0, 10).map(c => ({
               title: {
                 display: true,
                 text: 'Templates',
+                color: '#6b7280',
+              },
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#6b7280' },
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    }
+
+    // Creation Timeline Chart
+    const timelineCanvas = document.getElementById('timeline-chart') as HTMLCanvasElement;
+    if (timelineCanvas && creationTimeline.length > 0) {
+      // Format month labels (YYYY-MM -> MMM YY)
+      const formatMonth = (m: string) => {
+        const [year, month] = m.split('-');
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${monthNames[parseInt(month) - 1]} ${year.slice(2)}`;
+      };
+
+      new Chart(timelineCanvas, {
+        type: 'bar',
+        data: {
+          labels: creationTimeline.map(d => formatMonth(d.month)),
+          datasets: [{
+            label: 'New Templates',
+            data: creationTimeline.map(d => d.count),
+            backgroundColor: '#ff6b9d',
+            borderColor: '#ff6b9d',
+            borderWidth: 0,
+            borderRadius: 2,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e1e1e',
+              titleColor: '#fff',
+              bodyColor: '#9ca3af',
+              borderColor: '#333',
+              borderWidth: 1,
+              callbacks: {
+                label: (ctx) => {
+                  const item = creationTimeline[ctx.dataIndex];
+                  return [
+                    `${ctx.parsed.y.toLocaleString()} new templates`,
+                    `Total: ${item.cumulative.toLocaleString()}`,
+                  ];
+                },
+              },
+            },
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                color: '#6b7280',
+                maxRotation: 45,
+                minRotation: 45,
+                autoSkip: true,
+                maxTicksLimit: 24,
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'New Templates',
                 color: '#6b7280',
               },
               grid: { color: 'rgba(255,255,255,0.05)' },
