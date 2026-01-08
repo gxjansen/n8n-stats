@@ -1,39 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 500" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" fill="none">
   <defs>
-    <style>
-      .fill { fill: #FF6D5A; }
-      .stroke { stroke: #FF6D5A; stroke-width: 30; stroke-linecap: round; stroke-linejoin: round; fill: none; }
-    </style>
+    <mask id="node-mask">
+      <circle cx="60" cy="160" r="50" fill="white"/>
+      <circle cx="60" cy="160" r="25" fill="black"/>
+    </mask>
   </defs>
 
-  <!-- Left small circle (node 1) -->
-  <circle cx="55" cy="235" r="42" class="fill"/>
-  <circle cx="55" cy="235" r="20" fill="white"/>
+  <!-- Node circle with transparent hole -->
+  <circle cx="60" cy="160" r="50" fill="#FF6D5A" mask="url(#node-mask)"/>
 
-  <!-- Connection line from node 1 to node 2 -->
-  <line x1="97" y1="235" x2="130" y2="235" class="stroke"/>
-
-  <!-- Second circle (node 2 - larger) -->
-  <circle cx="198" cy="235" r="68" class="fill"/>
-  <circle cx="198" cy="235" r="38" fill="white"/>
-
-  <!-- Connection to heartbeat start -->
-  <line x1="266" y1="235" x2="340" y2="235" class="stroke"/>
-
-  <!-- Heartbeat/pulse line with split -->
-  <polyline points="340,235 380,235 420,235 480,55 555,430 620,165" class="stroke"/>
-
-  <!-- Curve from pulse peak to top-right circle (node 3) -->
-  <path d="M620 165 Q680 165 730 130 Q790 85 850 60" class="stroke"/>
-
-  <!-- Top right circle (node 3) -->
-  <circle cx="910" cy="60" r="55" class="fill"/>
-  <circle cx="910" cy="60" r="28" fill="white"/>
-
-  <!-- Curve from pulse trough down to bottom-right circle (node 4) -->
-  <path d="M555 430 Q620 430 700 440 Q800 455 850 445" class="stroke"/>
-
-  <!-- Bottom right circle (node 4) -->
-  <circle cx="910" cy="445" r="55" class="fill"/>
-  <circle cx="910" cy="445" r="28" fill="white"/>
+  <!-- Heartbeat pulse -->
+  <polyline
+    points="110,160 140,160 160,80 200,240 240,120 270,160 300,160"
+    stroke="#FF6D5A"
+    stroke-width="25"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
 </svg>
