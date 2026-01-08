@@ -130,14 +130,37 @@
     }
   }
 
+  function parseDateToTimestamp(dateStr: string): number {
+    // Handle different date formats:
+    // Daily: "2026-01-08" (ISO date)
+    // Weekly: "2024-W03" (ISO week)
+    // Monthly: "2024-01" (year-month)
+
+    if (dateStr.includes('-W')) {
+      // Weekly format: "2024-W03"
+      const [year, week] = dateStr.split('-W').map(Number);
+      // Approximate: first day of that week
+      const jan1 = new Date(year, 0, 1);
+      const daysOffset = (week - 1) * 7;
+      return jan1.getTime() + daysOffset * 24 * 60 * 60 * 1000;
+    } else if (dateStr.match(/^\d{4}-\d{2}$/)) {
+      // Monthly format: "2024-01"
+      const [year, month] = dateStr.split('-').map(Number);
+      return new Date(year, month - 1, 15).getTime(); // Mid-month
+    } else {
+      // Daily format: "2026-01-08"
+      return new Date(dateStr).getTime();
+    }
+  }
+
   function filterCommunityByDateRange(points: CommunityDataPoint[], rangeDays: number | 'all'): CommunityDataPoint[] {
     if (rangeDays === 'all') return points;
 
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - rangeDays);
-    const cutoffStr = cutoff.toISOString().split('T')[0];
+    const cutoffTimestamp = cutoff.getTime();
 
-    return points.filter(p => p.date >= cutoffStr);
+    return points.filter(p => parseDateToTimestamp(p.date) >= cutoffTimestamp);
   }
 
   function getCommunityVisibleMetrics(): string[] {
