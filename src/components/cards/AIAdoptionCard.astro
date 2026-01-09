@@ -1,0 +1,60 @@
+---
+/**
+ * AI Adoption Card
+ *
+ * Visual showing the percentage of AI templates in the ecosystem.
+ * Key unique insight - shows how AI automation has taken over n8n.
+ */
+
+import { formatNumber } from '@/lib/utils/formatters';
+
+interface Props {
+  aiTemplates: number;
+  totalTemplates: number;
+}
+
+const { aiTemplates, totalTemplates } = Astro.props;
+
+const aiPercentage = Math.round((aiTemplates / totalTemplates) * 100);
+const nonAiPercentage = 100 - aiPercentage;
+---
+
+<div class="card">
+  <div class="flex items-center justify-between mb-3">
+    <div>
+      <h3 class="text-lg font-semibold text-white">AI Dominance</h3>
+      <p class="text-sm text-gray-500">Templates using AI nodes</p>
+    </div>
+    <div class="text-right">
+      <span class="text-3xl font-bold text-purple-400">{aiPercentage}%</span>
+    </div>
+  </div>
+
+  <!-- Visual bar -->
+  <div class="relative h-8 bg-gray-800 rounded-lg overflow-hidden mb-3">
+    <div
+      class="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-600 to-purple-400 flex items-center justify-end pr-3 transition-all duration-500"
+      style={`width: ${aiPercentage}%;`}
+    >
+      <span class="text-xs font-medium text-white">AI</span>
+    </div>
+    <div
+      class="absolute inset-y-0 right-0 flex items-center pl-3"
+      style={`width: ${nonAiPercentage}%;`}
+    >
+      <span class="text-xs font-medium text-gray-400">Other</span>
+    </div>
+  </div>
+
+  <!-- Stats row -->
+  <div class="flex justify-between text-sm">
+    <div>
+      <span class="text-purple-400 font-medium">{formatNumber(aiTemplates)}</span>
+      <span class="text-gray-500"> AI templates</span>
+    </div>
+    <div>
+      <span class="text-gray-400 font-medium">{formatNumber(totalTemplates - aiTemplates)}</span>
+      <span class="text-gray-500"> other</span>
+    </div>
+  </div>
+</div>

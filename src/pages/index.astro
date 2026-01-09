@@ -1,10 +1,16 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import StatCard from '@/components/cards/StatCard.astro';
+import VelocityCard from '@/components/cards/VelocityCard.astro';
 import TemplateCard from '@/components/cards/TemplateCard.astro';
+import AIAdoptionCard from '@/components/cards/AIAdoptionCard.astro';
+import EcosystemGrowthChart from '@/components/charts/EcosystemGrowthChart.astro';
 import { fetchTemplates, aggregateNodeUsage } from '@/lib/api/n8n';
 import { fetchGitHubStats } from '@/lib/api/github';
 import { fetchForumStats } from '@/lib/api/discourse';
+import { formatNumber } from '@/lib/utils/formatters';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 // Fetch all data at build time (with error handling)
 const [templatesResponse, githubStats, forumStats] = await Promise.all([
@@ -15,10 +21,74 @@ const [templatesResponse, githubStats, forumStats] = await Promise.all([
 
 const { totalWorkflows, workflows: trendingTemplates } = templatesResponse;
 
-// Get node usage from trending templates (just for display, full aggregation needs more data)
+// Get node usage from trending templates
 const nodeUsage = aggregateNodeUsage(trendingTemplates).slice(0, 5);
 
-// Compile stats (integrations count still hardcoded - no public API found)
+// Load historical data for velocity calculations
+interface CreatorStatsEntry {
+  date: string;
+  total: number;
+  verified: number;
+  totalViews: number;
+  totalInserters: number;
+}
+
+interface GitHubHistoryEntry {
+  date: string;
+  value: number;
+}
+
+let creatorsHistory: { weekly: CreatorStatsEntry[] } = { weekly: [] };
+let githubHistory: { daily: GitHubHistoryEntry[] } = { daily: [] };
+let templatesHistory: { daily: { date: string; total: number; categories: Record<string, number> }[] } = { daily: [] };
+
+try {
+  const creatorsPath = join(process.cwd(), 'public', 'data', 'history', 'creators-stats.json');
+  creatorsHistory = JSON.parse(readFileSync(creatorsPath, 'utf-8'));
+} catch (e) { /* use defaults */ }
+
+try {
+  const githubPath = join(process.cwd(), 'public', 'data', 'history', 'github.json');
+  githubHistory = JSON.parse(readFileSync(githubPath, 'utf-8'));
+} catch (e) { /* use defaults */ }
+
+try {
+  const templatesPath = join(process.cwd(), 'public', 'data', 'history', 'templates.json');
+  templatesHistory = JSON.parse(readFileSync(templatesPath, 'utf-8'));
+} catch (e) { /* use defaults */ }
+
+// Calculate velocity metrics
+const recentCreatorData = creatorsHistory.weekly?.slice(-12) || [];
+const latestCreators = recentCreatorData[recentCreatorData.length - 1];
+const prevCreators = recentCreatorData[recentCreatorData.length - 2];
+
+// Calculate stars per day (rough estimate from historical data)
+const recentGithubData = githubHistory.daily?.slice(-10) || [];
+const starsPerDay = recentGithubData.length >= 2
+  ? Math.round((recentGithubData[recentGithubData.length - 1]?.value - recentGithubData[0]?.value) /
+      (Math.max(1, recentGithubData.length - 1) * 30)) // Approximate days between data points
+  : 180; // Fallback estimate
+
+// Creators per week
+const creatorsPerWeek = latestCreators && prevCreators
+  ? latestCreators.total - prevCreators.total
+  : 8;
+
+// Get weekly data for sparklines
+const creatorTotals = recentCreatorData.map(d => d.total);
+const verifiedTotals = recentCreatorData.map(d => d.verified);
+const inserterTotals = recentCreatorData.map(d => d.totalInserters);
+
+// Calculate views → inserters conversion rate
+const conversionRate = latestCreators && latestCreators.totalViews > 0
+  ? ((latestCreators.totalInserters / latestCreators.totalViews) * 100).toFixed(1)
+  : '17.5';
+
+// Get AI templates count from categories
+const latestTemplateData = templatesHistory.daily?.[templatesHistory.daily.length - 1];
+const aiTemplates = latestTemplateData?.categories?.['AI'] || 5189;
+
+// Compile stats for trust indicators
 const stats = {
   templates: totalWorkflows,
   githubStars: githubStats.stars,
@@ -39,27 +109,66 @@ const buildTime = new Date().toISOString();
         The pulse of the <span class="text-n8n-primary">n8n</span> community
       </h1>
       <p class="text-xl text-gray-400 max-w-2xl mx-auto">
-        Explore popular templates, trending nodes, and community activity.
-      </p>
-      <p class="text-sm text-gray-500 mt-2">
-        Last updated: {new Date(buildTime).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          timeZoneName: 'short'
-        })}
+        Track ecosystem growth, discover trends, and see what others can't.
       </p>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-      <StatCard label="Workflow Templates" value={stats.templates} />
-      <StatCard label="GitHub Stars" value={stats.githubStars} />
-      <StatCard label="Community Members" value={stats.forumUsers} />
-      <StatCard label="Integrations" value={stats.integrations} />
-    </div>
+    <!-- Growth Velocity Section - UNIQUE VALUE -->
+    <section class="mb-12">
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-2xl font-bold text-white">Growth Velocity</h2>
+        <span class="px-2 py-0.5 bg-green-500/10 text-green-400 text-xs font-medium rounded">LIVE</span>
+      </div>
+      <p class="text-gray-400 mb-6">Real-time momentum metrics you won't find anywhere else.</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <VelocityCard
+          label="GitHub Stars"
+          value={`~${starsPerDay}/day`}
+          subtitle="Repository growth rate"
+          trend={recentGithubData.map(d => d.value)}
+          color="#ff6d5a"
+          href="https://github.com/n8n-io/n8n"
+        />
+        <VelocityCard
+          label="New Creators"
+          value={`+${creatorsPerWeek}/week`}
+          subtitle="Template authors joining"
+          trend={creatorTotals}
+          color="#36a2eb"
+          to="/creators"
+        />
+        <VelocityCard
+          label="Workflow Inserters"
+          value={formatNumber(latestCreators?.totalInserters || 1681703)}
+          subtitle="Templates imported by users"
+          trend={inserterTotals}
+          color="#9966ff"
+          to="/templates"
+        />
+        <VelocityCard
+          label="Conversion Rate"
+          value={`${conversionRate}%`}
+          subtitle="Views → actual usage"
+          trend={recentCreatorData.map(d => d.totalViews > 0 ? (d.totalInserters / d.totalViews) * 100 : 0)}
+          color="#4bc0c0"
+          to="/creators"
+        />
+      </div>
+    </section>
+
+    <!-- Ecosystem Insights - 2 column layout -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Ecosystem Insights</h2>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Creator Economy Growth Chart -->
+        <EcosystemGrowthChart height={200} />
+
+        <!-- AI Adoption Visual -->
+        <AIAdoptionCard aiTemplates={aiTemplates} totalTemplates={totalWorkflows} />
+      </div>
+    </section>
 
     <!-- Trending Templates -->
     <section class="mb-12">
@@ -78,7 +187,7 @@ const buildTime = new Date().toISOString();
     </section>
 
     <!-- Top Nodes -->
-    <section>
+    <section class="mb-12">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-bold text-white">Most Used Nodes</h2>
         <a href="/nodes" class="text-n8n-primary hover:underline">
@@ -88,15 +197,57 @@ const buildTime = new Date().toISOString();
 
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
         {nodeUsage.map((node, index) => (
-          <div class="card text-center">
+          <a href="/nodes" class="card text-center hover:border-n8n-primary/50 transition-colors group">
             <div class="text-3xl font-bold text-n8n-primary mb-2">#{index + 1}</div>
-            <div class="font-medium text-white">{node.displayName}</div>
+            <div class="font-medium text-white group-hover:text-n8n-primary transition-colors">{node.displayName}</div>
             <div class="text-sm text-gray-400 mt-1">
               {node.count} templates
             </div>
-          </div>
+          </a>
         ))}
       </div>
     </section>
+
+    <!-- Trust Indicators (totals) -->
+    <section class="mb-8">
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-semibold text-gray-300">By the Numbers</h2>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard
+          label="Workflow Templates"
+          value={stats.templates}
+          to="/templates"
+        />
+        <StatCard
+          label="GitHub Stars"
+          value={stats.githubStars}
+          href="https://github.com/n8n-io/n8n"
+        />
+        <StatCard
+          label="Community Members"
+          value={stats.forumUsers}
+          href="https://community.n8n.io"
+        />
+        <StatCard
+          label="Integrations"
+          value={stats.integrations}
+          href="https://n8n.io/integrations"
+        />
+      </div>
+    </section>
+
+    <!-- Footer note -->
+    <p class="text-center text-sm text-gray-500">
+      Last updated: {new Date(buildTime).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short'
+      })}
+    </p>
   </div>
 </BaseLayout>

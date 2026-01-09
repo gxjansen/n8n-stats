@@ -1,0 +1,189 @@
+---
+/**
+ * Ecosystem Growth Chart
+ *
+ * Compact multi-line chart showing ecosystem health:
+ * - Creators growth (from n8n Arena)
+ * - Template inserters growth
+ *
+ * Designed for homepage hero placement.
+ */
+
+interface Props {
+  height?: number;
+}
+
+const { height = 200 } = Astro.props;
+---
+
+<div id="ecosystem-chart-container" class="card">
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h3 class="text-lg font-semibold text-white">Ecosystem Growth</h3>
+      <p class="text-sm text-gray-500">Creator economy growth over time</p>
+    </div>
+    <div class="flex items-center gap-4 text-xs">
+      <span class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-[#ff6d5a]"></span>
+        Creators
+      </span>
+      <span class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-[#36a2eb]"></span>
+        Verified
+      </span>
+    </div>
+  </div>
+
+  <div class="relative" style={`height: ${height}px;`}>
+    <canvas id="ecosystem-growth-chart"></canvas>
+  </div>
+
+  <div id="ecosystem-chart-loading" class="absolute inset-0 flex items-center justify-center bg-n8n-card/80 rounded-lg">
+    <span class="text-gray-400 text-sm">Loading...</span>
+  </div>
+</div>
+
+<script>
+  import Chart from 'chart.js/auto';
+
+  interface CreatorStats {
+    date: string;
+    total: number;
+    verified: number;
+    totalViews: number;
+    totalInserters: number;
+  }
+
+  let ecosystemChart: Chart | null = null;
+
+  async function initEcosystemChart() {
+    const canvas = document.getElementById('ecosystem-growth-chart') as HTMLCanvasElement;
+    const loadingEl = document.getElementById('ecosystem-chart-loading');
+
+    try {
+      const response = await fetch('/data/history/creators-stats.json');
+      if (!response.ok) throw new Error('Failed to fetch');
+      const data = await response.json();
+
+      loadingEl?.classList.add('hidden');
+
+      // Use last 16 weeks for compact view
+      const weeklyData: CreatorStats[] = data.weekly?.slice(-16) || [];
+
+      if (weeklyData.length === 0) {
+        loadingEl?.classList.remove('hidden');
+        if (loadingEl) loadingEl.textContent = 'No data available';
+        return;
+      }
+
+      const labels = weeklyData.map((d: CreatorStats) => {
+        // Shorten date labels
+        const date = d.date;
+        if (date.includes('W')) {
+          const [year, week] = date.split('-W');
+          return `W${week}`;
+        }
+        return date;
+      });
+
+      ecosystemChart = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Total Creators',
+              data: weeklyData.map((d: CreatorStats) => d.total),
+              borderColor: '#ff6d5a',
+              backgroundColor: 'rgba(255, 109, 90, 0.1)',
+              fill: true,
+              tension: 0.3,
+              pointRadius: 0,
+              pointHoverRadius: 4,
+            },
+            {
+              label: 'Verified Creators',
+              data: weeklyData.map((d: CreatorStats) => d.verified),
+              borderColor: '#36a2eb',
+              backgroundColor: 'rgba(54, 162, 235, 0.1)',
+              fill: true,
+              tension: 0.3,
+              pointRadius: 0,
+              pointHoverRadius: 4,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false,
+          },
+          plugins: {
+            legend: {
+              display: false,
+            },
+            tooltip: {
+              backgroundColor: '#1e1e1e',
+              titleColor: '#fff',
+              bodyColor: '#9ca3af',
+              borderColor: '#333',
+              borderWidth: 1,
+              padding: 10,
+              callbacks: {
+                label: (context) => {
+                  return `${context.dataset.label}: ${context.parsed.y.toLocaleString()}`;
+                },
+              },
+            },
+          },
+          scales: {
+            x: {
+              display: true,
+              grid: { display: false },
+              ticks: {
+                color: '#6b7280',
+                font: { size: 10 },
+                maxRotation: 0,
+                autoSkip: true,
+                maxTicksLimit: 8,
+              },
+            },
+            y: {
+              display: true,
+              position: 'right',
+              grid: { color: 'rgba(255,255,255,0.03)' },
+              ticks: {
+                color: '#6b7280',
+                font: { size: 10 },
+                callback: (value) => {
+                  if (typeof value === 'number') {
+                    if (value >= 1000) return (value / 1000).toFixed(1) + 'K';
+                  }
+                  return value;
+                },
+              },
+            },
+          },
+        },
+      });
+    } catch (error) {
+      console.error('Failed to load ecosystem data:', error);
+      loadingEl?.classList.remove('hidden');
+      if (loadingEl) loadingEl.innerHTML = '<span class="text-red-400 text-sm">Failed to load</span>';
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initEcosystemChart);
+  } else {
+    initEcosystemChart();
+  }
+</script>
+
+<style>
+  #ecosystem-chart-container {
+    position: relative;
+  }
+</style>

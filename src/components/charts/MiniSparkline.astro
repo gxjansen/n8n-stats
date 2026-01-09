@@ -1,0 +1,78 @@
+---
+/**
+ * Mini Sparkline Component
+ *
+ * Lightweight SVG sparkline for inline trend visualization.
+ * No dependencies - pure SVG path generation.
+ */
+
+interface Props {
+  data: number[];
+  width?: number;
+  height?: number;
+  color?: string;
+  showArea?: boolean;
+  className?: string;
+}
+
+const {
+  data,
+  width = 80,
+  height = 24,
+  color = '#ff6d5a',
+  showArea = true,
+  className = '',
+} = Astro.props;
+
+// Normalize data to fit within the SVG viewBox
+const padding = 2;
+const effectiveWidth = width - padding * 2;
+const effectiveHeight = height - padding * 2;
+
+const minValue = Math.min(...data);
+const maxValue = Math.max(...data);
+const range = maxValue - minValue || 1;
+
+const points = data.map((value, index) => {
+  const x = padding + (index / (data.length - 1)) * effectiveWidth;
+  const y = padding + effectiveHeight - ((value - minValue) / range) * effectiveHeight;
+  return { x, y };
+});
+
+// Generate SVG path
+const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+const areaPath = showArea
+  ? `${linePath} L ${points[points.length - 1].x.toFixed(1)} ${height - padding} L ${padding} ${height - padding} Z`
+  : '';
+---
+
+<svg
+  class={className}
+  width={width}
+  height={height}
+  viewBox={`0 0 ${width} ${height}`}
+  preserveAspectRatio="none"
+>
+  {showArea && (
+    <path
+      d={areaPath}
+      fill={color}
+      fill-opacity="0.15"
+    />
+  )}
+  <path
+    d={linePath}
+    fill="none"
+    stroke={color}
+    stroke-width="1.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <!-- End dot -->
+  <circle
+    cx={points[points.length - 1].x}
+    cy={points[points.length - 1].y}
+    r="2"
+    fill={color}
+  />
+</svg>

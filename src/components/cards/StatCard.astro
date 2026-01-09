@@ -3,32 +3,91 @@ import { formatNumber, formatChange } from '@/lib/utils/formatters';
 
 interface Props {
   label: string;
-  value: number;
+  value: number | string;
   change?: number;
   changeLabel?: string;
   icon?: string;
+  href?: string;        // External link (opens new tab)
+  to?: string;          // Internal page link
+  subtitle?: string;    // Optional subtitle below the value
+  valueClass?: string;  // Custom class for value styling
 }
 
-const { label, value, change, changeLabel = 'vs last week', icon } = Astro.props;
+const {
+  label,
+  value,
+  change,
+  changeLabel = 'vs last week',
+  icon,
+  href,
+  to,
+  subtitle,
+  valueClass = 'stat-value'
+} = Astro.props;
 
 const isPositive = change !== undefined && change >= 0;
+const isClickable = href || to;
+const linkProps = href
+  ? { href, target: '_blank', rel: 'noopener noreferrer' }
+  : to
+    ? { href: to }
+    : {};
 ---
 
-<div class="card">
-  <div class="flex items-start justify-between">
-    <div>
-      <p class="stat-label">{label}</p>
-      <p class="stat-value mt-1">{formatNumber(value)}</p>
-      {change !== undefined && (
-        <p class={`text-sm mt-2 ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-          {formatChange(change)} <span class="text-gray-500">{changeLabel}</span>
-        </p>
+{isClickable ? (
+  <a
+    {...linkProps}
+    class="card block hover:border-n8n-primary/50 hover:bg-gray-800/50 transition-all cursor-pointer group"
+  >
+    <div class="flex items-start justify-between">
+      <div>
+        <p class="stat-label group-hover:text-gray-300 transition-colors">{label}</p>
+        <p class={`${valueClass} mt-1`}>{typeof value === 'number' ? formatNumber(value) : value}</p>
+        {subtitle && (
+          <p class="text-sm text-gray-500 mt-1">{subtitle}</p>
+        )}
+        {change !== undefined && (
+          <p class={`text-sm mt-2 ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+            {formatChange(change)} <span class="text-gray-500">{changeLabel}</span>
+          </p>
+        )}
+      </div>
+      <div class="flex flex-col items-end gap-2">
+        {icon && (
+          <div class="text-n8n-primary text-2xl">
+            <Fragment set:html={icon} />
+          </div>
+        )}
+        <svg class="w-4 h-4 text-gray-600 group-hover:text-n8n-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {href ? (
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          ) : (
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          )}
+        </svg>
+      </div>
+    </div>
+  </a>
+) : (
+  <div class="card">
+    <div class="flex items-start justify-between">
+      <div>
+        <p class="stat-label">{label}</p>
+        <p class={`${valueClass} mt-1`}>{typeof value === 'number' ? formatNumber(value) : value}</p>
+        {subtitle && (
+          <p class="text-sm text-gray-500 mt-1">{subtitle}</p>
+        )}
+        {change !== undefined && (
+          <p class={`text-sm mt-2 ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+            {formatChange(change)} <span class="text-gray-500">{changeLabel}</span>
+          </p>
+        )}
+      </div>
+      {icon && (
+        <div class="text-n8n-primary text-2xl">
+          <Fragment set:html={icon} />
+        </div>
       )}
     </div>
-    {icon && (
-      <div class="text-n8n-primary text-2xl">
-        <Fragment set:html={icon} />
-      </div>
-    )}
   </div>
-</div>
+)}

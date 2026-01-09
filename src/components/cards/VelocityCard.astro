@@ -1,0 +1,81 @@
+---
+/**
+ * Velocity Card
+ *
+ * Shows rate of change metrics (per day/week) with mini sparkline.
+ * Key differentiator - shows momentum, not just totals.
+ */
+
+import MiniSparkline from '@/components/charts/MiniSparkline.astro';
+
+interface Props {
+  label: string;
+  value: string;
+  subtitle?: string;
+  trend: number[];  // Array of values for sparkline
+  color?: string;
+  href?: string;
+  to?: string;
+}
+
+const {
+  label,
+  value,
+  subtitle,
+  trend,
+  color = '#ff6d5a',
+  href,
+  to,
+} = Astro.props;
+
+const isClickable = href || to;
+const linkProps = href
+  ? { href, target: '_blank', rel: 'noopener noreferrer' }
+  : to
+    ? { href: to }
+    : {};
+
+// Determine if trend is positive (last value > first value)
+const isUpward = trend.length >= 2 && trend[trend.length - 1] > trend[0];
+---
+
+{isClickable ? (
+  <a
+    {...linkProps}
+    class="card block hover:border-n8n-primary/50 hover:bg-gray-800/50 transition-all cursor-pointer group"
+  >
+    <div class="flex items-start justify-between gap-4">
+      <div class="flex-1 min-w-0">
+        <p class="text-sm text-gray-400 group-hover:text-gray-300 transition-colors truncate">{label}</p>
+        <p class="text-2xl font-bold text-white mt-1">{value}</p>
+        {subtitle && (
+          <p class="text-xs text-gray-500 mt-1">{subtitle}</p>
+        )}
+      </div>
+      <div class="flex flex-col items-end gap-1">
+        <MiniSparkline data={trend} color={color} width={64} height={28} />
+        <span class={`text-xs ${isUpward ? 'text-green-400' : 'text-gray-500'}`}>
+          {isUpward ? 'trending up' : 'stable'}
+        </span>
+      </div>
+    </div>
+  </a>
+) : (
+  <div class="card">
+    <div class="flex items-start justify-between gap-4">
+      <div class="flex-1 min-w-0">
+        <p class="text-sm text-gray-400 truncate">{label}</p>
+        <p class="text-2xl font-bold text-white mt-1">{value}</p>
+        {subtitle && (
+          <p class="text-xs text-gray-500 mt-1">{subtitle}</p>
+        )}
+      </div>
+      <div class="flex flex-col items-end gap-1">
+        <MiniSparkline data={trend} color={color} width={64} height={28} />
+        <span class={`text-xs ${isUpward ? 'text-green-400' : 'text-gray-500'}`}>
+          {isUpward ? 'trending up' : 'stable'}
+        </span>
+      </div>
+    </div>
+  </div>
+)}
