@@ -17,21 +17,22 @@ const { height = 200 } = Astro.props;
 ---
 
 <div id="ecosystem-chart-container" class="card">
-  <div class="flex items-center justify-between mb-4">
+  <div class="flex items-center justify-between mb-3">
     <div>
       <h3 class="text-lg font-semibold text-white">Ecosystem Growth</h3>
       <p class="text-sm text-gray-500">Creator economy growth over time</p>
     </div>
-    <div class="flex items-center gap-4 text-xs">
-      <span class="flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full bg-[#ff6d5a]"></span>
-        Creators
-      </span>
-      <span class="flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full bg-[#36a2eb]"></span>
-        Verified
-      </span>
-    </div>
+    <a href="/creators" class="text-n8n-primary text-sm hover:underline">Details &rarr;</a>
+  </div>
+  <div class="flex items-center gap-4 text-xs mb-2">
+    <span class="flex items-center gap-1.5">
+      <span class="w-2 h-2 rounded-full bg-[#ff6d5a]"></span>
+      Creators
+    </span>
+    <span class="flex items-center gap-1.5">
+      <span class="w-2 h-2 rounded-full bg-[#36a2eb]"></span>
+      Verified
+    </span>
   </div>
 
   <div class="relative" style={`height: ${height}px;`}>

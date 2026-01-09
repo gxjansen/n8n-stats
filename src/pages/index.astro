@@ -179,7 +179,7 @@ const buildTime = new Date().toISOString();
           subtitle="Repository growth rate"
           trend={githubTrendData}
           color="#ff6d5a"
-          href="https://github.com/n8n-io/n8n"
+          to="/github"
           collecting={!hasEnoughGithubData ? {
             current: dataStatus.github.daysCollected,
             needed: dataStatus.github.daysNeeded,
@@ -279,7 +279,7 @@ const buildTime = new Date().toISOString();
         <StatCard
           label="GitHub Stars"
           value={stats.githubStars}
-          href="https://github.com/n8n-io/n8n"
+          to="/github"
         />
         <StatCard
           label="Community Members"
