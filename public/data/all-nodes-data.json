@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-01-09T21:45:16.857Z",
-  "fetchDuration": 70,
+  "lastUpdated": "2026-01-09T23:35:12.495Z",
+  "fetchDuration": 43,
   "totalTemplates": 7758,
   "nodes": {
-    "total": 196,
-    "withData": 185,
+    "total": 195,
+    "withData": 188,
     "byCategory": {
       "Utility": [
         {
@@ -950,10 +950,10 @@
           "percentage": 0
         },
         {
-          "type": "n8n-nodes-base.dynamoDb",
-          "displayName": "DynamoDB",
+          "type": "n8n-nodes-base.awsDynamodb",
+          "displayName": "AWS DynamoDB",
           "category": "Database & Storage",
-          "count": 0,
+          "count": 1,
           "percentage": 0
         }
       ],
@@ -994,6 +994,13 @@
           "percentage": 0.2
         },
         {
+          "type": "n8n-nodes-base.zohoCrm",
+          "displayName": "Zoho CRM",
+          "category": "CRM & Sales",
+          "count": 14,
+          "percentage": 0.2
+        },
+        {
           "type": "n8n-nodes-base.pipedriveTrigger",
           "displayName": "Pipedrive Trigger",
           "category": "CRM & Sales",
@@ -1026,13 +1033,6 @@
           "displayName": "Zendesk Trigger",
           "category": "CRM & Sales",
           "count": 1,
-          "percentage": 0
-        },
-        {
-          "type": "n8n-nodes-base.zoho",
-          "displayName": "Zoho CRM",
-          "category": "CRM & Sales",
-          "count": 0,
           "percentage": 0
         }
       ],
@@ -1145,13 +1145,6 @@
           "category": "Developer Tools",
           "count": 0,
           "percentage": 0
-        },
-        {
-          "type": "n8n-nodes-base.sentry",
-          "displayName": "Sentry",
-          "category": "Developer Tools",
-          "count": 0,
-          "percentage": 0
         }
       ],
       "Productivity": [
@@ -1175,6 +1168,13 @@
           "category": "Productivity",
           "count": 31,
           "percentage": 0.4
+        },
+        {
+          "type": "n8n-nodes-base.mondayCom",
+          "displayName": "Monday.com",
+          "category": "Productivity",
+          "count": 25,
+          "percentage": 0.3
         },
         {
           "type": "n8n-nodes-base.asana",
@@ -1230,13 +1230,6 @@
           "displayName": "Asana Trigger",
           "category": "Productivity",
           "count": 2,
-          "percentage": 0
-        },
-        {
-          "type": "n8n-nodes-base.monday",
-          "displayName": "Monday.com",
-          "category": "Productivity",
-          "count": 0,
           "percentage": 0
         }
       ],
@@ -2264,6 +2257,13 @@
         "percentage": 0.3
       },
       {
+        "type": "n8n-nodes-base.mondayCom",
+        "displayName": "Monday.com",
+        "category": "Productivity",
+        "count": 25,
+        "percentage": 0.3
+      },
+      {
         "type": "n8n-nodes-base.stripe",
         "displayName": "Stripe",
         "category": "E-Commerce",
@@ -2421,6 +2421,13 @@
         "type": "n8n-nodes-base.renameKeys",
         "displayName": "Rename Keys",
         "category": "Data Transform",
+        "count": 14,
+        "percentage": 0.2
+      },
+      {
+        "type": "n8n-nodes-base.zohoCrm",
+        "displayName": "Zoho CRM",
+        "category": "CRM & Sales",
         "count": 14,
         "percentage": 0.2
       },
@@ -2649,6 +2656,13 @@
         "percentage": 0
       },
       {
+        "type": "n8n-nodes-base.awsDynamodb",
+        "displayName": "AWS DynamoDB",
+        "category": "Database & Storage",
+        "count": 1,
+        "percentage": 0
+      },
+      {
         "type": "n8n-nodes-base.copper",
         "displayName": "Copper",
         "category": "CRM & Sales",
@@ -2726,36 +2740,8 @@
         "percentage": 0
       },
       {
-        "type": "n8n-nodes-base.dynamoDb",
-        "displayName": "DynamoDB",
-        "category": "Database & Storage",
-        "count": 0,
-        "percentage": 0
-      },
-      {
-        "type": "n8n-nodes-base.zoho",
-        "displayName": "Zoho CRM",
-        "category": "CRM & Sales",
-        "count": 0,
-        "percentage": 0
-      },
-      {
-        "type": "n8n-nodes-base.monday",
-        "displayName": "Monday.com",
-        "category": "Productivity",
-        "count": 0,
-        "percentage": 0
-      },
-      {
         "type": "n8n-nodes-base.bitbucket",
         "displayName": "Bitbucket",
-        "category": "Developer Tools",
-        "count": 0,
-        "percentage": 0
-      },
-      {
-        "type": "n8n-nodes-base.sentry",
-        "displayName": "Sentry",
         "category": "Developer Tools",
         "count": 0,
         "percentage": 0

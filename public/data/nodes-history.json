@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-01-09T23:30:12.439Z",
+  "lastUpdated": "2026-01-09T23:35:20.623Z",
   "entries": [
     {
       "date": "2026-01-09",
@@ -126,6 +126,7 @@
         "n8n-nodes-base.shopifyTrigger": 27,
         "@n8n/n8n-nodes-langchain.sentimentAnalysis": 27,
         "n8n-nodes-base.baserow": 25,
+        "n8n-nodes-base.mondayCom": 25,
         "n8n-nodes-base.stripe": 25,
         "n8n-nodes-base.compression": 24,
         "n8n-nodes-base.notionTrigger": 24,
@@ -149,6 +150,7 @@
         "n8n-nodes-base.s3": 15,
         "n8n-nodes-base.asana": 15,
         "n8n-nodes-base.renameKeys": 14,
+        "n8n-nodes-base.zohoCrm": 14,
         "n8n-nodes-base.todoist": 14,
         "n8n-nodes-base.wooCommerce": 14,
         "@n8n/n8n-nodes-langchain.memoryRedisChat": 14,
@@ -181,6 +183,7 @@
         "n8n-nodes-base.box": 2,
         "n8n-nodes-base.awsLambda": 2,
         "n8n-nodes-base.workflowTrigger": 1,
+        "n8n-nodes-base.awsDynamodb": 1,
         "n8n-nodes-base.copper": 1,
         "n8n-nodes-base.zendeskTrigger": 1,
         "n8n-nodes-base.bitbucketTrigger": 1,
@@ -192,11 +195,7 @@
         "n8n-nodes-base.customerIo": 1,
         "n8n-nodes-base.debug": 0,
         "n8n-nodes-base.discordTrigger": 0,
-        "n8n-nodes-base.dynamoDb": 0,
-        "n8n-nodes-base.zoho": 0,
-        "n8n-nodes-base.monday": 0,
         "n8n-nodes-base.bitbucket": 0,
-        "n8n-nodes-base.sentry": 0,
         "n8n-nodes-base.googleForms": 0,
         "n8n-nodes-base.typeform": 0,
         "n8n-nodes-base.calendly": 0,
@@ -1899,6 +1898,20 @@
         }
       ]
     },
+    "n8n-nodes-base.mondayCom": {
+      "displayName": "Monday.com",
+      "category": "Productivity",
+      "currentCount": 25,
+      "trend": "new",
+      "change": 25,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 25
+        }
+      ]
+    },
     "n8n-nodes-base.stripe": {
       "displayName": "Stripe",
       "category": "E-Commerce",
@@ -2210,6 +2223,20 @@
     "n8n-nodes-base.renameKeys": {
       "displayName": "Rename Keys",
       "category": "Data Transform",
+      "currentCount": 14,
+      "trend": "new",
+      "change": 14,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 14
+        }
+      ]
+    },
+    "n8n-nodes-base.zohoCrm": {
+      "displayName": "Zoho CRM",
+      "category": "CRM & Sales",
       "currentCount": 14,
       "trend": "new",
       "change": 14,
@@ -2669,6 +2696,20 @@
         }
       ]
     },
+    "n8n-nodes-base.awsDynamodb": {
+      "displayName": "AWS DynamoDB",
+      "category": "Database & Storage",
+      "currentCount": 1,
+      "trend": "new",
+      "change": 1,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1
+        }
+      ]
+    },
     "n8n-nodes-base.copper": {
       "displayName": "Copper",
       "category": "CRM & Sales",
@@ -2823,64 +2864,8 @@
         }
       ]
     },
-    "n8n-nodes-base.dynamoDb": {
-      "displayName": "DynamoDB",
-      "category": "Database & Storage",
-      "currentCount": 0,
-      "trend": "new",
-      "change": 0,
-      "changePercent": 0,
-      "history": [
-        {
-          "date": "2026-01-09",
-          "count": 0
-        }
-      ]
-    },
-    "n8n-nodes-base.zoho": {
-      "displayName": "Zoho CRM",
-      "category": "CRM & Sales",
-      "currentCount": 0,
-      "trend": "new",
-      "change": 0,
-      "changePercent": 0,
-      "history": [
-        {
-          "date": "2026-01-09",
-          "count": 0
-        }
-      ]
-    },
-    "n8n-nodes-base.monday": {
-      "displayName": "Monday.com",
-      "category": "Productivity",
-      "currentCount": 0,
-      "trend": "new",
-      "change": 0,
-      "changePercent": 0,
-      "history": [
-        {
-          "date": "2026-01-09",
-          "count": 0
-        }
-      ]
-    },
     "n8n-nodes-base.bitbucket": {
       "displayName": "Bitbucket",
-      "category": "Developer Tools",
-      "currentCount": 0,
-      "trend": "new",
-      "change": 0,
-      "changePercent": 0,
-      "history": [
-        {
-          "date": "2026-01-09",
-          "count": 0
-        }
-      ]
-    },
-    "n8n-nodes-base.sentry": {
-      "displayName": "Sentry",
       "category": "Developer Tools",
       "currentCount": 0,
       "trend": "new",

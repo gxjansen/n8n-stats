@@ -85,3 +85,23 @@ export function getNodeIntegrationUrl(displayName: string): string {
     .replace(/^-+|-+$/g, '');      // Trim leading/trailing dashes
   return `https://n8n.io/integrations/${slug}/`;
 }
+
+/**
+ * Generate internal node page slug from display name
+ * e.g., "HTTP Request" -> "http-request"
+ * e.g., "Edit Fields (Set)" -> "edit-fields-set"
+ */
+export function getNodeSlug(displayName: string): string {
+  return displayName
+    .toLowerCase()
+    .replace(/[()]/g, '')          // Remove parentheses
+    .replace(/[^a-z0-9]+/g, '-')   // Replace non-alphanumeric with dashes
+    .replace(/^-|-$/g, '');        // Trim leading/trailing dashes
+}
+
+/**
+ * Generate internal node page URL from display name
+ */
+export function getNodePageUrl(displayName: string): string {
+  return `/nodes/${getNodeSlug(displayName)}`;
+}

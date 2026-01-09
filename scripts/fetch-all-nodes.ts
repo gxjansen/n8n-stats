@@ -132,7 +132,7 @@ const KNOWN_NODES = [
   { type: 'n8n-nodes-base.notion', displayName: 'Notion', category: 'Database & Storage' },
   { type: 'n8n-nodes-base.notionTrigger', displayName: 'Notion Trigger', category: 'Database & Storage' },
   { type: 'n8n-nodes-base.supabase', displayName: 'Supabase', category: 'Database & Storage' },
-  { type: 'n8n-nodes-base.dynamoDb', displayName: 'DynamoDB', category: 'Database & Storage' },
+  { type: 'n8n-nodes-base.awsDynamodb', displayName: 'AWS DynamoDB', category: 'Database & Storage' },
   { type: 'n8n-nodes-base.microsoftSql', displayName: 'Microsoft SQL', category: 'Database & Storage' },
   { type: 'n8n-nodes-base.snowflake', displayName: 'Snowflake', category: 'Database & Storage' },
   { type: 'n8n-nodes-base.baserow', displayName: 'Baserow', category: 'Database & Storage' },
@@ -146,7 +146,7 @@ const KNOWN_NODES = [
   { type: 'n8n-nodes-base.salesforce', displayName: 'Salesforce', category: 'CRM & Sales' },
   { type: 'n8n-nodes-base.pipedrive', displayName: 'Pipedrive', category: 'CRM & Sales' },
   { type: 'n8n-nodes-base.pipedriveTrigger', displayName: 'Pipedrive Trigger', category: 'CRM & Sales' },
-  { type: 'n8n-nodes-base.zoho', displayName: 'Zoho CRM', category: 'CRM & Sales' },
+  { type: 'n8n-nodes-base.zohoCrm', displayName: 'Zoho CRM', category: 'CRM & Sales' },
   { type: 'n8n-nodes-base.copper', displayName: 'Copper', category: 'CRM & Sales' },
   { type: 'n8n-nodes-base.freshdesk', displayName: 'Freshdesk', category: 'CRM & Sales' },
   { type: 'n8n-nodes-base.intercom', displayName: 'Intercom', category: 'CRM & Sales' },
@@ -165,7 +165,7 @@ const KNOWN_NODES = [
   { type: 'n8n-nodes-base.todoist', displayName: 'Todoist', category: 'Productivity' },
   { type: 'n8n-nodes-base.linear', displayName: 'Linear', category: 'Productivity' },
   { type: 'n8n-nodes-base.linearTrigger', displayName: 'Linear Trigger', category: 'Productivity' },
-  { type: 'n8n-nodes-base.monday', displayName: 'Monday.com', category: 'Productivity' },
+  { type: 'n8n-nodes-base.mondayCom', displayName: 'Monday.com', category: 'Productivity' },
 
   // === DEVELOPER TOOLS ===
   { type: 'n8n-nodes-base.github', displayName: 'GitHub', category: 'Developer Tools' },
@@ -174,7 +174,6 @@ const KNOWN_NODES = [
   { type: 'n8n-nodes-base.gitlabTrigger', displayName: 'GitLab Trigger', category: 'Developer Tools' },
   { type: 'n8n-nodes-base.bitbucket', displayName: 'Bitbucket', category: 'Developer Tools' },
   { type: 'n8n-nodes-base.bitbucketTrigger', displayName: 'Bitbucket Trigger', category: 'Developer Tools' },
-  { type: 'n8n-nodes-base.sentry', displayName: 'Sentry', category: 'Developer Tools' },
   { type: 'n8n-nodes-base.sentryIo', displayName: 'Sentry.io', category: 'Developer Tools' },
 
   // === E-COMMERCE ===

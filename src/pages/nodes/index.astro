@@ -3,7 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import NodeTreemapChart from '@/components/charts/NodeTreemapChart.astro';
 import CategoryNodesTable from '@/components/CategoryNodesTable.astro';
 import { fetchTemplates, aggregateNodeUsage } from '@/lib/api/n8n';
-import { formatNumber, getNodeIntegrationUrl } from '@/lib/utils/formatters';
+import { formatNumber, getNodeIntegrationUrl, getNodePageUrl } from '@/lib/utils/formatters';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -230,16 +230,14 @@ const lastUpdated = allNodesData?.lastUpdated
       <h2 class="text-2xl font-bold text-white mb-6">Top 10 Most Used Nodes</h2>
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
         {nodeUsage.slice(0, 10).map((node: any, index: number) => (
-          <div class="card text-center">
+          <a
+            href={getNodePageUrl(node.displayName)}
+            class="card text-center hover:border-n8n-primary transition-colors"
+          >
             <div class="text-3xl font-bold text-n8n-primary mb-2">#{index + 1}</div>
-            <a
-              href={getNodeIntegrationUrl(node.displayName)}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="font-medium text-white hover:text-n8n-primary transition-colors"
-            >
+            <span class="font-medium text-white">
               {node.displayName}
-            </a>
+            </span>
             <div class="text-sm text-gray-400 mt-1">
               {formatNumber(node.count)} templates
             </div>
@@ -248,7 +246,7 @@ const lastUpdated = allNodesData?.lastUpdated
                 {node.percentage}% of all
               </div>
             )}
-          </div>
+          </a>
         ))}
       </div>
     </section>
@@ -263,9 +261,7 @@ const lastUpdated = allNodesData?.lastUpdated
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
           {trendingBoostNodes.map((node: any) => (
             <a
-              href={getNodeIntegrationUrl(node.displayName)}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={getNodePageUrl(node.displayName)}
               class="card text-center hover:border-n8n-primary transition-colors"
             >
               <div class="font-medium text-white mb-1">{node.displayName}</div>

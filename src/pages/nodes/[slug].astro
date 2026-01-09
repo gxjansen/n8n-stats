@@ -1,0 +1,384 @@
+---
+/**
+ * Individual Node Page
+ *
+ * Shows detailed statistics for a single n8n node.
+ * Data collected weekly, some stats are still being gathered.
+ */
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { formatNumber, getNodeIntegrationUrl } from '@/lib/utils/formatters';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+// Load node data
+interface NodeData {
+  type: string;
+  displayName: string;
+  category: string;
+  count: number;
+  percentage: number;
+}
+
+interface AllNodesData {
+  lastUpdated: string;
+  totalTemplates: number;
+  nodes: {
+    total: number;
+    withData: number;
+    all: NodeData[];
+  };
+}
+
+interface HistoryEntry {
+  date: string;
+  count: number;
+}
+
+interface NodeStats {
+  displayName: string;
+  category: string;
+  currentCount: number;
+  trend: 'up' | 'down' | 'stable' | 'new';
+  change: number;
+  changePercent: number;
+  history: HistoryEntry[];
+}
+
+interface NodesHistory {
+  lastUpdated: string;
+  nodeStats: Record<string, NodeStats>;
+}
+
+// Helper to create slug from display name
+function createSlug(displayName: string): string {
+  return displayName
+    .toLowerCase()
+    .replace(/[()]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+// Generate static paths for all nodes
+export async function getStaticPaths() {
+  const { readFileSync } = await import('fs');
+  const { join } = await import('path');
+
+  const dataPath = join(process.cwd(), 'public', 'data', 'all-nodes-data.json');
+
+  interface NodeDataForPaths {
+    type: string;
+    displayName: string;
+  }
+
+  interface AllNodesDataForPaths {
+    nodes: {
+      all: NodeDataForPaths[];
+    };
+  }
+
+  let allNodesData: AllNodesDataForPaths;
+
+  try {
+    allNodesData = JSON.parse(readFileSync(dataPath, 'utf-8'));
+  } catch (e) {
+    return [];
+  }
+
+  // Inline slug creation to avoid scope issues
+  const makeSlug = (name: string) =>
+    name
+      .toLowerCase()
+      .replace(/[()]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+
+  return allNodesData.nodes.all.map((node) => ({
+    params: { slug: makeSlug(node.displayName) },
+    props: { nodeType: node.type },
+  }));
+}
+
+// Get node data for this page
+const { slug } = Astro.params;
+const { nodeType } = Astro.props;
+
+// Load all data
+const dataPath = join(process.cwd(), 'public', 'data', 'all-nodes-data.json');
+const historyPath = join(process.cwd(), 'public', 'data', 'nodes-history.json');
+
+let allNodesData: AllNodesData | null = null;
+let historyData: NodesHistory | null = null;
+
+try {
+  allNodesData = JSON.parse(readFileSync(dataPath, 'utf-8'));
+  historyData = JSON.parse(readFileSync(historyPath, 'utf-8'));
+} catch (e) {
+  console.error('Failed to load node data');
+}
+
+// Find the node
+const node = allNodesData?.nodes.all.find((n) => n.type === nodeType);
+const nodeHistory = historyData?.nodeStats[nodeType];
+
+if (!node) {
+  return Astro.redirect('/nodes');
+}
+
+// Category colors (same as main page)
+const categoryColors: Record<string, string> = {
+  'Triggers': '#22c55e',
+  'Flow Control': '#ff9f40',
+  'Data Transform': '#ffce56',
+  'HTTP & APIs': '#ff6384',
+  'AI': '#9966ff',
+  'Communication': '#36a2eb',
+  'Google': '#4bc0c0',
+  'Database & Storage': '#c9cbcf',
+  'Files': '#8b5cf6',
+  'CRM & Sales': '#f472b6',
+  'Productivity': '#a78bfa',
+  'Social Media': '#06b6d4',
+  'E-Commerce': '#f59e0b',
+  'Developer Tools': '#10b981',
+  'CMS': '#ec4899',
+  'Marketing': '#ef4444',
+  'Utility': '#6b7280',
+  'Other': '#7c8798',
+};
+
+const categoryColor = categoryColors[node.category] || '#7c8798';
+
+// Trend display
+const trendIcon = nodeHistory?.trend === 'up' ? '↑' :
+                  nodeHistory?.trend === 'down' ? '↓' :
+                  nodeHistory?.trend === 'new' ? '★' : '→';
+const trendColor = nodeHistory?.trend === 'up' ? 'text-green-400' :
+                   nodeHistory?.trend === 'down' ? 'text-red-400' :
+                   nodeHistory?.trend === 'new' ? 'text-yellow-400' : 'text-gray-400';
+
+// Format last updated
+const lastUpdated = allNodesData?.lastUpdated
+  ? new Date(allNodesData.lastUpdated).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
+  : null;
+
+// Get rank
+const rank = allNodesData?.nodes.all.findIndex((n) => n.type === nodeType) + 1;
+---
+
+<BaseLayout
+  title={`${node.displayName} - Node Statistics`}
+  description={`Usage statistics for ${node.displayName} node in n8n workflow templates`}
+>
+  <div class="container-narrow py-12">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 text-sm">
+      <a href="/nodes" class="text-gray-400 hover:text-white transition-colors">
+        Node Statistics
+      </a>
+      <span class="text-gray-600 mx-2">/</span>
+      <span class="text-gray-300">{node.displayName}</span>
+    </nav>
+
+    <!-- Header -->
+    <div class="flex items-start gap-6 mb-8">
+      <div class="flex-1">
+        <div class="flex items-center gap-3 mb-2">
+          <span
+            class="px-2 py-1 text-xs font-medium rounded"
+            style={`background: ${categoryColor}20; color: ${categoryColor}`}
+          >
+            {node.category}
+          </span>
+          {rank <= 10 && (
+            <span class="px-2 py-1 text-xs font-medium rounded bg-yellow-500/20 text-yellow-400">
+              Top 10
+            </span>
+          )}
+        </div>
+        <h1 class="text-3xl font-bold text-white mb-2">{node.displayName}</h1>
+        <p class="text-gray-400">
+          Node type: <code class="text-sm bg-gray-800 px-2 py-1 rounded">{node.type}</code>
+        </p>
+      </div>
+      <a
+        href={getNodeIntegrationUrl(node.displayName)}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn-primary flex items-center gap-2"
+      >
+        View on n8n.io
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+      </a>
+    </div>
+
+    <!-- Key Stats -->
+    <section class="mb-12">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="card text-center">
+          <div class="text-3xl font-bold text-n8n-primary mb-1">
+            #{rank}
+          </div>
+          <div class="text-sm text-gray-400">Usage Rank</div>
+          <div class="text-xs text-gray-500 mt-1">
+            of {allNodesData?.nodes.withData} nodes
+          </div>
+        </div>
+        <div class="card text-center">
+          <div class="text-3xl font-bold text-purple-400 mb-1">
+            {formatNumber(node.count)}
+          </div>
+          <div class="text-sm text-gray-400">Templates</div>
+          <div class="text-xs text-gray-500 mt-1">
+            use this node
+          </div>
+        </div>
+        <div class="card text-center">
+          <div class="text-3xl font-bold text-cyan-400 mb-1">
+            {node.percentage}%
+          </div>
+          <div class="text-sm text-gray-400">Usage Rate</div>
+          <div class="text-xs text-gray-500 mt-1">
+            of all templates
+          </div>
+        </div>
+        <div class="card text-center">
+          <div class={`text-3xl font-bold ${trendColor} mb-1`}>
+            {trendIcon} {nodeHistory?.trend === 'new' ? 'New' : (nodeHistory?.change > 0 ? '+' : '') + (nodeHistory?.change || 0)}
+          </div>
+          <div class="text-sm text-gray-400">Weekly Trend</div>
+          <div class="text-xs text-gray-500 mt-1">
+            {nodeHistory?.changePercent ? `${nodeHistory.changePercent > 0 ? '+' : ''}${nodeHistory.changePercent}%` : 'vs last week'}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Usage History Chart (Placeholder) -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-4">Usage History</h2>
+      {nodeHistory?.history && nodeHistory.history.length > 1 ? (
+        <div class="card p-6">
+          <div class="flex items-end gap-1 h-32">
+            {nodeHistory.history.map((entry, i) => {
+              const maxCount = Math.max(...nodeHistory.history.map(h => h.count));
+              const height = maxCount > 0 ? (entry.count / maxCount) * 100 : 0;
+              return (
+                <div
+                  class="flex-1 bg-n8n-primary/60 hover:bg-n8n-primary transition-colors rounded-t"
+                  style={`height: ${Math.max(height, 2)}%`}
+                  title={`${entry.date}: ${entry.count} templates`}
+                />
+              );
+            })}
+          </div>
+          <div class="flex justify-between text-xs text-gray-500 mt-2">
+            <span>{nodeHistory.history[0]?.date}</span>
+            <span>{nodeHistory.history[nodeHistory.history.length - 1]?.date}</span>
+          </div>
+        </div>
+      ) : (
+        <div class="card p-8 text-center">
+          <div class="text-gray-400 mb-2">
+            <svg class="w-12 h-12 mx-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <p class="text-gray-500 font-medium">Collecting historical data...</p>
+          <p class="text-sm text-gray-600 mt-1">
+            Check back next week for usage trends
+          </p>
+        </div>
+      )}
+    </section>
+
+    <!-- Top Templates Using This Node (Placeholder) -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-4">Popular Templates</h2>
+      <div class="card p-8 text-center">
+        <div class="text-gray-400 mb-2">
+          <svg class="w-12 h-12 mx-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+          </svg>
+        </div>
+        <p class="text-gray-500 font-medium">Collecting template data...</p>
+        <p class="text-sm text-gray-600 mt-1">
+          Top templates using {node.displayName} coming soon
+        </p>
+      </div>
+    </section>
+
+    <!-- Related Nodes (Placeholder) -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-4">Commonly Used With</h2>
+      <div class="card p-8 text-center">
+        <div class="text-gray-400 mb-2">
+          <svg class="w-12 h-12 mx-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </div>
+        <p class="text-gray-500 font-medium">Collecting co-occurrence data...</p>
+        <p class="text-sm text-gray-600 mt-1">
+          Nodes frequently paired with {node.displayName} coming soon
+        </p>
+      </div>
+    </section>
+
+    <!-- Quick Links -->
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold text-white mb-4">Resources</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <a
+          href={getNodeIntegrationUrl(node.displayName)}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="card p-4 hover:border-n8n-primary transition-colors flex items-center gap-3"
+        >
+          <svg class="w-5 h-5 text-n8n-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          <div>
+            <div class="font-medium text-white">Documentation</div>
+            <div class="text-sm text-gray-400">View on n8n.io</div>
+          </div>
+        </a>
+        <a
+          href={`/templates?node=${encodeURIComponent(node.displayName)}`}
+          class="card p-4 hover:border-n8n-primary transition-colors flex items-center gap-3"
+        >
+          <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+          </svg>
+          <div>
+            <div class="font-medium text-white">Browse Templates</div>
+            <div class="text-sm text-gray-400">{formatNumber(node.count)} templates</div>
+          </div>
+        </a>
+        <a
+          href="/nodes"
+          class="card p-4 hover:border-n8n-primary transition-colors flex items-center gap-3"
+        >
+          <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          <div>
+            <div class="font-medium text-white">All Nodes</div>
+            <div class="text-sm text-gray-400">View full statistics</div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Footer Note -->
+    <p class="text-sm text-gray-500 text-center mt-8">
+      Data collected weekly from {formatNumber(allNodesData?.totalTemplates || 0)} n8n templates.
+      {lastUpdated && ` Last updated: ${lastUpdated}.`}
+    </p>
+  </div>
+</BaseLayout>

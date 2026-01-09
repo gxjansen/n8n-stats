@@ -6,7 +6,7 @@
  * More readable than grouped bar chart, shows all names visible.
  */
 
-import { formatNumber, getNodeIntegrationUrl } from '@/lib/utils/formatters';
+import { formatNumber, getNodePageUrl } from '@/lib/utils/formatters';
 
 interface NodeData {
   displayName: string;
@@ -49,9 +49,7 @@ const maxCount = Math.max(...allCounts);
             const barWidth = (node.count / categoryMax) * 100;
             return (
               <a
-                href={getNodeIntegrationUrl(node.displayName)}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={getNodePageUrl(node.displayName)}
                 class="block group"
               >
                 <div class="flex items-center gap-2 text-xs">
