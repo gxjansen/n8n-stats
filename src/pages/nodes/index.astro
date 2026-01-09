@@ -158,6 +158,17 @@ const getTrendingBoost = () => {
 
 const trendingBoostNodes = getTrendingBoost();
 
+// Get unused nodes (0 templates)
+const unusedNodes = hasCompleteData
+  ? allNodesData.nodes.all
+      .filter((n: NodeData) => n.count === 0)
+      .map((n: NodeData) => ({
+        displayName: n.displayName,
+        category: n.category,
+        type: n.type,
+      }))
+  : [];
+
 // Format last updated date
 const lastUpdated = allNodesData?.lastUpdated
   ? new Date(allNodesData.lastUpdated).toLocaleDateString('en-US', {
@@ -282,7 +293,7 @@ const lastUpdated = allNodesData?.lastUpdated
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-2">Top Nodes by Category</h2>
       <p class="text-gray-400 mb-6">
-        Top 5 nodes in each category, ranked by template usage. Click any node to view on n8n.io.
+        Top 5 nodes in each category, ranked by template usage. Click any node to view details.
       </p>
       <CategoryNodesTable
         data={nodesByCategory}
@@ -291,6 +302,50 @@ const lastUpdated = allNodesData?.lastUpdated
         nodesPerCategory={5}
       />
     </section>
+
+    <!-- Unused Nodes Section -->
+    {unusedNodes.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold text-white mb-2">Nodes With Zero Usage</h2>
+        <p class="text-gray-400 mb-6">
+          These {unusedNodes.length} nodes don't appear in any of the {formatNumber(totalTemplates)} public templates.
+        </p>
+        <div class="card p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {unusedNodes.map((node: any) => {
+              const color = categoryColors[node.category] || '#7c8798';
+              return (
+                <a
+                  href={getNodePageUrl(node.displayName)}
+                  class="flex items-center gap-3 p-3 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors"
+                >
+                  <span
+                    class="w-2 h-2 rounded-full flex-shrink-0"
+                    style={`background: ${color}`}
+                  />
+                  <div class="min-w-0">
+                    <div class="text-sm font-medium text-white truncate">
+                      {node.displayName}
+                    </div>
+                    <div class="text-xs text-gray-500">
+                      {node.category}
+                    </div>
+                  </div>
+                  <span class="ml-auto text-xs text-gray-600 flex-shrink-0">
+                    0 templates
+                  </span>
+                </a>
+              );
+            })}
+          </div>
+          <p class="text-xs text-gray-500 mt-4">
+            Some nodes have zero public usage because: they're development tools (Debug),
+            redundant with other platforms (Zapier), or only have trigger variants that are tracked separately
+            (Typeform, Calendly, Discord action nodes vs their Trigger counterparts).
+          </p>
+        </div>
+      </section>
+    )}
 
     <!-- Note -->
     <p class="text-sm text-gray-500 text-center mt-8">
