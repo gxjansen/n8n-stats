@@ -5,7 +5,7 @@ import VelocityCard from '@/components/cards/VelocityCard.astro';
 import TemplateCard from '@/components/cards/TemplateCard.astro';
 import AIAdoptionCard from '@/components/cards/AIAdoptionCard.astro';
 import EcosystemGrowthChart from '@/components/charts/EcosystemGrowthChart.astro';
-import { fetchTemplates, aggregateNodeUsage } from '@/lib/api/n8n';
+import { fetchTemplates } from '@/lib/api/n8n';
 import { fetchGitHubStats } from '@/lib/api/github';
 import { fetchForumStats } from '@/lib/api/discourse';
 import { formatNumber } from '@/lib/utils/formatters';
@@ -20,9 +20,6 @@ const [templatesResponse, githubStats, forumStats] = await Promise.all([
 ]);
 
 const { totalWorkflows, workflows: trendingTemplates } = templatesResponse;
-
-// Get node usage from trending templates
-const nodeUsage = aggregateNodeUsage(trendingTemplates).slice(0, 5);
 
 // Load historical data for velocity calculations
 interface CreatorStatsEntry {
@@ -121,9 +118,10 @@ const conversionTrend = recentCreatorData
 const latestTemplateData = templatesHistory.daily?.[templatesHistory.daily.length - 1];
 const aiTemplates = latestTemplateData?.categories?.['AI'] || 5189;
 
-// Get AI Agent node count from latest raw log entry
+// Get node stats from latest raw log entry (all templates)
 const latestRawEntry = templatesRawLog.entries?.[templatesRawLog.entries.length - 1];
-const aiAgentNode = latestRawEntry?.topNodes?.find(n => n.name === 'AI Agent');
+const topNodes = latestRawEntry?.topNodes || [];
+const aiAgentNode = topNodes.find(n => n.name === 'AI Agent');
 const aiAgentTemplates = aiAgentNode?.count || 0;
 
 // Data status for UI feedback
@@ -229,7 +227,10 @@ const buildTime = new Date().toISOString();
     <!-- Trending Templates -->
     <section class="mb-12">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold text-white">Trending Templates</h2>
+        <div>
+          <h2 class="text-2xl font-bold text-white">Trending Templates</h2>
+          <p class="text-gray-400 text-sm mt-1">Ranked by n8n.io's trending algorithm (recent views + insertions)</p>
+        </div>
         <a href="/templates" class="text-n8n-primary hover:underline">
           View all &rarr;
         </a>
@@ -245,19 +246,22 @@ const buildTime = new Date().toISOString();
     <!-- Top Nodes -->
     <section class="mb-12">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold text-white">Most Used Nodes</h2>
+        <div>
+          <h2 class="text-2xl font-bold text-white">Most Used Nodes</h2>
+          <p class="text-gray-400 text-sm mt-1">Nodes appearing in the most templates across all {formatNumber(totalWorkflows)} workflows</p>
+        </div>
         <a href="/nodes" class="text-n8n-primary hover:underline">
           View all &rarr;
         </a>
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {nodeUsage.map((node, index) => (
+        {topNodes.slice(0, 5).map((node, index) => (
           <a href="/nodes" class="card text-center hover:border-n8n-primary/50 transition-colors group">
             <div class="text-3xl font-bold text-n8n-primary mb-2">#{index + 1}</div>
-            <div class="font-medium text-white group-hover:text-n8n-primary transition-colors">{node.displayName}</div>
+            <div class="font-medium text-white group-hover:text-n8n-primary transition-colors">{node.name}</div>
             <div class="text-sm text-gray-400 mt-1">
-              {node.count} templates
+              {formatNumber(node.count)} templates
             </div>
           </a>
         ))}

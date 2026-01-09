@@ -228,7 +228,7 @@ const completeDataStats = allTemplatesData ? {
         <div>
           <h2 class="text-2xl font-bold text-white">Trending Template Creators</h2>
           <p class="text-gray-400 mt-1">
-            Most active contributors among trending templates
+            Creators with the most templates in n8n.io's current top 100 trending list
           </p>
         </div>
         <a
@@ -291,9 +291,9 @@ const completeDataStats = allTemplatesData ? {
     <section class="mb-12">
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h2 class="text-2xl font-bold text-white">Most Used Nodes in Templates</h2>
+          <h2 class="text-2xl font-bold text-white">Most Used Nodes</h2>
           <p class="text-gray-400 mt-1">
-            The most popular nodes across all workflow templates.
+            Nodes appearing in the most templates across all {formatNumber(analytics.totalWorkflows)} workflows
           </p>
         </div>
         <a
@@ -369,7 +369,7 @@ const completeDataStats = allTemplatesData ? {
           <div>
             <h2 class="text-2xl font-bold text-white">Top Creators by Insertions</h2>
             <p class="text-gray-400 mt-1">
-              Creators whose templates are most used (inserted into workflows)
+              Total all-time template imports by users (from n8n Arena)
             </p>
           </div>
           <a
