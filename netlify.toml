@@ -1,0 +1,10 @@
+# Netlify build configuration
+# Data updates happen via GitHub Actions, not during Netlify build
+# This prevents build failures when external APIs are unavailable
+
+[build]
+  publish = "dist"
+  command = "npm run build:only"
+
+[build.environment]
+  NODE_VERSION = "20"
