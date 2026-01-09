@@ -33,13 +33,14 @@ interface CreatorStatsEntry {
   totalInserters: number;
 }
 
-interface GitHubHistoryEntry {
+interface GitHubRawEntry {
   date: string;
-  value: number;
+  stars: number;
+  source: string;
 }
 
 let creatorsHistory: { weekly: CreatorStatsEntry[] } = { weekly: [] };
-let githubHistory: { daily: GitHubHistoryEntry[] } = { daily: [] };
+let githubRawLog: { entries: GitHubRawEntry[] } = { entries: [] };
 let templatesHistory: { daily: { date: string; total: number; categories: Record<string, number> }[] } = { daily: [] };
 
 try {
@@ -48,8 +49,9 @@ try {
 } catch (e) { /* use defaults */ }
 
 try {
-  const githubPath = join(process.cwd(), 'public', 'data', 'history', 'github.json');
-  githubHistory = JSON.parse(readFileSync(githubPath, 'utf-8'));
+  // Use raw log to get ONLY real collected data (source: github-api)
+  const githubPath = join(process.cwd(), 'public', 'data', 'github-raw-log.json');
+  githubRawLog = JSON.parse(readFileSync(githubPath, 'utf-8'));
 } catch (e) { /* use defaults */ }
 
 try {
@@ -57,36 +59,67 @@ try {
   templatesHistory = JSON.parse(readFileSync(templatesPath, 'utf-8'));
 } catch (e) { /* use defaults */ }
 
-// Calculate velocity metrics
+// Filter GitHub data to ONLY real collected data (exclude seed, ossinsight, etc.)
+const realGithubData = githubRawLog.entries
+  ?.filter(e => e.source === 'github-api')
+  .sort((a, b) => a.date.localeCompare(b.date)) || [];
+
+// Calculate velocity metrics from REAL data only
 const recentCreatorData = creatorsHistory.weekly?.slice(-12) || [];
 const latestCreators = recentCreatorData[recentCreatorData.length - 1];
 const prevCreators = recentCreatorData[recentCreatorData.length - 2];
 
-// Calculate stars per day (rough estimate from historical data)
-const recentGithubData = githubHistory.daily?.slice(-10) || [];
-const starsPerDay = recentGithubData.length >= 2
-  ? Math.round((recentGithubData[recentGithubData.length - 1]?.value - recentGithubData[0]?.value) /
-      (Math.max(1, recentGithubData.length - 1) * 30)) // Approximate days between data points
-  : 180; // Fallback estimate
+// GitHub stars: only calculate if we have 7+ days of real data
+const MIN_DAYS_FOR_GITHUB_TREND = 7;
+const hasEnoughGithubData = realGithubData.length >= MIN_DAYS_FOR_GITHUB_TREND;
+const githubTrendData = realGithubData.slice(-12).map(d => d.stars);
 
-// Creators per week
+// Calculate stars per day from real data only
+let starsPerDay: number | null = null;
+if (realGithubData.length >= 2) {
+  const first = realGithubData[0];
+  const last = realGithubData[realGithubData.length - 1];
+  const daysDiff = Math.max(1, Math.round(
+    (new Date(last.date).getTime() - new Date(first.date).getTime()) / (1000 * 60 * 60 * 24)
+  ));
+  starsPerDay = Math.round((last.stars - first.stars) / daysDiff);
+}
+
+// Creators per week (n8n Arena data is all real)
 const creatorsPerWeek = latestCreators && prevCreators
   ? latestCreators.total - prevCreators.total
-  : 8;
+  : null;
 
-// Get weekly data for sparklines
+// Get weekly data for sparklines (all real from n8n Arena)
 const creatorTotals = recentCreatorData.map(d => d.total);
-const verifiedTotals = recentCreatorData.map(d => d.verified);
 const inserterTotals = recentCreatorData.map(d => d.totalInserters);
 
-// Calculate views → inserters conversion rate
+// Calculate views → inserters conversion rate (real data)
 const conversionRate = latestCreators && latestCreators.totalViews > 0
   ? ((latestCreators.totalInserters / latestCreators.totalViews) * 100).toFixed(1)
-  : '17.5';
+  : null;
+
+// Conversion rate trend (real data)
+const conversionTrend = recentCreatorData
+  .filter(d => d.totalViews > 0)
+  .map(d => (d.totalInserters / d.totalViews) * 100);
 
 // Get AI templates count from categories
 const latestTemplateData = templatesHistory.daily?.[templatesHistory.daily.length - 1];
 const aiTemplates = latestTemplateData?.categories?.['AI'] || 5189;
+
+// Data status for UI feedback
+const dataStatus = {
+  github: {
+    daysCollected: realGithubData.length,
+    daysNeeded: MIN_DAYS_FOR_GITHUB_TREND,
+    hasEnough: hasEnoughGithubData,
+  },
+  creators: {
+    weeksCollected: recentCreatorData.length,
+    hasEnough: recentCreatorData.length >= 2,
+  },
+};
 
 // Compile stats for trust indicators
 const stats = {
@@ -124,15 +157,20 @@ const buildTime = new Date().toISOString();
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <VelocityCard
           label="GitHub Stars"
-          value={`~${starsPerDay}/day`}
+          value={hasEnoughGithubData && starsPerDay !== null ? `~${starsPerDay}/day` : null}
           subtitle="Repository growth rate"
-          trend={recentGithubData.map(d => d.value)}
+          trend={githubTrendData}
           color="#ff6d5a"
           href="https://github.com/n8n-io/n8n"
+          collecting={!hasEnoughGithubData ? {
+            current: dataStatus.github.daysCollected,
+            needed: dataStatus.github.daysNeeded,
+            unit: 'days'
+          } : undefined}
         />
         <VelocityCard
           label="New Creators"
-          value={`+${creatorsPerWeek}/week`}
+          value={creatorsPerWeek !== null ? `+${creatorsPerWeek}/week` : null}
           subtitle="Template authors joining"
           trend={creatorTotals}
           color="#36a2eb"
@@ -140,7 +178,7 @@ const buildTime = new Date().toISOString();
         />
         <VelocityCard
           label="Workflow Inserters"
-          value={formatNumber(latestCreators?.totalInserters || 1681703)}
+          value={latestCreators ? formatNumber(latestCreators.totalInserters) : null}
           subtitle="Templates imported by users"
           trend={inserterTotals}
           color="#9966ff"
@@ -148,9 +186,9 @@ const buildTime = new Date().toISOString();
         />
         <VelocityCard
           label="Conversion Rate"
-          value={`${conversionRate}%`}
+          value={conversionRate !== null ? `${conversionRate}%` : null}
           subtitle="Views → actual usage"
-          trend={recentCreatorData.map(d => d.totalViews > 0 ? (d.totalInserters / d.totalViews) * 100 : 0)}
+          trend={conversionTrend}
           color="#4bc0c0"
           to="/creators"
         />
