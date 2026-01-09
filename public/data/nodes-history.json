@@ -1,0 +1,2953 @@
+{
+  "lastUpdated": "2026-01-09T23:30:12.439Z",
+  "entries": [
+    {
+      "date": "2026-01-09",
+      "totalTemplates": 7758,
+      "nodes": {
+        "n8n-nodes-base.stickyNote": 6738,
+        "n8n-nodes-base.set": 3899,
+        "n8n-nodes-base.httpRequest": 3790,
+        "n8n-nodes-base.code": 3583,
+        "n8n-nodes-base.if": 3127,
+        "@n8n/n8n-nodes-langchain.agent": 2566,
+        "n8n-nodes-base.googleSheets": 2296,
+        "n8n-nodes-base.scheduleTrigger": 1912,
+        "@n8n/n8n-nodes-langchain.lmChatOpenAi": 1884,
+        "n8n-nodes-base.manualTrigger": 1680,
+        "n8n-nodes-base.merge": 1461,
+        "n8n-nodes-base.gmail": 1356,
+        "n8n-nodes-base.splitInBatches": 1335,
+        "n8n-nodes-base.wait": 1238,
+        "n8n-nodes-base.webhook": 1221,
+        "@n8n/n8n-nodes-langchain.outputParserStructured": 1206,
+        "n8n-nodes-base.splitOut": 995,
+        "n8n-nodes-base.telegram": 984,
+        "n8n-nodes-base.switch": 960,
+        "@n8n/n8n-nodes-langchain.openAi": 924,
+        "n8n-nodes-base.googleDrive": 896,
+        "n8n-nodes-base.slack": 847,
+        "@n8n/n8n-nodes-langchain.memoryBufferWindow": 811,
+        "n8n-nodes-base.aggregate": 766,
+        "@n8n/n8n-nodes-langchain.lmChatGoogleGemini": 748,
+        "@n8n/n8n-nodes-langchain.chainLlm": 697,
+        "n8n-nodes-base.noOp": 692,
+        "n8n-nodes-base.filter": 669,
+        "n8n-nodes-base.respondToWebhook": 576,
+        "n8n-nodes-base.telegramTrigger": 549,
+        "n8n-nodes-base.extractFromFile": 479,
+        "n8n-nodes-base.emailSend": 407,
+        "n8n-nodes-base.start": 401,
+        "@n8n/n8n-nodes-langchain.lmChatOpenRouter": 338,
+        "n8n-nodes-base.convertToFile": 330,
+        "n8n-nodes-base.airtable": 330,
+        "n8n-nodes-base.function": 316,
+        "n8n-nodes-base.limit": 282,
+        "@n8n/n8n-nodes-langchain.documentDefaultDataLoader": 275,
+        "n8n-nodes-base.html": 255,
+        "n8n-nodes-base.gmailTrigger": 251,
+        "@n8n/n8n-nodes-langchain.embeddingsOpenAi": 247,
+        "n8n-nodes-base.cron": 232,
+        "n8n-nodes-base.notion": 230,
+        "@n8n/n8n-nodes-langchain.toolWorkflow": 220,
+        "n8n-nodes-base.googleDriveTrigger": 209,
+        "n8n-nodes-base.executeWorkflow": 196,
+        "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter": 182,
+        "n8n-nodes-base.markdown": 177,
+        "n8n-nodes-base.googleSheetsTrigger": 177,
+        "@n8n/n8n-nodes-langchain.informationExtractor": 172,
+        "n8n-nodes-base.postgres": 166,
+        "n8n-nodes-base.googleDocs": 162,
+        "@n8n/n8n-nodes-langchain.toolThink": 161,
+        "@n8n/n8n-nodes-langchain.lmChatAnthropic": 158,
+        "n8n-nodes-base.googleCalendar": 155,
+        "n8n-nodes-base.rssFeedRead": 141,
+        "n8n-nodes-base.whatsApp": 141,
+        "n8n-nodes-base.hubspot": 123,
+        "n8n-nodes-base.n8n": 122,
+        "n8n-nodes-base.discord": 115,
+        "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi": 113,
+        "n8n-nodes-base.removeDuplicates": 112,
+        "@n8n/n8n-nodes-langchain.textClassifier": 109,
+        "@n8n/n8n-nodes-langchain.vectorStorePinecone": 108,
+        "@n8n/n8n-nodes-langchain.toolCalculator": 105,
+        "n8n-nodes-base.errorTrigger": 104,
+        "n8n-nodes-base.supabase": 104,
+        "n8n-nodes-base.twitter": 102,
+        "@n8n/n8n-nodes-langchain.outputParserAutofixing": 102,
+        "n8n-nodes-base.linkedin": 100,
+        "@n8n/n8n-nodes-langchain.mcpClientTool": 100,
+        "n8n-nodes-base.wordpress": 97,
+        "n8n-nodes-base.youtube": 88,
+        "n8n-nodes-base.facebookGraphApi": 87,
+        "n8n-nodes-base.sort": 85,
+        "n8n-nodes-base.github": 83,
+        "@n8n/n8n-nodes-langchain.memoryPostgresChat": 83,
+        "@n8n/n8n-nodes-langchain.vectorStoreSupabase": 83,
+        "n8n-nodes-base.jira": 78,
+        "n8n-nodes-base.dateTime": 76,
+        "@n8n/n8n-nodes-langchain.chainSummarization": 72,
+        "n8n-nodes-base.microsoftOutlook": 72,
+        "n8n-nodes-base.xml": 70,
+        "n8n-nodes-base.executeCommand": 69,
+        "@n8n/n8n-nodes-langchain.vectorStoreQdrant": 69,
+        "n8n-nodes-base.emailReadImap": 68,
+        "n8n-nodes-base.itemLists": 65,
+        "@n8n/n8n-nodes-langchain.toolSerpApi": 65,
+        "n8n-nodes-base.twilio": 62,
+        "@n8n/n8n-nodes-langchain.lmChatGroq": 57,
+        "n8n-nodes-base.reddit": 56,
+        "n8n-nodes-base.crypto": 53,
+        "n8n-nodes-base.redis": 53,
+        "n8n-nodes-base.spreadsheetFile": 52,
+        "@n8n/n8n-nodes-langchain.lmChatOllama": 52,
+        "n8n-nodes-base.slackTrigger": 49,
+        "n8n-nodes-base.clickUp": 47,
+        "n8n-nodes-base.ssh": 45,
+        "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini": 43,
+        "@n8n/n8n-nodes-langchain.lmChatMistralCloud": 41,
+        "n8n-nodes-base.writeBinaryFile": 40,
+        "@n8n/n8n-nodes-langchain.toolCode": 40,
+        "n8n-nodes-base.typeformTrigger": 39,
+        "@n8n/n8n-nodes-langchain.vectorStoreInMemory": 38,
+        "n8n-nodes-base.compareDatasets": 37,
+        "@n8n/n8n-nodes-langchain.toolWikipedia": 37,
+        "n8n-nodes-base.functionItem": 35,
+        "n8n-nodes-base.noCoDB": 34,
+        "n8n-nodes-base.mySql": 33,
+        "n8n-nodes-base.zendesk": 33,
+        "n8n-nodes-base.pipedrive": 31,
+        "n8n-nodes-base.trello": 31,
+        "n8n-nodes-base.salesforce": 28,
+        "n8n-nodes-base.githubTrigger": 28,
+        "@n8n/n8n-nodes-langchain.chainRetrievalQa": 28,
+        "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter": 28,
+        "n8n-nodes-base.shopify": 27,
+        "n8n-nodes-base.shopifyTrigger": 27,
+        "@n8n/n8n-nodes-langchain.sentimentAnalysis": 27,
+        "n8n-nodes-base.baserow": 25,
+        "n8n-nodes-base.stripe": 25,
+        "n8n-nodes-base.compression": 24,
+        "n8n-nodes-base.notionTrigger": 24,
+        "n8n-nodes-base.awsS3": 24,
+        "n8n-nodes-base.graphql": 23,
+        "n8n-nodes-base.openWeatherMap": 22,
+        "n8n-nodes-base.ftp": 21,
+        "n8n-nodes-base.sendGrid": 21,
+        "n8n-nodes-base.googleCalendarTrigger": 21,
+        "n8n-nodes-base.mongoDb": 21,
+        "n8n-nodes-base.airtableTrigger": 21,
+        "n8n-nodes-base.microsoftTeams": 20,
+        "n8n-nodes-base.googleAnalytics": 20,
+        "n8n-nodes-base.calendlyTrigger": 20,
+        "n8n-nodes-base.googleSlides": 19,
+        "n8n-nodes-base.hubspotTrigger": 18,
+        "n8n-nodes-base.stripeTrigger": 18,
+        "n8n-nodes-base.dropbox": 18,
+        "n8n-nodes-base.microsoftOneDrive": 17,
+        "n8n-nodes-base.mailchimp": 15,
+        "n8n-nodes-base.s3": 15,
+        "n8n-nodes-base.asana": 15,
+        "n8n-nodes-base.renameKeys": 14,
+        "n8n-nodes-base.todoist": 14,
+        "n8n-nodes-base.wooCommerce": 14,
+        "@n8n/n8n-nodes-langchain.memoryRedisChat": 14,
+        "n8n-nodes-base.gitlab": 13,
+        "n8n-nodes-base.googleTasks": 12,
+        "n8n-nodes-base.wooCommerceTrigger": 12,
+        "n8n-nodes-base.googleCloudStorage": 11,
+        "n8n-nodes-base.googleBigQuery": 10,
+        "n8n-nodes-base.linear": 10,
+        "n8n-nodes-base.mautic": 9,
+        "n8n-nodes-base.mailgun": 8,
+        "n8n-nodes-base.pipedriveTrigger": 8,
+        "n8n-nodes-base.clickUpTrigger": 8,
+        "n8n-nodes-base.readBinaryFiles": 6,
+        "n8n-nodes-base.readPdf": 6,
+        "n8n-nodes-base.microsoftSql": 6,
+        "n8n-nodes-base.jiraTrigger": 6,
+        "n8n-nodes-base.linearTrigger": 6,
+        "n8n-nodes-base.ghost": 6,
+        "n8n-nodes-base.lemlist": 6,
+        "n8n-nodes-base.snowflake": 4,
+        "n8n-nodes-base.freshdesk": 4,
+        "n8n-nodes-base.intercom": 4,
+        "n8n-nodes-base.trelloTrigger": 3,
+        "n8n-nodes-base.gitlabTrigger": 3,
+        "n8n-nodes-base.strapi": 3,
+        "n8n-nodes-base.postgresTrigger": 2,
+        "n8n-nodes-base.elasticsearch": 2,
+        "n8n-nodes-base.asanaTrigger": 2,
+        "n8n-nodes-base.box": 2,
+        "n8n-nodes-base.awsLambda": 2,
+        "n8n-nodes-base.workflowTrigger": 1,
+        "n8n-nodes-base.copper": 1,
+        "n8n-nodes-base.zendeskTrigger": 1,
+        "n8n-nodes-base.bitbucketTrigger": 1,
+        "n8n-nodes-base.sentryIo": 1,
+        "n8n-nodes-base.contentful": 1,
+        "n8n-nodes-base.activeCampaign": 1,
+        "n8n-nodes-base.convertKit": 1,
+        "n8n-nodes-base.segment": 1,
+        "n8n-nodes-base.customerIo": 1,
+        "n8n-nodes-base.debug": 0,
+        "n8n-nodes-base.discordTrigger": 0,
+        "n8n-nodes-base.dynamoDb": 0,
+        "n8n-nodes-base.zoho": 0,
+        "n8n-nodes-base.monday": 0,
+        "n8n-nodes-base.bitbucket": 0,
+        "n8n-nodes-base.sentry": 0,
+        "n8n-nodes-base.googleForms": 0,
+        "n8n-nodes-base.typeform": 0,
+        "n8n-nodes-base.calendly": 0,
+        "n8n-nodes-base.zapier": 0
+      }
+    }
+  ],
+  "nodeStats": {
+    "n8n-nodes-base.stickyNote": {
+      "displayName": "Sticky Note",
+      "category": "Utility",
+      "currentCount": 6738,
+      "trend": "new",
+      "change": 6738,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 6738
+        }
+      ]
+    },
+    "n8n-nodes-base.set": {
+      "displayName": "Edit Fields (Set)",
+      "category": "Data Transform",
+      "currentCount": 3899,
+      "trend": "new",
+      "change": 3899,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 3899
+        }
+      ]
+    },
+    "n8n-nodes-base.httpRequest": {
+      "displayName": "HTTP Request",
+      "category": "HTTP & APIs",
+      "currentCount": 3790,
+      "trend": "new",
+      "change": 3790,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 3790
+        }
+      ]
+    },
+    "n8n-nodes-base.code": {
+      "displayName": "Code",
+      "category": "Data Transform",
+      "currentCount": 3583,
+      "trend": "new",
+      "change": 3583,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 3583
+        }
+      ]
+    },
+    "n8n-nodes-base.if": {
+      "displayName": "If",
+      "category": "Flow Control",
+      "currentCount": 3127,
+      "trend": "new",
+      "change": 3127,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 3127
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.agent": {
+      "displayName": "AI Agent",
+      "category": "AI",
+      "currentCount": 2566,
+      "trend": "new",
+      "change": 2566,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 2566
+        }
+      ]
+    },
+    "n8n-nodes-base.googleSheets": {
+      "displayName": "Google Sheets",
+      "category": "Google",
+      "currentCount": 2296,
+      "trend": "new",
+      "change": 2296,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 2296
+        }
+      ]
+    },
+    "n8n-nodes-base.scheduleTrigger": {
+      "displayName": "Schedule Trigger",
+      "category": "Triggers",
+      "currentCount": 1912,
+      "trend": "new",
+      "change": 1912,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1912
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.lmChatOpenAi": {
+      "displayName": "OpenAI Chat Model",
+      "category": "AI",
+      "currentCount": 1884,
+      "trend": "new",
+      "change": 1884,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1884
+        }
+      ]
+    },
+    "n8n-nodes-base.manualTrigger": {
+      "displayName": "Manual Trigger",
+      "category": "Triggers",
+      "currentCount": 1680,
+      "trend": "new",
+      "change": 1680,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1680
+        }
+      ]
+    },
+    "n8n-nodes-base.merge": {
+      "displayName": "Merge",
+      "category": "Flow Control",
+      "currentCount": 1461,
+      "trend": "new",
+      "change": 1461,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1461
+        }
+      ]
+    },
+    "n8n-nodes-base.gmail": {
+      "displayName": "Gmail",
+      "category": "Communication",
+      "currentCount": 1356,
+      "trend": "new",
+      "change": 1356,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1356
+        }
+      ]
+    },
+    "n8n-nodes-base.splitInBatches": {
+      "displayName": "Split In Batches",
+      "category": "Flow Control",
+      "currentCount": 1335,
+      "trend": "new",
+      "change": 1335,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1335
+        }
+      ]
+    },
+    "n8n-nodes-base.wait": {
+      "displayName": "Wait",
+      "category": "Flow Control",
+      "currentCount": 1238,
+      "trend": "new",
+      "change": 1238,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1238
+        }
+      ]
+    },
+    "n8n-nodes-base.webhook": {
+      "displayName": "Webhook",
+      "category": "Triggers",
+      "currentCount": 1221,
+      "trend": "new",
+      "change": 1221,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1221
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.outputParserStructured": {
+      "displayName": "Structured Output Parser",
+      "category": "AI",
+      "currentCount": 1206,
+      "trend": "new",
+      "change": 1206,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1206
+        }
+      ]
+    },
+    "n8n-nodes-base.splitOut": {
+      "displayName": "Split Out",
+      "category": "Data Transform",
+      "currentCount": 995,
+      "trend": "new",
+      "change": 995,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 995
+        }
+      ]
+    },
+    "n8n-nodes-base.telegram": {
+      "displayName": "Telegram",
+      "category": "Communication",
+      "currentCount": 984,
+      "trend": "new",
+      "change": 984,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 984
+        }
+      ]
+    },
+    "n8n-nodes-base.switch": {
+      "displayName": "Switch",
+      "category": "Flow Control",
+      "currentCount": 960,
+      "trend": "new",
+      "change": 960,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 960
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.openAi": {
+      "displayName": "OpenAI",
+      "category": "AI",
+      "currentCount": 924,
+      "trend": "new",
+      "change": 924,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 924
+        }
+      ]
+    },
+    "n8n-nodes-base.googleDrive": {
+      "displayName": "Google Drive",
+      "category": "Google",
+      "currentCount": 896,
+      "trend": "new",
+      "change": 896,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 896
+        }
+      ]
+    },
+    "n8n-nodes-base.slack": {
+      "displayName": "Slack",
+      "category": "Communication",
+      "currentCount": 847,
+      "trend": "new",
+      "change": 847,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 847
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.memoryBufferWindow": {
+      "displayName": "Simple Memory",
+      "category": "AI",
+      "currentCount": 811,
+      "trend": "new",
+      "change": 811,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 811
+        }
+      ]
+    },
+    "n8n-nodes-base.aggregate": {
+      "displayName": "Aggregate",
+      "category": "Data Transform",
+      "currentCount": 766,
+      "trend": "new",
+      "change": 766,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 766
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.lmChatGoogleGemini": {
+      "displayName": "Google Gemini Chat Model",
+      "category": "AI",
+      "currentCount": 748,
+      "trend": "new",
+      "change": 748,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 748
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.chainLlm": {
+      "displayName": "Basic LLM Chain",
+      "category": "AI",
+      "currentCount": 697,
+      "trend": "new",
+      "change": 697,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 697
+        }
+      ]
+    },
+    "n8n-nodes-base.noOp": {
+      "displayName": "No Operation",
+      "category": "Flow Control",
+      "currentCount": 692,
+      "trend": "new",
+      "change": 692,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 692
+        }
+      ]
+    },
+    "n8n-nodes-base.filter": {
+      "displayName": "Filter",
+      "category": "Data Transform",
+      "currentCount": 669,
+      "trend": "new",
+      "change": 669,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 669
+        }
+      ]
+    },
+    "n8n-nodes-base.respondToWebhook": {
+      "displayName": "Respond to Webhook",
+      "category": "Flow Control",
+      "currentCount": 576,
+      "trend": "new",
+      "change": 576,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 576
+        }
+      ]
+    },
+    "n8n-nodes-base.telegramTrigger": {
+      "displayName": "Telegram Trigger",
+      "category": "Communication",
+      "currentCount": 549,
+      "trend": "new",
+      "change": 549,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 549
+        }
+      ]
+    },
+    "n8n-nodes-base.extractFromFile": {
+      "displayName": "Extract From File",
+      "category": "Files",
+      "currentCount": 479,
+      "trend": "new",
+      "change": 479,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 479
+        }
+      ]
+    },
+    "n8n-nodes-base.emailSend": {
+      "displayName": "Send Email",
+      "category": "Communication",
+      "currentCount": 407,
+      "trend": "new",
+      "change": 407,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 407
+        }
+      ]
+    },
+    "n8n-nodes-base.start": {
+      "displayName": "Start",
+      "category": "Triggers",
+      "currentCount": 401,
+      "trend": "new",
+      "change": 401,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 401
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.lmChatOpenRouter": {
+      "displayName": "OpenRouter Chat Model",
+      "category": "AI",
+      "currentCount": 338,
+      "trend": "new",
+      "change": 338,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 338
+        }
+      ]
+    },
+    "n8n-nodes-base.convertToFile": {
+      "displayName": "Convert to File",
+      "category": "Files",
+      "currentCount": 330,
+      "trend": "new",
+      "change": 330,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 330
+        }
+      ]
+    },
+    "n8n-nodes-base.airtable": {
+      "displayName": "Airtable",
+      "category": "Database & Storage",
+      "currentCount": 330,
+      "trend": "new",
+      "change": 330,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 330
+        }
+      ]
+    },
+    "n8n-nodes-base.function": {
+      "displayName": "Function",
+      "category": "Data Transform",
+      "currentCount": 316,
+      "trend": "new",
+      "change": 316,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 316
+        }
+      ]
+    },
+    "n8n-nodes-base.limit": {
+      "displayName": "Limit",
+      "category": "Data Transform",
+      "currentCount": 282,
+      "trend": "new",
+      "change": 282,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 282
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.documentDefaultDataLoader": {
+      "displayName": "Default Data Loader",
+      "category": "AI",
+      "currentCount": 275,
+      "trend": "new",
+      "change": 275,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 275
+        }
+      ]
+    },
+    "n8n-nodes-base.html": {
+      "displayName": "HTML",
+      "category": "Data Transform",
+      "currentCount": 255,
+      "trend": "new",
+      "change": 255,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 255
+        }
+      ]
+    },
+    "n8n-nodes-base.gmailTrigger": {
+      "displayName": "Gmail Trigger",
+      "category": "Communication",
+      "currentCount": 251,
+      "trend": "new",
+      "change": 251,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 251
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.embeddingsOpenAi": {
+      "displayName": "Embeddings OpenAI",
+      "category": "AI",
+      "currentCount": 247,
+      "trend": "new",
+      "change": 247,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 247
+        }
+      ]
+    },
+    "n8n-nodes-base.cron": {
+      "displayName": "Cron",
+      "category": "Triggers",
+      "currentCount": 232,
+      "trend": "new",
+      "change": 232,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 232
+        }
+      ]
+    },
+    "n8n-nodes-base.notion": {
+      "displayName": "Notion",
+      "category": "Database & Storage",
+      "currentCount": 230,
+      "trend": "new",
+      "change": 230,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 230
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.toolWorkflow": {
+      "displayName": "Call n8n Workflow Tool",
+      "category": "AI",
+      "currentCount": 220,
+      "trend": "new",
+      "change": 220,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 220
+        }
+      ]
+    },
+    "n8n-nodes-base.googleDriveTrigger": {
+      "displayName": "Google Drive Trigger",
+      "category": "Google",
+      "currentCount": 209,
+      "trend": "new",
+      "change": 209,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 209
+        }
+      ]
+    },
+    "n8n-nodes-base.executeWorkflow": {
+      "displayName": "Execute Workflow",
+      "category": "Flow Control",
+      "currentCount": 196,
+      "trend": "new",
+      "change": 196,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 196
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter": {
+      "displayName": "Recursive Character Text Splitter",
+      "category": "AI",
+      "currentCount": 182,
+      "trend": "new",
+      "change": 182,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 182
+        }
+      ]
+    },
+    "n8n-nodes-base.markdown": {
+      "displayName": "Markdown",
+      "category": "Data Transform",
+      "currentCount": 177,
+      "trend": "new",
+      "change": 177,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 177
+        }
+      ]
+    },
+    "n8n-nodes-base.googleSheetsTrigger": {
+      "displayName": "Google Sheets Trigger",
+      "category": "Google",
+      "currentCount": 177,
+      "trend": "new",
+      "change": 177,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 177
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.informationExtractor": {
+      "displayName": "Information Extractor",
+      "category": "AI",
+      "currentCount": 172,
+      "trend": "new",
+      "change": 172,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 172
+        }
+      ]
+    },
+    "n8n-nodes-base.postgres": {
+      "displayName": "Postgres",
+      "category": "Database & Storage",
+      "currentCount": 166,
+      "trend": "new",
+      "change": 166,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 166
+        }
+      ]
+    },
+    "n8n-nodes-base.googleDocs": {
+      "displayName": "Google Docs",
+      "category": "Google",
+      "currentCount": 162,
+      "trend": "new",
+      "change": 162,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 162
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.toolThink": {
+      "displayName": "Think Tool",
+      "category": "AI",
+      "currentCount": 161,
+      "trend": "new",
+      "change": 161,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 161
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.lmChatAnthropic": {
+      "displayName": "Anthropic Chat Model",
+      "category": "AI",
+      "currentCount": 158,
+      "trend": "new",
+      "change": 158,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 158
+        }
+      ]
+    },
+    "n8n-nodes-base.googleCalendar": {
+      "displayName": "Google Calendar",
+      "category": "Google",
+      "currentCount": 155,
+      "trend": "new",
+      "change": 155,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 155
+        }
+      ]
+    },
+    "n8n-nodes-base.rssFeedRead": {
+      "displayName": "RSS Feed Read",
+      "category": "HTTP & APIs",
+      "currentCount": 141,
+      "trend": "new",
+      "change": 141,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 141
+        }
+      ]
+    },
+    "n8n-nodes-base.whatsApp": {
+      "displayName": "WhatsApp Business Cloud",
+      "category": "Communication",
+      "currentCount": 141,
+      "trend": "new",
+      "change": 141,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 141
+        }
+      ]
+    },
+    "n8n-nodes-base.hubspot": {
+      "displayName": "HubSpot",
+      "category": "CRM & Sales",
+      "currentCount": 123,
+      "trend": "new",
+      "change": 123,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 123
+        }
+      ]
+    },
+    "n8n-nodes-base.n8n": {
+      "displayName": "n8n",
+      "category": "Utility",
+      "currentCount": 122,
+      "trend": "new",
+      "change": 122,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 122
+        }
+      ]
+    },
+    "n8n-nodes-base.discord": {
+      "displayName": "Discord",
+      "category": "Communication",
+      "currentCount": 115,
+      "trend": "new",
+      "change": 115,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 115
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi": {
+      "displayName": "Azure OpenAI Chat Model",
+      "category": "AI",
+      "currentCount": 113,
+      "trend": "new",
+      "change": 113,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 113
+        }
+      ]
+    },
+    "n8n-nodes-base.removeDuplicates": {
+      "displayName": "Remove Duplicates",
+      "category": "Data Transform",
+      "currentCount": 112,
+      "trend": "new",
+      "change": 112,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 112
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.textClassifier": {
+      "displayName": "Text Classifier",
+      "category": "AI",
+      "currentCount": 109,
+      "trend": "new",
+      "change": 109,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 109
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.vectorStorePinecone": {
+      "displayName": "Pinecone Vector Store",
+      "category": "AI",
+      "currentCount": 108,
+      "trend": "new",
+      "change": 108,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 108
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.toolCalculator": {
+      "displayName": "Calculator",
+      "category": "AI",
+      "currentCount": 105,
+      "trend": "new",
+      "change": 105,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 105
+        }
+      ]
+    },
+    "n8n-nodes-base.errorTrigger": {
+      "displayName": "Error Trigger",
+      "category": "Triggers",
+      "currentCount": 104,
+      "trend": "new",
+      "change": 104,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 104
+        }
+      ]
+    },
+    "n8n-nodes-base.supabase": {
+      "displayName": "Supabase",
+      "category": "Database & Storage",
+      "currentCount": 104,
+      "trend": "new",
+      "change": 104,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 104
+        }
+      ]
+    },
+    "n8n-nodes-base.twitter": {
+      "displayName": "X (Twitter)",
+      "category": "Social Media",
+      "currentCount": 102,
+      "trend": "new",
+      "change": 102,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 102
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.outputParserAutofixing": {
+      "displayName": "Auto-fixing Output Parser",
+      "category": "AI",
+      "currentCount": 102,
+      "trend": "new",
+      "change": 102,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 102
+        }
+      ]
+    },
+    "n8n-nodes-base.linkedin": {
+      "displayName": "LinkedIn",
+      "category": "Social Media",
+      "currentCount": 100,
+      "trend": "new",
+      "change": 100,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 100
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.mcpClientTool": {
+      "displayName": "MCP Client Tool",
+      "category": "AI",
+      "currentCount": 100,
+      "trend": "new",
+      "change": 100,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 100
+        }
+      ]
+    },
+    "n8n-nodes-base.wordpress": {
+      "displayName": "WordPress",
+      "category": "CMS",
+      "currentCount": 97,
+      "trend": "new",
+      "change": 97,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 97
+        }
+      ]
+    },
+    "n8n-nodes-base.youtube": {
+      "displayName": "YouTube",
+      "category": "Google",
+      "currentCount": 88,
+      "trend": "new",
+      "change": 88,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 88
+        }
+      ]
+    },
+    "n8n-nodes-base.facebookGraphApi": {
+      "displayName": "Facebook Graph API",
+      "category": "Social Media",
+      "currentCount": 87,
+      "trend": "new",
+      "change": 87,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 87
+        }
+      ]
+    },
+    "n8n-nodes-base.sort": {
+      "displayName": "Sort",
+      "category": "Data Transform",
+      "currentCount": 85,
+      "trend": "new",
+      "change": 85,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 85
+        }
+      ]
+    },
+    "n8n-nodes-base.github": {
+      "displayName": "GitHub",
+      "category": "Developer Tools",
+      "currentCount": 83,
+      "trend": "new",
+      "change": 83,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 83
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.memoryPostgresChat": {
+      "displayName": "Postgres Chat Memory",
+      "category": "AI",
+      "currentCount": 83,
+      "trend": "new",
+      "change": 83,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 83
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.vectorStoreSupabase": {
+      "displayName": "Supabase Vector Store",
+      "category": "AI",
+      "currentCount": 83,
+      "trend": "new",
+      "change": 83,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 83
+        }
+      ]
+    },
+    "n8n-nodes-base.jira": {
+      "displayName": "Jira",
+      "category": "Productivity",
+      "currentCount": 78,
+      "trend": "new",
+      "change": 78,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 78
+        }
+      ]
+    },
+    "n8n-nodes-base.dateTime": {
+      "displayName": "Date & Time",
+      "category": "Data Transform",
+      "currentCount": 76,
+      "trend": "new",
+      "change": 76,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 76
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.chainSummarization": {
+      "displayName": "Summarization Chain",
+      "category": "AI",
+      "currentCount": 72,
+      "trend": "new",
+      "change": 72,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 72
+        }
+      ]
+    },
+    "n8n-nodes-base.microsoftOutlook": {
+      "displayName": "Microsoft Outlook",
+      "category": "Other",
+      "currentCount": 72,
+      "trend": "new",
+      "change": 72,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 72
+        }
+      ]
+    },
+    "n8n-nodes-base.xml": {
+      "displayName": "XML",
+      "category": "Data Transform",
+      "currentCount": 70,
+      "trend": "new",
+      "change": 70,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 70
+        }
+      ]
+    },
+    "n8n-nodes-base.executeCommand": {
+      "displayName": "Execute Command",
+      "category": "Utility",
+      "currentCount": 69,
+      "trend": "new",
+      "change": 69,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 69
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.vectorStoreQdrant": {
+      "displayName": "Qdrant Vector Store",
+      "category": "AI",
+      "currentCount": 69,
+      "trend": "new",
+      "change": 69,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 69
+        }
+      ]
+    },
+    "n8n-nodes-base.emailReadImap": {
+      "displayName": "Email (IMAP)",
+      "category": "Communication",
+      "currentCount": 68,
+      "trend": "new",
+      "change": 68,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 68
+        }
+      ]
+    },
+    "n8n-nodes-base.itemLists": {
+      "displayName": "Item Lists",
+      "category": "Data Transform",
+      "currentCount": 65,
+      "trend": "new",
+      "change": 65,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 65
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.toolSerpApi": {
+      "displayName": "SerpAPI",
+      "category": "AI",
+      "currentCount": 65,
+      "trend": "new",
+      "change": 65,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 65
+        }
+      ]
+    },
+    "n8n-nodes-base.twilio": {
+      "displayName": "Twilio",
+      "category": "Communication",
+      "currentCount": 62,
+      "trend": "new",
+      "change": 62,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 62
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.lmChatGroq": {
+      "displayName": "Groq Chat Model",
+      "category": "AI",
+      "currentCount": 57,
+      "trend": "new",
+      "change": 57,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 57
+        }
+      ]
+    },
+    "n8n-nodes-base.reddit": {
+      "displayName": "Reddit",
+      "category": "Social Media",
+      "currentCount": 56,
+      "trend": "new",
+      "change": 56,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 56
+        }
+      ]
+    },
+    "n8n-nodes-base.crypto": {
+      "displayName": "Crypto",
+      "category": "Data Transform",
+      "currentCount": 53,
+      "trend": "new",
+      "change": 53,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 53
+        }
+      ]
+    },
+    "n8n-nodes-base.redis": {
+      "displayName": "Redis",
+      "category": "Database & Storage",
+      "currentCount": 53,
+      "trend": "new",
+      "change": 53,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 53
+        }
+      ]
+    },
+    "n8n-nodes-base.spreadsheetFile": {
+      "displayName": "Spreadsheet File",
+      "category": "Data Transform",
+      "currentCount": 52,
+      "trend": "new",
+      "change": 52,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 52
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.lmChatOllama": {
+      "displayName": "Ollama Chat Model",
+      "category": "AI",
+      "currentCount": 52,
+      "trend": "new",
+      "change": 52,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 52
+        }
+      ]
+    },
+    "n8n-nodes-base.slackTrigger": {
+      "displayName": "Slack Trigger",
+      "category": "Communication",
+      "currentCount": 49,
+      "trend": "new",
+      "change": 49,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 49
+        }
+      ]
+    },
+    "n8n-nodes-base.clickUp": {
+      "displayName": "ClickUp",
+      "category": "Productivity",
+      "currentCount": 47,
+      "trend": "new",
+      "change": 47,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 47
+        }
+      ]
+    },
+    "n8n-nodes-base.ssh": {
+      "displayName": "SSH",
+      "category": "HTTP & APIs",
+      "currentCount": 45,
+      "trend": "new",
+      "change": 45,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 45
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini": {
+      "displayName": "Embeddings Google Gemini",
+      "category": "AI",
+      "currentCount": 43,
+      "trend": "new",
+      "change": 43,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 43
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.lmChatMistralCloud": {
+      "displayName": "Mistral Cloud Chat Model",
+      "category": "AI",
+      "currentCount": 41,
+      "trend": "new",
+      "change": 41,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 41
+        }
+      ]
+    },
+    "n8n-nodes-base.writeBinaryFile": {
+      "displayName": "Write Binary File",
+      "category": "Files",
+      "currentCount": 40,
+      "trend": "new",
+      "change": 40,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 40
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.toolCode": {
+      "displayName": "Code Tool",
+      "category": "AI",
+      "currentCount": 40,
+      "trend": "new",
+      "change": 40,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 40
+        }
+      ]
+    },
+    "n8n-nodes-base.typeformTrigger": {
+      "displayName": "Typeform Trigger",
+      "category": "Other",
+      "currentCount": 39,
+      "trend": "new",
+      "change": 39,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 39
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.vectorStoreInMemory": {
+      "displayName": "In-Memory Vector Store",
+      "category": "AI",
+      "currentCount": 38,
+      "trend": "new",
+      "change": 38,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 38
+        }
+      ]
+    },
+    "n8n-nodes-base.compareDatasets": {
+      "displayName": "Compare Datasets",
+      "category": "Data Transform",
+      "currentCount": 37,
+      "trend": "new",
+      "change": 37,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 37
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.toolWikipedia": {
+      "displayName": "Wikipedia",
+      "category": "AI",
+      "currentCount": 37,
+      "trend": "new",
+      "change": 37,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 37
+        }
+      ]
+    },
+    "n8n-nodes-base.functionItem": {
+      "displayName": "Function Item",
+      "category": "Data Transform",
+      "currentCount": 35,
+      "trend": "new",
+      "change": 35,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 35
+        }
+      ]
+    },
+    "n8n-nodes-base.noCoDB": {
+      "displayName": "NocoDB",
+      "category": "Database & Storage",
+      "currentCount": 34,
+      "trend": "new",
+      "change": 34,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 34
+        }
+      ]
+    },
+    "n8n-nodes-base.mySql": {
+      "displayName": "MySQL",
+      "category": "Database & Storage",
+      "currentCount": 33,
+      "trend": "new",
+      "change": 33,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 33
+        }
+      ]
+    },
+    "n8n-nodes-base.zendesk": {
+      "displayName": "Zendesk",
+      "category": "CRM & Sales",
+      "currentCount": 33,
+      "trend": "new",
+      "change": 33,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 33
+        }
+      ]
+    },
+    "n8n-nodes-base.pipedrive": {
+      "displayName": "Pipedrive",
+      "category": "CRM & Sales",
+      "currentCount": 31,
+      "trend": "new",
+      "change": 31,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 31
+        }
+      ]
+    },
+    "n8n-nodes-base.trello": {
+      "displayName": "Trello",
+      "category": "Productivity",
+      "currentCount": 31,
+      "trend": "new",
+      "change": 31,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 31
+        }
+      ]
+    },
+    "n8n-nodes-base.salesforce": {
+      "displayName": "Salesforce",
+      "category": "CRM & Sales",
+      "currentCount": 28,
+      "trend": "new",
+      "change": 28,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 28
+        }
+      ]
+    },
+    "n8n-nodes-base.githubTrigger": {
+      "displayName": "GitHub Trigger",
+      "category": "Developer Tools",
+      "currentCount": 28,
+      "trend": "new",
+      "change": 28,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 28
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.chainRetrievalQa": {
+      "displayName": "Question and Answer Chain",
+      "category": "AI",
+      "currentCount": 28,
+      "trend": "new",
+      "change": 28,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 28
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter": {
+      "displayName": "Token Splitter",
+      "category": "AI",
+      "currentCount": 28,
+      "trend": "new",
+      "change": 28,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 28
+        }
+      ]
+    },
+    "n8n-nodes-base.shopify": {
+      "displayName": "Shopify",
+      "category": "E-Commerce",
+      "currentCount": 27,
+      "trend": "new",
+      "change": 27,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 27
+        }
+      ]
+    },
+    "n8n-nodes-base.shopifyTrigger": {
+      "displayName": "Shopify Trigger",
+      "category": "E-Commerce",
+      "currentCount": 27,
+      "trend": "new",
+      "change": 27,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 27
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.sentimentAnalysis": {
+      "displayName": "Sentiment Analysis",
+      "category": "AI",
+      "currentCount": 27,
+      "trend": "new",
+      "change": 27,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 27
+        }
+      ]
+    },
+    "n8n-nodes-base.baserow": {
+      "displayName": "Baserow",
+      "category": "Database & Storage",
+      "currentCount": 25,
+      "trend": "new",
+      "change": 25,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 25
+        }
+      ]
+    },
+    "n8n-nodes-base.stripe": {
+      "displayName": "Stripe",
+      "category": "E-Commerce",
+      "currentCount": 25,
+      "trend": "new",
+      "change": 25,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 25
+        }
+      ]
+    },
+    "n8n-nodes-base.compression": {
+      "displayName": "Compression",
+      "category": "Data Transform",
+      "currentCount": 24,
+      "trend": "new",
+      "change": 24,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 24
+        }
+      ]
+    },
+    "n8n-nodes-base.notionTrigger": {
+      "displayName": "Notion Trigger",
+      "category": "Database & Storage",
+      "currentCount": 24,
+      "trend": "new",
+      "change": 24,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 24
+        }
+      ]
+    },
+    "n8n-nodes-base.awsS3": {
+      "displayName": "AWS S3",
+      "category": "Database & Storage",
+      "currentCount": 24,
+      "trend": "new",
+      "change": 24,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 24
+        }
+      ]
+    },
+    "n8n-nodes-base.graphql": {
+      "displayName": "GraphQL",
+      "category": "HTTP & APIs",
+      "currentCount": 23,
+      "trend": "new",
+      "change": 23,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 23
+        }
+      ]
+    },
+    "n8n-nodes-base.openWeatherMap": {
+      "displayName": "OpenWeatherMap",
+      "category": "Other",
+      "currentCount": 22,
+      "trend": "new",
+      "change": 22,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 22
+        }
+      ]
+    },
+    "n8n-nodes-base.ftp": {
+      "displayName": "FTP",
+      "category": "HTTP & APIs",
+      "currentCount": 21,
+      "trend": "new",
+      "change": 21,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 21
+        }
+      ]
+    },
+    "n8n-nodes-base.sendGrid": {
+      "displayName": "SendGrid",
+      "category": "Communication",
+      "currentCount": 21,
+      "trend": "new",
+      "change": 21,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 21
+        }
+      ]
+    },
+    "n8n-nodes-base.googleCalendarTrigger": {
+      "displayName": "Google Calendar Trigger",
+      "category": "Google",
+      "currentCount": 21,
+      "trend": "new",
+      "change": 21,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 21
+        }
+      ]
+    },
+    "n8n-nodes-base.mongoDb": {
+      "displayName": "MongoDB",
+      "category": "Database & Storage",
+      "currentCount": 21,
+      "trend": "new",
+      "change": 21,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 21
+        }
+      ]
+    },
+    "n8n-nodes-base.airtableTrigger": {
+      "displayName": "Airtable Trigger",
+      "category": "Database & Storage",
+      "currentCount": 21,
+      "trend": "new",
+      "change": 21,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 21
+        }
+      ]
+    },
+    "n8n-nodes-base.microsoftTeams": {
+      "displayName": "Microsoft Teams",
+      "category": "Communication",
+      "currentCount": 20,
+      "trend": "new",
+      "change": 20,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 20
+        }
+      ]
+    },
+    "n8n-nodes-base.googleAnalytics": {
+      "displayName": "Google Analytics",
+      "category": "Google",
+      "currentCount": 20,
+      "trend": "new",
+      "change": 20,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 20
+        }
+      ]
+    },
+    "n8n-nodes-base.calendlyTrigger": {
+      "displayName": "Calendly Trigger",
+      "category": "Other",
+      "currentCount": 20,
+      "trend": "new",
+      "change": 20,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 20
+        }
+      ]
+    },
+    "n8n-nodes-base.googleSlides": {
+      "displayName": "Google Slides",
+      "category": "Google",
+      "currentCount": 19,
+      "trend": "new",
+      "change": 19,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 19
+        }
+      ]
+    },
+    "n8n-nodes-base.hubspotTrigger": {
+      "displayName": "HubSpot Trigger",
+      "category": "CRM & Sales",
+      "currentCount": 18,
+      "trend": "new",
+      "change": 18,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 18
+        }
+      ]
+    },
+    "n8n-nodes-base.stripeTrigger": {
+      "displayName": "Stripe Trigger",
+      "category": "E-Commerce",
+      "currentCount": 18,
+      "trend": "new",
+      "change": 18,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 18
+        }
+      ]
+    },
+    "n8n-nodes-base.dropbox": {
+      "displayName": "Dropbox",
+      "category": "Other",
+      "currentCount": 18,
+      "trend": "new",
+      "change": 18,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 18
+        }
+      ]
+    },
+    "n8n-nodes-base.microsoftOneDrive": {
+      "displayName": "Microsoft OneDrive",
+      "category": "Other",
+      "currentCount": 17,
+      "trend": "new",
+      "change": 17,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 17
+        }
+      ]
+    },
+    "n8n-nodes-base.mailchimp": {
+      "displayName": "Mailchimp",
+      "category": "Communication",
+      "currentCount": 15,
+      "trend": "new",
+      "change": 15,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 15
+        }
+      ]
+    },
+    "n8n-nodes-base.s3": {
+      "displayName": "AWS S3",
+      "category": "Database & Storage",
+      "currentCount": 15,
+      "trend": "new",
+      "change": 15,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 15
+        }
+      ]
+    },
+    "n8n-nodes-base.asana": {
+      "displayName": "Asana",
+      "category": "Productivity",
+      "currentCount": 15,
+      "trend": "new",
+      "change": 15,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 15
+        }
+      ]
+    },
+    "n8n-nodes-base.renameKeys": {
+      "displayName": "Rename Keys",
+      "category": "Data Transform",
+      "currentCount": 14,
+      "trend": "new",
+      "change": 14,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 14
+        }
+      ]
+    },
+    "n8n-nodes-base.todoist": {
+      "displayName": "Todoist",
+      "category": "Productivity",
+      "currentCount": 14,
+      "trend": "new",
+      "change": 14,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 14
+        }
+      ]
+    },
+    "n8n-nodes-base.wooCommerce": {
+      "displayName": "WooCommerce",
+      "category": "E-Commerce",
+      "currentCount": 14,
+      "trend": "new",
+      "change": 14,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 14
+        }
+      ]
+    },
+    "@n8n/n8n-nodes-langchain.memoryRedisChat": {
+      "displayName": "Redis Chat Memory",
+      "category": "AI",
+      "currentCount": 14,
+      "trend": "new",
+      "change": 14,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 14
+        }
+      ]
+    },
+    "n8n-nodes-base.gitlab": {
+      "displayName": "GitLab",
+      "category": "Developer Tools",
+      "currentCount": 13,
+      "trend": "new",
+      "change": 13,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 13
+        }
+      ]
+    },
+    "n8n-nodes-base.googleTasks": {
+      "displayName": "Google Tasks",
+      "category": "Google",
+      "currentCount": 12,
+      "trend": "new",
+      "change": 12,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 12
+        }
+      ]
+    },
+    "n8n-nodes-base.wooCommerceTrigger": {
+      "displayName": "WooCommerce Trigger",
+      "category": "E-Commerce",
+      "currentCount": 12,
+      "trend": "new",
+      "change": 12,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 12
+        }
+      ]
+    },
+    "n8n-nodes-base.googleCloudStorage": {
+      "displayName": "Google Cloud Storage",
+      "category": "Google",
+      "currentCount": 11,
+      "trend": "new",
+      "change": 11,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 11
+        }
+      ]
+    },
+    "n8n-nodes-base.googleBigQuery": {
+      "displayName": "Google BigQuery",
+      "category": "Google",
+      "currentCount": 10,
+      "trend": "new",
+      "change": 10,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 10
+        }
+      ]
+    },
+    "n8n-nodes-base.linear": {
+      "displayName": "Linear",
+      "category": "Productivity",
+      "currentCount": 10,
+      "trend": "new",
+      "change": 10,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 10
+        }
+      ]
+    },
+    "n8n-nodes-base.mautic": {
+      "displayName": "Mautic",
+      "category": "Marketing",
+      "currentCount": 9,
+      "trend": "new",
+      "change": 9,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 9
+        }
+      ]
+    },
+    "n8n-nodes-base.mailgun": {
+      "displayName": "Mailgun",
+      "category": "Communication",
+      "currentCount": 8,
+      "trend": "new",
+      "change": 8,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 8
+        }
+      ]
+    },
+    "n8n-nodes-base.pipedriveTrigger": {
+      "displayName": "Pipedrive Trigger",
+      "category": "CRM & Sales",
+      "currentCount": 8,
+      "trend": "new",
+      "change": 8,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 8
+        }
+      ]
+    },
+    "n8n-nodes-base.clickUpTrigger": {
+      "displayName": "ClickUp Trigger",
+      "category": "Productivity",
+      "currentCount": 8,
+      "trend": "new",
+      "change": 8,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 8
+        }
+      ]
+    },
+    "n8n-nodes-base.readBinaryFiles": {
+      "displayName": "Read Binary Files",
+      "category": "Files",
+      "currentCount": 6,
+      "trend": "new",
+      "change": 6,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 6
+        }
+      ]
+    },
+    "n8n-nodes-base.readPdf": {
+      "displayName": "Read PDF",
+      "category": "Files",
+      "currentCount": 6,
+      "trend": "new",
+      "change": 6,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 6
+        }
+      ]
+    },
+    "n8n-nodes-base.microsoftSql": {
+      "displayName": "Microsoft SQL",
+      "category": "Database & Storage",
+      "currentCount": 6,
+      "trend": "new",
+      "change": 6,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 6
+        }
+      ]
+    },
+    "n8n-nodes-base.jiraTrigger": {
+      "displayName": "Jira Trigger",
+      "category": "Productivity",
+      "currentCount": 6,
+      "trend": "new",
+      "change": 6,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 6
+        }
+      ]
+    },
+    "n8n-nodes-base.linearTrigger": {
+      "displayName": "Linear Trigger",
+      "category": "Productivity",
+      "currentCount": 6,
+      "trend": "new",
+      "change": 6,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 6
+        }
+      ]
+    },
+    "n8n-nodes-base.ghost": {
+      "displayName": "Ghost",
+      "category": "CMS",
+      "currentCount": 6,
+      "trend": "new",
+      "change": 6,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 6
+        }
+      ]
+    },
+    "n8n-nodes-base.lemlist": {
+      "displayName": "Lemlist",
+      "category": "Marketing",
+      "currentCount": 6,
+      "trend": "new",
+      "change": 6,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 6
+        }
+      ]
+    },
+    "n8n-nodes-base.snowflake": {
+      "displayName": "Snowflake",
+      "category": "Database & Storage",
+      "currentCount": 4,
+      "trend": "new",
+      "change": 4,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 4
+        }
+      ]
+    },
+    "n8n-nodes-base.freshdesk": {
+      "displayName": "Freshdesk",
+      "category": "CRM & Sales",
+      "currentCount": 4,
+      "trend": "new",
+      "change": 4,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 4
+        }
+      ]
+    },
+    "n8n-nodes-base.intercom": {
+      "displayName": "Intercom",
+      "category": "CRM & Sales",
+      "currentCount": 4,
+      "trend": "new",
+      "change": 4,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 4
+        }
+      ]
+    },
+    "n8n-nodes-base.trelloTrigger": {
+      "displayName": "Trello Trigger",
+      "category": "Productivity",
+      "currentCount": 3,
+      "trend": "new",
+      "change": 3,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 3
+        }
+      ]
+    },
+    "n8n-nodes-base.gitlabTrigger": {
+      "displayName": "GitLab Trigger",
+      "category": "Developer Tools",
+      "currentCount": 3,
+      "trend": "new",
+      "change": 3,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 3
+        }
+      ]
+    },
+    "n8n-nodes-base.strapi": {
+      "displayName": "Strapi",
+      "category": "CMS",
+      "currentCount": 3,
+      "trend": "new",
+      "change": 3,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 3
+        }
+      ]
+    },
+    "n8n-nodes-base.postgresTrigger": {
+      "displayName": "Postgres Trigger",
+      "category": "Database & Storage",
+      "currentCount": 2,
+      "trend": "new",
+      "change": 2,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 2
+        }
+      ]
+    },
+    "n8n-nodes-base.elasticsearch": {
+      "displayName": "Elasticsearch",
+      "category": "Database & Storage",
+      "currentCount": 2,
+      "trend": "new",
+      "change": 2,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 2
+        }
+      ]
+    },
+    "n8n-nodes-base.asanaTrigger": {
+      "displayName": "Asana Trigger",
+      "category": "Productivity",
+      "currentCount": 2,
+      "trend": "new",
+      "change": 2,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 2
+        }
+      ]
+    },
+    "n8n-nodes-base.box": {
+      "displayName": "Box",
+      "category": "Other",
+      "currentCount": 2,
+      "trend": "new",
+      "change": 2,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 2
+        }
+      ]
+    },
+    "n8n-nodes-base.awsLambda": {
+      "displayName": "AWS Lambda",
+      "category": "Other",
+      "currentCount": 2,
+      "trend": "new",
+      "change": 2,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 2
+        }
+      ]
+    },
+    "n8n-nodes-base.workflowTrigger": {
+      "displayName": "Workflow Trigger",
+      "category": "Triggers",
+      "currentCount": 1,
+      "trend": "new",
+      "change": 1,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1
+        }
+      ]
+    },
+    "n8n-nodes-base.copper": {
+      "displayName": "Copper",
+      "category": "CRM & Sales",
+      "currentCount": 1,
+      "trend": "new",
+      "change": 1,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1
+        }
+      ]
+    },
+    "n8n-nodes-base.zendeskTrigger": {
+      "displayName": "Zendesk Trigger",
+      "category": "CRM & Sales",
+      "currentCount": 1,
+      "trend": "new",
+      "change": 1,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1
+        }
+      ]
+    },
+    "n8n-nodes-base.bitbucketTrigger": {
+      "displayName": "Bitbucket Trigger",
+      "category": "Developer Tools",
+      "currentCount": 1,
+      "trend": "new",
+      "change": 1,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1
+        }
+      ]
+    },
+    "n8n-nodes-base.sentryIo": {
+      "displayName": "Sentry.io",
+      "category": "Developer Tools",
+      "currentCount": 1,
+      "trend": "new",
+      "change": 1,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1
+        }
+      ]
+    },
+    "n8n-nodes-base.contentful": {
+      "displayName": "Contentful",
+      "category": "CMS",
+      "currentCount": 1,
+      "trend": "new",
+      "change": 1,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1
+        }
+      ]
+    },
+    "n8n-nodes-base.activeCampaign": {
+      "displayName": "ActiveCampaign",
+      "category": "Marketing",
+      "currentCount": 1,
+      "trend": "new",
+      "change": 1,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1
+        }
+      ]
+    },
+    "n8n-nodes-base.convertKit": {
+      "displayName": "ConvertKit",
+      "category": "Marketing",
+      "currentCount": 1,
+      "trend": "new",
+      "change": 1,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1
+        }
+      ]
+    },
+    "n8n-nodes-base.segment": {
+      "displayName": "Segment",
+      "category": "Marketing",
+      "currentCount": 1,
+      "trend": "new",
+      "change": 1,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1
+        }
+      ]
+    },
+    "n8n-nodes-base.customerIo": {
+      "displayName": "Customer.io",
+      "category": "Marketing",
+      "currentCount": 1,
+      "trend": "new",
+      "change": 1,
+      "changePercent": 100,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 1
+        }
+      ]
+    },
+    "n8n-nodes-base.debug": {
+      "displayName": "Debug",
+      "category": "Utility",
+      "currentCount": 0,
+      "trend": "new",
+      "change": 0,
+      "changePercent": 0,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 0
+        }
+      ]
+    },
+    "n8n-nodes-base.discordTrigger": {
+      "displayName": "Discord Trigger",
+      "category": "Communication",
+      "currentCount": 0,
+      "trend": "new",
+      "change": 0,
+      "changePercent": 0,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 0
+        }
+      ]
+    },
+    "n8n-nodes-base.dynamoDb": {
+      "displayName": "DynamoDB",
+      "category": "Database & Storage",
+      "currentCount": 0,
+      "trend": "new",
+      "change": 0,
+      "changePercent": 0,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 0
+        }
+      ]
+    },
+    "n8n-nodes-base.zoho": {
+      "displayName": "Zoho CRM",
+      "category": "CRM & Sales",
+      "currentCount": 0,
+      "trend": "new",
+      "change": 0,
+      "changePercent": 0,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 0
+        }
+      ]
+    },
+    "n8n-nodes-base.monday": {
+      "displayName": "Monday.com",
+      "category": "Productivity",
+      "currentCount": 0,
+      "trend": "new",
+      "change": 0,
+      "changePercent": 0,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 0
+        }
+      ]
+    },
+    "n8n-nodes-base.bitbucket": {
+      "displayName": "Bitbucket",
+      "category": "Developer Tools",
+      "currentCount": 0,
+      "trend": "new",
+      "change": 0,
+      "changePercent": 0,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 0
+        }
+      ]
+    },
+    "n8n-nodes-base.sentry": {
+      "displayName": "Sentry",
+      "category": "Developer Tools",
+      "currentCount": 0,
+      "trend": "new",
+      "change": 0,
+      "changePercent": 0,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 0
+        }
+      ]
+    },
+    "n8n-nodes-base.googleForms": {
+      "displayName": "Google Forms",
+      "category": "Other",
+      "currentCount": 0,
+      "trend": "new",
+      "change": 0,
+      "changePercent": 0,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 0
+        }
+      ]
+    },
+    "n8n-nodes-base.typeform": {
+      "displayName": "Typeform",
+      "category": "Other",
+      "currentCount": 0,
+      "trend": "new",
+      "change": 0,
+      "changePercent": 0,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 0
+        }
+      ]
+    },
+    "n8n-nodes-base.calendly": {
+      "displayName": "Calendly",
+      "category": "Other",
+      "currentCount": 0,
+      "trend": "new",
+      "change": 0,
+      "changePercent": 0,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 0
+        }
+      ]
+    },
+    "n8n-nodes-base.zapier": {
+      "displayName": "Zapier",
+      "category": "Other",
+      "currentCount": 0,
+      "trend": "new",
+      "change": 0,
+      "changePercent": 0,
+      "history": [
+        {
+          "date": "2026-01-09",
+          "count": 0
+        }
+      ]
+    }
+  }
+}

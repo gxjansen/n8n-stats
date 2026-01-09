@@ -32,12 +32,15 @@ jobs:
       - name: Fetch all nodes usage data from n8n API
         run: npx tsx scripts/fetch-all-nodes.ts
 
+      - name: Update nodes history
+        run: npx tsx scripts/update-nodes-history.ts
+
       - name: Commit updated data
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add public/data/all-templates-data.json public/data/all-nodes-data.json
-          git diff --staged --quiet || git commit -m "Update full templates and nodes data (weekly) [skip ci]"
+          git add public/data/all-templates-data.json public/data/all-nodes-data.json public/data/nodes-history.json
+          git diff --staged --quiet || git commit -m "Update full templates, nodes data, and history (weekly) [skip ci]"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
