@@ -4,8 +4,37 @@ import TemplatesHistoryChart from '@/components/charts/TemplatesHistoryChart.ast
 import CategoryTreemapChart from '@/components/charts/CategoryTreemapChart.astro';
 import { fetchTemplateAnalytics } from '@/lib/api/n8n';
 import { formatNumber } from '@/lib/utils/formatters';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
+
+// Load n8n Arena creators data (insertions)
+interface ArenaCreator {
+  username: string;
+  name: string;
+  verified: boolean;
+  avatar: string;
+  templateCount: number;
+  totalViews: number;
+  totalInserters: number;
+  monthlyInserters: number;
+  weeklyInserters: number;
+}
+
+let arenaCreators: ArenaCreator[] = [];
+try {
+  const arenaPath = join(process.cwd(), 'public', 'data', 'external', 'n8narena-creators.json');
+  if (existsSync(arenaPath)) {
+    arenaCreators = JSON.parse(readFileSync(arenaPath, 'utf-8'));
+  }
+} catch (e) {
+  console.warn('n8narena-creators.json not found');
+}
+
+// Top creators by insertions (from Arena)
+const topCreatorsByInsertions = arenaCreators
+  .filter(c => c.totalInserters > 0)
+  .sort((a, b) => b.totalInserters - a.totalInserters)
+  .slice(0, 10);
 
 // Fetch comprehensive analytics
 const analytics = await fetchTemplateAnalytics();
@@ -305,6 +334,75 @@ const completeDataStats = allTemplatesData ? {
             <canvas id="timeline-chart"></canvas>
           </div>
         </div>
+      </section>
+    )}
+
+    <!-- Top Creators by Insertions (Arena Data) -->
+    {topCreatorsByInsertions.length > 0 && (
+      <section class="mb-12">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-2xl font-bold text-white">Top Creators by Insertions</h2>
+            <p class="text-gray-400 mt-1">
+              Creators whose templates are most used (inserted into workflows)
+            </p>
+          </div>
+          <a
+            href="https://n8narena.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-n8n-primary hover:text-n8n-primary/80 text-sm font-medium transition-colors"
+          >
+            View n8n Arena &rarr;
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {topCreatorsByInsertions.map((creator, index) => (
+            <a
+              href={`https://n8n.io/creators/${creator.username}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="card flex items-center gap-3 hover:bg-n8n-darker/50 transition-colors py-3"
+            >
+              <div class={`text-lg font-bold w-8 ${index < 3 ? 'text-green-400' : 'text-gray-500'}`}>
+                #{index + 1}
+              </div>
+              {creator.avatar ? (
+                <img
+                  src={creator.avatar}
+                  alt={creator.name}
+                  class="w-10 h-10 rounded-full bg-n8n-darker flex-shrink-0"
+                  loading="lazy"
+                />
+              ) : (
+                <div class="w-10 h-10 rounded-full bg-n8n-darker flex items-center justify-center text-gray-500 flex-shrink-0">
+                  <span class="text-lg">{creator.name.charAt(0).toUpperCase()}</span>
+                </div>
+              )}
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="font-medium text-white truncate">{creator.name}</span>
+                  {creator.verified && (
+                    <span class="text-blue-400 text-xs flex-shrink-0" title="Verified Creator">✓</span>
+                  )}
+                </div>
+                <div class="text-xs text-gray-400">
+                  @{creator.username} · {creator.templateCount} templates
+                </div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <div class="text-green-400 font-bold">
+                  {formatNumber(creator.totalInserters)}
+                </div>
+                <div class="text-xs text-gray-500">insertions</div>
+              </div>
+            </a>
+          ))}
+        </div>
+        <p class="text-xs text-gray-500 mt-3">
+          Data from <a href="https://n8narena.com" target="_blank" rel="noopener" class="text-n8n-primary hover:underline">n8n Arena</a>.
+          Insertions = templates added to workflows by users.
+        </p>
       </section>
     )}
 
