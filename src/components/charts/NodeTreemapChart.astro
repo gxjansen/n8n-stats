@@ -65,6 +65,15 @@ const { data } = Astro.props;
     'Other': '#7c8798',              // Gray - uncategorized
   };
 
+  // Generate n8n integrations URL from node name
+  function getNodeIntegrationUrl(name: string): string {
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    return `https://n8n.io/integrations/${slug}/`;
+  }
+
   function initTreemap() {
     const canvas = document.getElementById('node-treemap-chart') as HTMLCanvasElement;
     const loadingEl = document.getElementById('treemap-loading');
@@ -80,7 +89,7 @@ const { data } = Astro.props;
     // Calculate total for percentage display
     const totalCount = data.reduce((sum, d) => sum + d.count, 0);
 
-    new Chart(canvas, {
+    const chart = new Chart(canvas, {
       type: 'treemap',
       data: {
         datasets: [{
@@ -118,6 +127,23 @@ const { data } = Astro.props;
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        onClick: (_event: any, elements: any[]) => {
+          if (elements.length > 0) {
+            const element = elements[0];
+            const item = (chart.data.datasets[0] as any).tree[element.index];
+            const nodeName = item?.name || '';
+            if (nodeName) {
+              const url = getNodeIntegrationUrl(nodeName);
+              window.open(url, '_blank', 'noopener,noreferrer');
+            }
+          }
+        },
+        onHover: (event: any, elements: any[]) => {
+          const target = event.native?.target as HTMLElement;
+          if (target) {
+            target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+          }
+        },
         plugins: {
           legend: {
             display: false,
@@ -152,7 +178,8 @@ const { data } = Astro.props;
 
                 return [
                   `Templates: ${count.toLocaleString()} (${percentage}%)`,
-                  `Category: ${category}`
+                  `Category: ${category}`,
+                  'Click to view on n8n.io'
                 ];
               },
             },
