@@ -1,16 +1,41 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import StatCard from '@/components/cards/StatCard.astro';
+import MilestonePrediction from '@/components/cards/MilestonePrediction.astro';
 import GitHubHistoryChart from '@/components/charts/GitHubHistoryChart.astro';
 import ReleaseTimelineChart from '@/components/charts/ReleaseTimelineChart.astro';
 import { fetchGitHubStats, fetchGitHubReleases } from '@/lib/api/github';
 import { formatNumber } from '@/lib/utils/formatters';
+import { predictMilestone, getNextMilestones } from '@/lib/utils/predictions';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 // Fetch GitHub data
 const [githubStats, releases] = await Promise.all([
   fetchGitHubStats(),
   fetchGitHubReleases(10),
 ]);
+
+// Load historical data for predictions
+let starHistory: Array<{ date: string; value: number }> = [];
+try {
+  const historyPath = join(process.cwd(), 'public', 'data', 'github-history.json');
+  const historyData = JSON.parse(readFileSync(historyPath, 'utf-8'));
+  // Use monthly data for smoother predictions
+  starHistory = historyData.monthly?.map((d: any) => ({
+    date: d.date,
+    value: d.stars,
+  })) || [];
+} catch (e) {
+  console.warn('Could not load GitHub history for predictions');
+}
+
+// Calculate milestone predictions
+const currentStars = githubStats.stars;
+const milestones = getNextMilestones(currentStars, 'stars');
+const predictions = milestones.map(milestone =>
+  predictMilestone(starHistory, milestone, { lookbackMonths: 6 })
+);
 
 // Format date helper
 const formatDate = (dateStr: string) => {
@@ -45,6 +70,29 @@ const recentReleases = releases.slice(0, 5);
         <StatCard label="Open Issues" value={githubStats.openIssues} />
       </div>
     </section>
+
+    <!-- Milestone Predictions -->
+    {predictions.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold text-white mb-2">Star Milestones</h2>
+        <p class="text-gray-400 mb-6">
+          Predicted dates based on recent growth trends (last 6 months)
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {predictions.map((pred) => (
+            <MilestonePrediction
+              label="GitHub Stars"
+              milestone={pred.milestone}
+              predictedDate={pred.predictedDate}
+              daysUntil={pred.daysUntil}
+              confidence={pred.confidence}
+              currentValue={pred.currentValue}
+              icon="⭐"
+            />
+          ))}
+        </div>
+      </section>
+    )}
 
     <!-- Star History Chart -->
     <section class="mb-12">

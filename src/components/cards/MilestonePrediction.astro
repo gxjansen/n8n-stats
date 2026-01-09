@@ -1,0 +1,98 @@
+---
+/**
+ * Milestone Prediction Card
+ *
+ * Displays a predicted date for reaching a milestone value.
+ * Shows confidence level and days until milestone.
+ */
+
+import { formatNumber } from '@/lib/utils/formatters';
+import { formatPredictedDate, formatDaysUntil } from '@/lib/utils/predictions';
+
+interface Props {
+  label: string;
+  milestone: number;
+  predictedDate: Date | null;
+  daysUntil: number | null;
+  confidence: 'high' | 'medium' | 'low';
+  currentValue: number;
+  icon?: string;
+}
+
+const {
+  label,
+  milestone,
+  predictedDate,
+  daysUntil,
+  confidence,
+  currentValue,
+  icon = '🎯'
+} = Astro.props;
+
+// Calculate progress percentage
+const progress = Math.min((currentValue / milestone) * 100, 100);
+const remaining = milestone - currentValue;
+
+// Confidence colors
+const confidenceColors = {
+  high: 'text-green-400',
+  medium: 'text-yellow-400',
+  low: 'text-gray-500',
+};
+
+const confidenceLabels = {
+  high: 'High confidence',
+  medium: 'Medium confidence',
+  low: 'Low confidence',
+};
+---
+
+<div class="card p-4">
+  <div class="flex items-start justify-between mb-3">
+    <div>
+      <span class="text-2xl">{icon}</span>
+      <h3 class="text-sm font-medium text-gray-400 mt-1">{label}</h3>
+    </div>
+    <span class={`text-xs ${confidenceColors[confidence]}`}>
+      {confidenceLabels[confidence]}
+    </span>
+  </div>
+
+  <div class="mb-3">
+    <div class="text-2xl font-bold text-white">
+      {formatNumber(milestone)}
+    </div>
+    {predictedDate ? (
+      <div class="text-sm text-n8n-primary mt-1">
+        ~{formatPredictedDate(predictedDate)}
+      </div>
+    ) : (
+      <div class="text-sm text-gray-500 mt-1">
+        Unable to predict
+      </div>
+    )}
+  </div>
+
+  {daysUntil !== null && daysUntil > 0 && (
+    <div class="text-xs text-gray-400 mb-3">
+      {formatDaysUntil(daysUntil)} away
+    </div>
+  )}
+
+  <!-- Progress bar -->
+  <div class="space-y-1">
+    <div class="flex justify-between text-xs text-gray-500">
+      <span>Current: {formatNumber(currentValue)}</span>
+      <span>{progress.toFixed(1)}%</span>
+    </div>
+    <div class="h-2 bg-gray-800 rounded-full overflow-hidden">
+      <div
+        class="h-full bg-gradient-to-r from-n8n-primary to-purple-500 rounded-full transition-all duration-500"
+        style={`width: ${progress}%`}
+      />
+    </div>
+    <div class="text-xs text-gray-500 text-right">
+      {formatNumber(remaining)} to go
+    </div>
+  </div>
+</div>

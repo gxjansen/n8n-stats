@@ -1,11 +1,15 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import StatCard from '@/components/cards/StatCard.astro';
+import MilestonePrediction from '@/components/cards/MilestonePrediction.astro';
 import CommunityHistoryChart from '@/components/charts/CommunityHistoryChart.astro';
 import CommunityTreemapChart from '@/components/charts/CommunityTreemapChart.astro';
 import { fetchForumStats, fetchForumCategories } from '@/lib/api/discourse';
 import { fetchDiscordStats } from '@/lib/api/discord';
-import { formatNumber } from '@/lib/utils/formatters';
+import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
+import { predictMilestone, getNextMilestones } from '@/lib/utils/predictions';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 // Fetch forum and Discord data
 const [forumStats, categories, discordStats] = await Promise.all([
@@ -13,6 +17,27 @@ const [forumStats, categories, discordStats] = await Promise.all([
   fetchForumCategories(),
   fetchDiscordStats(),
 ]);
+
+// Load historical data for predictions
+let userHistory: Array<{ date: string; value: number }> = [];
+try {
+  const historyPath = join(process.cwd(), 'public', 'data', 'community-history.json');
+  const historyData = JSON.parse(readFileSync(historyPath, 'utf-8'));
+  // Use monthly data for predictions
+  userHistory = historyData.monthly?.map((d: any) => ({
+    date: d.date,
+    value: d.users,
+  })) || [];
+} catch (e) {
+  console.warn('Could not load community history for predictions');
+}
+
+// Calculate milestone predictions for forum members
+const currentUsers = forumStats.usersCount;
+const userMilestones = getNextMilestones(currentUsers, 'users');
+const userPredictions = userMilestones.map(milestone =>
+  predictMilestone(userHistory, milestone, { lookbackMonths: 6 })
+);
 
 // Get top categories by topic count (more for treemap)
 const topCategories = categories
@@ -27,7 +52,7 @@ const topCategories = categories
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-white mb-2">Community Stats</h1>
       <p class="text-gray-400">
-        Activity from the <a href="https://community.n8n.io" target="_blank" rel="noopener" class="text-n8n-primary hover:underline">n8n community forum</a> and <a href="https://discord.gg/n8n" target="_blank" rel="noopener" class="text-[#5865F2] hover:underline">Discord server</a>
+        Activity from the <a href={n8nUrls.community()} target="_blank" rel="noopener" class="text-n8n-primary hover:underline">n8n community forum</a> and <a href="https://discord.gg/n8n" target="_blank" rel="noopener" class="text-[#5865F2] hover:underline">Discord server</a>
       </p>
     </div>
 
@@ -66,6 +91,29 @@ const topCategories = categories
       <p class="text-sm text-gray-500 mt-3">Discord historical data will be tracked going forward.</p>
     </section>
 
+    <!-- Forum Member Milestones -->
+    {userPredictions.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold text-white mb-2">Forum Member Milestones</h2>
+        <p class="text-gray-400 mb-6">
+          Predicted dates based on recent growth trends (last 6 months)
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {userPredictions.map((pred) => (
+            <MilestonePrediction
+              label="Forum Members"
+              milestone={pred.milestone}
+              predictedDate={pred.predictedDate}
+              daysUntil={pred.daysUntil}
+              confidence={pred.confidence}
+              currentValue={pred.currentValue}
+              icon="👥"
+            />
+          ))}
+        </div>
+      </section>
+    )}
+
     <!-- Historical Trends -->
     <section class="mb-12">
       <div class="flex items-center gap-3 mb-6">
@@ -90,7 +138,7 @@ const topCategories = categories
     <!-- Links to Community -->
     <div class="flex flex-wrap justify-center gap-4">
       <a
-        href="https://community.n8n.io"
+        href={n8nUrls.community()}
         target="_blank"
         rel="noopener noreferrer"
         class="inline-flex items-center gap-2 px-6 py-3 bg-n8n-primary text-white rounded-lg font-medium hover:bg-n8n-primary/90 transition-colors"
