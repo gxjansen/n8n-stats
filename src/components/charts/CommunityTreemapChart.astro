@@ -56,24 +56,24 @@ const { data } = Astro.props;
     description?: string;
   }
 
-  // Colors for community categories
+  // Colors for community categories - vibrant with good white text contrast
   const CATEGORY_COLORS: Record<string, string> = {
-    'Questions': '#36a2eb',
-    'Feature Requests': '#9966ff',
-    'Show n Tell': '#ff6384',
-    'Bug Reports': '#ff6b6b',
-    'Tutorials': '#4bc0c0',
-    'Announcements': '#ffce56',
-    'Jobs': '#ff9f40',
-    'Resources': '#96ceb4',
-    'General': '#c9cbcf',
+    'Questions': '#2563eb',    // Blue
+    'Feature Requests': '#7c3aed', // Purple
+    'Show n Tell': '#dc2626',  // Red
+    'Bug Reports': '#b91c1c',  // Dark red
+    'Tutorials': '#0891b2',    // Cyan
+    'Announcements': '#ca8a04', // Amber
+    'Jobs': '#ea580c',         // Orange
+    'Resources': '#059669',    // Emerald
+    'General': '#4b5563',      // Gray
   };
 
-  // Fallback colors for unknown categories
+  // Fallback colors - vibrant, saturated for white text contrast
   const FALLBACK_COLORS = [
-    '#ff6b9d', '#45b7d1', '#96ceb4', '#ffeaa7', '#dfe6e9',
-    '#fd79a8', '#74b9ff', '#55efc4', '#ffcd56', '#b2bec3',
-    '#a29bfe', '#81ecec', '#fab1a0', '#e17055', '#00b894',
+    '#dc2626', '#2563eb', '#059669', '#ca8a04', '#7c3aed',
+    '#db2777', '#0891b2', '#16a34a', '#d97706', '#4f46e5',
+    '#be185d', '#0d9488', '#65a30d', '#c026d3', '#0284c7',
   ];
 
   function getColorForCategory(name: string, index: number): string {

@@ -43,23 +43,24 @@ const { data } = Astro.props;
   }
 
   const CATEGORY_COLORS: Record<string, string> = {
-    'AI': '#9966ff',
-    'Multimodal AI': '#b366ff',
-    'AI Summarization': '#cc99ff',
-    'AI Chatbot': '#7733ff',
-    'Marketing': '#ff6384',
-    'Sales': '#36a2eb',
-    'IT Ops': '#4bc0c0',
-    'Content Creation': '#ffce56',
-    'Document Ops': '#ff9f40',
-    'Support': '#c9cbcf',
-    'Other': '#7c8798',
+    'AI': '#7c3aed',           // Vibrant purple
+    'Multimodal AI': '#8b5cf6', // Purple
+    'AI Summarization': '#a855f7', // Light purple
+    'AI Chatbot': '#6d28d9',   // Deep purple
+    'Marketing': '#dc2626',    // Red
+    'Sales': '#2563eb',        // Blue
+    'IT Ops': '#0891b2',       // Cyan
+    'Content Creation': '#ca8a04', // Amber
+    'Document Ops': '#ea580c', // Orange
+    'Support': '#059669',      // Emerald
+    'Other': '#4b5563',        // Gray
   };
 
-  // Fallback colors for unknown categories
+  // Fallback colors - vibrant, saturated for white text contrast
   const FALLBACK_COLORS = [
-    '#ff6b9d', '#45b7d1', '#96ceb4', '#ffeaa7', '#dfe6e9',
-    '#fd79a8', '#74b9ff', '#55efc4', '#ffeaa7', '#b2bec3',
+    '#dc2626', '#2563eb', '#059669', '#ca8a04', '#7c3aed',
+    '#db2777', '#0891b2', '#16a34a', '#d97706', '#4f46e5',
+    '#be185d', '#0d9488', '#65a30d', '#c026d3', '#0284c7',
   ];
 
   function getColorForCategory(name: string, index: number): string {
