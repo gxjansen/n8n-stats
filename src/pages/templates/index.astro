@@ -136,21 +136,46 @@ const completeDataStats = allTemplatesData ? {
 
     <!-- AI Dominance - uses complete API data -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">AI Template Dominance</h2>
+      <h2 class="text-2xl font-bold text-white mb-6">AI in Templates</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="flex flex-col justify-center">
-          <div class="text-6xl font-bold text-purple-400 mb-2">
-            {analytics.aiStats.aiPercentage}%
+        <div class="card">
+          <h4 class="text-lg font-semibold text-white mb-4">AI Adoption</h4>
+          <!-- AI Category Templates -->
+          <div class="mb-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-gray-300">AI Category Templates</span>
+              <span class="text-2xl font-bold text-purple-400">
+                {Math.round((analytics.aiStats.aiCategories[0]?.count || 0) / analytics.totalWorkflows * 100)}%
+              </span>
+            </div>
+            <div class="relative h-5 bg-n8n-darker rounded overflow-hidden">
+              <div
+                class="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-600 to-purple-400 rounded"
+                style={`width: ${Math.round((analytics.aiStats.aiCategories[0]?.count || 0) / analytics.totalWorkflows * 100)}%;`}
+              />
+            </div>
+            <div class="text-xs text-gray-500 mt-1">
+              {formatNumber(analytics.aiStats.aiCategories[0]?.count || 0)} of {formatNumber(analytics.totalWorkflows)} templates in AI category
+            </div>
           </div>
-          <div class="text-xl text-gray-300 mb-4">of category assignments are AI-related</div>
-          <p class="text-gray-400 mb-4">
-            AI, Multimodal AI, AI Summarization, and AI Chatbot categories represent
-            a major portion of template classifications, reflecting the strong focus
-            on AI automation in the n8n ecosystem.
-          </p>
-          <p class="text-sm text-gray-500">
-            Note: Templates can have multiple categories, so totals may exceed 100%.
-          </p>
+          <!-- AI Agent Node Usage -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-gray-300">Using AI Agent Node</span>
+              <span class="text-2xl font-bold text-cyan-400">
+                {Math.round((analytics.topNodes.find(n => n.value === 'AI Agent')?.count || 0) / analytics.totalWorkflows * 100)}%
+              </span>
+            </div>
+            <div class="relative h-5 bg-n8n-darker rounded overflow-hidden">
+              <div
+                class="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-600 to-cyan-400 rounded"
+                style={`width: ${Math.round((analytics.topNodes.find(n => n.value === 'AI Agent')?.count || 0) / analytics.totalWorkflows * 100)}%;`}
+              />
+            </div>
+            <div class="text-xs text-gray-500 mt-1">
+              {formatNumber(analytics.topNodes.find(n => n.value === 'AI Agent')?.count || 0)} templates use the AI Agent node
+            </div>
+          </div>
         </div>
         <div class="card">
           <h4 class="text-lg font-semibold text-white mb-4">AI Category Breakdown</h4>

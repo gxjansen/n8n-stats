@@ -59,6 +59,19 @@ try {
   templatesHistory = JSON.parse(readFileSync(templatesPath, 'utf-8'));
 } catch (e) { /* use defaults */ }
 
+// Load templates raw log for AI Agent node count
+interface TemplatesRawEntry {
+  date: string;
+  total: number;
+  categories: Record<string, number>;
+  topNodes: { name: string; count: number }[];
+}
+let templatesRawLog: { entries: TemplatesRawEntry[] } = { entries: [] };
+try {
+  const rawPath = join(process.cwd(), 'public', 'data', 'templates-raw-log.json');
+  templatesRawLog = JSON.parse(readFileSync(rawPath, 'utf-8'));
+} catch (e) { /* use defaults */ }
+
 // Filter GitHub data to ONLY real collected data (exclude seed, ossinsight, etc.)
 const realGithubData = githubRawLog.entries
   ?.filter(e => e.source === 'github-api')
@@ -107,6 +120,11 @@ const conversionTrend = recentCreatorData
 // Get AI templates count from categories
 const latestTemplateData = templatesHistory.daily?.[templatesHistory.daily.length - 1];
 const aiTemplates = latestTemplateData?.categories?.['AI'] || 5189;
+
+// Get AI Agent node count from latest raw log entry
+const latestRawEntry = templatesRawLog.entries?.[templatesRawLog.entries.length - 1];
+const aiAgentNode = latestRawEntry?.topNodes?.find(n => n.name === 'AI Agent');
+const aiAgentTemplates = aiAgentNode?.count || 0;
 
 // Data status for UI feedback
 const dataStatus = {
@@ -204,7 +222,7 @@ const buildTime = new Date().toISOString();
         <EcosystemGrowthChart height={200} />
 
         <!-- AI Adoption Visual -->
-        <AIAdoptionCard aiTemplates={aiTemplates} totalTemplates={totalWorkflows} />
+        <AIAdoptionCard aiTemplates={aiTemplates} totalTemplates={totalWorkflows} aiAgentTemplates={aiAgentTemplates} />
       </div>
     </section>
 

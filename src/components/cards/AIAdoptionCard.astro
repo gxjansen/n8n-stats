@@ -11,50 +11,57 @@ import { formatNumber } from '@/lib/utils/formatters';
 interface Props {
   aiTemplates: number;
   totalTemplates: number;
+  aiAgentTemplates?: number;  // Templates using AI Agent node specifically
 }
 
-const { aiTemplates, totalTemplates } = Astro.props;
+const { aiTemplates, totalTemplates, aiAgentTemplates } = Astro.props;
 
 const aiPercentage = Math.round((aiTemplates / totalTemplates) * 100);
-const nonAiPercentage = 100 - aiPercentage;
+const aiAgentPercentage = aiAgentTemplates ? Math.round((aiAgentTemplates / totalTemplates) * 100) : null;
 ---
 
 <div class="card">
   <div class="flex items-center justify-between mb-3">
     <div>
       <h3 class="text-lg font-semibold text-white">AI Dominance</h3>
-      <p class="text-sm text-gray-500">Templates using AI nodes</p>
+      <p class="text-sm text-gray-500">AI adoption in templates</p>
     </div>
-    <div class="text-right">
-      <span class="text-3xl font-bold text-purple-400">{aiPercentage}%</span>
+    <a href="/templates" class="text-n8n-primary text-sm hover:underline">Details &rarr;</a>
+  </div>
+
+  <!-- AI Templates bar -->
+  <div class="mb-4">
+    <div class="flex items-center justify-between mb-1">
+      <span class="text-sm text-gray-300">AI Category Templates</span>
+      <span class="text-lg font-bold text-purple-400">{aiPercentage}%</span>
+    </div>
+    <div class="relative h-6 bg-gray-800 rounded overflow-hidden">
+      <div
+        class="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-600 to-purple-400 transition-all duration-500"
+        style={`width: ${aiPercentage}%;`}
+      />
+    </div>
+    <div class="text-xs text-gray-500 mt-1">
+      {formatNumber(aiTemplates)} of {formatNumber(totalTemplates)} templates
     </div>
   </div>
 
-  <!-- Visual bar -->
-  <div class="relative h-8 bg-gray-800 rounded-lg overflow-hidden mb-3">
-    <div
-      class="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-600 to-purple-400 flex items-center justify-end pr-3 transition-all duration-500"
-      style={`width: ${aiPercentage}%;`}
-    >
-      <span class="text-xs font-medium text-white">AI</span>
-    </div>
-    <div
-      class="absolute inset-y-0 right-0 flex items-center pl-3"
-      style={`width: ${nonAiPercentage}%;`}
-    >
-      <span class="text-xs font-medium text-gray-400">Other</span>
-    </div>
-  </div>
-
-  <!-- Stats row -->
-  <div class="flex justify-between text-sm">
+  <!-- AI Agent bar -->
+  {aiAgentPercentage !== null && (
     <div>
-      <span class="text-purple-400 font-medium">{formatNumber(aiTemplates)}</span>
-      <span class="text-gray-500"> AI templates</span>
+      <div class="flex items-center justify-between mb-1">
+        <span class="text-sm text-gray-300">Using AI Agent Node</span>
+        <span class="text-lg font-bold text-cyan-400">{aiAgentPercentage}%</span>
+      </div>
+      <div class="relative h-6 bg-gray-800 rounded overflow-hidden">
+        <div
+          class="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-600 to-cyan-400 transition-all duration-500"
+          style={`width: ${aiAgentPercentage}%;`}
+        />
+      </div>
+      <div class="text-xs text-gray-500 mt-1">
+        {formatNumber(aiAgentTemplates!)} templates with AI agents
+      </div>
     </div>
-    <div>
-      <span class="text-gray-400 font-medium">{formatNumber(totalTemplates - aiTemplates)}</span>
-      <span class="text-gray-500"> other</span>
-    </div>
-  </div>
+  )}
 </div>
