@@ -67,6 +67,9 @@ const { data } = Astro.props;
     return CATEGORY_COLORS[name] || FALLBACK_COLORS[index % FALLBACK_COLORS.length];
   }
 
+  // Build a color map for quick lookup
+  let categoryColorMap: Record<string, string> = {};
+
   function initTreemap() {
     const canvas = document.getElementById('category-treemap-chart') as HTMLCanvasElement;
     const loadingEl = document.getElementById('category-treemap-loading');
@@ -79,24 +82,25 @@ const { data } = Astro.props;
 
     loadingEl?.classList.add('hidden');
 
-    // Add color to each data point
-    const coloredData = data.map((item, index) => ({
-      ...item,
-      color: getColorForCategory(item.name, index),
-    }));
+    // Build color map from category names
+    data.forEach((item, index) => {
+      categoryColorMap[item.name] = getColorForCategory(item.name, index);
+    });
 
     const chart = new Chart(canvas, {
       type: 'treemap',
       data: {
         datasets: [{
           label: 'Templates by Category',
-          tree: coloredData,
+          tree: data,
           key: 'count',
           groups: ['name'],
           backgroundColor: (ctx: any) => {
             if (ctx.type !== 'data') return 'transparent';
             const item = ctx.raw;
-            return item._data?.color || '#7c8798';
+            // Get category name from grouped data (g) or _data
+            const name = item.g || item._data?.name || '';
+            return categoryColorMap[name] || '#7c3aed';
           },
           borderColor: '#1a1a2e',
           borderWidth: 2,
