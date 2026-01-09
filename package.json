@@ -17,7 +17,8 @@
     "update-github-history": "tsx scripts/update-github-history.ts",
     "update-community-history": "tsx scripts/update-community-history.ts",
     "update-templates-history": "tsx scripts/update-templates-history.ts",
-    "update-all-history": "npm run update-github-history && npm run update-community-history && npm run update-templates-history"
+    "update-discord-history": "tsx scripts/update-discord-history.ts",
+    "update-all-history": "npm run update-github-history && npm run update-community-history && npm run update-templates-history && npm run update-discord-history"
   },
   "keywords": [
     "n8n",
