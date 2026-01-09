@@ -1,0 +1,84 @@
+---
+/**
+ * Category Nodes Table
+ *
+ * Compact table showing top nodes per category with clickable links.
+ * More readable than grouped bar chart, shows all names visible.
+ */
+
+import { formatNumber, getNodeIntegrationUrl } from '@/lib/utils/formatters';
+
+interface NodeData {
+  displayName: string;
+  count: number;
+  category: string;
+}
+
+interface Props {
+  data: Record<string, NodeData[]>;
+  categoryOrder: string[];
+  categoryColors: Record<string, string>;
+  nodesPerCategory?: number;
+}
+
+const { data, categoryOrder, categoryColors, nodesPerCategory = 5 } = Astro.props;
+
+// Filter to categories with data
+const categoriesWithData = categoryOrder.filter(cat => data[cat]?.length > 0);
+
+// Find max count across all nodes for relative bar widths
+const allCounts = categoriesWithData.flatMap(cat => data[cat].slice(0, nodesPerCategory).map(n => n.count));
+const maxCount = Math.max(...allCounts);
+---
+
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+  {categoriesWithData.map((category) => {
+    const nodes = data[category].slice(0, nodesPerCategory);
+    const color = categoryColors[category] || '#7c8798';
+    const categoryMax = nodes[0]?.count || 1;
+
+    return (
+      <div class="card p-4">
+        <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={`background: ${color}`}></span>
+          <span class="truncate">{category}</span>
+          <span class="text-xs font-normal text-gray-500 ml-auto">{data[category].length} nodes</span>
+        </h3>
+        <div class="space-y-2">
+          {nodes.map((node: NodeData, index: number) => {
+            const barWidth = (node.count / categoryMax) * 100;
+            return (
+              <a
+                href={getNodeIntegrationUrl(node.displayName)}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="block group"
+              >
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="text-gray-500 w-4 flex-shrink-0">{index + 1}.</span>
+                  <span class="text-gray-300 group-hover:text-white transition-colors truncate flex-1 min-w-0">
+                    {node.displayName}
+                  </span>
+                  <span class="text-gray-500 flex-shrink-0 tabular-nums">
+                    {formatNumber(node.count)}
+                  </span>
+                </div>
+                <div class="relative h-1 bg-gray-800 rounded-full overflow-hidden mt-1 ml-6">
+                  <div
+                    class="absolute inset-y-0 left-0 rounded-full transition-all duration-300 group-hover:opacity-70"
+                    style={`width: ${barWidth}%; background: ${color};`}
+                  />
+                </div>
+              </a>
+            );
+          })}
+        </div>
+        {data[category].length > nodesPerCategory && (
+          <p class="text-[10px] text-gray-600 mt-2 ml-6">
+            +{data[category].length - nodesPerCategory} more
+          </p>
+        )}
+      </div>
+    );
+  })}
+</div>
