@@ -72,12 +72,15 @@ const totalTemplates = allTemplatesData?.totalTemplates || 100;
 const uniqueNodes = allTemplatesData?.nodes?.unique || nodeUsage.length;
 const totalNodeUsages = allTemplatesData?.nodes?.total || 0;
 
-// Group by category (rough categorization based on node names)
+// Group by category based on node names and API categories
 const categorizeNode = (name: string, categories?: string[]) => {
   // Use API categories if available
   if (categories?.includes('AI') || categories?.includes('Langchain')) return 'AI';
 
   const lower = name.toLowerCase();
+
+  // Exact match helper (for short names that could be substrings)
+  const isExact = (word: string) => lower === word.toLowerCase();
 
   // Word boundary check helper (matches whole word only)
   const isWord = (word: string) => {
@@ -85,29 +88,63 @@ const categorizeNode = (name: string, categories?: string[]) => {
     return regex.test(name);
   };
 
-  // Google services (exclude false positives like "Pipedrive")
-  if (isWord('google') || isWord('gmail') || lower === 'google sheets' || lower === 'google drive' || lower === 'google docs' || lower === 'google calendar') return 'Google';
+  // Flow Control - check first to catch "If" before other rules
+  if (isExact('if') || isExact('switch') || isExact('merge') || isExact('wait') ||
+      lower.includes('split in batches') || lower.includes('loop over') ||
+      lower.includes('no operation') || isExact('noop')) return 'Flow Control';
 
-  // Communication
-  if (isWord('slack') || isWord('discord') || isWord('telegram') || isWord('teams') || lower.includes('whatsapp') || lower.includes('twilio')) return 'Communication';
+  // Triggers - workflow entry points
+  if (isExact('schedule') || isExact('manual') || isExact('cron') ||
+      lower.includes('trigger') || lower.includes('webhook')) return 'Triggers';
 
-  // HTTP & Webhooks
-  if (isWord('http') || isWord('webhook') || lower === 'facebook graph api') return 'HTTP & Webhooks';
+  // Communication - messaging and social
+  if (isWord('slack') || isWord('discord') || isWord('telegram') || isWord('teams') ||
+      lower.includes('whatsapp') || lower.includes('twilio') ||
+      lower.includes('send email') || isWord('email') ||
+      isWord('twitter') || lower.includes('x (formerly twitter)') ||
+      isWord('linkedin') || isWord('facebook') && !lower.includes('graph api')) return 'Communication';
+
+  // Google services
+  if (isWord('google') || isWord('gmail')) return 'Google';
+
+  // HTTP & APIs
+  if (isWord('http') || lower === 'facebook graph api' || isWord('graphql') ||
+      isWord('ftp') || isWord('sftp') || isWord('ssh')) return 'HTTP & APIs';
 
   // AI (non-API categorized)
-  if (isWord('openai') || lower.includes('llm') || isWord('anthropic') || lower.includes('langchain') || lower.includes('embedding') || lower.includes('vector')) return 'AI';
+  if (isWord('openai') || lower.includes('llm') || isWord('anthropic') ||
+      lower.includes('langchain') || lower.includes('embedding') ||
+      lower.includes('vector') || isWord('gemini') || isWord('claude')) return 'AI';
 
-  // Database
-  if (isWord('mysql') || isWord('postgres') || isWord('mongo') || isWord('database') || isWord('redis') || isWord('sqlite') || isWord('supabase')) return 'Database';
-
-  // Flow Control (exact matches to avoid "Shopify" matching "if")
-  if (lower === 'if' || isWord('switch') || isWord('merge') || lower.includes('split in batches') || lower.includes('loop over') || lower === 'wait') return 'Flow Control';
+  // Database & Storage
+  if (isWord('mysql') || isWord('postgres') || isWord('mongo') || isWord('database') ||
+      isWord('redis') || isWord('sqlite') || isWord('supabase') ||
+      isWord('airtable') || isWord('notion') || isWord('dynamodb') ||
+      isWord('elasticsearch') || isWord('qdrant') || isWord('pinecone')) return 'Database & Storage';
 
   // Data Transform
-  if (isWord('code') || lower.includes('function') || lower.includes('edit fields') || lower.includes('aggregate') || lower.includes('filter') || lower === 'split out') return 'Data Transform';
+  if (isWord('code') || lower.includes('function') || lower.includes('edit fields') ||
+      lower.includes('aggregate') || lower === 'filter' || lower === 'sort' ||
+      lower === 'limit' || lower.includes('split out') || lower.includes('html') ||
+      lower.includes('json') || lower.includes('xml') || lower.includes('csv') ||
+      lower.includes('convert') || lower.includes('set')) return 'Data Transform';
+
+  // CRM & Sales
+  if (isWord('hubspot') || isWord('salesforce') || isWord('pipedrive') ||
+      isWord('zoho') || lower.includes('crm')) return 'CRM & Sales';
+
+  // Productivity & Docs
+  if (isWord('wordpress') || isWord('youtube') || isWord('jira') ||
+      isWord('asana') || isWord('trello') || isWord('github') ||
+      isWord('gitlab') || isWord('confluence')) return 'Productivity';
+
+  // Utility (visual/organizational nodes)
+  if (lower.includes('sticky note') || lower.includes('note')) return 'Utility';
 
   return 'Other';
 };
+
+const categoryOrder = ['Triggers', 'Flow Control', 'Data Transform', 'HTTP & APIs', 'AI', 'Communication', 'Google', 'Database & Storage', 'CRM & Sales', 'Productivity', 'Utility', 'Other'];
 
 const nodesByCategory = nodeUsage.reduce((acc: Record<string, typeof nodeUsage>, node: any) => {
   const category = categorizeNode(node.displayName, node.categories);
@@ -116,17 +153,19 @@ const nodesByCategory = nodeUsage.reduce((acc: Record<string, typeof nodeUsage>,
   return acc;
 }, {} as Record<string, typeof nodeUsage>);
 
-const categoryOrder = ['HTTP & Webhooks', 'AI', 'Google', 'Communication', 'Data Transform', 'Flow Control', 'Database', 'Other'];
-
 const categoryColors: Record<string, string> = {
-  'HTTP & Webhooks': '#ff6384',
-  'AI': '#9966ff',
-  'Google': '#4bc0c0',
-  'Communication': '#36a2eb',
-  'Data Transform': '#ffce56',
-  'Flow Control': '#ff9f40',
-  'Database': '#c9cbcf',
-  'Other': '#7c8798',
+  'Triggers': '#22c55e',           // Green - entry points
+  'Flow Control': '#ff9f40',       // Orange - logic flow
+  'Data Transform': '#ffce56',     // Yellow - data manipulation
+  'HTTP & APIs': '#ff6384',        // Red - external calls
+  'AI': '#9966ff',                 // Purple - AI/ML
+  'Communication': '#36a2eb',      // Blue - messaging
+  'Google': '#4bc0c0',             // Teal - Google suite
+  'Database & Storage': '#c9cbcf', // Gray - data storage
+  'CRM & Sales': '#f472b6',        // Pink - sales tools
+  'Productivity': '#a78bfa',       // Light purple - productivity
+  'Utility': '#6b7280',            // Dark gray - utility nodes
+  'Other': '#7c8798',              // Gray - uncategorized
 };
 
 // Prepare treemap data (top 50 nodes with categories)
@@ -210,14 +249,12 @@ const trendingBoostNodes = getTrendingBoost();
       </p>
       <NodeTreemapChart data={treemapData} />
       <div class="flex flex-wrap gap-4 mt-4 text-sm">
-        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded" style="background: #ff6384"></span> HTTP & Webhooks</span>
-        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded" style="background: #9966ff"></span> AI</span>
-        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded" style="background: #4bc0c0"></span> Google</span>
-        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded" style="background: #36a2eb"></span> Communication</span>
-        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded" style="background: #ffce56"></span> Data Transform</span>
-        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded" style="background: #ff9f40"></span> Flow Control</span>
-        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded" style="background: #c9cbcf"></span> Database</span>
-        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded" style="background: #7c8798"></span> Other</span>
+        {categoryOrder.filter(cat => nodesByCategory[cat]?.length > 0).map((category) => (
+          <span class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded" style={`background: ${categoryColors[category]}`}></span>
+            {category}
+          </span>
+        ))}
       </div>
     </section>
 
@@ -331,7 +368,7 @@ const trendingBoostNodes = getTrendingBoost();
     <!-- Note -->
     <p class="text-sm text-gray-500 text-center mt-8">
       {hasCompleteData
-        ? `Complete data from ${formatNumber(totalTemplates)} templates. Updated weekly.`
+        ? `Node data from ${formatNumber(totalTemplates)} templates. Note: Some categories (like Flow Control) have fewer nodes due to n8n API limitations on which nodes are included in template metadata.`
         : 'Statistics based on trending templates sample. Full data coming soon.'
       }
     </p>
