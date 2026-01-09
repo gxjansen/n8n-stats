@@ -15,13 +15,29 @@ try {
   console.warn('all-templates-data.json not found, using sample data');
 }
 
+// Load templates raw log for additional node data (includes core nodes like If, Set, etc.)
+interface RawLogEntry {
+  date: string;
+  total: number;
+  topNodes: { name: string; count: number }[];
+}
+let templatesRawLog: { entries: RawLogEntry[] } = { entries: [] };
+try {
+  const rawPath = join(process.cwd(), 'public', 'data', 'templates-raw-log.json');
+  templatesRawLog = JSON.parse(readFileSync(rawPath, 'utf-8'));
+} catch (e) {
+  console.warn('templates-raw-log.json not found');
+}
+
 // Also fetch trending templates for comparison
 const { workflows: trendingWorkflows } = await fetchTemplates({ rows: 100 });
 const trendingNodeUsage = aggregateNodeUsage(trendingWorkflows);
 
 // Use complete data if available, otherwise fall back to trending
 const hasCompleteData = !!allTemplatesData?.nodes?.top100;
-const nodeUsage = hasCompleteData
+
+// Get nodes from all-templates-data.json (integration nodes)
+let nodeUsage = hasCompleteData
   ? allTemplatesData.nodes.top100.map((n: any) => ({
       name: n.name,
       displayName: n.displayName,
@@ -30,6 +46,27 @@ const nodeUsage = hasCompleteData
       categories: n.categories || [],
     }))
   : trendingNodeUsage;
+
+// Merge with templates-raw-log.json (includes core utility nodes like If, Set, etc.)
+const latestRawEntry = templatesRawLog.entries?.[templatesRawLog.entries.length - 1];
+if (latestRawEntry?.topNodes) {
+  const existingNames = new Set(nodeUsage.map((n: any) => n.displayName.toLowerCase()));
+  const totalTemplatesForPercentage = latestRawEntry.total || totalTemplates;
+
+  // Add nodes from raw log that aren't already in nodeUsage
+  const additionalNodes = latestRawEntry.topNodes
+    .filter((n: { name: string; count: number }) => !existingNames.has(n.name.toLowerCase()))
+    .map((n: { name: string; count: number }) => ({
+      name: n.name,
+      displayName: n.name,
+      count: n.count,
+      percentage: Math.round((n.count / totalTemplatesForPercentage) * 1000) / 10,
+      categories: [],
+    }));
+
+  // Merge and re-sort by count
+  nodeUsage = [...nodeUsage, ...additionalNodes].sort((a: any, b: any) => b.count - a.count);
+}
 
 const totalTemplates = allTemplatesData?.totalTemplates || 100;
 const uniqueNodes = allTemplatesData?.nodes?.unique || nodeUsage.length;
@@ -41,13 +78,34 @@ const categorizeNode = (name: string, categories?: string[]) => {
   if (categories?.includes('AI') || categories?.includes('Langchain')) return 'AI';
 
   const lower = name.toLowerCase();
-  if (lower.includes('google') || lower.includes('gmail') || lower.includes('sheets') || lower.includes('drive')) return 'Google';
-  if (lower.includes('slack') || lower.includes('discord') || lower.includes('telegram') || lower.includes('teams')) return 'Communication';
-  if (lower.includes('http') || lower.includes('webhook') || lower.includes('api')) return 'HTTP & Webhooks';
-  if (lower.includes('openai') || lower.includes('ai') || lower.includes('llm') || lower.includes('anthropic') || lower.includes('langchain')) return 'AI';
-  if (lower.includes('mysql') || lower.includes('postgres') || lower.includes('mongo') || lower.includes('database') || lower.includes('redis')) return 'Database';
-  if (lower.includes('if') || lower.includes('switch') || lower.includes('merge') || lower.includes('split') || lower.includes('loop')) return 'Flow Control';
-  if (lower.includes('code') || lower.includes('function') || lower.includes('set') || lower.includes('edit') || lower.includes('aggregate')) return 'Data Transform';
+
+  // Word boundary check helper (matches whole word only)
+  const isWord = (word: string) => {
+    const regex = new RegExp(`\\b${word}\\b`, 'i');
+    return regex.test(name);
+  };
+
+  // Google services (exclude false positives like "Pipedrive")
+  if (isWord('google') || isWord('gmail') || lower === 'google sheets' || lower === 'google drive' || lower === 'google docs' || lower === 'google calendar') return 'Google';
+
+  // Communication
+  if (isWord('slack') || isWord('discord') || isWord('telegram') || isWord('teams') || lower.includes('whatsapp') || lower.includes('twilio')) return 'Communication';
+
+  // HTTP & Webhooks
+  if (isWord('http') || isWord('webhook') || lower === 'facebook graph api') return 'HTTP & Webhooks';
+
+  // AI (non-API categorized)
+  if (isWord('openai') || lower.includes('llm') || isWord('anthropic') || lower.includes('langchain') || lower.includes('embedding') || lower.includes('vector')) return 'AI';
+
+  // Database
+  if (isWord('mysql') || isWord('postgres') || isWord('mongo') || isWord('database') || isWord('redis') || isWord('sqlite') || isWord('supabase')) return 'Database';
+
+  // Flow Control (exact matches to avoid "Shopify" matching "if")
+  if (lower === 'if' || isWord('switch') || isWord('merge') || lower.includes('split in batches') || lower.includes('loop over') || lower === 'wait') return 'Flow Control';
+
+  // Data Transform
+  if (isWord('code') || lower.includes('function') || lower.includes('edit fields') || lower.includes('aggregate') || lower.includes('filter') || lower === 'split out') return 'Data Transform';
+
   return 'Other';
 };
 
