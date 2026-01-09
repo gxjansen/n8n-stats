@@ -1,0 +1,2793 @@
+{
+  "lastUpdated": "2026-01-09T21:45:16.857Z",
+  "fetchDuration": 70,
+  "totalTemplates": 7758,
+  "nodes": {
+    "total": 196,
+    "withData": 185,
+    "byCategory": {
+      "Utility": [
+        {
+          "type": "n8n-nodes-base.stickyNote",
+          "displayName": "Sticky Note",
+          "category": "Utility",
+          "count": 6738,
+          "percentage": 86.9
+        },
+        {
+          "type": "n8n-nodes-base.n8n",
+          "displayName": "n8n",
+          "category": "Utility",
+          "count": 122,
+          "percentage": 1.6
+        },
+        {
+          "type": "n8n-nodes-base.executeCommand",
+          "displayName": "Execute Command",
+          "category": "Utility",
+          "count": 69,
+          "percentage": 0.9
+        },
+        {
+          "type": "n8n-nodes-base.debug",
+          "displayName": "Debug",
+          "category": "Utility",
+          "count": 0,
+          "percentage": 0
+        }
+      ],
+      "Data Transform": [
+        {
+          "type": "n8n-nodes-base.set",
+          "displayName": "Edit Fields (Set)",
+          "category": "Data Transform",
+          "count": 3899,
+          "percentage": 50.3
+        },
+        {
+          "type": "n8n-nodes-base.code",
+          "displayName": "Code",
+          "category": "Data Transform",
+          "count": 3583,
+          "percentage": 46.2
+        },
+        {
+          "type": "n8n-nodes-base.splitOut",
+          "displayName": "Split Out",
+          "category": "Data Transform",
+          "count": 995,
+          "percentage": 12.8
+        },
+        {
+          "type": "n8n-nodes-base.aggregate",
+          "displayName": "Aggregate",
+          "category": "Data Transform",
+          "count": 766,
+          "percentage": 9.9
+        },
+        {
+          "type": "n8n-nodes-base.filter",
+          "displayName": "Filter",
+          "category": "Data Transform",
+          "count": 669,
+          "percentage": 8.6
+        },
+        {
+          "type": "n8n-nodes-base.function",
+          "displayName": "Function",
+          "category": "Data Transform",
+          "count": 316,
+          "percentage": 4.1
+        },
+        {
+          "type": "n8n-nodes-base.limit",
+          "displayName": "Limit",
+          "category": "Data Transform",
+          "count": 282,
+          "percentage": 3.6
+        },
+        {
+          "type": "n8n-nodes-base.html",
+          "displayName": "HTML",
+          "category": "Data Transform",
+          "count": 255,
+          "percentage": 3.3
+        },
+        {
+          "type": "n8n-nodes-base.markdown",
+          "displayName": "Markdown",
+          "category": "Data Transform",
+          "count": 177,
+          "percentage": 2.3
+        },
+        {
+          "type": "n8n-nodes-base.removeDuplicates",
+          "displayName": "Remove Duplicates",
+          "category": "Data Transform",
+          "count": 112,
+          "percentage": 1.4
+        },
+        {
+          "type": "n8n-nodes-base.sort",
+          "displayName": "Sort",
+          "category": "Data Transform",
+          "count": 85,
+          "percentage": 1.1
+        },
+        {
+          "type": "n8n-nodes-base.dateTime",
+          "displayName": "Date & Time",
+          "category": "Data Transform",
+          "count": 76,
+          "percentage": 1
+        },
+        {
+          "type": "n8n-nodes-base.xml",
+          "displayName": "XML",
+          "category": "Data Transform",
+          "count": 70,
+          "percentage": 0.9
+        },
+        {
+          "type": "n8n-nodes-base.itemLists",
+          "displayName": "Item Lists",
+          "category": "Data Transform",
+          "count": 65,
+          "percentage": 0.8
+        },
+        {
+          "type": "n8n-nodes-base.crypto",
+          "displayName": "Crypto",
+          "category": "Data Transform",
+          "count": 53,
+          "percentage": 0.7
+        },
+        {
+          "type": "n8n-nodes-base.spreadsheetFile",
+          "displayName": "Spreadsheet File",
+          "category": "Data Transform",
+          "count": 52,
+          "percentage": 0.7
+        },
+        {
+          "type": "n8n-nodes-base.compareDatasets",
+          "displayName": "Compare Datasets",
+          "category": "Data Transform",
+          "count": 37,
+          "percentage": 0.5
+        },
+        {
+          "type": "n8n-nodes-base.functionItem",
+          "displayName": "Function Item",
+          "category": "Data Transform",
+          "count": 35,
+          "percentage": 0.5
+        },
+        {
+          "type": "n8n-nodes-base.compression",
+          "displayName": "Compression",
+          "category": "Data Transform",
+          "count": 24,
+          "percentage": 0.3
+        },
+        {
+          "type": "n8n-nodes-base.renameKeys",
+          "displayName": "Rename Keys",
+          "category": "Data Transform",
+          "count": 14,
+          "percentage": 0.2
+        }
+      ],
+      "HTTP & APIs": [
+        {
+          "type": "n8n-nodes-base.httpRequest",
+          "displayName": "HTTP Request",
+          "category": "HTTP & APIs",
+          "count": 3790,
+          "percentage": 48.9
+        },
+        {
+          "type": "n8n-nodes-base.rssFeedRead",
+          "displayName": "RSS Feed Read",
+          "category": "HTTP & APIs",
+          "count": 141,
+          "percentage": 1.8
+        },
+        {
+          "type": "n8n-nodes-base.ssh",
+          "displayName": "SSH",
+          "category": "HTTP & APIs",
+          "count": 45,
+          "percentage": 0.6
+        },
+        {
+          "type": "n8n-nodes-base.graphql",
+          "displayName": "GraphQL",
+          "category": "HTTP & APIs",
+          "count": 23,
+          "percentage": 0.3
+        },
+        {
+          "type": "n8n-nodes-base.ftp",
+          "displayName": "FTP",
+          "category": "HTTP & APIs",
+          "count": 21,
+          "percentage": 0.3
+        }
+      ],
+      "Flow Control": [
+        {
+          "type": "n8n-nodes-base.if",
+          "displayName": "If",
+          "category": "Flow Control",
+          "count": 3127,
+          "percentage": 40.3
+        },
+        {
+          "type": "n8n-nodes-base.merge",
+          "displayName": "Merge",
+          "category": "Flow Control",
+          "count": 1461,
+          "percentage": 18.8
+        },
+        {
+          "type": "n8n-nodes-base.splitInBatches",
+          "displayName": "Split In Batches",
+          "category": "Flow Control",
+          "count": 1335,
+          "percentage": 17.2
+        },
+        {
+          "type": "n8n-nodes-base.wait",
+          "displayName": "Wait",
+          "category": "Flow Control",
+          "count": 1238,
+          "percentage": 16
+        },
+        {
+          "type": "n8n-nodes-base.switch",
+          "displayName": "Switch",
+          "category": "Flow Control",
+          "count": 960,
+          "percentage": 12.4
+        },
+        {
+          "type": "n8n-nodes-base.noOp",
+          "displayName": "No Operation",
+          "category": "Flow Control",
+          "count": 692,
+          "percentage": 8.9
+        },
+        {
+          "type": "n8n-nodes-base.respondToWebhook",
+          "displayName": "Respond to Webhook",
+          "category": "Flow Control",
+          "count": 576,
+          "percentage": 7.4
+        },
+        {
+          "type": "n8n-nodes-base.executeWorkflow",
+          "displayName": "Execute Workflow",
+          "category": "Flow Control",
+          "count": 196,
+          "percentage": 2.5
+        }
+      ],
+      "AI": [
+        {
+          "type": "@n8n/n8n-nodes-langchain.agent",
+          "displayName": "AI Agent",
+          "category": "AI",
+          "count": 2566,
+          "percentage": 33.1
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+          "displayName": "OpenAI Chat Model",
+          "category": "AI",
+          "count": 1884,
+          "percentage": 24.3
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+          "displayName": "Structured Output Parser",
+          "category": "AI",
+          "count": 1206,
+          "percentage": 15.5
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "displayName": "OpenAI",
+          "category": "AI",
+          "count": 924,
+          "percentage": 11.9
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+          "displayName": "Simple Memory",
+          "category": "AI",
+          "count": 811,
+          "percentage": 10.5
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+          "displayName": "Google Gemini Chat Model",
+          "category": "AI",
+          "count": 748,
+          "percentage": 9.6
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.chainLlm",
+          "displayName": "Basic LLM Chain",
+          "category": "AI",
+          "count": 697,
+          "percentage": 9
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+          "displayName": "OpenRouter Chat Model",
+          "category": "AI",
+          "count": 338,
+          "percentage": 4.4
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+          "displayName": "Default Data Loader",
+          "category": "AI",
+          "count": 275,
+          "percentage": 3.5
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+          "displayName": "Embeddings OpenAI",
+          "category": "AI",
+          "count": 247,
+          "percentage": 3.2
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+          "displayName": "Call n8n Workflow Tool",
+          "category": "AI",
+          "count": 220,
+          "percentage": 2.8
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+          "displayName": "Recursive Character Text Splitter",
+          "category": "AI",
+          "count": 182,
+          "percentage": 2.3
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+          "displayName": "Information Extractor",
+          "category": "AI",
+          "count": 172,
+          "percentage": 2.2
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.toolThink",
+          "displayName": "Think Tool",
+          "category": "AI",
+          "count": 161,
+          "percentage": 2.1
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+          "displayName": "Anthropic Chat Model",
+          "category": "AI",
+          "count": 158,
+          "percentage": 2
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+          "displayName": "Azure OpenAI Chat Model",
+          "category": "AI",
+          "count": 113,
+          "percentage": 1.5
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.textClassifier",
+          "displayName": "Text Classifier",
+          "category": "AI",
+          "count": 109,
+          "percentage": 1.4
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+          "displayName": "Pinecone Vector Store",
+          "category": "AI",
+          "count": 108,
+          "percentage": 1.4
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+          "displayName": "Calculator",
+          "category": "AI",
+          "count": 105,
+          "percentage": 1.4
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+          "displayName": "Auto-fixing Output Parser",
+          "category": "AI",
+          "count": 102,
+          "percentage": 1.3
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+          "displayName": "MCP Client Tool",
+          "category": "AI",
+          "count": 100,
+          "percentage": 1.3
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+          "displayName": "Postgres Chat Memory",
+          "category": "AI",
+          "count": 83,
+          "percentage": 1.1
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+          "displayName": "Supabase Vector Store",
+          "category": "AI",
+          "count": 83,
+          "percentage": 1.1
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+          "displayName": "Summarization Chain",
+          "category": "AI",
+          "count": 72,
+          "percentage": 0.9
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+          "displayName": "Qdrant Vector Store",
+          "category": "AI",
+          "count": 69,
+          "percentage": 0.9
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+          "displayName": "SerpAPI",
+          "category": "AI",
+          "count": 65,
+          "percentage": 0.8
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+          "displayName": "Groq Chat Model",
+          "category": "AI",
+          "count": 57,
+          "percentage": 0.7
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+          "displayName": "Ollama Chat Model",
+          "category": "AI",
+          "count": 52,
+          "percentage": 0.7
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+          "displayName": "Embeddings Google Gemini",
+          "category": "AI",
+          "count": 43,
+          "percentage": 0.6
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
+          "displayName": "Mistral Cloud Chat Model",
+          "category": "AI",
+          "count": 41,
+          "percentage": 0.5
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.toolCode",
+          "displayName": "Code Tool",
+          "category": "AI",
+          "count": 40,
+          "percentage": 0.5
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+          "displayName": "In-Memory Vector Store",
+          "category": "AI",
+          "count": 38,
+          "percentage": 0.5
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+          "displayName": "Wikipedia",
+          "category": "AI",
+          "count": 37,
+          "percentage": 0.5
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.chainRetrievalQa",
+          "displayName": "Question and Answer Chain",
+          "category": "AI",
+          "count": 28,
+          "percentage": 0.4
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter",
+          "displayName": "Token Splitter",
+          "category": "AI",
+          "count": 28,
+          "percentage": 0.4
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.sentimentAnalysis",
+          "displayName": "Sentiment Analysis",
+          "category": "AI",
+          "count": 27,
+          "percentage": 0.3
+        },
+        {
+          "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+          "displayName": "Redis Chat Memory",
+          "category": "AI",
+          "count": 14,
+          "percentage": 0.2
+        }
+      ],
+      "Google": [
+        {
+          "type": "n8n-nodes-base.googleSheets",
+          "displayName": "Google Sheets",
+          "category": "Google",
+          "count": 2296,
+          "percentage": 29.6
+        },
+        {
+          "type": "n8n-nodes-base.googleDrive",
+          "displayName": "Google Drive",
+          "category": "Google",
+          "count": 896,
+          "percentage": 11.5
+        },
+        {
+          "type": "n8n-nodes-base.googleDriveTrigger",
+          "displayName": "Google Drive Trigger",
+          "category": "Google",
+          "count": 209,
+          "percentage": 2.7
+        },
+        {
+          "type": "n8n-nodes-base.googleSheetsTrigger",
+          "displayName": "Google Sheets Trigger",
+          "category": "Google",
+          "count": 177,
+          "percentage": 2.3
+        },
+        {
+          "type": "n8n-nodes-base.googleDocs",
+          "displayName": "Google Docs",
+          "category": "Google",
+          "count": 162,
+          "percentage": 2.1
+        },
+        {
+          "type": "n8n-nodes-base.googleCalendar",
+          "displayName": "Google Calendar",
+          "category": "Google",
+          "count": 155,
+          "percentage": 2
+        },
+        {
+          "type": "n8n-nodes-base.youtube",
+          "displayName": "YouTube",
+          "category": "Google",
+          "count": 88,
+          "percentage": 1.1
+        },
+        {
+          "type": "n8n-nodes-base.googleCalendarTrigger",
+          "displayName": "Google Calendar Trigger",
+          "category": "Google",
+          "count": 21,
+          "percentage": 0.3
+        },
+        {
+          "type": "n8n-nodes-base.googleAnalytics",
+          "displayName": "Google Analytics",
+          "category": "Google",
+          "count": 20,
+          "percentage": 0.3
+        },
+        {
+          "type": "n8n-nodes-base.googleSlides",
+          "displayName": "Google Slides",
+          "category": "Google",
+          "count": 19,
+          "percentage": 0.2
+        },
+        {
+          "type": "n8n-nodes-base.googleTasks",
+          "displayName": "Google Tasks",
+          "category": "Google",
+          "count": 12,
+          "percentage": 0.2
+        },
+        {
+          "type": "n8n-nodes-base.googleCloudStorage",
+          "displayName": "Google Cloud Storage",
+          "category": "Google",
+          "count": 11,
+          "percentage": 0.1
+        },
+        {
+          "type": "n8n-nodes-base.googleBigQuery",
+          "displayName": "Google BigQuery",
+          "category": "Google",
+          "count": 10,
+          "percentage": 0.1
+        }
+      ],
+      "Triggers": [
+        {
+          "type": "n8n-nodes-base.scheduleTrigger",
+          "displayName": "Schedule Trigger",
+          "category": "Triggers",
+          "count": 1912,
+          "percentage": 24.6
+        },
+        {
+          "type": "n8n-nodes-base.manualTrigger",
+          "displayName": "Manual Trigger",
+          "category": "Triggers",
+          "count": 1680,
+          "percentage": 21.7
+        },
+        {
+          "type": "n8n-nodes-base.webhook",
+          "displayName": "Webhook",
+          "category": "Triggers",
+          "count": 1221,
+          "percentage": 15.7
+        },
+        {
+          "type": "n8n-nodes-base.start",
+          "displayName": "Start",
+          "category": "Triggers",
+          "count": 401,
+          "percentage": 5.2
+        },
+        {
+          "type": "n8n-nodes-base.cron",
+          "displayName": "Cron",
+          "category": "Triggers",
+          "count": 232,
+          "percentage": 3
+        },
+        {
+          "type": "n8n-nodes-base.errorTrigger",
+          "displayName": "Error Trigger",
+          "category": "Triggers",
+          "count": 104,
+          "percentage": 1.3
+        },
+        {
+          "type": "n8n-nodes-base.workflowTrigger",
+          "displayName": "Workflow Trigger",
+          "category": "Triggers",
+          "count": 1,
+          "percentage": 0
+        }
+      ],
+      "Communication": [
+        {
+          "type": "n8n-nodes-base.gmail",
+          "displayName": "Gmail",
+          "category": "Communication",
+          "count": 1356,
+          "percentage": 17.5
+        },
+        {
+          "type": "n8n-nodes-base.telegram",
+          "displayName": "Telegram",
+          "category": "Communication",
+          "count": 984,
+          "percentage": 12.7
+        },
+        {
+          "type": "n8n-nodes-base.slack",
+          "displayName": "Slack",
+          "category": "Communication",
+          "count": 847,
+          "percentage": 10.9
+        },
+        {
+          "type": "n8n-nodes-base.telegramTrigger",
+          "displayName": "Telegram Trigger",
+          "category": "Communication",
+          "count": 549,
+          "percentage": 7.1
+        },
+        {
+          "type": "n8n-nodes-base.emailSend",
+          "displayName": "Send Email",
+          "category": "Communication",
+          "count": 407,
+          "percentage": 5.2
+        },
+        {
+          "type": "n8n-nodes-base.gmailTrigger",
+          "displayName": "Gmail Trigger",
+          "category": "Communication",
+          "count": 251,
+          "percentage": 3.2
+        },
+        {
+          "type": "n8n-nodes-base.whatsApp",
+          "displayName": "WhatsApp Business Cloud",
+          "category": "Communication",
+          "count": 141,
+          "percentage": 1.8
+        },
+        {
+          "type": "n8n-nodes-base.discord",
+          "displayName": "Discord",
+          "category": "Communication",
+          "count": 115,
+          "percentage": 1.5
+        },
+        {
+          "type": "n8n-nodes-base.emailReadImap",
+          "displayName": "Email (IMAP)",
+          "category": "Communication",
+          "count": 68,
+          "percentage": 0.9
+        },
+        {
+          "type": "n8n-nodes-base.twilio",
+          "displayName": "Twilio",
+          "category": "Communication",
+          "count": 62,
+          "percentage": 0.8
+        },
+        {
+          "type": "n8n-nodes-base.slackTrigger",
+          "displayName": "Slack Trigger",
+          "category": "Communication",
+          "count": 49,
+          "percentage": 0.6
+        },
+        {
+          "type": "n8n-nodes-base.sendGrid",
+          "displayName": "SendGrid",
+          "category": "Communication",
+          "count": 21,
+          "percentage": 0.3
+        },
+        {
+          "type": "n8n-nodes-base.microsoftTeams",
+          "displayName": "Microsoft Teams",
+          "category": "Communication",
+          "count": 20,
+          "percentage": 0.3
+        },
+        {
+          "type": "n8n-nodes-base.mailchimp",
+          "displayName": "Mailchimp",
+          "category": "Communication",
+          "count": 15,
+          "percentage": 0.2
+        },
+        {
+          "type": "n8n-nodes-base.mailgun",
+          "displayName": "Mailgun",
+          "category": "Communication",
+          "count": 8,
+          "percentage": 0.1
+        },
+        {
+          "type": "n8n-nodes-base.discordTrigger",
+          "displayName": "Discord Trigger",
+          "category": "Communication",
+          "count": 0,
+          "percentage": 0
+        }
+      ],
+      "Files": [
+        {
+          "type": "n8n-nodes-base.extractFromFile",
+          "displayName": "Extract From File",
+          "category": "Files",
+          "count": 479,
+          "percentage": 6.2
+        },
+        {
+          "type": "n8n-nodes-base.convertToFile",
+          "displayName": "Convert to File",
+          "category": "Files",
+          "count": 330,
+          "percentage": 4.3
+        },
+        {
+          "type": "n8n-nodes-base.writeBinaryFile",
+          "displayName": "Write Binary File",
+          "category": "Files",
+          "count": 40,
+          "percentage": 0.5
+        },
+        {
+          "type": "n8n-nodes-base.readBinaryFiles",
+          "displayName": "Read Binary Files",
+          "category": "Files",
+          "count": 6,
+          "percentage": 0.1
+        },
+        {
+          "type": "n8n-nodes-base.readPdf",
+          "displayName": "Read PDF",
+          "category": "Files",
+          "count": 6,
+          "percentage": 0.1
+        }
+      ],
+      "Database & Storage": [
+        {
+          "type": "n8n-nodes-base.airtable",
+          "displayName": "Airtable",
+          "category": "Database & Storage",
+          "count": 330,
+          "percentage": 4.3
+        },
+        {
+          "type": "n8n-nodes-base.notion",
+          "displayName": "Notion",
+          "category": "Database & Storage",
+          "count": 230,
+          "percentage": 3
+        },
+        {
+          "type": "n8n-nodes-base.postgres",
+          "displayName": "Postgres",
+          "category": "Database & Storage",
+          "count": 166,
+          "percentage": 2.1
+        },
+        {
+          "type": "n8n-nodes-base.supabase",
+          "displayName": "Supabase",
+          "category": "Database & Storage",
+          "count": 104,
+          "percentage": 1.3
+        },
+        {
+          "type": "n8n-nodes-base.redis",
+          "displayName": "Redis",
+          "category": "Database & Storage",
+          "count": 53,
+          "percentage": 0.7
+        },
+        {
+          "type": "n8n-nodes-base.noCoDB",
+          "displayName": "NocoDB",
+          "category": "Database & Storage",
+          "count": 34,
+          "percentage": 0.4
+        },
+        {
+          "type": "n8n-nodes-base.mySql",
+          "displayName": "MySQL",
+          "category": "Database & Storage",
+          "count": 33,
+          "percentage": 0.4
+        },
+        {
+          "type": "n8n-nodes-base.baserow",
+          "displayName": "Baserow",
+          "category": "Database & Storage",
+          "count": 25,
+          "percentage": 0.3
+        },
+        {
+          "type": "n8n-nodes-base.notionTrigger",
+          "displayName": "Notion Trigger",
+          "category": "Database & Storage",
+          "count": 24,
+          "percentage": 0.3
+        },
+        {
+          "type": "n8n-nodes-base.awsS3",
+          "displayName": "AWS S3",
+          "category": "Database & Storage",
+          "count": 24,
+          "percentage": 0.3
+        },
+        {
+          "type": "n8n-nodes-base.mongoDb",
+          "displayName": "MongoDB",
+          "category": "Database & Storage",
+          "count": 21,
+          "percentage": 0.3
+        },
+        {
+          "type": "n8n-nodes-base.airtableTrigger",
+          "displayName": "Airtable Trigger",
+          "category": "Database & Storage",
+          "count": 21,
+          "percentage": 0.3
+        },
+        {
+          "type": "n8n-nodes-base.s3",
+          "displayName": "AWS S3",
+          "category": "Database & Storage",
+          "count": 15,
+          "percentage": 0.2
+        },
+        {
+          "type": "n8n-nodes-base.microsoftSql",
+          "displayName": "Microsoft SQL",
+          "category": "Database & Storage",
+          "count": 6,
+          "percentage": 0.1
+        },
+        {
+          "type": "n8n-nodes-base.snowflake",
+          "displayName": "Snowflake",
+          "category": "Database & Storage",
+          "count": 4,
+          "percentage": 0.1
+        },
+        {
+          "type": "n8n-nodes-base.postgresTrigger",
+          "displayName": "Postgres Trigger",
+          "category": "Database & Storage",
+          "count": 2,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.elasticsearch",
+          "displayName": "Elasticsearch",
+          "category": "Database & Storage",
+          "count": 2,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.dynamoDb",
+          "displayName": "DynamoDB",
+          "category": "Database & Storage",
+          "count": 0,
+          "percentage": 0
+        }
+      ],
+      "CRM & Sales": [
+        {
+          "type": "n8n-nodes-base.hubspot",
+          "displayName": "HubSpot",
+          "category": "CRM & Sales",
+          "count": 123,
+          "percentage": 1.6
+        },
+        {
+          "type": "n8n-nodes-base.zendesk",
+          "displayName": "Zendesk",
+          "category": "CRM & Sales",
+          "count": 33,
+          "percentage": 0.4
+        },
+        {
+          "type": "n8n-nodes-base.pipedrive",
+          "displayName": "Pipedrive",
+          "category": "CRM & Sales",
+          "count": 31,
+          "percentage": 0.4
+        },
+        {
+          "type": "n8n-nodes-base.salesforce",
+          "displayName": "Salesforce",
+          "category": "CRM & Sales",
+          "count": 28,
+          "percentage": 0.4
+        },
+        {
+          "type": "n8n-nodes-base.hubspotTrigger",
+          "displayName": "HubSpot Trigger",
+          "category": "CRM & Sales",
+          "count": 18,
+          "percentage": 0.2
+        },
+        {
+          "type": "n8n-nodes-base.pipedriveTrigger",
+          "displayName": "Pipedrive Trigger",
+          "category": "CRM & Sales",
+          "count": 8,
+          "percentage": 0.1
+        },
+        {
+          "type": "n8n-nodes-base.freshdesk",
+          "displayName": "Freshdesk",
+          "category": "CRM & Sales",
+          "count": 4,
+          "percentage": 0.1
+        },
+        {
+          "type": "n8n-nodes-base.intercom",
+          "displayName": "Intercom",
+          "category": "CRM & Sales",
+          "count": 4,
+          "percentage": 0.1
+        },
+        {
+          "type": "n8n-nodes-base.copper",
+          "displayName": "Copper",
+          "category": "CRM & Sales",
+          "count": 1,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.zendeskTrigger",
+          "displayName": "Zendesk Trigger",
+          "category": "CRM & Sales",
+          "count": 1,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.zoho",
+          "displayName": "Zoho CRM",
+          "category": "CRM & Sales",
+          "count": 0,
+          "percentage": 0
+        }
+      ],
+      "Social Media": [
+        {
+          "type": "n8n-nodes-base.twitter",
+          "displayName": "X (Twitter)",
+          "category": "Social Media",
+          "count": 102,
+          "percentage": 1.3
+        },
+        {
+          "type": "n8n-nodes-base.linkedin",
+          "displayName": "LinkedIn",
+          "category": "Social Media",
+          "count": 100,
+          "percentage": 1.3
+        },
+        {
+          "type": "n8n-nodes-base.facebookGraphApi",
+          "displayName": "Facebook Graph API",
+          "category": "Social Media",
+          "count": 87,
+          "percentage": 1.1
+        },
+        {
+          "type": "n8n-nodes-base.reddit",
+          "displayName": "Reddit",
+          "category": "Social Media",
+          "count": 56,
+          "percentage": 0.7
+        }
+      ],
+      "CMS": [
+        {
+          "type": "n8n-nodes-base.wordpress",
+          "displayName": "WordPress",
+          "category": "CMS",
+          "count": 97,
+          "percentage": 1.3
+        },
+        {
+          "type": "n8n-nodes-base.ghost",
+          "displayName": "Ghost",
+          "category": "CMS",
+          "count": 6,
+          "percentage": 0.1
+        },
+        {
+          "type": "n8n-nodes-base.strapi",
+          "displayName": "Strapi",
+          "category": "CMS",
+          "count": 3,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.contentful",
+          "displayName": "Contentful",
+          "category": "CMS",
+          "count": 1,
+          "percentage": 0
+        }
+      ],
+      "Developer Tools": [
+        {
+          "type": "n8n-nodes-base.github",
+          "displayName": "GitHub",
+          "category": "Developer Tools",
+          "count": 83,
+          "percentage": 1.1
+        },
+        {
+          "type": "n8n-nodes-base.githubTrigger",
+          "displayName": "GitHub Trigger",
+          "category": "Developer Tools",
+          "count": 28,
+          "percentage": 0.4
+        },
+        {
+          "type": "n8n-nodes-base.gitlab",
+          "displayName": "GitLab",
+          "category": "Developer Tools",
+          "count": 13,
+          "percentage": 0.2
+        },
+        {
+          "type": "n8n-nodes-base.gitlabTrigger",
+          "displayName": "GitLab Trigger",
+          "category": "Developer Tools",
+          "count": 3,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.bitbucketTrigger",
+          "displayName": "Bitbucket Trigger",
+          "category": "Developer Tools",
+          "count": 1,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.sentryIo",
+          "displayName": "Sentry.io",
+          "category": "Developer Tools",
+          "count": 1,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.bitbucket",
+          "displayName": "Bitbucket",
+          "category": "Developer Tools",
+          "count": 0,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.sentry",
+          "displayName": "Sentry",
+          "category": "Developer Tools",
+          "count": 0,
+          "percentage": 0
+        }
+      ],
+      "Productivity": [
+        {
+          "type": "n8n-nodes-base.jira",
+          "displayName": "Jira",
+          "category": "Productivity",
+          "count": 78,
+          "percentage": 1
+        },
+        {
+          "type": "n8n-nodes-base.clickUp",
+          "displayName": "ClickUp",
+          "category": "Productivity",
+          "count": 47,
+          "percentage": 0.6
+        },
+        {
+          "type": "n8n-nodes-base.trello",
+          "displayName": "Trello",
+          "category": "Productivity",
+          "count": 31,
+          "percentage": 0.4
+        },
+        {
+          "type": "n8n-nodes-base.asana",
+          "displayName": "Asana",
+          "category": "Productivity",
+          "count": 15,
+          "percentage": 0.2
+        },
+        {
+          "type": "n8n-nodes-base.todoist",
+          "displayName": "Todoist",
+          "category": "Productivity",
+          "count": 14,
+          "percentage": 0.2
+        },
+        {
+          "type": "n8n-nodes-base.linear",
+          "displayName": "Linear",
+          "category": "Productivity",
+          "count": 10,
+          "percentage": 0.1
+        },
+        {
+          "type": "n8n-nodes-base.clickUpTrigger",
+          "displayName": "ClickUp Trigger",
+          "category": "Productivity",
+          "count": 8,
+          "percentage": 0.1
+        },
+        {
+          "type": "n8n-nodes-base.jiraTrigger",
+          "displayName": "Jira Trigger",
+          "category": "Productivity",
+          "count": 6,
+          "percentage": 0.1
+        },
+        {
+          "type": "n8n-nodes-base.linearTrigger",
+          "displayName": "Linear Trigger",
+          "category": "Productivity",
+          "count": 6,
+          "percentage": 0.1
+        },
+        {
+          "type": "n8n-nodes-base.trelloTrigger",
+          "displayName": "Trello Trigger",
+          "category": "Productivity",
+          "count": 3,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.asanaTrigger",
+          "displayName": "Asana Trigger",
+          "category": "Productivity",
+          "count": 2,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.monday",
+          "displayName": "Monday.com",
+          "category": "Productivity",
+          "count": 0,
+          "percentage": 0
+        }
+      ],
+      "Other": [
+        {
+          "type": "n8n-nodes-base.microsoftOutlook",
+          "displayName": "Microsoft Outlook",
+          "category": "Other",
+          "count": 72,
+          "percentage": 0.9
+        },
+        {
+          "type": "n8n-nodes-base.typeformTrigger",
+          "displayName": "Typeform Trigger",
+          "category": "Other",
+          "count": 39,
+          "percentage": 0.5
+        },
+        {
+          "type": "n8n-nodes-base.openWeatherMap",
+          "displayName": "OpenWeatherMap",
+          "category": "Other",
+          "count": 22,
+          "percentage": 0.3
+        },
+        {
+          "type": "n8n-nodes-base.calendlyTrigger",
+          "displayName": "Calendly Trigger",
+          "category": "Other",
+          "count": 20,
+          "percentage": 0.3
+        },
+        {
+          "type": "n8n-nodes-base.dropbox",
+          "displayName": "Dropbox",
+          "category": "Other",
+          "count": 18,
+          "percentage": 0.2
+        },
+        {
+          "type": "n8n-nodes-base.microsoftOneDrive",
+          "displayName": "Microsoft OneDrive",
+          "category": "Other",
+          "count": 17,
+          "percentage": 0.2
+        },
+        {
+          "type": "n8n-nodes-base.box",
+          "displayName": "Box",
+          "category": "Other",
+          "count": 2,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.awsLambda",
+          "displayName": "AWS Lambda",
+          "category": "Other",
+          "count": 2,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.googleForms",
+          "displayName": "Google Forms",
+          "category": "Other",
+          "count": 0,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.typeform",
+          "displayName": "Typeform",
+          "category": "Other",
+          "count": 0,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.calendly",
+          "displayName": "Calendly",
+          "category": "Other",
+          "count": 0,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.zapier",
+          "displayName": "Zapier",
+          "category": "Other",
+          "count": 0,
+          "percentage": 0
+        }
+      ],
+      "E-Commerce": [
+        {
+          "type": "n8n-nodes-base.shopify",
+          "displayName": "Shopify",
+          "category": "E-Commerce",
+          "count": 27,
+          "percentage": 0.3
+        },
+        {
+          "type": "n8n-nodes-base.shopifyTrigger",
+          "displayName": "Shopify Trigger",
+          "category": "E-Commerce",
+          "count": 27,
+          "percentage": 0.3
+        },
+        {
+          "type": "n8n-nodes-base.stripe",
+          "displayName": "Stripe",
+          "category": "E-Commerce",
+          "count": 25,
+          "percentage": 0.3
+        },
+        {
+          "type": "n8n-nodes-base.stripeTrigger",
+          "displayName": "Stripe Trigger",
+          "category": "E-Commerce",
+          "count": 18,
+          "percentage": 0.2
+        },
+        {
+          "type": "n8n-nodes-base.wooCommerce",
+          "displayName": "WooCommerce",
+          "category": "E-Commerce",
+          "count": 14,
+          "percentage": 0.2
+        },
+        {
+          "type": "n8n-nodes-base.wooCommerceTrigger",
+          "displayName": "WooCommerce Trigger",
+          "category": "E-Commerce",
+          "count": 12,
+          "percentage": 0.2
+        }
+      ],
+      "Marketing": [
+        {
+          "type": "n8n-nodes-base.mautic",
+          "displayName": "Mautic",
+          "category": "Marketing",
+          "count": 9,
+          "percentage": 0.1
+        },
+        {
+          "type": "n8n-nodes-base.lemlist",
+          "displayName": "Lemlist",
+          "category": "Marketing",
+          "count": 6,
+          "percentage": 0.1
+        },
+        {
+          "type": "n8n-nodes-base.activeCampaign",
+          "displayName": "ActiveCampaign",
+          "category": "Marketing",
+          "count": 1,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.convertKit",
+          "displayName": "ConvertKit",
+          "category": "Marketing",
+          "count": 1,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.segment",
+          "displayName": "Segment",
+          "category": "Marketing",
+          "count": 1,
+          "percentage": 0
+        },
+        {
+          "type": "n8n-nodes-base.customerIo",
+          "displayName": "Customer.io",
+          "category": "Marketing",
+          "count": 1,
+          "percentage": 0
+        }
+      ]
+    },
+    "all": [
+      {
+        "type": "n8n-nodes-base.stickyNote",
+        "displayName": "Sticky Note",
+        "category": "Utility",
+        "count": 6738,
+        "percentage": 86.9
+      },
+      {
+        "type": "n8n-nodes-base.set",
+        "displayName": "Edit Fields (Set)",
+        "category": "Data Transform",
+        "count": 3899,
+        "percentage": 50.3
+      },
+      {
+        "type": "n8n-nodes-base.httpRequest",
+        "displayName": "HTTP Request",
+        "category": "HTTP & APIs",
+        "count": 3790,
+        "percentage": 48.9
+      },
+      {
+        "type": "n8n-nodes-base.code",
+        "displayName": "Code",
+        "category": "Data Transform",
+        "count": 3583,
+        "percentage": 46.2
+      },
+      {
+        "type": "n8n-nodes-base.if",
+        "displayName": "If",
+        "category": "Flow Control",
+        "count": 3127,
+        "percentage": 40.3
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "displayName": "AI Agent",
+        "category": "AI",
+        "count": 2566,
+        "percentage": 33.1
+      },
+      {
+        "type": "n8n-nodes-base.googleSheets",
+        "displayName": "Google Sheets",
+        "category": "Google",
+        "count": 2296,
+        "percentage": 29.6
+      },
+      {
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "displayName": "Schedule Trigger",
+        "category": "Triggers",
+        "count": 1912,
+        "percentage": 24.6
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "displayName": "OpenAI Chat Model",
+        "category": "AI",
+        "count": 1884,
+        "percentage": 24.3
+      },
+      {
+        "type": "n8n-nodes-base.manualTrigger",
+        "displayName": "Manual Trigger",
+        "category": "Triggers",
+        "count": 1680,
+        "percentage": 21.7
+      },
+      {
+        "type": "n8n-nodes-base.merge",
+        "displayName": "Merge",
+        "category": "Flow Control",
+        "count": 1461,
+        "percentage": 18.8
+      },
+      {
+        "type": "n8n-nodes-base.gmail",
+        "displayName": "Gmail",
+        "category": "Communication",
+        "count": 1356,
+        "percentage": 17.5
+      },
+      {
+        "type": "n8n-nodes-base.splitInBatches",
+        "displayName": "Split In Batches",
+        "category": "Flow Control",
+        "count": 1335,
+        "percentage": 17.2
+      },
+      {
+        "type": "n8n-nodes-base.wait",
+        "displayName": "Wait",
+        "category": "Flow Control",
+        "count": 1238,
+        "percentage": 16
+      },
+      {
+        "type": "n8n-nodes-base.webhook",
+        "displayName": "Webhook",
+        "category": "Triggers",
+        "count": 1221,
+        "percentage": 15.7
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "displayName": "Structured Output Parser",
+        "category": "AI",
+        "count": 1206,
+        "percentage": 15.5
+      },
+      {
+        "type": "n8n-nodes-base.splitOut",
+        "displayName": "Split Out",
+        "category": "Data Transform",
+        "count": 995,
+        "percentage": 12.8
+      },
+      {
+        "type": "n8n-nodes-base.telegram",
+        "displayName": "Telegram",
+        "category": "Communication",
+        "count": 984,
+        "percentage": 12.7
+      },
+      {
+        "type": "n8n-nodes-base.switch",
+        "displayName": "Switch",
+        "category": "Flow Control",
+        "count": 960,
+        "percentage": 12.4
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "displayName": "OpenAI",
+        "category": "AI",
+        "count": 924,
+        "percentage": 11.9
+      },
+      {
+        "type": "n8n-nodes-base.googleDrive",
+        "displayName": "Google Drive",
+        "category": "Google",
+        "count": 896,
+        "percentage": 11.5
+      },
+      {
+        "type": "n8n-nodes-base.slack",
+        "displayName": "Slack",
+        "category": "Communication",
+        "count": 847,
+        "percentage": 10.9
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "displayName": "Simple Memory",
+        "category": "AI",
+        "count": 811,
+        "percentage": 10.5
+      },
+      {
+        "type": "n8n-nodes-base.aggregate",
+        "displayName": "Aggregate",
+        "category": "Data Transform",
+        "count": 766,
+        "percentage": 9.9
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+        "displayName": "Google Gemini Chat Model",
+        "category": "AI",
+        "count": 748,
+        "percentage": 9.6
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "displayName": "Basic LLM Chain",
+        "category": "AI",
+        "count": 697,
+        "percentage": 9
+      },
+      {
+        "type": "n8n-nodes-base.noOp",
+        "displayName": "No Operation",
+        "category": "Flow Control",
+        "count": 692,
+        "percentage": 8.9
+      },
+      {
+        "type": "n8n-nodes-base.filter",
+        "displayName": "Filter",
+        "category": "Data Transform",
+        "count": 669,
+        "percentage": 8.6
+      },
+      {
+        "type": "n8n-nodes-base.respondToWebhook",
+        "displayName": "Respond to Webhook",
+        "category": "Flow Control",
+        "count": 576,
+        "percentage": 7.4
+      },
+      {
+        "type": "n8n-nodes-base.telegramTrigger",
+        "displayName": "Telegram Trigger",
+        "category": "Communication",
+        "count": 549,
+        "percentage": 7.1
+      },
+      {
+        "type": "n8n-nodes-base.extractFromFile",
+        "displayName": "Extract From File",
+        "category": "Files",
+        "count": 479,
+        "percentage": 6.2
+      },
+      {
+        "type": "n8n-nodes-base.emailSend",
+        "displayName": "Send Email",
+        "category": "Communication",
+        "count": 407,
+        "percentage": 5.2
+      },
+      {
+        "type": "n8n-nodes-base.start",
+        "displayName": "Start",
+        "category": "Triggers",
+        "count": 401,
+        "percentage": 5.2
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "displayName": "OpenRouter Chat Model",
+        "category": "AI",
+        "count": 338,
+        "percentage": 4.4
+      },
+      {
+        "type": "n8n-nodes-base.convertToFile",
+        "displayName": "Convert to File",
+        "category": "Files",
+        "count": 330,
+        "percentage": 4.3
+      },
+      {
+        "type": "n8n-nodes-base.airtable",
+        "displayName": "Airtable",
+        "category": "Database & Storage",
+        "count": 330,
+        "percentage": 4.3
+      },
+      {
+        "type": "n8n-nodes-base.function",
+        "displayName": "Function",
+        "category": "Data Transform",
+        "count": 316,
+        "percentage": 4.1
+      },
+      {
+        "type": "n8n-nodes-base.limit",
+        "displayName": "Limit",
+        "category": "Data Transform",
+        "count": 282,
+        "percentage": 3.6
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+        "displayName": "Default Data Loader",
+        "category": "AI",
+        "count": 275,
+        "percentage": 3.5
+      },
+      {
+        "type": "n8n-nodes-base.html",
+        "displayName": "HTML",
+        "category": "Data Transform",
+        "count": 255,
+        "percentage": 3.3
+      },
+      {
+        "type": "n8n-nodes-base.gmailTrigger",
+        "displayName": "Gmail Trigger",
+        "category": "Communication",
+        "count": 251,
+        "percentage": 3.2
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "displayName": "Embeddings OpenAI",
+        "category": "AI",
+        "count": 247,
+        "percentage": 3.2
+      },
+      {
+        "type": "n8n-nodes-base.cron",
+        "displayName": "Cron",
+        "category": "Triggers",
+        "count": 232,
+        "percentage": 3
+      },
+      {
+        "type": "n8n-nodes-base.notion",
+        "displayName": "Notion",
+        "category": "Database & Storage",
+        "count": 230,
+        "percentage": 3
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "displayName": "Call n8n Workflow Tool",
+        "category": "AI",
+        "count": 220,
+        "percentage": 2.8
+      },
+      {
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "displayName": "Google Drive Trigger",
+        "category": "Google",
+        "count": 209,
+        "percentage": 2.7
+      },
+      {
+        "type": "n8n-nodes-base.executeWorkflow",
+        "displayName": "Execute Workflow",
+        "category": "Flow Control",
+        "count": 196,
+        "percentage": 2.5
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+        "displayName": "Recursive Character Text Splitter",
+        "category": "AI",
+        "count": 182,
+        "percentage": 2.3
+      },
+      {
+        "type": "n8n-nodes-base.markdown",
+        "displayName": "Markdown",
+        "category": "Data Transform",
+        "count": 177,
+        "percentage": 2.3
+      },
+      {
+        "type": "n8n-nodes-base.googleSheetsTrigger",
+        "displayName": "Google Sheets Trigger",
+        "category": "Google",
+        "count": 177,
+        "percentage": 2.3
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+        "displayName": "Information Extractor",
+        "category": "AI",
+        "count": 172,
+        "percentage": 2.2
+      },
+      {
+        "type": "n8n-nodes-base.postgres",
+        "displayName": "Postgres",
+        "category": "Database & Storage",
+        "count": 166,
+        "percentage": 2.1
+      },
+      {
+        "type": "n8n-nodes-base.googleDocs",
+        "displayName": "Google Docs",
+        "category": "Google",
+        "count": 162,
+        "percentage": 2.1
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.toolThink",
+        "displayName": "Think Tool",
+        "category": "AI",
+        "count": 161,
+        "percentage": 2.1
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "displayName": "Anthropic Chat Model",
+        "category": "AI",
+        "count": 158,
+        "percentage": 2
+      },
+      {
+        "type": "n8n-nodes-base.googleCalendar",
+        "displayName": "Google Calendar",
+        "category": "Google",
+        "count": 155,
+        "percentage": 2
+      },
+      {
+        "type": "n8n-nodes-base.rssFeedRead",
+        "displayName": "RSS Feed Read",
+        "category": "HTTP & APIs",
+        "count": 141,
+        "percentage": 1.8
+      },
+      {
+        "type": "n8n-nodes-base.whatsApp",
+        "displayName": "WhatsApp Business Cloud",
+        "category": "Communication",
+        "count": 141,
+        "percentage": 1.8
+      },
+      {
+        "type": "n8n-nodes-base.hubspot",
+        "displayName": "HubSpot",
+        "category": "CRM & Sales",
+        "count": 123,
+        "percentage": 1.6
+      },
+      {
+        "type": "n8n-nodes-base.n8n",
+        "displayName": "n8n",
+        "category": "Utility",
+        "count": 122,
+        "percentage": 1.6
+      },
+      {
+        "type": "n8n-nodes-base.discord",
+        "displayName": "Discord",
+        "category": "Communication",
+        "count": 115,
+        "percentage": 1.5
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+        "displayName": "Azure OpenAI Chat Model",
+        "category": "AI",
+        "count": 113,
+        "percentage": 1.5
+      },
+      {
+        "type": "n8n-nodes-base.removeDuplicates",
+        "displayName": "Remove Duplicates",
+        "category": "Data Transform",
+        "count": 112,
+        "percentage": 1.4
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.textClassifier",
+        "displayName": "Text Classifier",
+        "category": "AI",
+        "count": 109,
+        "percentage": 1.4
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+        "displayName": "Pinecone Vector Store",
+        "category": "AI",
+        "count": 108,
+        "percentage": 1.4
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+        "displayName": "Calculator",
+        "category": "AI",
+        "count": 105,
+        "percentage": 1.4
+      },
+      {
+        "type": "n8n-nodes-base.errorTrigger",
+        "displayName": "Error Trigger",
+        "category": "Triggers",
+        "count": 104,
+        "percentage": 1.3
+      },
+      {
+        "type": "n8n-nodes-base.supabase",
+        "displayName": "Supabase",
+        "category": "Database & Storage",
+        "count": 104,
+        "percentage": 1.3
+      },
+      {
+        "type": "n8n-nodes-base.twitter",
+        "displayName": "X (Twitter)",
+        "category": "Social Media",
+        "count": 102,
+        "percentage": 1.3
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+        "displayName": "Auto-fixing Output Parser",
+        "category": "AI",
+        "count": 102,
+        "percentage": 1.3
+      },
+      {
+        "type": "n8n-nodes-base.linkedin",
+        "displayName": "LinkedIn",
+        "category": "Social Media",
+        "count": 100,
+        "percentage": 1.3
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+        "displayName": "MCP Client Tool",
+        "category": "AI",
+        "count": 100,
+        "percentage": 1.3
+      },
+      {
+        "type": "n8n-nodes-base.wordpress",
+        "displayName": "WordPress",
+        "category": "CMS",
+        "count": 97,
+        "percentage": 1.3
+      },
+      {
+        "type": "n8n-nodes-base.youtube",
+        "displayName": "YouTube",
+        "category": "Google",
+        "count": 88,
+        "percentage": 1.1
+      },
+      {
+        "type": "n8n-nodes-base.facebookGraphApi",
+        "displayName": "Facebook Graph API",
+        "category": "Social Media",
+        "count": 87,
+        "percentage": 1.1
+      },
+      {
+        "type": "n8n-nodes-base.sort",
+        "displayName": "Sort",
+        "category": "Data Transform",
+        "count": 85,
+        "percentage": 1.1
+      },
+      {
+        "type": "n8n-nodes-base.github",
+        "displayName": "GitHub",
+        "category": "Developer Tools",
+        "count": 83,
+        "percentage": 1.1
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+        "displayName": "Postgres Chat Memory",
+        "category": "AI",
+        "count": 83,
+        "percentage": 1.1
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+        "displayName": "Supabase Vector Store",
+        "category": "AI",
+        "count": 83,
+        "percentage": 1.1
+      },
+      {
+        "type": "n8n-nodes-base.jira",
+        "displayName": "Jira",
+        "category": "Productivity",
+        "count": 78,
+        "percentage": 1
+      },
+      {
+        "type": "n8n-nodes-base.dateTime",
+        "displayName": "Date & Time",
+        "category": "Data Transform",
+        "count": 76,
+        "percentage": 1
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+        "displayName": "Summarization Chain",
+        "category": "AI",
+        "count": 72,
+        "percentage": 0.9
+      },
+      {
+        "type": "n8n-nodes-base.microsoftOutlook",
+        "displayName": "Microsoft Outlook",
+        "category": "Other",
+        "count": 72,
+        "percentage": 0.9
+      },
+      {
+        "type": "n8n-nodes-base.xml",
+        "displayName": "XML",
+        "category": "Data Transform",
+        "count": 70,
+        "percentage": 0.9
+      },
+      {
+        "type": "n8n-nodes-base.executeCommand",
+        "displayName": "Execute Command",
+        "category": "Utility",
+        "count": 69,
+        "percentage": 0.9
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+        "displayName": "Qdrant Vector Store",
+        "category": "AI",
+        "count": 69,
+        "percentage": 0.9
+      },
+      {
+        "type": "n8n-nodes-base.emailReadImap",
+        "displayName": "Email (IMAP)",
+        "category": "Communication",
+        "count": 68,
+        "percentage": 0.9
+      },
+      {
+        "type": "n8n-nodes-base.itemLists",
+        "displayName": "Item Lists",
+        "category": "Data Transform",
+        "count": 65,
+        "percentage": 0.8
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+        "displayName": "SerpAPI",
+        "category": "AI",
+        "count": 65,
+        "percentage": 0.8
+      },
+      {
+        "type": "n8n-nodes-base.twilio",
+        "displayName": "Twilio",
+        "category": "Communication",
+        "count": 62,
+        "percentage": 0.8
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+        "displayName": "Groq Chat Model",
+        "category": "AI",
+        "count": 57,
+        "percentage": 0.7
+      },
+      {
+        "type": "n8n-nodes-base.reddit",
+        "displayName": "Reddit",
+        "category": "Social Media",
+        "count": 56,
+        "percentage": 0.7
+      },
+      {
+        "type": "n8n-nodes-base.crypto",
+        "displayName": "Crypto",
+        "category": "Data Transform",
+        "count": 53,
+        "percentage": 0.7
+      },
+      {
+        "type": "n8n-nodes-base.redis",
+        "displayName": "Redis",
+        "category": "Database & Storage",
+        "count": 53,
+        "percentage": 0.7
+      },
+      {
+        "type": "n8n-nodes-base.spreadsheetFile",
+        "displayName": "Spreadsheet File",
+        "category": "Data Transform",
+        "count": 52,
+        "percentage": 0.7
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+        "displayName": "Ollama Chat Model",
+        "category": "AI",
+        "count": 52,
+        "percentage": 0.7
+      },
+      {
+        "type": "n8n-nodes-base.slackTrigger",
+        "displayName": "Slack Trigger",
+        "category": "Communication",
+        "count": 49,
+        "percentage": 0.6
+      },
+      {
+        "type": "n8n-nodes-base.clickUp",
+        "displayName": "ClickUp",
+        "category": "Productivity",
+        "count": 47,
+        "percentage": 0.6
+      },
+      {
+        "type": "n8n-nodes-base.ssh",
+        "displayName": "SSH",
+        "category": "HTTP & APIs",
+        "count": 45,
+        "percentage": 0.6
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+        "displayName": "Embeddings Google Gemini",
+        "category": "AI",
+        "count": 43,
+        "percentage": 0.6
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
+        "displayName": "Mistral Cloud Chat Model",
+        "category": "AI",
+        "count": 41,
+        "percentage": 0.5
+      },
+      {
+        "type": "n8n-nodes-base.writeBinaryFile",
+        "displayName": "Write Binary File",
+        "category": "Files",
+        "count": 40,
+        "percentage": 0.5
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.toolCode",
+        "displayName": "Code Tool",
+        "category": "AI",
+        "count": 40,
+        "percentage": 0.5
+      },
+      {
+        "type": "n8n-nodes-base.typeformTrigger",
+        "displayName": "Typeform Trigger",
+        "category": "Other",
+        "count": 39,
+        "percentage": 0.5
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+        "displayName": "In-Memory Vector Store",
+        "category": "AI",
+        "count": 38,
+        "percentage": 0.5
+      },
+      {
+        "type": "n8n-nodes-base.compareDatasets",
+        "displayName": "Compare Datasets",
+        "category": "Data Transform",
+        "count": 37,
+        "percentage": 0.5
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+        "displayName": "Wikipedia",
+        "category": "AI",
+        "count": 37,
+        "percentage": 0.5
+      },
+      {
+        "type": "n8n-nodes-base.functionItem",
+        "displayName": "Function Item",
+        "category": "Data Transform",
+        "count": 35,
+        "percentage": 0.5
+      },
+      {
+        "type": "n8n-nodes-base.noCoDB",
+        "displayName": "NocoDB",
+        "category": "Database & Storage",
+        "count": 34,
+        "percentage": 0.4
+      },
+      {
+        "type": "n8n-nodes-base.mySql",
+        "displayName": "MySQL",
+        "category": "Database & Storage",
+        "count": 33,
+        "percentage": 0.4
+      },
+      {
+        "type": "n8n-nodes-base.zendesk",
+        "displayName": "Zendesk",
+        "category": "CRM & Sales",
+        "count": 33,
+        "percentage": 0.4
+      },
+      {
+        "type": "n8n-nodes-base.pipedrive",
+        "displayName": "Pipedrive",
+        "category": "CRM & Sales",
+        "count": 31,
+        "percentage": 0.4
+      },
+      {
+        "type": "n8n-nodes-base.trello",
+        "displayName": "Trello",
+        "category": "Productivity",
+        "count": 31,
+        "percentage": 0.4
+      },
+      {
+        "type": "n8n-nodes-base.salesforce",
+        "displayName": "Salesforce",
+        "category": "CRM & Sales",
+        "count": 28,
+        "percentage": 0.4
+      },
+      {
+        "type": "n8n-nodes-base.githubTrigger",
+        "displayName": "GitHub Trigger",
+        "category": "Developer Tools",
+        "count": 28,
+        "percentage": 0.4
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.chainRetrievalQa",
+        "displayName": "Question and Answer Chain",
+        "category": "AI",
+        "count": 28,
+        "percentage": 0.4
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter",
+        "displayName": "Token Splitter",
+        "category": "AI",
+        "count": 28,
+        "percentage": 0.4
+      },
+      {
+        "type": "n8n-nodes-base.shopify",
+        "displayName": "Shopify",
+        "category": "E-Commerce",
+        "count": 27,
+        "percentage": 0.3
+      },
+      {
+        "type": "n8n-nodes-base.shopifyTrigger",
+        "displayName": "Shopify Trigger",
+        "category": "E-Commerce",
+        "count": 27,
+        "percentage": 0.3
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.sentimentAnalysis",
+        "displayName": "Sentiment Analysis",
+        "category": "AI",
+        "count": 27,
+        "percentage": 0.3
+      },
+      {
+        "type": "n8n-nodes-base.baserow",
+        "displayName": "Baserow",
+        "category": "Database & Storage",
+        "count": 25,
+        "percentage": 0.3
+      },
+      {
+        "type": "n8n-nodes-base.stripe",
+        "displayName": "Stripe",
+        "category": "E-Commerce",
+        "count": 25,
+        "percentage": 0.3
+      },
+      {
+        "type": "n8n-nodes-base.compression",
+        "displayName": "Compression",
+        "category": "Data Transform",
+        "count": 24,
+        "percentage": 0.3
+      },
+      {
+        "type": "n8n-nodes-base.notionTrigger",
+        "displayName": "Notion Trigger",
+        "category": "Database & Storage",
+        "count": 24,
+        "percentage": 0.3
+      },
+      {
+        "type": "n8n-nodes-base.awsS3",
+        "displayName": "AWS S3",
+        "category": "Database & Storage",
+        "count": 24,
+        "percentage": 0.3
+      },
+      {
+        "type": "n8n-nodes-base.graphql",
+        "displayName": "GraphQL",
+        "category": "HTTP & APIs",
+        "count": 23,
+        "percentage": 0.3
+      },
+      {
+        "type": "n8n-nodes-base.openWeatherMap",
+        "displayName": "OpenWeatherMap",
+        "category": "Other",
+        "count": 22,
+        "percentage": 0.3
+      },
+      {
+        "type": "n8n-nodes-base.ftp",
+        "displayName": "FTP",
+        "category": "HTTP & APIs",
+        "count": 21,
+        "percentage": 0.3
+      },
+      {
+        "type": "n8n-nodes-base.sendGrid",
+        "displayName": "SendGrid",
+        "category": "Communication",
+        "count": 21,
+        "percentage": 0.3
+      },
+      {
+        "type": "n8n-nodes-base.googleCalendarTrigger",
+        "displayName": "Google Calendar Trigger",
+        "category": "Google",
+        "count": 21,
+        "percentage": 0.3
+      },
+      {
+        "type": "n8n-nodes-base.mongoDb",
+        "displayName": "MongoDB",
+        "category": "Database & Storage",
+        "count": 21,
+        "percentage": 0.3
+      },
+      {
+        "type": "n8n-nodes-base.airtableTrigger",
+        "displayName": "Airtable Trigger",
+        "category": "Database & Storage",
+        "count": 21,
+        "percentage": 0.3
+      },
+      {
+        "type": "n8n-nodes-base.microsoftTeams",
+        "displayName": "Microsoft Teams",
+        "category": "Communication",
+        "count": 20,
+        "percentage": 0.3
+      },
+      {
+        "type": "n8n-nodes-base.googleAnalytics",
+        "displayName": "Google Analytics",
+        "category": "Google",
+        "count": 20,
+        "percentage": 0.3
+      },
+      {
+        "type": "n8n-nodes-base.calendlyTrigger",
+        "displayName": "Calendly Trigger",
+        "category": "Other",
+        "count": 20,
+        "percentage": 0.3
+      },
+      {
+        "type": "n8n-nodes-base.googleSlides",
+        "displayName": "Google Slides",
+        "category": "Google",
+        "count": 19,
+        "percentage": 0.2
+      },
+      {
+        "type": "n8n-nodes-base.hubspotTrigger",
+        "displayName": "HubSpot Trigger",
+        "category": "CRM & Sales",
+        "count": 18,
+        "percentage": 0.2
+      },
+      {
+        "type": "n8n-nodes-base.stripeTrigger",
+        "displayName": "Stripe Trigger",
+        "category": "E-Commerce",
+        "count": 18,
+        "percentage": 0.2
+      },
+      {
+        "type": "n8n-nodes-base.dropbox",
+        "displayName": "Dropbox",
+        "category": "Other",
+        "count": 18,
+        "percentage": 0.2
+      },
+      {
+        "type": "n8n-nodes-base.microsoftOneDrive",
+        "displayName": "Microsoft OneDrive",
+        "category": "Other",
+        "count": 17,
+        "percentage": 0.2
+      },
+      {
+        "type": "n8n-nodes-base.mailchimp",
+        "displayName": "Mailchimp",
+        "category": "Communication",
+        "count": 15,
+        "percentage": 0.2
+      },
+      {
+        "type": "n8n-nodes-base.s3",
+        "displayName": "AWS S3",
+        "category": "Database & Storage",
+        "count": 15,
+        "percentage": 0.2
+      },
+      {
+        "type": "n8n-nodes-base.asana",
+        "displayName": "Asana",
+        "category": "Productivity",
+        "count": 15,
+        "percentage": 0.2
+      },
+      {
+        "type": "n8n-nodes-base.renameKeys",
+        "displayName": "Rename Keys",
+        "category": "Data Transform",
+        "count": 14,
+        "percentage": 0.2
+      },
+      {
+        "type": "n8n-nodes-base.todoist",
+        "displayName": "Todoist",
+        "category": "Productivity",
+        "count": 14,
+        "percentage": 0.2
+      },
+      {
+        "type": "n8n-nodes-base.wooCommerce",
+        "displayName": "WooCommerce",
+        "category": "E-Commerce",
+        "count": 14,
+        "percentage": 0.2
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+        "displayName": "Redis Chat Memory",
+        "category": "AI",
+        "count": 14,
+        "percentage": 0.2
+      },
+      {
+        "type": "n8n-nodes-base.gitlab",
+        "displayName": "GitLab",
+        "category": "Developer Tools",
+        "count": 13,
+        "percentage": 0.2
+      },
+      {
+        "type": "n8n-nodes-base.googleTasks",
+        "displayName": "Google Tasks",
+        "category": "Google",
+        "count": 12,
+        "percentage": 0.2
+      },
+      {
+        "type": "n8n-nodes-base.wooCommerceTrigger",
+        "displayName": "WooCommerce Trigger",
+        "category": "E-Commerce",
+        "count": 12,
+        "percentage": 0.2
+      },
+      {
+        "type": "n8n-nodes-base.googleCloudStorage",
+        "displayName": "Google Cloud Storage",
+        "category": "Google",
+        "count": 11,
+        "percentage": 0.1
+      },
+      {
+        "type": "n8n-nodes-base.googleBigQuery",
+        "displayName": "Google BigQuery",
+        "category": "Google",
+        "count": 10,
+        "percentage": 0.1
+      },
+      {
+        "type": "n8n-nodes-base.linear",
+        "displayName": "Linear",
+        "category": "Productivity",
+        "count": 10,
+        "percentage": 0.1
+      },
+      {
+        "type": "n8n-nodes-base.mautic",
+        "displayName": "Mautic",
+        "category": "Marketing",
+        "count": 9,
+        "percentage": 0.1
+      },
+      {
+        "type": "n8n-nodes-base.mailgun",
+        "displayName": "Mailgun",
+        "category": "Communication",
+        "count": 8,
+        "percentage": 0.1
+      },
+      {
+        "type": "n8n-nodes-base.pipedriveTrigger",
+        "displayName": "Pipedrive Trigger",
+        "category": "CRM & Sales",
+        "count": 8,
+        "percentage": 0.1
+      },
+      {
+        "type": "n8n-nodes-base.clickUpTrigger",
+        "displayName": "ClickUp Trigger",
+        "category": "Productivity",
+        "count": 8,
+        "percentage": 0.1
+      },
+      {
+        "type": "n8n-nodes-base.readBinaryFiles",
+        "displayName": "Read Binary Files",
+        "category": "Files",
+        "count": 6,
+        "percentage": 0.1
+      },
+      {
+        "type": "n8n-nodes-base.readPdf",
+        "displayName": "Read PDF",
+        "category": "Files",
+        "count": 6,
+        "percentage": 0.1
+      },
+      {
+        "type": "n8n-nodes-base.microsoftSql",
+        "displayName": "Microsoft SQL",
+        "category": "Database & Storage",
+        "count": 6,
+        "percentage": 0.1
+      },
+      {
+        "type": "n8n-nodes-base.jiraTrigger",
+        "displayName": "Jira Trigger",
+        "category": "Productivity",
+        "count": 6,
+        "percentage": 0.1
+      },
+      {
+        "type": "n8n-nodes-base.linearTrigger",
+        "displayName": "Linear Trigger",
+        "category": "Productivity",
+        "count": 6,
+        "percentage": 0.1
+      },
+      {
+        "type": "n8n-nodes-base.ghost",
+        "displayName": "Ghost",
+        "category": "CMS",
+        "count": 6,
+        "percentage": 0.1
+      },
+      {
+        "type": "n8n-nodes-base.lemlist",
+        "displayName": "Lemlist",
+        "category": "Marketing",
+        "count": 6,
+        "percentage": 0.1
+      },
+      {
+        "type": "n8n-nodes-base.snowflake",
+        "displayName": "Snowflake",
+        "category": "Database & Storage",
+        "count": 4,
+        "percentage": 0.1
+      },
+      {
+        "type": "n8n-nodes-base.freshdesk",
+        "displayName": "Freshdesk",
+        "category": "CRM & Sales",
+        "count": 4,
+        "percentage": 0.1
+      },
+      {
+        "type": "n8n-nodes-base.intercom",
+        "displayName": "Intercom",
+        "category": "CRM & Sales",
+        "count": 4,
+        "percentage": 0.1
+      },
+      {
+        "type": "n8n-nodes-base.trelloTrigger",
+        "displayName": "Trello Trigger",
+        "category": "Productivity",
+        "count": 3,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.gitlabTrigger",
+        "displayName": "GitLab Trigger",
+        "category": "Developer Tools",
+        "count": 3,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.strapi",
+        "displayName": "Strapi",
+        "category": "CMS",
+        "count": 3,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.postgresTrigger",
+        "displayName": "Postgres Trigger",
+        "category": "Database & Storage",
+        "count": 2,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.elasticsearch",
+        "displayName": "Elasticsearch",
+        "category": "Database & Storage",
+        "count": 2,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.asanaTrigger",
+        "displayName": "Asana Trigger",
+        "category": "Productivity",
+        "count": 2,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.box",
+        "displayName": "Box",
+        "category": "Other",
+        "count": 2,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.awsLambda",
+        "displayName": "AWS Lambda",
+        "category": "Other",
+        "count": 2,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.workflowTrigger",
+        "displayName": "Workflow Trigger",
+        "category": "Triggers",
+        "count": 1,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.copper",
+        "displayName": "Copper",
+        "category": "CRM & Sales",
+        "count": 1,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.zendeskTrigger",
+        "displayName": "Zendesk Trigger",
+        "category": "CRM & Sales",
+        "count": 1,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.bitbucketTrigger",
+        "displayName": "Bitbucket Trigger",
+        "category": "Developer Tools",
+        "count": 1,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.sentryIo",
+        "displayName": "Sentry.io",
+        "category": "Developer Tools",
+        "count": 1,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.contentful",
+        "displayName": "Contentful",
+        "category": "CMS",
+        "count": 1,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.activeCampaign",
+        "displayName": "ActiveCampaign",
+        "category": "Marketing",
+        "count": 1,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.convertKit",
+        "displayName": "ConvertKit",
+        "category": "Marketing",
+        "count": 1,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.segment",
+        "displayName": "Segment",
+        "category": "Marketing",
+        "count": 1,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.customerIo",
+        "displayName": "Customer.io",
+        "category": "Marketing",
+        "count": 1,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.debug",
+        "displayName": "Debug",
+        "category": "Utility",
+        "count": 0,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.discordTrigger",
+        "displayName": "Discord Trigger",
+        "category": "Communication",
+        "count": 0,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.dynamoDb",
+        "displayName": "DynamoDB",
+        "category": "Database & Storage",
+        "count": 0,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.zoho",
+        "displayName": "Zoho CRM",
+        "category": "CRM & Sales",
+        "count": 0,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.monday",
+        "displayName": "Monday.com",
+        "category": "Productivity",
+        "count": 0,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.bitbucket",
+        "displayName": "Bitbucket",
+        "category": "Developer Tools",
+        "count": 0,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.sentry",
+        "displayName": "Sentry",
+        "category": "Developer Tools",
+        "count": 0,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.googleForms",
+        "displayName": "Google Forms",
+        "category": "Other",
+        "count": 0,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.typeform",
+        "displayName": "Typeform",
+        "category": "Other",
+        "count": 0,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.calendly",
+        "displayName": "Calendly",
+        "category": "Other",
+        "count": 0,
+        "percentage": 0
+      },
+      {
+        "type": "n8n-nodes-base.zapier",
+        "displayName": "Zapier",
+        "category": "Other",
+        "count": 0,
+        "percentage": 0
+      }
+    ]
+  }
+}

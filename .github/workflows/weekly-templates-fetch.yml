@@ -9,7 +9,7 @@ on:
 jobs:
   fetch-all-templates:
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # Script takes ~16 min, add buffer
+    timeout-minutes: 45  # Templates ~16 min, nodes ~2 min, add buffer
 
     steps:
       - name: Checkout repository
@@ -29,12 +29,15 @@ jobs:
       - name: Fetch all templates from n8n API
         run: npx tsx scripts/fetch-all-templates.ts
 
+      - name: Fetch all nodes usage data from n8n API
+        run: npx tsx scripts/fetch-all-nodes.ts
+
       - name: Commit updated data
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add public/data/all-templates-data.json
-          git diff --staged --quiet || git commit -m "Update full templates data (weekly) [skip ci]"
+          git add public/data/all-templates-data.json public/data/all-nodes-data.json
+          git diff --staged --quiet || git commit -m "Update full templates and nodes data (weekly) [skip ci]"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

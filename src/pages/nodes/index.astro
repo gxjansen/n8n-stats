@@ -6,152 +6,81 @@ import { formatNumber, getNodeIntegrationUrl } from '@/lib/utils/formatters';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-// Load complete template data (fetched weekly)
-let allTemplatesData: any = null;
-try {
-  const dataPath = join(process.cwd(), 'public', 'data', 'all-templates-data.json');
-  allTemplatesData = JSON.parse(readFileSync(dataPath, 'utf-8'));
-} catch (e) {
-  console.warn('all-templates-data.json not found, using sample data');
+// Load complete node data (fetched weekly via fetch-all-nodes.ts)
+interface NodeData {
+  type: string;
+  displayName: string;
+  category: string;
+  count: number;
+  percentage: number;
 }
 
-// Load templates raw log for additional node data (includes core nodes like If, Set, etc.)
-interface RawLogEntry {
-  date: string;
-  total: number;
-  topNodes: { name: string; count: number }[];
+interface AllNodesData {
+  lastUpdated: string;
+  fetchDuration: number;
+  totalTemplates: number;
+  nodes: {
+    total: number;
+    withData: number;
+    byCategory: Record<string, NodeData[]>;
+    all: NodeData[];
+  };
 }
-let templatesRawLog: { entries: RawLogEntry[] } = { entries: [] };
+
+let allNodesData: AllNodesData | null = null;
 try {
-  const rawPath = join(process.cwd(), 'public', 'data', 'templates-raw-log.json');
-  templatesRawLog = JSON.parse(readFileSync(rawPath, 'utf-8'));
+  const dataPath = join(process.cwd(), 'public', 'data', 'all-nodes-data.json');
+  allNodesData = JSON.parse(readFileSync(dataPath, 'utf-8'));
 } catch (e) {
-  console.warn('templates-raw-log.json not found');
+  console.warn('all-nodes-data.json not found, using fallback data');
 }
 
 // Also fetch trending templates for comparison
 const { workflows: trendingWorkflows } = await fetchTemplates({ rows: 100 });
 const trendingNodeUsage = aggregateNodeUsage(trendingWorkflows);
 
-// Use complete data if available, otherwise fall back to trending
-const hasCompleteData = !!allTemplatesData?.nodes?.top100;
+// Use complete data if available
+const hasCompleteData = !!allNodesData?.nodes?.all;
 
-// Get nodes from all-templates-data.json (integration nodes)
-let nodeUsage = hasCompleteData
-  ? allTemplatesData.nodes.top100.map((n: any) => ({
-      name: n.name,
+// Get node data from all-nodes-data.json
+const nodeUsage = hasCompleteData
+  ? allNodesData.nodes.all.filter(n => n.count > 0).map(n => ({
+      name: n.type,
       displayName: n.displayName,
       count: n.count,
       percentage: n.percentage,
-      categories: n.categories || [],
+      category: n.category,
     }))
-  : trendingNodeUsage;
+  : trendingNodeUsage.map(n => ({ ...n, category: 'Other' }));
 
-// Merge with templates-raw-log.json (includes core utility nodes like If, Set, etc.)
-const latestRawEntry = templatesRawLog.entries?.[templatesRawLog.entries.length - 1];
-if (latestRawEntry?.topNodes) {
-  const existingNames = new Set(nodeUsage.map((n: any) => n.displayName.toLowerCase()));
-  const totalTemplatesForPercentage = latestRawEntry.total || totalTemplates;
+const totalTemplates = allNodesData?.totalTemplates || 100;
+const uniqueNodes = allNodesData?.nodes?.withData || nodeUsage.length;
+const totalNodes = allNodesData?.nodes?.total || uniqueNodes;
 
-  // Add nodes from raw log that aren't already in nodeUsage
-  const additionalNodes = latestRawEntry.topNodes
-    .filter((n: { name: string; count: number }) => !existingNames.has(n.name.toLowerCase()))
-    .map((n: { name: string; count: number }) => ({
-      name: n.name,
-      displayName: n.name,
-      count: n.count,
-      percentage: Math.round((n.count / totalTemplatesForPercentage) * 1000) / 10,
-      categories: [],
-    }));
+// Calculate total node usages
+const totalNodeUsages = nodeUsage.reduce((sum: number, n: any) => sum + n.count, 0);
 
-  // Merge and re-sort by count
-  nodeUsage = [...nodeUsage, ...additionalNodes].sort((a: any, b: any) => b.count - a.count);
-}
-
-const totalTemplates = allTemplatesData?.totalTemplates || 100;
-const uniqueNodes = allTemplatesData?.nodes?.unique || nodeUsage.length;
-const totalNodeUsages = allTemplatesData?.nodes?.total || 0;
-
-// Group by category based on node names and API categories
-const categorizeNode = (name: string, categories?: string[]) => {
-  // Use API categories if available
-  if (categories?.includes('AI') || categories?.includes('Langchain')) return 'AI';
-
-  const lower = name.toLowerCase();
-
-  // Exact match helper (for short names that could be substrings)
-  const isExact = (word: string) => lower === word.toLowerCase();
-
-  // Word boundary check helper (matches whole word only)
-  const isWord = (word: string) => {
-    const regex = new RegExp(`\\b${word}\\b`, 'i');
-    return regex.test(name);
-  };
-
-  // Flow Control - check first to catch "If" before other rules
-  if (isExact('if') || isExact('switch') || isExact('merge') || isExact('wait') ||
-      lower.includes('split in batches') || lower.includes('loop over') ||
-      lower.includes('no operation') || isExact('noop')) return 'Flow Control';
-
-  // Triggers - workflow entry points
-  if (isExact('schedule') || isExact('manual') || isExact('cron') ||
-      lower.includes('trigger') || lower.includes('webhook')) return 'Triggers';
-
-  // Communication - messaging and social
-  if (isWord('slack') || isWord('discord') || isWord('telegram') || isWord('teams') ||
-      lower.includes('whatsapp') || lower.includes('twilio') ||
-      lower.includes('send email') || isWord('email') ||
-      isWord('twitter') || lower.includes('x (formerly twitter)') ||
-      isWord('linkedin') || isWord('facebook') && !lower.includes('graph api')) return 'Communication';
-
-  // Google services
-  if (isWord('google') || isWord('gmail')) return 'Google';
-
-  // HTTP & APIs
-  if (isWord('http') || lower === 'facebook graph api' || isWord('graphql') ||
-      isWord('ftp') || isWord('sftp') || isWord('ssh')) return 'HTTP & APIs';
-
-  // AI (non-API categorized)
-  if (isWord('openai') || lower.includes('llm') || isWord('anthropic') ||
-      lower.includes('langchain') || lower.includes('embedding') ||
-      lower.includes('vector') || isWord('gemini') || isWord('claude')) return 'AI';
-
-  // Database & Storage
-  if (isWord('mysql') || isWord('postgres') || isWord('mongo') || isWord('database') ||
-      isWord('redis') || isWord('sqlite') || isWord('supabase') ||
-      isWord('airtable') || isWord('notion') || isWord('dynamodb') ||
-      isWord('elasticsearch') || isWord('qdrant') || isWord('pinecone')) return 'Database & Storage';
-
-  // Data Transform
-  if (isWord('code') || lower.includes('function') || lower.includes('edit fields') ||
-      lower.includes('aggregate') || lower === 'filter' || lower === 'sort' ||
-      lower === 'limit' || lower.includes('split out') || lower.includes('html') ||
-      lower.includes('json') || lower.includes('xml') || lower.includes('csv') ||
-      lower.includes('convert') || lower.includes('set')) return 'Data Transform';
-
-  // CRM & Sales
-  if (isWord('hubspot') || isWord('salesforce') || isWord('pipedrive') ||
-      isWord('zoho') || lower.includes('crm')) return 'CRM & Sales';
-
-  // Productivity & Docs
-  if (isWord('wordpress') || isWord('youtube') || isWord('jira') ||
-      isWord('asana') || isWord('trello') || isWord('github') ||
-      isWord('gitlab') || isWord('confluence')) return 'Productivity';
-
-  // Utility (visual/organizational nodes)
-  if (lower.includes('sticky note') || lower.includes('note')) return 'Utility';
-
-  return 'Other';
-};
-
-const categoryOrder = ['Triggers', 'Flow Control', 'Data Transform', 'HTTP & APIs', 'AI', 'Communication', 'Google', 'Database & Storage', 'CRM & Sales', 'Productivity', 'Utility', 'Other'];
-
-const nodesByCategory = nodeUsage.reduce((acc: Record<string, typeof nodeUsage>, node: any) => {
-  const category = categorizeNode(node.displayName, node.categories);
-  if (!acc[category]) acc[category] = [];
-  acc[category].push(node);
-  return acc;
-}, {} as Record<string, typeof nodeUsage>);
+// Define category order and colors
+const categoryOrder = [
+  'Triggers',
+  'Flow Control',
+  'Data Transform',
+  'HTTP & APIs',
+  'AI',
+  'Communication',
+  'Google',
+  'Database & Storage',
+  'Files',
+  'CRM & Sales',
+  'Productivity',
+  'Social Media',
+  'E-Commerce',
+  'Developer Tools',
+  'CMS',
+  'Marketing',
+  'Utility',
+  'Other'
+];
 
 const categoryColors: Record<string, string> = {
   'Triggers': '#22c55e',           // Green - entry points
@@ -162,29 +91,57 @@ const categoryColors: Record<string, string> = {
   'Communication': '#36a2eb',      // Blue - messaging
   'Google': '#4bc0c0',             // Teal - Google suite
   'Database & Storage': '#c9cbcf', // Gray - data storage
+  'Files': '#8b5cf6',              // Violet - file operations
   'CRM & Sales': '#f472b6',        // Pink - sales tools
   'Productivity': '#a78bfa',       // Light purple - productivity
+  'Social Media': '#06b6d4',       // Cyan - social
+  'E-Commerce': '#f59e0b',         // Amber - e-commerce
+  'Developer Tools': '#10b981',    // Emerald - dev tools
+  'CMS': '#ec4899',                // Pink - content management
+  'Marketing': '#ef4444',          // Red - marketing
   'Utility': '#6b7280',            // Dark gray - utility nodes
   'Other': '#7c8798',              // Gray - uncategorized
 };
+
+// Group nodes by category (using pre-categorized data)
+const nodesByCategory: Record<string, typeof nodeUsage> = {};
+if (hasCompleteData && allNodesData?.nodes?.byCategory) {
+  for (const [category, nodes] of Object.entries(allNodesData.nodes.byCategory)) {
+    const filteredNodes = nodes
+      .filter((n: NodeData) => n.count > 0)
+      .map((n: NodeData) => ({
+        name: n.type,
+        displayName: n.displayName,
+        count: n.count,
+        percentage: n.percentage,
+        category: n.category,
+      }));
+    if (filteredNodes.length > 0) {
+      nodesByCategory[category] = filteredNodes;
+    }
+  }
+} else {
+  // Fallback: group all nodes under 'Other'
+  nodesByCategory['Other'] = nodeUsage;
+}
 
 // Prepare treemap data (top 50 nodes with categories)
 const treemapData = nodeUsage.slice(0, 50).map((node: any) => ({
   name: node.displayName,
   count: node.count,
-  category: categorizeNode(node.displayName, node.categories),
+  category: node.category,
 }));
 
 // Get trending-specific nodes (nodes that appear more in trending than overall)
 const getTrendingBoost = () => {
   if (!hasCompleteData) return [];
 
-  const overallMap = new Map(nodeUsage.map((n: any) => [n.name, n.percentage || 0]));
+  const overallMap = new Map(nodeUsage.map((n: any) => [n.displayName, n.percentage || 0]));
 
   return trendingNodeUsage
     .slice(0, 30)
     .map(n => {
-      const overallPct = overallMap.get(n.name) || 0;
+      const overallPct = overallMap.get(n.displayName) || 0;
       const trendingPct = (n.count / 100) * 100; // percentage in trending
       return {
         ...n,
@@ -199,6 +156,15 @@ const getTrendingBoost = () => {
 };
 
 const trendingBoostNodes = getTrendingBoost();
+
+// Format last updated date
+const lastUpdated = allNodesData?.lastUpdated
+  ? new Date(allNodesData.lastUpdated).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
+  : null;
 ---
 
 <BaseLayout title="Node Statistics" description="Most popular nodes in n8n workflow templates">
@@ -207,7 +173,7 @@ const trendingBoostNodes = getTrendingBoost();
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-white mb-2">Node Statistics</h1>
       <p class="text-gray-400">
-        Most used nodes across {formatNumber(totalTemplates)} workflow templates
+        Usage statistics for {totalNodes} n8n nodes across {formatNumber(totalTemplates)} workflow templates
       </p>
     </div>
 
@@ -224,7 +190,7 @@ const trendingBoostNodes = getTrendingBoost();
           <div class="text-3xl font-bold text-purple-400 mb-1">
             {uniqueNodes}
           </div>
-          <div class="text-sm text-gray-400">Unique Nodes Used</div>
+          <div class="text-sm text-gray-400">Nodes With Usage</div>
         </div>
         <div class="card text-center">
           <div class="text-3xl font-bold text-cyan-400 mb-1">
@@ -234,9 +200,9 @@ const trendingBoostNodes = getTrendingBoost();
         </div>
         <div class="card text-center">
           <div class="text-3xl font-bold text-green-400 mb-1">
-            {hasCompleteData ? (totalNodeUsages / totalTemplates).toFixed(1) : '~4'}
+            {Object.keys(nodesByCategory).length}
           </div>
-          <div class="text-sm text-gray-400">Avg Nodes/Template</div>
+          <div class="text-sm text-gray-400">Categories</div>
         </div>
       </div>
     </section>
@@ -291,7 +257,7 @@ const trendingBoostNodes = getTrendingBoost();
       <section class="mb-12">
         <h2 class="text-2xl font-bold text-white mb-2">Hot in Trending Templates</h2>
         <p class="text-gray-400 mb-6">
-          Nodes that appear more often in the top 100 trending templates (ranked by n8n's trending score) compared to all {formatNumber(totalTemplates)} templates.
+          Nodes that appear more often in the top 100 trending templates compared to all {formatNumber(totalTemplates)} templates.
         </p>
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
           {trendingBoostNodes.map((node: any) => (
@@ -334,9 +300,10 @@ const trendingBoostNodes = getTrendingBoost();
               <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <span class="w-3 h-3 rounded" style={`background: ${color}`}></span>
                 {category}
+                <span class="text-sm font-normal text-gray-500">({nodes.length} nodes)</span>
               </h3>
               <div class="space-y-3">
-                {nodes.slice(0, 6).map((node: any) => {
+                {nodes.slice(0, 8).map((node: any) => {
                   const percentage = (node.count / maxCount) * 100;
                   return (
                     <a
@@ -359,6 +326,11 @@ const trendingBoostNodes = getTrendingBoost();
                   );
                 })}
               </div>
+              {nodes.length > 8 && (
+                <p class="text-xs text-gray-500 mt-3">
+                  + {nodes.length - 8} more nodes in this category
+                </p>
+              )}
             </div>
           );
         })}
@@ -368,7 +340,7 @@ const trendingBoostNodes = getTrendingBoost();
     <!-- Note -->
     <p class="text-sm text-gray-500 text-center mt-8">
       {hasCompleteData
-        ? `Node data from ${formatNumber(totalTemplates)} templates. Note: Some categories (like Flow Control) have fewer nodes due to n8n API limitations on which nodes are included in template metadata.`
+        ? `Data collected by querying each of ${totalNodes} nodes individually against ${formatNumber(totalTemplates)} templates.${lastUpdated ? ` Last updated: ${lastUpdated}.` : ''}`
         : 'Statistics based on trending templates sample. Full data coming soon.'
       }
     </p>

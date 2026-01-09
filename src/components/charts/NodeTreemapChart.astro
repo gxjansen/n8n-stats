@@ -45,14 +45,24 @@ const { data } = Astro.props;
   }
 
   const CATEGORY_COLORS: Record<string, string> = {
-    'HTTP & Webhooks': '#ff6384',
-    'AI': '#9966ff',
-    'Google': '#4bc0c0',
-    'Communication': '#36a2eb',
-    'Data Transform': '#ffce56',
-    'Flow Control': '#ff9f40',
-    'Database': '#c9cbcf',
-    'Other': '#7c8798',
+    'Triggers': '#22c55e',           // Green - entry points
+    'Flow Control': '#ff9f40',       // Orange - logic flow
+    'Data Transform': '#ffce56',     // Yellow - data manipulation
+    'HTTP & APIs': '#ff6384',        // Red - external calls
+    'AI': '#9966ff',                 // Purple - AI/ML
+    'Communication': '#36a2eb',      // Blue - messaging
+    'Google': '#4bc0c0',             // Teal - Google suite
+    'Database & Storage': '#c9cbcf', // Gray - data storage
+    'Files': '#8b5cf6',              // Violet - file operations
+    'CRM & Sales': '#f472b6',        // Pink - sales tools
+    'Productivity': '#a78bfa',       // Light purple - productivity
+    'Social Media': '#06b6d4',       // Cyan - social
+    'E-Commerce': '#f59e0b',         // Amber - e-commerce
+    'Developer Tools': '#10b981',    // Emerald - dev tools
+    'CMS': '#ec4899',                // Pink - content management
+    'Marketing': '#ef4444',          // Red - marketing
+    'Utility': '#6b7280',            // Dark gray - utility nodes
+    'Other': '#7c8798',              // Gray - uncategorized
   };
 
   function initTreemap() {
