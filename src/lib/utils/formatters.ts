@@ -75,15 +75,47 @@ export function truncate(text: string, maxLength: number): string {
 }
 
 /**
+ * UTM parameters for n8n.io links
+ */
+const UTM_PARAMS = {
+  source: 'n8n-stats-by-guido-jansen',
+  medium: 'website',
+};
+
+/**
+ * Add UTM tracking codes to an n8n.io URL
+ */
+export function addUtmCodes(url: string, campaign: string): string {
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}utm_source=${UTM_PARAMS.source}&utm_medium=${UTM_PARAMS.medium}&utm_campaign=${campaign}`;
+}
+
+/**
+ * n8n.io URL builders with UTM tracking
+ */
+export const n8nUrls = {
+  integration: (slug: string) => addUtmCodes(`https://n8n.io/integrations/${slug}/`, 'integrations'),
+  workflow: (id: number | string) => addUtmCodes(`https://n8n.io/workflows/${id}`, 'templates'),
+  creator: (username: string) => addUtmCodes(`https://n8n.io/creators/${username}`, 'creators'),
+  creators: () => addUtmCodes('https://n8n.io/creators', 'creators'),
+  workflows: () => addUtmCodes('https://n8n.io/workflows', 'templates'),
+  workflowsCategory: (category: string) => addUtmCodes(`https://n8n.io/workflows/?category=${encodeURIComponent(category)}`, 'templates'),
+  integrations: () => addUtmCodes('https://n8n.io/integrations', 'integrations'),
+  home: () => addUtmCodes('https://n8n.io', 'home'),
+  community: () => addUtmCodes('https://community.n8n.io', 'community'),
+  communityCategory: (slug: string, id: number) => addUtmCodes(`https://community.n8n.io/c/${slug}/${id}`, 'community'),
+};
+
+/**
  * Generate n8n integrations page URL from node display name
- * e.g., "HTTP Request" -> "https://n8n.io/integrations/http-request/"
+ * e.g., "HTTP Request" -> "https://n8n.io/integrations/http-request/?utm_source=..."
  */
 export function getNodeIntegrationUrl(displayName: string): string {
   const slug = displayName
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')  // Replace non-alphanumeric with dashes
     .replace(/^-+|-+$/g, '');      // Trim leading/trailing dashes
-  return `https://n8n.io/integrations/${slug}/`;
+  return n8nUrls.integration(slug);
 }
 
 /**
