@@ -1,0 +1,342 @@
+---
+/**
+ * Interactive GitHub Issues Chart
+ *
+ * Client-side component that:
+ * - Loads history data from /data/github-history.json
+ * - Shows issues opened/closed per month as bars
+ * - Shows cumulative open issues as a line
+ */
+---
+
+<div id="github-issues-chart-container" class="card">
+  <!-- Controls -->
+  <div class="flex flex-wrap items-center gap-4 mb-6">
+    <!-- Date Range -->
+    <div class="flex items-center gap-2">
+      <label class="text-sm text-gray-400">Range:</label>
+      <select id="issues-date-range" class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary">
+        <option value="12">Last 12 months</option>
+        <option value="24" selected>Last 24 months</option>
+        <option value="36">Last 3 years</option>
+        <option value="all">All time</option>
+      </select>
+    </div>
+
+    <!-- Show Open Issues Toggle -->
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="checkbox" id="issues-show-open" checked class="w-4 h-4 rounded border-gray-600 bg-n8n-darker text-n8n-primary focus:ring-n8n-primary focus:ring-offset-0">
+      <span class="text-sm text-gray-400">Show open issues (cumulative)</span>
+    </label>
+  </div>
+
+  <!-- Chart Canvas -->
+  <div class="relative" style="height: 400px;">
+    <canvas id="github-issues-chart"></canvas>
+  </div>
+
+  <!-- Legend -->
+  <div id="github-issues-legend" class="flex items-center justify-center gap-6 mt-4 text-sm">
+    <div class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded bg-[#da3633]"></span>
+      <span class="text-gray-400">Issues Opened</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded bg-[#238636]"></span>
+      <span class="text-gray-400">Issues Closed</span>
+    </div>
+    <div id="issues-legend-open" class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#f85149]"></span>
+      <span class="text-gray-400">Open Issues (Total)</span>
+    </div>
+  </div>
+
+  <!-- Loading/Error States -->
+  <div id="issues-chart-loading" class="absolute inset-0 flex items-center justify-center bg-n8n-card/80">
+    <span class="text-gray-400">Loading chart data...</span>
+  </div>
+  <div id="issues-chart-error" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
+    <span class="text-red-400">Failed to load chart data</span>
+  </div>
+</div>
+
+<script>
+  import Chart from 'chart.js/auto';
+
+  interface GitHubDataPoint {
+    date: string;
+    stars: number;
+    forks: number;
+    watchers: number;
+    openIssues: number;
+    issuesOpened?: number;
+    issuesClosed?: number;
+    source?: string;
+  }
+
+  interface GitHubHistory {
+    lastUpdated: string;
+    daily: GitHubDataPoint[];
+    weekly: GitHubDataPoint[];
+    monthly: GitHubDataPoint[];
+  }
+
+  interface ChartDataPoint {
+    date: string;
+    opened: number;
+    closed: number;
+    openIssues: number;
+  }
+
+  let chart: Chart | null = null;
+  let chartData: ChartDataPoint[] = [];
+
+  const COLORS = {
+    opened: { border: '#da3633', background: 'rgba(218, 54, 51, 0.8)' },
+    closed: { border: '#238636', background: 'rgba(35, 134, 54, 0.8)' },
+    openIssues: { border: '#f85149', background: 'rgba(248, 81, 73, 0.1)' },
+  };
+
+  async function loadData(): Promise<ChartDataPoint[]> {
+    try {
+      const response = await fetch('/data/github-history.json');
+      if (!response.ok) throw new Error('Failed to fetch');
+      const data: GitHubHistory = await response.json();
+
+      return data.monthly
+        .filter(point => point.issuesOpened !== undefined)
+        .map(point => ({
+          date: point.date,
+          opened: point.issuesOpened || 0,
+          closed: point.issuesClosed || 0,
+          openIssues: point.openIssues || 0,
+        }));
+    } catch (error) {
+      console.error('Failed to load history data:', error);
+      return [];
+    }
+  }
+
+  function filterByMonths(points: ChartDataPoint[], months: number | 'all'): ChartDataPoint[] {
+    if (months === 'all') return points;
+    return points.slice(-months);
+  }
+
+  function getDateRange(): number | 'all' {
+    const value = (document.getElementById('issues-date-range') as HTMLSelectElement).value;
+    return value === 'all' ? 'all' : parseInt(value, 10);
+  }
+
+  function showOpenIssues(): boolean {
+    return (document.getElementById('issues-show-open') as HTMLInputElement).checked;
+  }
+
+  function updateChart() {
+    if (chartData.length === 0) return;
+
+    const range = getDateRange();
+    const includeOpen = showOpenIssues();
+
+    const filteredData = filterByMonths(chartData, range);
+
+    if (filteredData.length === 0) {
+      return;
+    }
+
+    // Show/hide open issues legend
+    const openLegend = document.getElementById('issues-legend-open');
+    if (includeOpen) {
+      openLegend?.classList.remove('hidden');
+    } else {
+      openLegend?.classList.add('hidden');
+    }
+
+    const labels = filteredData.map(d => d.date);
+    const datasets: any[] = [
+      {
+        label: 'Issues Opened',
+        data: filteredData.map(d => d.opened),
+        borderColor: COLORS.opened.border,
+        backgroundColor: COLORS.opened.background,
+        type: 'bar',
+        yAxisID: 'y',
+        order: 2,
+      },
+      {
+        label: 'Issues Closed',
+        data: filteredData.map(d => d.closed),
+        borderColor: COLORS.closed.border,
+        backgroundColor: COLORS.closed.background,
+        type: 'bar',
+        yAxisID: 'y',
+        order: 3,
+      },
+    ];
+
+    if (includeOpen) {
+      datasets.push({
+        label: 'Open Issues (Total)',
+        data: filteredData.map(d => d.openIssues),
+        borderColor: COLORS.openIssues.border,
+        backgroundColor: COLORS.openIssues.background,
+        fill: true,
+        tension: 0.1,
+        pointRadius: filteredData.length > 60 ? 0 : 3,
+        pointHoverRadius: 5,
+        yAxisID: 'y1',
+        type: 'line',
+        order: 1,
+      });
+    }
+
+    if (chart) {
+      chart.data.labels = labels;
+      chart.data.datasets = datasets;
+      if ((chart.options.scales as any)?.y1) {
+        (chart.options.scales as any).y1.display = includeOpen;
+      }
+      chart.update();
+    }
+  }
+
+  async function initChart() {
+    const canvas = document.getElementById('github-issues-chart') as HTMLCanvasElement;
+    const loadingEl = document.getElementById('issues-chart-loading');
+    const errorEl = document.getElementById('issues-chart-error');
+
+    chartData = await loadData();
+
+    loadingEl?.classList.add('hidden');
+
+    if (chartData.length === 0) {
+      errorEl?.classList.remove('hidden');
+      return;
+    }
+
+    const range = getDateRange();
+    const includeOpen = showOpenIssues();
+
+    const filteredData = filterByMonths(chartData, range);
+    const labels = filteredData.map(d => d.date);
+
+    const datasets: any[] = [
+      {
+        label: 'Issues Opened',
+        data: filteredData.map(d => d.opened),
+        borderColor: COLORS.opened.border,
+        backgroundColor: COLORS.opened.background,
+        type: 'bar',
+        yAxisID: 'y',
+        order: 2,
+      },
+      {
+        label: 'Issues Closed',
+        data: filteredData.map(d => d.closed),
+        borderColor: COLORS.closed.border,
+        backgroundColor: COLORS.closed.background,
+        type: 'bar',
+        yAxisID: 'y',
+        order: 3,
+      },
+    ];
+
+    if (includeOpen) {
+      datasets.push({
+        label: 'Open Issues (Total)',
+        data: filteredData.map(d => d.openIssues),
+        borderColor: COLORS.openIssues.border,
+        backgroundColor: COLORS.openIssues.background,
+        fill: true,
+        tension: 0.1,
+        pointRadius: filteredData.length > 60 ? 0 : 3,
+        pointHoverRadius: 5,
+        yAxisID: 'y1',
+        type: 'line',
+        order: 1,
+      });
+    }
+
+    chart = new Chart(canvas, {
+      type: 'bar',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#fff',
+            bodyColor: '#9ca3af',
+            borderColor: '#333',
+            borderWidth: 1,
+            callbacks: {
+              label: (context) => {
+                const value = context.parsed.y;
+                return `${context.dataset.label}: ${value.toLocaleString()}`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: { color: '#6b7280', maxRotation: 45 },
+          },
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: '#6b7280',
+            },
+            title: {
+              display: true,
+              text: 'Issues / Month',
+              color: '#6b7280',
+            },
+          },
+          y1: {
+            type: 'linear',
+            display: includeOpen,
+            position: 'right',
+            grid: { drawOnChartArea: false },
+            ticks: {
+              color: '#f85149',
+            },
+            title: {
+              display: true,
+              text: 'Open Issues (Total)',
+              color: '#f85149',
+            },
+          },
+        },
+      },
+    });
+
+    // Attach event listeners
+    document.getElementById('issues-date-range')?.addEventListener('change', updateChart);
+    document.getElementById('issues-show-open')?.addEventListener('change', updateChart);
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initChart);
+  } else {
+    initChart();
+  }
+</script>
+
+<style>
+  #github-issues-chart-container {
+    position: relative;
+  }
+</style>

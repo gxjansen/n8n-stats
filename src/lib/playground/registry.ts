@@ -48,6 +48,8 @@ const COLORS = {
   forks: '#6e7681',      // Gray
   watchers: '#58a6ff',   // Blue
   issues: '#f85149',     // Red
+  issuesOpened: '#da3633', // Darker red
+  issuesClosed: '#238636', // Green (closed = resolved)
 
   // Community
   users: '#22c55e',      // Green
@@ -86,6 +88,8 @@ export const DATA_SOURCES: DataSource[] = [
       { id: 'github-forks', label: 'GitHub Forks', color: COLORS.forks, path: 'forks', excludeZero: true },
       { id: 'github-watchers', label: 'GitHub Watchers', color: COLORS.watchers, path: 'watchers', excludeZero: true },
       { id: 'github-issues', label: 'Open Issues', color: COLORS.issues, path: 'openIssues', excludeZero: true },
+      { id: 'github-issues-opened', label: 'Issues Opened/Month', color: COLORS.issuesOpened, path: 'issuesOpened' },
+      { id: 'github-issues-closed', label: 'Issues Closed/Month', color: COLORS.issuesClosed, path: 'issuesClosed' },
     ],
   },
   {
