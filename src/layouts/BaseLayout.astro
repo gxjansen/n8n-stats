@@ -1,5 +1,6 @@
 ---
 import '@/styles/global.css';
+import { n8nUrls } from '@/lib/utils/formatters';
 
 interface Props {
   title: string;
@@ -64,7 +65,7 @@ const { title, description = 'Community health dashboard and ecosystem explorer 
             Made by <a href="https://gui.do" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Guido X Jansen</a>
           </p>
           <div class="flex items-center gap-4">
-            <a href="https://n8n.io" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+            <a href={n8nUrls.home()} target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
               n8n.io
             </a>
             <a href="https://n8narena.com/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">

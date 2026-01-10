@@ -2,8 +2,10 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TemplatesHistoryChart from '@/components/charts/TemplatesHistoryChart.astro';
 import CategoryTreemapChart from '@/components/charts/CategoryTreemapChart.astro';
+import MilestonePrediction from '@/components/cards/MilestonePrediction.astro';
 import { fetchTemplateAnalytics } from '@/lib/api/n8n';
-import { formatNumber } from '@/lib/utils/formatters';
+import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
+import { predictMilestone, getNextMilestones } from '@/lib/utils/predictions';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
@@ -72,6 +74,19 @@ const complexityData = allTemplatesData?.complexity?.distribution || analytics.n
 // Creation timeline from complete data
 const creationTimeline = allTemplatesData?.timeline?.monthly || [];
 
+// Prepare template history for milestone predictions
+const templateHistory = creationTimeline.map((d: { month: string; cumulative: number }) => ({
+  date: d.month,
+  value: d.cumulative,
+}));
+
+// Calculate milestone predictions for templates
+const currentTemplates = templateHistory.length > 0 ? templateHistory[templateHistory.length - 1].value : 0;
+const templateMilestones = getNextMilestones(currentTemplates, 'generic');
+const templatePredictions = templateMilestones.map(milestone =>
+  predictMilestone(templateHistory, milestone, { lookbackMonths: 6 })
+);
+
 // AI categories breakdown for horizontal bar chart
 const aiCategoriesData = analytics.aiStats.aiCategories;
 
@@ -133,6 +148,29 @@ const completeDataStats = allTemplatesData ? {
       </p>
       <TemplatesHistoryChart />
     </section>
+
+    <!-- Template Milestones -->
+    {templatePredictions.length > 0 && templatePredictions.some(p => p.predictedDate) && (
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold text-white mb-2">Template Milestones</h2>
+        <p class="text-gray-400 mb-6">
+          Predicted dates based on recent growth trends (last 6 months)
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {templatePredictions.map((pred) => (
+            <MilestonePrediction
+              label="Total Templates"
+              milestone={pred.milestone}
+              predictedDate={pred.predictedDate}
+              daysUntil={pred.daysUntil}
+              confidence={pred.confidence}
+              currentValue={pred.currentValue}
+              icon="📋"
+            />
+          ))}
+        </div>
+      </section>
+    )}
 
     <!-- AI Dominance - uses complete API data -->
     <section class="mb-12">
@@ -232,7 +270,7 @@ const completeDataStats = allTemplatesData ? {
           </p>
         </div>
         <a
-          href="https://n8n.io/creators"
+          href={n8nUrls.creators()}
           target="_blank"
           rel="noopener noreferrer"
           class="text-n8n-primary hover:text-n8n-primary/80 text-sm font-medium transition-colors"
@@ -243,7 +281,7 @@ const completeDataStats = allTemplatesData ? {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         {analytics.topCreators.slice(0, 10).map((creator, index) => (
           <a
-            href={`https://n8n.io/creators/${creator.username}`}
+            href={n8nUrls.creator(creator.username)}
             target="_blank"
             rel="noopener noreferrer"
             class="card flex items-center gap-3 hover:bg-n8n-darker/50 transition-colors"
@@ -347,21 +385,6 @@ const completeDataStats = allTemplatesData ? {
       </div>
     </section>
 
-    <!-- Template Creation Timeline - Complete Data -->
-    {creationTimeline.length > 0 && (
-      <section class="mb-12">
-        <h2 class="text-2xl font-bold text-white mb-4">Template Creation Timeline</h2>
-        <p class="text-gray-400 mb-6">
-          Monthly breakdown of template submissions since {creationTimeline[0]?.month || '2019'}
-        </p>
-        <div class="card">
-          <div class="relative" style="height: 300px;">
-            <canvas id="timeline-chart"></canvas>
-          </div>
-        </div>
-      </section>
-    )}
-
     <!-- Top Creators by Insertions (Arena Data) -->
     {topCreatorsByInsertions.length > 0 && (
       <section class="mb-12">
@@ -384,7 +407,7 @@ const completeDataStats = allTemplatesData ? {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           {topCreatorsByInsertions.map((creator, index) => (
             <a
-              href={`https://n8n.io/creators/${creator.username}`}
+              href={n8nUrls.creator(creator.username)}
               target="_blank"
               rel="noopener noreferrer"
               class="card flex items-center gap-3 hover:bg-n8n-darker/50 transition-colors py-3"
@@ -441,7 +464,7 @@ const completeDataStats = allTemplatesData ? {
           </p>
         </div>
         <a
-          href="https://n8n.io/workflows"
+          href={n8nUrls.workflows()}
           target="_blank"
           rel="noopener noreferrer"
           class="text-n8n-primary hover:text-n8n-primary/80 text-sm font-medium transition-colors"
@@ -452,7 +475,7 @@ const completeDataStats = allTemplatesData ? {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         {topTemplatesByViews.slice(0, 10).map((template, index) => (
           <a
-            href={`https://n8n.io/workflows/${template.id}`}
+            href={n8nUrls.workflow(template.id)}
             target="_blank"
             rel="noopener noreferrer"
             class="card flex items-center gap-3 hover:bg-n8n-darker/50 transition-colors py-3"
@@ -559,7 +582,7 @@ const completeDataStats = allTemplatesData ? {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {templates.map((template) => (
                   <a
-                    href={`https://n8n.io/workflows/${template.id}`}
+                    href={n8nUrls.workflow(template.id)}
                     target="_blank"
                     rel="noopener noreferrer"
                     class="flex items-center gap-3 p-3 rounded-lg bg-n8n-darker/50 hover:bg-n8n-darker transition-colors"
@@ -592,7 +615,7 @@ const completeDataStats = allTemplatesData ? {
         Want to explore individual templates?
       </p>
       <a
-        href="https://n8n.io/workflows"
+        href={n8nUrls.workflows()}
         target="_blank"
         rel="noopener noreferrer"
         class="inline-block px-6 py-3 bg-n8n-primary text-white rounded-lg font-medium hover:bg-n8n-primary/90 transition-colors"
@@ -608,8 +631,8 @@ const completeDataStats = allTemplatesData ? {
   </div>
 </BaseLayout>
 
-<script define:vars={{ viewsData, complexityData, creationTimeline }}>
-  window.__templateChartData = { viewsData, complexityData, creationTimeline };
+<script define:vars={{ viewsData, complexityData }}>
+  window.__templateChartData = { viewsData, complexityData };
 </script>
 
 <script>
@@ -626,20 +649,13 @@ const completeDataStats = allTemplatesData ? {
     count: number;
   }
 
-  interface TimelineItem {
-    month: string;
-    count: number;
-    cumulative: number;
-  }
-
   function initCharts() {
     const data = (window as any).__templateChartData;
     if (!data) return;
 
-    const { viewsData, complexityData, creationTimeline } = data as {
+    const { viewsData, complexityData } = data as {
       viewsData: ChartDataItem[];
       complexityData: ComplexityItem[];
-      creationTimeline: TimelineItem[];
     };
 
     // Map tier labels to tier keys
@@ -836,77 +852,6 @@ const completeDataStats = allTemplatesData ? {
               title: {
                 display: true,
                 text: 'Templates',
-                color: '#6b7280',
-              },
-              grid: { color: 'rgba(255,255,255,0.05)' },
-              ticks: { color: '#6b7280' },
-              beginAtZero: true,
-            },
-          },
-        },
-      });
-    }
-
-    // Creation Timeline Chart
-    const timelineCanvas = document.getElementById('timeline-chart') as HTMLCanvasElement;
-    if (timelineCanvas && creationTimeline.length > 0) {
-      // Format month labels (YYYY-MM -> MMM YY)
-      const formatMonth = (m: string) => {
-        const [year, month] = m.split('-');
-        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        return `${monthNames[parseInt(month) - 1]} ${year.slice(2)}`;
-      };
-
-      new Chart(timelineCanvas, {
-        type: 'bar',
-        data: {
-          labels: creationTimeline.map(d => formatMonth(d.month)),
-          datasets: [{
-            label: 'New Templates',
-            data: creationTimeline.map(d => d.count),
-            backgroundColor: '#ff6b9d',
-            borderColor: '#ff6b9d',
-            borderWidth: 0,
-            borderRadius: 2,
-          }],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: '#1e1e1e',
-              titleColor: '#fff',
-              bodyColor: '#9ca3af',
-              borderColor: '#333',
-              borderWidth: 1,
-              callbacks: {
-                label: (ctx) => {
-                  const item = creationTimeline[ctx.dataIndex];
-                  return [
-                    `${ctx.parsed.y.toLocaleString()} new templates`,
-                    `Total: ${item.cumulative.toLocaleString()}`,
-                  ];
-                },
-              },
-            },
-          },
-          scales: {
-            x: {
-              grid: { display: false },
-              ticks: {
-                color: '#6b7280',
-                maxRotation: 45,
-                minRotation: 45,
-                autoSkip: true,
-                maxTicksLimit: 24,
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: 'New Templates',
                 color: '#6b7280',
               },
               grid: { color: 'rgba(255,255,255,0.05)' },

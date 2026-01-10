@@ -1,5 +1,5 @@
 ---
-import { formatNumber, truncate } from '@/lib/utils/formatters';
+import { formatNumber, truncate, n8nUrls } from '@/lib/utils/formatters';
 import type { Template } from '@/lib/types';
 
 interface Props {
@@ -33,7 +33,7 @@ const remainingCount = Math.max(0, template.nodes.length - 3);
   <!-- Title -->
   <h3 class="font-semibold text-white group-hover:text-n8n-primary transition-colors">
     <a
-      href={`https://n8n.io/workflows/${template.id}`}
+      href={n8nUrls.workflow(template.id)}
       target="_blank"
       rel="noopener noreferrer"
       class="hover:underline"

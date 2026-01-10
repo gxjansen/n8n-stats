@@ -159,7 +159,7 @@ const { data } = Astro.props;
             const slug = item?.slug;
             const id = item?.id;
             if (slug && id) {
-              const url = `https://community.n8n.io/c/${slug}/${id}`;
+              const url = `https://community.n8n.io/c/${slug}/${id}?utm_source=n8n-stats-by-guido-jansen&utm_medium=website&utm_campaign=community`;
               window.open(url, '_blank', 'noopener,noreferrer');
             }
           }

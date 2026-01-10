@@ -133,8 +133,8 @@ const { data } = Astro.props;
             const item = (chart.data.datasets[0] as any).tree[element.index];
             const categoryName = item?.name || '';
             if (categoryName) {
-              // Open n8n.io filtered by category
-              const url = `https://n8n.io/workflows/?category=${encodeURIComponent(categoryName)}`;
+              // Open n8n.io filtered by category (with UTM tracking)
+              const url = `https://n8n.io/workflows/?category=${encodeURIComponent(categoryName)}&utm_source=n8n-stats-by-guido-jansen&utm_medium=website&utm_campaign=templates&ps_partner_key=YzE1OGQyZDU0MDc4&ps_xid=LP1r2oH0YFiZf0&gsxid=LP1r2oH0YFiZf0&gspk=YzE1OGQyZDU0MDc4`;
               window.open(url, '_blank', 'noopener,noreferrer');
             }
           }

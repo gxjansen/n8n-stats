@@ -8,7 +8,7 @@ import EcosystemGrowthChart from '@/components/charts/EcosystemGrowthChart.astro
 import { fetchTemplates } from '@/lib/api/n8n';
 import { fetchGitHubStats } from '@/lib/api/github';
 import { fetchForumStats } from '@/lib/api/discourse';
-import { formatNumber } from '@/lib/utils/formatters';
+import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -288,12 +288,12 @@ const buildTime = new Date().toISOString();
         <StatCard
           label="Community Members"
           value={stats.forumUsers}
-          href="https://community.n8n.io"
+          href={n8nUrls.community()}
         />
         <StatCard
           label="Integrations"
           value={stats.integrations}
-          href="https://n8n.io/integrations"
+          href={n8nUrls.integrations()}
         />
       </div>
     </section>

@@ -83,7 +83,12 @@ const UTM_PARAMS = {
 };
 
 /**
- * Add UTM tracking codes to an n8n.io URL
+ * Partner/affiliate tracking parameters for n8n.io
+ */
+const PARTNER_PARAMS = 'ps_partner_key=YzE1OGQyZDU0MDc4&ps_xid=LP1r2oH0YFiZf0&gsxid=LP1r2oH0YFiZf0&gspk=YzE1OGQyZDU0MDc4';
+
+/**
+ * Add UTM tracking codes to a URL (for community.n8n.io - no partner tracking)
  */
 export function addUtmCodes(url: string, campaign: string): string {
   const separator = url.includes('?') ? '&' : '?';
@@ -91,17 +96,26 @@ export function addUtmCodes(url: string, campaign: string): string {
 }
 
 /**
- * n8n.io URL builders with UTM tracking
+ * Add UTM + partner tracking codes to n8n.io URLs
+ */
+export function addN8nTracking(url: string, campaign: string): string {
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}utm_source=${UTM_PARAMS.source}&utm_medium=${UTM_PARAMS.medium}&utm_campaign=${campaign}&${PARTNER_PARAMS}`;
+}
+
+/**
+ * n8n.io URL builders with UTM + partner tracking
  */
 export const n8nUrls = {
-  integration: (slug: string) => addUtmCodes(`https://n8n.io/integrations/${slug}/`, 'integrations'),
-  workflow: (id: number | string) => addUtmCodes(`https://n8n.io/workflows/${id}`, 'templates'),
-  creator: (username: string) => addUtmCodes(`https://n8n.io/creators/${username}`, 'creators'),
-  creators: () => addUtmCodes('https://n8n.io/creators', 'creators'),
-  workflows: () => addUtmCodes('https://n8n.io/workflows', 'templates'),
-  workflowsCategory: (category: string) => addUtmCodes(`https://n8n.io/workflows/?category=${encodeURIComponent(category)}`, 'templates'),
-  integrations: () => addUtmCodes('https://n8n.io/integrations', 'integrations'),
-  home: () => addUtmCodes('https://n8n.io', 'home'),
+  integration: (slug: string) => addN8nTracking(`https://n8n.io/integrations/${slug}/`, 'integrations'),
+  workflow: (id: number | string) => addN8nTracking(`https://n8n.io/workflows/${id}`, 'templates'),
+  creator: (username: string) => addN8nTracking(`https://n8n.io/creators/${username}`, 'creators'),
+  creators: () => addN8nTracking('https://n8n.io/creators', 'creators'),
+  workflows: () => addN8nTracking('https://n8n.io/workflows', 'templates'),
+  workflowsCategory: (category: string) => addN8nTracking(`https://n8n.io/workflows/?category=${encodeURIComponent(category)}`, 'templates'),
+  integrations: () => addN8nTracking('https://n8n.io/integrations', 'integrations'),
+  home: () => addN8nTracking('https://n8n.io', 'home'),
+  // Community uses UTM only (different domain, partner tracking likely n8n.io only)
   community: () => addUtmCodes('https://community.n8n.io', 'community'),
   communityCategory: (slug: string, id: number) => addUtmCodes(`https://community.n8n.io/c/${slug}/${id}`, 'community'),
 };

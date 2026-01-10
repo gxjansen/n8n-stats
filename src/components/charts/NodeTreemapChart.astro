@@ -65,13 +65,13 @@ const { data } = Astro.props;
     'Other': '#7c8798',              // Gray - uncategorized
   };
 
-  // Generate n8n integrations URL from node name
+  // Generate n8n integrations URL from node name (with UTM + partner tracking)
   function getNodeIntegrationUrl(name: string): string {
     const slug = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
-    return `https://n8n.io/integrations/${slug}/`;
+    return `https://n8n.io/integrations/${slug}/?utm_source=n8n-stats-by-guido-jansen&utm_medium=website&utm_campaign=integrations&ps_partner_key=YzE1OGQyZDU0MDc4&ps_xid=LP1r2oH0YFiZf0&gsxid=LP1r2oH0YFiZf0&gspk=YzE1OGQyZDU0MDc4`;
   }
 
   function initTreemap() {
