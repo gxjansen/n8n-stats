@@ -322,6 +322,32 @@ function buildTemplatesHistory(snapshots: Map<string, any>): TemplatesHistory {
   };
 }
 
+// Build Events history for playground (normalized from events.json)
+function buildEventsHistory(): { monthly: Array<{ date: string; events: number; registrations: number }> } | null {
+  const eventsPath = join(DATA_DIR, 'history', 'events.json');
+
+  if (!existsSync(eventsPath)) {
+    console.log('No events data found, skipping');
+    return null;
+  }
+
+  const eventsData = JSON.parse(readFileSync(eventsPath, 'utf-8'));
+
+  if (!eventsData.byMonth || !Array.isArray(eventsData.byMonth)) {
+    console.log('No byMonth data in events.json, skipping');
+    return null;
+  }
+
+  // Transform to playground-compatible format
+  const monthly = eventsData.byMonth.map((m: { month: string; count: number; registrations: number }) => ({
+    date: m.month, // Already in YYYY-MM format
+    events: m.count,
+    registrations: m.registrations,
+  }));
+
+  return { monthly };
+}
+
 // Build Creators history from n8n Arena
 function buildCreatorsHistory(): CreatorsHistory {
   const creatorsPath = join(EXTERNAL_DIR, 'n8narena-creators.json');
@@ -395,6 +421,13 @@ async function main() {
   const creators = buildCreatorsHistory();
   writeFileSync(join(HISTORY_DIR, 'creators.json'), JSON.stringify(creators, null, 2));
   console.log(`  ${creators.totalCreators} creators, ${creators.totalInserters.toLocaleString()} total inserters`);
+
+  console.log('\nBuilding Events history...');
+  const events = buildEventsHistory();
+  if (events) {
+    writeFileSync(join(HISTORY_DIR, 'events-history.json'), JSON.stringify(events, null, 2));
+    console.log(`  ${events.monthly.length} monthly entries`);
+  }
 
   console.log('\n--- Done ---');
   console.log(`History files written to ${HISTORY_DIR}`);

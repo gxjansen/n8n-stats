@@ -70,6 +70,10 @@ const COLORS = {
   // Discord
   discordMembers: '#5865f2',    // Discord blue
   discordOnline: '#57f287',     // Discord green
+
+  // Events
+  eventsCount: '#ff6d5a',       // n8n coral/red
+  eventsRegistrations: '#10b981', // Green
 };
 
 export const DATA_SOURCES: DataSource[] = [
@@ -184,6 +188,21 @@ export const DATA_SOURCES: DataSource[] = [
     metrics: [
       { id: 'discord-members', label: 'Discord Members', color: COLORS.discordMembers, path: 'members', excludeZero: true },
       { id: 'discord-online', label: 'Discord Online', color: COLORS.discordOnline, path: 'online', excludeZero: true },
+    ],
+  },
+  {
+    id: 'events',
+    label: 'Community Events',
+    shortLabel: 'Events',
+    file: '/data/history/events-history.json',
+    type: 'timeseries',
+    granularities: ['monthly'],
+    defaultGranularity: 'monthly',
+    historyStart: '2021-04',
+    measuredSince: '2021-04', // All data from Luma calendar (scraped)
+    metrics: [
+      { id: 'events-count', label: 'Events/Month', color: COLORS.eventsCount, path: 'events' },
+      { id: 'events-registrations', label: 'Registrations/Month', color: COLORS.eventsRegistrations, path: 'registrations' },
     ],
   },
 ];
