@@ -323,6 +323,7 @@ function buildTemplatesHistory(snapshots: Map<string, any>): TemplatesHistory {
 }
 
 // Build Events history for playground (normalized from events.json)
+// Only includes past events - excludes future months to avoid skewing correlation statistics
 function buildEventsHistory(): { monthly: Array<{ date: string; events: number; registrations: number }> } | null {
   const eventsPath = join(DATA_DIR, 'history', 'events.json');
 
@@ -338,12 +339,18 @@ function buildEventsHistory(): { monthly: Array<{ date: string; events: number; 
     return null;
   }
 
-  // Transform to playground-compatible format
-  const monthly = eventsData.byMonth.map((m: { month: string; count: number; registrations: number }) => ({
-    date: m.month, // Already in YYYY-MM format
-    events: m.count,
-    registrations: m.registrations,
-  }));
+  // Get current month in YYYY-MM format
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+  // Transform to playground-compatible format, filtering out future months
+  const monthly = eventsData.byMonth
+    .filter((m: { month: string }) => m.month <= currentMonth)
+    .map((m: { month: string; count: number; registrations: number }) => ({
+      date: m.month, // Already in YYYY-MM format
+      events: m.count,
+      registrations: m.registrations,
+    }));
 
   return { monthly };
 }
