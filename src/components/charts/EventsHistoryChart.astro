@@ -2,22 +2,38 @@
 /**
  * Events History Chart
  * Shows monthly event counts and participant registrations
+ * Split by in-person vs online events
  */
 
 interface MonthlyData {
   month: string;
   count: number;
   registrations: number;
+  inPersonCount?: number;
+  inPersonRegistrations?: number;
+  onlineCount?: number;
+  onlineRegistrations?: number;
 }
 
 interface Props {
   data: MonthlyData[];
+  /** Minimum month to show (YYYY-MM format), filters out earlier months */
+  startMonth?: string;
 }
 
-const { data } = Astro.props;
+const { data, startMonth = '2024-06' } = Astro.props;
 
-// Ensure we have at least some data to display
-const chartData = data.length > 0 ? data : [];
+// Filter data to only show months from startMonth onwards
+// and only months that have at least one event with registration data
+const chartData = data
+  .filter(d => d.month >= startMonth)
+  .filter(d => {
+    // Keep months that have at least one event type with registrations > 0
+    // OR at least one event (to show event counts even without registration data)
+    const hasInPersonData = (d.inPersonCount || 0) > 0;
+    const hasOnlineData = (d.onlineCount || 0) > 0;
+    return hasInPersonData || hasOnlineData;
+  });
 ---
 
 <div id="events-history-container" class="card">
@@ -27,11 +43,11 @@ const chartData = data.length > 0 ? data : [];
     </div>
   ) : (
     <>
-      <div class="relative" style="height: 300px;">
+      <div class="relative" style="height: 350px;">
         <canvas id="events-history-chart"></canvas>
       </div>
       <p class="text-xs text-gray-500 mt-2 text-center">
-        Events are tracked from the n8n Community Events calendar on Luma
+        Events tracked from the n8n Community Events calendar on Luma. Zero registrations indicates missing data.
       </p>
     </>
   )}
@@ -49,6 +65,10 @@ const chartData = data.length > 0 ? data : [];
     month: string;
     count: number;
     registrations: number;
+    inPersonCount?: number;
+    inPersonRegistrations?: number;
+    onlineCount?: number;
+    onlineRegistrations?: number;
   }
 
   declare global {
@@ -72,39 +92,91 @@ const chartData = data.length > 0 ? data : [];
     };
 
     const labels = data.map(d => formatMonth(d.month));
-    const counts = data.map(d => d.count);
-    const registrations = data.map(d => d.registrations);
+
+    // In-person data
+    const inPersonCounts = data.map(d => d.inPersonCount || 0);
+    const inPersonRegs = data.map(d => {
+      // Treat 0 registrations as null (missing data) if there were events
+      const count = d.inPersonCount || 0;
+      const regs = d.inPersonRegistrations || 0;
+      if (count > 0 && regs === 0) return null;
+      return regs > 0 ? regs : null;
+    });
+
+    // Online data
+    const onlineCounts = data.map(d => d.onlineCount || 0);
+    const onlineRegs = data.map(d => {
+      // Treat 0 registrations as null (missing data) if there were events
+      const count = d.onlineCount || 0;
+      const regs = d.onlineRegistrations || 0;
+      if (count > 0 && regs === 0) return null;
+      return regs > 0 ? regs : null;
+    });
 
     new Chart(canvas, {
       type: 'bar',
       data: {
         labels,
         datasets: [
+          // In-person events (bars)
           {
-            label: 'Events',
-            data: counts,
-            backgroundColor: '#ff6d5a',
-            borderColor: '#ff6d5a',
+            label: 'In-Person Events',
+            data: inPersonCounts,
+            backgroundColor: '#f97316',
+            borderColor: '#f97316',
             borderWidth: 1,
             borderRadius: 4,
-            hoverBackgroundColor: '#ff8a7a',
+            hoverBackgroundColor: '#fb923c',
             yAxisID: 'y',
-            order: 2,
+            order: 3,
+            stack: 'events',
           },
+          // Online events (bars, stacked)
           {
-            label: 'Participants',
-            data: registrations,
+            label: 'Online Events',
+            data: onlineCounts,
+            backgroundColor: '#8b5cf6',
+            borderColor: '#8b5cf6',
+            borderWidth: 1,
+            borderRadius: 4,
+            hoverBackgroundColor: '#a78bfa',
+            yAxisID: 'y',
+            order: 4,
+            stack: 'events',
+          },
+          // In-person registrations (line)
+          {
+            label: 'In-Person Participants',
+            data: inPersonRegs,
             type: 'line',
-            borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            borderColor: '#22c55e',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
             borderWidth: 2,
             pointRadius: 4,
             pointHoverRadius: 6,
-            pointBackgroundColor: '#10b981',
-            fill: true,
+            pointBackgroundColor: '#22c55e',
+            fill: false,
             tension: 0.3,
             yAxisID: 'y1',
             order: 1,
+            spanGaps: true, // Connect line across null values
+          },
+          // Online registrations (line)
+          {
+            label: 'Online Participants',
+            data: onlineRegs,
+            type: 'line',
+            borderColor: '#06b6d4',
+            backgroundColor: 'rgba(6, 182, 212, 0.1)',
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#06b6d4',
+            fill: false,
+            tension: 0.3,
+            yAxisID: 'y1',
+            order: 2,
+            spanGaps: true, // Connect line across null values
           },
         ],
       },
@@ -122,7 +194,8 @@ const chartData = data.length > 0 ? data : [];
             labels: {
               color: '#9ca3af',
               usePointStyle: true,
-              padding: 20,
+              padding: 15,
+              font: { size: 11 },
             },
           },
           tooltip: {
@@ -134,10 +207,16 @@ const chartData = data.length > 0 ? data : [];
             callbacks: {
               label: (context) => {
                 const value = context.parsed.y;
-                if (context.dataset.label === 'Events') {
-                  return `${value} event${value !== 1 ? 's' : ''}`;
+                const label = context.dataset.label || '';
+
+                if (value === null) {
+                  return `${label}: No data`;
                 }
-                return `${value.toLocaleString()} participants`;
+
+                if (label.includes('Events')) {
+                  return `${label}: ${value} event${value !== 1 ? 's' : ''}`;
+                }
+                return `${label}: ${value.toLocaleString()}`;
               },
             },
           },
@@ -149,16 +228,18 @@ const chartData = data.length > 0 ? data : [];
               color: '#6b7280',
               maxRotation: 45,
             },
+            stacked: true,
           },
           y: {
             type: 'linear',
             display: true,
             position: 'left',
             beginAtZero: true,
+            stacked: true,
             grid: { color: 'rgba(255,255,255,0.05)' },
             ticks: {
-              color: '#ff6d5a',
-              stepSize: 1,
+              color: '#f97316',
+              stepSize: 5,
               callback: (value) => {
                 if (Number.isInteger(value)) {
                   return value;
@@ -169,7 +250,7 @@ const chartData = data.length > 0 ? data : [];
             title: {
               display: true,
               text: 'Events',
-              color: '#ff6d5a',
+              color: '#f97316',
             },
           },
           y1: {
@@ -181,7 +262,7 @@ const chartData = data.length > 0 ? data : [];
               drawOnChartArea: false,
             },
             ticks: {
-              color: '#10b981',
+              color: '#22c55e',
               callback: (value) => {
                 if (typeof value === 'number' && value >= 1000) {
                   return (value / 1000).toFixed(1) + 'k';
@@ -192,7 +273,7 @@ const chartData = data.length > 0 ? data : [];
             title: {
               display: true,
               text: 'Participants',
-              color: '#10b981',
+              color: '#22c55e',
             },
           },
         },

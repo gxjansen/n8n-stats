@@ -126,11 +126,16 @@ const avgOnlineParticipants = stats.pastOnlineCount > 0
   ? Math.round(stats.pastOnlineRegistrations / stats.pastOnlineCount)
   : 0;
 
-// Filter byMonth to only include in-person events for the chart
-const byMonthInPerson = byMonth.map(m => ({
+// Prepare full byMonth data with split counts for the chart
+// The chart component handles filtering by date and treating 0 registrations as missing
+const byMonthFull = byMonth.map(m => ({
   month: m.month,
-  count: m.inPersonCount || 0,
-  registrations: m.inPersonRegistrations || 0,
+  count: m.count || 0,
+  registrations: m.registrations || 0,
+  inPersonCount: m.inPersonCount || 0,
+  inPersonRegistrations: m.inPersonRegistrations || 0,
+  onlineCount: m.onlineCount || 0,
+  onlineRegistrations: m.onlineRegistrations || 0,
 }));
 ---
 
@@ -208,19 +213,19 @@ const byMonthInPerson = byMonth.map(m => ({
       </section>
     )}
 
-    <!-- Monthly Trend Chart (In-Person Events Only) -->
-    {byMonthInPerson.length > 1 && (
+    <!-- Monthly Trend Chart -->
+    {byMonthFull.length > 1 && (
       <section class="mb-12">
         <div class="flex items-center gap-3 mb-6">
           <svg class="w-6 h-6 text-n8n-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
           </svg>
-          <h2 class="text-2xl font-bold text-white">In-Person Events Over Time</h2>
+          <h2 class="text-2xl font-bold text-white">Events Over Time</h2>
         </div>
         <p class="text-gray-400 mb-6">
-          Monthly breakdown of in-person n8n community meetups and workshops. Online events are excluded as they have significantly different attendance patterns.
+          Monthly breakdown of n8n community events. Bars show event counts (stacked: in-person + online), lines show participant registrations.
         </p>
-        <EventsHistoryChart data={byMonthInPerson} />
+        <EventsHistoryChart data={byMonthFull} startMonth="2024-06" />
       </section>
     )}
 
