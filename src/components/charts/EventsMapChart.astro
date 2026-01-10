@@ -21,24 +21,35 @@ interface Props {
 
 const { locations } = Astro.props;
 
-// Use a simple 0-based coordinate system
-// The world map SVG will be scaled to fit this viewBox
-const mapWidth = 800;
-const mapHeight = 400;
+// Match the world-map.svg viewBox exactly: "30.767 241.591 784.077 458.627"
+// This ensures our coordinate system matches the SVG's internal coordinates
+const svgViewBox = {
+  x: 30.767,
+  y: 241.591,
+  width: 784.077,
+  height: 458.627,
+};
 
-// Convert lat/lng to SVG coordinates using equirectangular projection
+// The simple-world-map uses equirectangular projection
+// Map covers approximately -168° to +190° longitude and -56° to +84° latitude
+// (based on the SVG's actual content bounds)
+const lngMin = -168;
+const lngMax = 192;  // wraps around date line
+const latMin = -56;
+const latMax = 84;
+
+// Convert lat/lng to SVG coordinates
 function latLngToXY(lat: number, lng: number): { x: number; y: number } {
-  // Equirectangular projection: lng -180 to +180, lat +90 to -90
-  const x = ((lng + 180) / 360) * mapWidth;
-  const y = ((90 - lat) / 180) * mapHeight;
+  const x = svgViewBox.x + ((lng - lngMin) / (lngMax - lngMin)) * svgViewBox.width;
+  const y = svgViewBox.y + ((latMax - lat) / (latMax - latMin)) * svgViewBox.height;
   return { x, y };
 }
 
 // Process locations for display
 const markers = locations.map(loc => {
   const { x, y } = latLngToXY(loc.lat, loc.lng);
-  // Size based on event count (min 4, max 12 for cleaner look)
-  const size = Math.min(12, Math.max(4, 2 + loc.eventCount * 1.5));
+  // Size based on event count (min 4, max 10)
+  const size = Math.min(10, Math.max(4, 2 + loc.eventCount * 1.2));
   return {
     ...loc,
     x,
@@ -47,8 +58,8 @@ const markers = locations.map(loc => {
   };
 });
 
-// Simple viewBox starting at 0,0
-const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
+// Use the SVG's native viewBox
+const viewBox = `${svgViewBox.x} ${svgViewBox.y} ${svgViewBox.width} ${svgViewBox.height}`;
 ---
 
 <div id="events-map-container" class="card">
@@ -59,16 +70,15 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
       style="max-height: 450px; background: #0f1419;"
     >
       <!-- Ocean background -->
-      <rect x="0" y="0" width={mapWidth} height={mapHeight} fill="#0f1419" />
+      <rect x={svgViewBox.x} y={svgViewBox.y} width={svgViewBox.width} height={svgViewBox.height} fill="#0f1419" />
 
       <!-- World map from flekschas/simple-world-map (CC BY-SA 3.0) -->
       <image
         href="/images/world-map.svg"
-        x="0"
-        y="0"
-        width={mapWidth}
-        height={mapHeight}
-        preserveAspectRatio="none"
+        x={svgViewBox.x}
+        y={svgViewBox.y}
+        width={svgViewBox.width}
+        height={svgViewBox.height}
       />
 
       <!-- Event markers -->
