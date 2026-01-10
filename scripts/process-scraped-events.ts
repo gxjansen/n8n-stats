@@ -275,12 +275,12 @@ interface LumaEvent {
     coordinates?: { lat: number; lng: number };
   };
   isOnline: boolean;
-  registrations: number;
+  registrations?: number; // undefined means missing data, not zero
 }
 
-function parseAttendance(text: string): number {
+function parseAttendance(text: string): number | undefined {
   const match = text.match(/\+(\d+(?:\.\d+)?)(K?)/);
-  if (!match) return 0;
+  if (!match) return undefined; // Missing data, not zero
   const num = parseFloat(match[1]);
   return match[2] === 'K' ? Math.round(num * 1000) : num;
 }
@@ -409,14 +409,14 @@ function groupByMonth(events: LumaEvent[]): MonthlyData[] {
     };
 
     existing.count++;
-    existing.registrations += event.registrations;
+    existing.registrations += event.registrations || 0;
 
     if (event.isOnline) {
       existing.onlineCount++;
-      existing.onlineRegistrations += event.registrations;
+      existing.onlineRegistrations += event.registrations || 0;
     } else {
       existing.inPersonCount++;
-      existing.inPersonRegistrations += event.registrations;
+      existing.inPersonRegistrations += event.registrations || 0;
     }
 
     byMonth.set(month, existing);
@@ -445,7 +445,7 @@ function groupByCountry(events: LumaEvent[]): Array<{ country: string; count: nu
     byCountry.set(country, {
       ...existing,
       count: existing.count + 1,
-      registrations: existing.registrations + event.registrations,
+      registrations: existing.registrations + (event.registrations || 0),
     });
   }
 
@@ -463,7 +463,7 @@ function aggregateLocations(events: LumaEvent[]): Array<{ name: string; city: st
 
     if (existing) {
       existing.eventCount++;
-      existing.totalRegistrations += event.registrations;
+      existing.totalRegistrations += event.registrations || 0;
     } else {
       locationMap.set(key, {
         name: event.location.name,
@@ -472,7 +472,7 @@ function aggregateLocations(events: LumaEvent[]): Array<{ name: string; city: st
         lat: event.location.coordinates.lat,
         lng: event.location.coordinates.lng,
         eventCount: 1,
-        totalRegistrations: event.registrations,
+        totalRegistrations: event.registrations || 0,
       });
     }
   }
@@ -520,7 +520,7 @@ async function main() {
     byCountry: groupByCountry(events),
     stats: {
       totalEvents: events.length,
-      totalRegistrations: events.reduce((sum, e) => sum + e.registrations, 0),
+      totalRegistrations: events.reduce((sum, e) => sum + (e.registrations || 0), 0),
       upcomingCount: upcoming.length,
       pastCount: past.length,
       countriesCount: countries.size,
@@ -528,9 +528,9 @@ async function main() {
       inPersonCount: inPersonEvents.length,
       // Split stats for past events (for calculating averages)
       pastInPersonCount: pastInPerson.length,
-      pastInPersonRegistrations: pastInPerson.reduce((sum, e) => sum + e.registrations, 0),
+      pastInPersonRegistrations: pastInPerson.reduce((sum, e) => sum + (e.registrations || 0), 0),
       pastOnlineCount: pastOnline.length,
-      pastOnlineRegistrations: pastOnline.reduce((sum, e) => sum + e.registrations, 0),
+      pastOnlineRegistrations: pastOnline.reduce((sum, e) => sum + (e.registrations || 0), 0),
       firstEventDate: dates.length > 0 ? dates[0].toISOString().split('T')[0] : '',
       lastEventDate: dates.length > 0 ? dates[dates.length - 1].toISOString().split('T')[0] : '',
     },
