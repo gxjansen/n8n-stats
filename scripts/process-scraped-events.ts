@@ -127,35 +127,90 @@ const scrapedEvents = [
   { id: "rr36ztm4", text: "16:30How to scale your n8n instance 🗻​By n8n​Virtual", date: "22 Apr 2021" },
 ];
 
-// Country coordinates for mapping
+// City coordinates for accurate mapping
+const cityCoordinates: Record<string, { lat: number; lng: number }> = {
+  // US Cities
+  'San Francisco': { lat: 37.7749, lng: -122.4194 },
+  'Los Angeles': { lat: 34.0522, lng: -118.2437 },
+  'San Diego': { lat: 32.7157, lng: -117.1611 },
+  'New York': { lat: 40.7128, lng: -74.0060 },
+  'NYC': { lat: 40.7128, lng: -74.0060 },
+  'Chicago': { lat: 41.8781, lng: -87.6298 },
+  'Austin': { lat: 30.2672, lng: -97.7431 },
+  'Miami': { lat: 25.7617, lng: -80.1918 },
+  'Atlanta': { lat: 33.7490, lng: -84.3880 },
+  'Dallas': { lat: 32.7767, lng: -96.7970 },
+  'St Louis': { lat: 38.6270, lng: -90.1994 },
+  // Canada
+  'Toronto': { lat: 43.6532, lng: -79.3832 },
+  // Europe
+  'Amsterdam': { lat: 52.3676, lng: 4.9041 },
+  'Berlin': { lat: 52.5200, lng: 13.4050 },
+  'London': { lat: 51.5074, lng: -0.1278 },
+  'Paris': { lat: 48.8566, lng: 2.3522 },
+  'Vienna': { lat: 48.2082, lng: 16.3738 },
+  'Barcelona': { lat: 41.3851, lng: 2.1734 },
+  'Madrid': { lat: 40.4168, lng: -3.7038 },
+  'Lisbon': { lat: 38.7223, lng: -9.1393 },
+  'Zürich': { lat: 47.3769, lng: 8.5417 },
+  'Zurich': { lat: 47.3769, lng: 8.5417 },
+  'Cologne': { lat: 50.9375, lng: 6.9603 },
+  'Frankfurt': { lat: 50.1109, lng: 8.6821 },
+  'Düsseldorf': { lat: 51.2277, lng: 6.7735 },
+  'Warsaw': { lat: 52.2297, lng: 21.0122 },
+  'Milan': { lat: 45.4642, lng: 9.1900 },
+  'Nantes': { lat: 47.2184, lng: -1.5536 },
+  'Gent': { lat: 51.0543, lng: 3.7174 },
+  'Rzeszów': { lat: 50.0412, lng: 21.9991 },
+  'Budapest': { lat: 47.4979, lng: 19.0402 },
+  'København': { lat: 55.6761, lng: 12.5683 },
+  'Copenhagen': { lat: 55.6761, lng: 12.5683 },
+  'Istanbul': { lat: 41.0082, lng: 28.9784 },
+  'Kyiv': { lat: 50.4501, lng: 30.5234 },
+  // Middle East
+  'Tel Aviv': { lat: 32.0853, lng: 34.7818 },
+  'Dubai': { lat: 25.2048, lng: 55.2708 },
+  // Africa
+  'Nairobi': { lat: -1.2921, lng: 36.8219 },
+  'Accra': { lat: 5.6037, lng: -0.1870 },
+  // Asia
+  'Seoul': { lat: 37.5665, lng: 126.9780 },
+  'Taipei': { lat: 25.0330, lng: 121.5654 },
+  'Islamabad': { lat: 33.6844, lng: 73.0479 },
+  'Karachi': { lat: 24.8607, lng: 67.0011 },
+  // South America
+  'São Paulo': { lat: -23.5505, lng: -46.6333 },
+};
+
+// Fallback country coordinates (used if city not found)
 const countryCoordinates: Record<string, { lat: number; lng: number }> = {
   'Netherlands': { lat: 52.3676, lng: 4.9041 },
   'Germany': { lat: 52.5200, lng: 13.4050 },
-  'United States': { lat: 37.7749, lng: -122.4194 },
-  'USA': { lat: 37.7749, lng: -122.4194 },
-  'France': { lat: 48.8566, lng: 2.3522 },
-  'Spain': { lat: 41.3851, lng: 2.1734 },
-  'Austria': { lat: 48.2082, lng: 16.3738 },
-  'Switzerland': { lat: 47.3769, lng: 8.5417 },
-  'UK': { lat: 51.5074, lng: -0.1278 },
-  'United Kingdom': { lat: 51.5074, lng: -0.1278 },
-  'Poland': { lat: 52.2297, lng: 21.0122 },
-  'Portugal': { lat: 38.7223, lng: -9.1393 },
-  'Italy': { lat: 45.4642, lng: 9.1900 },
-  'Belgium': { lat: 50.8503, lng: 4.3517 },
-  'Turkey': { lat: 41.0082, lng: 28.9784 },
-  'Kenya': { lat: -1.2921, lng: 36.8219 },
-  'Ghana': { lat: 5.6037, lng: -0.1870 },
-  'Pakistan': { lat: 33.6844, lng: 73.0479 },
-  'South Korea': { lat: 37.5665, lng: 126.9780 },
-  'Taiwan': { lat: 25.0330, lng: 121.5654 },
-  'Brazil': { lat: -23.5505, lng: -46.6333 },
-  'UAE': { lat: 25.2048, lng: 55.2708 },
-  'Ukraine': { lat: 50.4501, lng: 30.5234 },
-  'Denmark': { lat: 55.6761, lng: 12.5683 },
-  'Israel': { lat: 32.0853, lng: 34.7818 },
-  'Hungary': { lat: 47.4979, lng: 19.0402 },
-  'Canada': { lat: 43.6532, lng: -79.3832 },
+  'United States': { lat: 39.8283, lng: -98.5795 }, // Center of US
+  'USA': { lat: 39.8283, lng: -98.5795 },
+  'France': { lat: 46.2276, lng: 2.2137 },
+  'Spain': { lat: 40.4637, lng: -3.7492 },
+  'Austria': { lat: 47.5162, lng: 14.5501 },
+  'Switzerland': { lat: 46.8182, lng: 8.2275 },
+  'UK': { lat: 55.3781, lng: -3.4360 },
+  'United Kingdom': { lat: 55.3781, lng: -3.4360 },
+  'Poland': { lat: 51.9194, lng: 19.1451 },
+  'Portugal': { lat: 39.3999, lng: -8.2245 },
+  'Italy': { lat: 41.8719, lng: 12.5674 },
+  'Belgium': { lat: 50.5039, lng: 4.4699 },
+  'Turkey': { lat: 38.9637, lng: 35.2433 },
+  'Kenya': { lat: -0.0236, lng: 37.9062 },
+  'Ghana': { lat: 7.9465, lng: -1.0232 },
+  'Pakistan': { lat: 30.3753, lng: 69.3451 },
+  'South Korea': { lat: 35.9078, lng: 127.7669 },
+  'Taiwan': { lat: 23.6978, lng: 120.9605 },
+  'Brazil': { lat: -14.2350, lng: -51.9253 },
+  'UAE': { lat: 23.4241, lng: 53.8478 },
+  'Ukraine': { lat: 48.3794, lng: 31.1656 },
+  'Denmark': { lat: 56.2639, lng: 9.5018 },
+  'Israel': { lat: 31.0461, lng: 34.8516 },
+  'Hungary': { lat: 47.1625, lng: 19.5033 },
+  'Canada': { lat: 56.1304, lng: -106.3468 },
 };
 
 // City to country mapping
@@ -295,10 +350,14 @@ function processEvents(): LumaEvent[] {
     const registrations = parseAttendance(scraped.text);
     const startDate = parseDate(scraped.date);
 
-    // Get coordinates
+    // Get coordinates - prefer city-level, fall back to country
     let coordinates: { lat: number; lng: number } | undefined;
-    if (!isOnline && country && countryCoordinates[country]) {
-      coordinates = countryCoordinates[country];
+    if (!isOnline) {
+      if (city && cityCoordinates[city]) {
+        coordinates = cityCoordinates[city];
+      } else if (country && countryCoordinates[country]) {
+        coordinates = countryCoordinates[country];
+      }
     }
 
     events.push({
