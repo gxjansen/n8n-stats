@@ -8,6 +8,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
   id: s.id,
   label: s.label,
   shortLabel: s.shortLabel,
+  file: s.file,
   historyStart: s.historyStart,
   measuredSince: s.measuredSince,
 }));
@@ -165,12 +166,15 @@ const sourcesData = DATA_SOURCES.map(s => ({
     sourceId: string;
     sourceLabel: string;
     excludeZero?: boolean;
+    file?: string;           // Override source file
+    measuredSince?: string;  // Override source measuredSince
   }
 
   interface SourceInfo {
     id: string;
     label: string;
     shortLabel: string;
+    file: string;
     historyStart: string;
     measuredSince: string;
   }
@@ -295,7 +299,8 @@ const sourcesData = DATA_SOURCES.map(s => ({
       for (const metric of group.metrics) {
         const option = document.createElement('option');
         option.value = metric.id;
-        option.textContent = metric.label;
+        // Include source label in option text for clarity
+        option.textContent = `${group.source.shortLabel}: ${metric.label}`;
         if (metric.id === selectedId) {
           option.selected = true;
         }
@@ -411,19 +416,14 @@ const sourcesData = DATA_SOURCES.map(s => ({
     return data;
   }
 
-  // Get file path for a metric
-  function getFilePath(metricId: string): string {
-    const metric = allMetrics.find(m => m.id === metricId);
-    if (!metric) return '';
+  // Get file path for a metric (metric can override source's default file)
+  function getFilePath(metric: MetricInfo): string {
+    // Use metric-level file override if specified
+    if (metric.file) return metric.file;
 
-    const pathMap: Record<string, string> = {
-      github: '/data/github-history.json',
-      community: '/data/community-history.json',
-      templates: '/data/all-templates-data.json',
-      creators: '/data/history/creators-stats.json',
-      discord: '/data/history/discord.json',
-    };
-    return pathMap[metric.sourceId] || '';
+    // Otherwise use source's default file
+    const source = allSources.find(s => s.id === metric.sourceId);
+    return source?.file || '';
   }
 
   // Extract time series from data
@@ -474,30 +474,33 @@ const sourcesData = DATA_SOURCES.map(s => ({
       const source = allSources.find(s => s.id === metric.sourceId);
       if (!source) continue;
 
-      const filePath = getFilePath(seriesConfig.metricId);
+      const filePath = getFilePath(metric);
       if (!filePath) continue;
 
       try {
         const data = await fetchData(filePath);
         let timeSeries = extractTimeSeries(data, metric);
 
+        // Use metric-level measuredSince if specified, otherwise source's
+        const measuredSince = metric.measuredSince || source.measuredSince;
+
         // Mark data points as estimated (before measuredSince date)
         timeSeries = timeSeries.map(point => ({
           ...point,
-          isEstimated: point.date < source.measuredSince,
+          isEstimated: point.date < measuredSince,
         }));
 
-        // Create label based on mode
+        // Create label based on mode, including source for clarity
         const modeLabel = seriesConfig.dataMode === 'change' ? ' (Change)' : '';
 
         results.push({
           metricId: metric.id,
-          label: metric.label + modeLabel,
+          label: `${source.shortLabel}: ${metric.label}${modeLabel}`,
           color: metric.color,
           data: timeSeries,
           dataMode: seriesConfig.dataMode,
           chartType: seriesConfig.chartType,
-          measuredSince: source.measuredSince,
+          measuredSince,
         });
       } catch (error) {
         console.error(`Failed to load ${seriesConfig.metricId}:`, error);

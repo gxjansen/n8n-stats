@@ -18,6 +18,10 @@ export interface MetricDefinition {
   dateKey?: string;
   /** If true, treat 0 values as missing data (for cumulative metrics where 0 is never valid) */
   excludeZero?: boolean;
+  /** Override the source's default file path (for metrics that logically belong to a category but data lives elsewhere) */
+  file?: string;
+  /** Override measuredSince date for this specific metric */
+  measuredSince?: string;
 }
 
 export interface DataSource {
@@ -128,6 +132,24 @@ export const DATA_SOURCES: DataSource[] = [
         valueKey: 'count',
         dateKey: 'month',
       },
+      {
+        id: 'templates-views',
+        label: 'Total Views',
+        color: COLORS.creatorViews,
+        path: 'totalViews',
+        excludeZero: true,
+        file: '/data/history/creators-stats.json', // Data comes from n8n Arena
+        measuredSince: '2024-11',
+      },
+      {
+        id: 'templates-inserters',
+        label: 'Total Inserters',
+        color: COLORS.creatorInserters,
+        path: 'totalInserters',
+        excludeZero: true,
+        file: '/data/history/creators-stats.json', // Data comes from n8n Arena
+        measuredSince: '2024-11',
+      },
     ],
   },
   {
@@ -143,8 +165,6 @@ export const DATA_SOURCES: DataSource[] = [
     metrics: [
       { id: 'creators-total', label: 'Total Creators', color: COLORS.creatorsTotal, path: 'total', excludeZero: true },
       { id: 'creators-verified', label: 'Verified Creators', color: COLORS.creatorsVerified, path: 'verified', excludeZero: true },
-      { id: 'creators-views', label: 'Total Views', color: COLORS.creatorViews, path: 'totalViews', excludeZero: true },
-      { id: 'creators-inserters', label: 'Total Inserters', color: COLORS.creatorInserters, path: 'totalInserters', excludeZero: true },
     ],
   },
   {
