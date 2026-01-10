@@ -29,8 +29,10 @@ export interface DataSource {
   /** Default granularity */
   defaultGranularity: 'daily' | 'weekly' | 'monthly';
   metrics: MetricDefinition[];
-  /** Approximate date range for UI hints */
+  /** Approximate start of historical data (may be estimated/backfilled) */
   historyStart: string;
+  /** Date from which data is actually measured (not estimated). If same as historyStart, all data is measured. */
+  measuredSince: string;
 }
 
 // Color palette for metrics (distinct, accessible)
@@ -72,6 +74,7 @@ export const DATA_SOURCES: DataSource[] = [
     granularities: ['daily', 'weekly', 'monthly'],
     defaultGranularity: 'monthly',
     historyStart: '2019-06',
+    measuredSince: '2026-01-08', // Before: ossinsight API (estimated), after: github-api (measured)
     metrics: [
       { id: 'github-stars', label: 'GitHub Stars', color: COLORS.stars, path: 'stars' },
       { id: 'github-forks', label: 'GitHub Forks', color: COLORS.forks, path: 'forks' },
@@ -88,6 +91,7 @@ export const DATA_SOURCES: DataSource[] = [
     granularities: ['daily', 'weekly', 'monthly'],
     defaultGranularity: 'monthly',
     historyStart: '2019-11',
+    measuredSince: '2026-01-07', // Before: wayback/interpolated, after: discourse-api (measured)
     metrics: [
       { id: 'forum-users', label: 'Forum Members', color: COLORS.users, path: 'users' },
       { id: 'forum-topics', label: 'Forum Topics', color: COLORS.topics, path: 'topics' },
@@ -104,6 +108,7 @@ export const DATA_SOURCES: DataSource[] = [
     granularities: ['monthly'],
     defaultGranularity: 'monthly',
     historyStart: '2019-08',
+    measuredSince: '2019-08', // Derived from actual template creation dates (all reliable)
     metrics: [
       {
         id: 'templates-total',
@@ -132,6 +137,7 @@ export const DATA_SOURCES: DataSource[] = [
     granularities: ['weekly'],
     defaultGranularity: 'weekly',
     historyStart: '2024-11',
+    measuredSince: '2024-11', // All data from n8n Arena API (measured)
     metrics: [
       { id: 'creators-total', label: 'Total Creators', color: COLORS.creatorsTotal, path: 'total' },
       { id: 'creators-verified', label: 'Verified Creators', color: COLORS.creatorsVerified, path: 'verified' },
@@ -148,6 +154,7 @@ export const DATA_SOURCES: DataSource[] = [
     granularities: ['daily', 'weekly', 'monthly'],
     defaultGranularity: 'daily',
     historyStart: '2026-01',
+    measuredSince: '2026-01', // All data from Discord API (measured)
     metrics: [
       { id: 'discord-members', label: 'Discord Members', color: COLORS.discordMembers, path: 'members' },
       { id: 'discord-online', label: 'Discord Online', color: COLORS.discordOnline, path: 'online' },

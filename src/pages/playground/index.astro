@@ -9,6 +9,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
   label: s.label,
   shortLabel: s.shortLabel,
   historyStart: s.historyStart,
+  measuredSince: s.measuredSince,
 }));
 ---
 
@@ -129,6 +130,14 @@ const sourcesData = DATA_SOURCES.map(s => ({
       <div id="dual-axis-notice" class="hidden text-center text-sm text-gray-500 mt-2">
         Using dual Y-axis due to different scales
       </div>
+
+      <!-- Estimated data notice -->
+      <div id="estimated-notice" class="hidden flex items-center justify-center gap-2 text-sm text-amber-500/80 mt-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>Dashed lines indicate historical/estimated data</span>
+      </div>
     </div>
 
     <!-- Info -->
@@ -162,6 +171,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
     label: string;
     shortLabel: string;
     historyStart: string;
+    measuredSince: string;
   }
 
   interface SeriesConfig {
@@ -173,6 +183,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
   interface TimeSeriesPoint {
     date: string;
     value: number;
+    isEstimated?: boolean;
   }
 
   interface LoadedData {
@@ -182,6 +193,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
     data: TimeSeriesPoint[];
     dataMode: 'cumulative' | 'change';
     chartType: 'line' | 'area' | 'bar';
+    measuredSince: string;
   }
 
   interface PlaygroundState {
@@ -221,6 +233,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
   const errorState = document.getElementById('error-state')!;
   const chartLegend = document.getElementById('chart-legend')!;
   const dualAxisNotice = document.getElementById('dual-axis-notice')!;
+  const estimatedNotice = document.getElementById('estimated-notice')!;
 
   // Parse URL state - new format: m=metricId:mode:type,metricId:mode:type
   function parseUrlState(): Partial<PlaygroundState> {
@@ -448,12 +461,21 @@ const sourcesData = DATA_SOURCES.map(s => ({
       const metric = allMetrics.find(m => m.id === seriesConfig.metricId);
       if (!metric) continue;
 
+      const source = allSources.find(s => s.id === metric.sourceId);
+      if (!source) continue;
+
       const filePath = getFilePath(seriesConfig.metricId);
       if (!filePath) continue;
 
       try {
         const data = await fetchData(filePath);
-        const timeSeries = extractTimeSeries(data, metric);
+        let timeSeries = extractTimeSeries(data, metric);
+
+        // Mark data points as estimated (before measuredSince date)
+        timeSeries = timeSeries.map(point => ({
+          ...point,
+          isEstimated: point.date < source.measuredSince,
+        }));
 
         // Create label based on mode
         const modeLabel = seriesConfig.dataMode === 'change' ? ' (Change)' : '';
@@ -465,6 +487,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
           data: timeSeries,
           dataMode: seriesConfig.dataMode,
           chartType: seriesConfig.chartType,
+          measuredSince: source.measuredSince,
         });
       } catch (error) {
         console.error(`Failed to load ${seriesConfig.metricId}:`, error);
@@ -502,6 +525,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
     return data.slice(1).map((point, index) => ({
       date: point.date,
       value: point.value - data[index].value,
+      isEstimated: point.isEstimated || data[index].isEstimated, // Either point estimated = result estimated
     }));
   }
 
@@ -522,6 +546,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
       errorState.classList.add('hidden');
       chartLegend.classList.add('hidden');
       dualAxisNotice.classList.add('hidden');
+      estimatedNotice.classList.add('hidden');
       if (chart) {
         chart.destroy();
         chart = null;
@@ -558,20 +583,49 @@ const sourcesData = DATA_SOURCES.map(s => ({
       datasets.forEach(d => d.data.forEach(p => allDates.add(p.date)));
       const labels = Array.from(allDates).sort();
 
-      // Build chart datasets
+      // Build chart datasets with estimated data styling
+      let hasEstimatedData = false;
+
       const chartDatasets = datasets.map((d, index) => {
-        // Map data to labels
+        // Map data to labels, tracking estimated status
         const dataMap = new Map(d.data.map(p => [p.date, p.value]));
+        const estimatedMap = new Map(d.data.map(p => [p.date, p.isEstimated]));
         const values = labels.map(date => dataMap.get(date) ?? null);
+        const isEstimatedArr = labels.map(date => estimatedMap.get(date) ?? false);
+
+        // Track if any estimated data is visible
+        if (isEstimatedArr.some(e => e)) {
+          hasEstimatedData = true;
+        }
 
         const isArea = d.chartType === 'area';
         const isBar = d.chartType === 'bar';
+
+        // Segment styling for dashed lines on estimated data (lines only, not bars)
+        const segmentStyle = !isBar ? {
+          segment: {
+            borderDash: (ctx: any) => {
+              // Check if either endpoint of segment is estimated
+              const p0Estimated = isEstimatedArr[ctx.p0DataIndex];
+              const p1Estimated = isEstimatedArr[ctx.p1DataIndex];
+              return (p0Estimated || p1Estimated) ? [6, 3] : undefined;
+            },
+            borderColor: (ctx: any) => {
+              // Slightly transparent for estimated segments
+              const p0Estimated = isEstimatedArr[ctx.p0DataIndex];
+              const p1Estimated = isEstimatedArr[ctx.p1DataIndex];
+              return (p0Estimated || p1Estimated) ? `${d.color}aa` : undefined;
+            },
+          },
+        } : {};
 
         return {
           label: d.label,
           data: values,
           borderColor: d.color,
-          backgroundColor: isBar ? `${d.color}99` : isArea ? `${d.color}20` : d.color,
+          backgroundColor: isBar
+            ? isEstimatedArr.map(e => e ? `${d.color}55` : `${d.color}99`) // Lighter bars for estimated
+            : isArea ? `${d.color}20` : d.color,
           fill: isArea,
           tension: 0.1,
           pointRadius: isBar ? 0 : labels.length > 60 ? 0 : 3,
@@ -579,8 +633,12 @@ const sourcesData = DATA_SOURCES.map(s => ({
           yAxisID: useDualAxis && index >= 1 ? 'y1' : 'y',
           type: isBar ? 'bar' : 'line',
           order: isBar ? 2 : 1, // Bars render behind lines
+          ...segmentStyle,
         };
       });
+
+      // Show/hide estimated data notice
+      estimatedNotice.classList.toggle('hidden', !hasEstimatedData);
 
       loadingState.classList.add('hidden');
 
