@@ -38,6 +38,7 @@ interface GitHubDailyLog {
 const DATA_DIR = join(process.cwd(), 'public', 'data');
 const RAW_LOG_PATH = join(DATA_DIR, 'github-raw-log.json');
 const HISTORY_PATH = join(DATA_DIR, 'github-history.json');
+const RELEASES_PATH = join(DATA_DIR, 'github-releases.json');
 
 // Config
 const DAILY_RETENTION_DAYS = 90;
@@ -66,6 +67,55 @@ async function fetchGitHubStats(): Promise<GitHubDataPoint> {
     source: 'github-api',
     sourceDetail: 'api.github.com',
   };
+}
+
+interface GitHubRelease {
+  tagName: string;
+  name: string;
+  publishedAt: string;
+  htmlUrl: string;
+  prerelease: boolean;
+  body: string;
+}
+
+async function fetchGitHubReleases(): Promise<GitHubRelease[]> {
+  const allReleases: GitHubRelease[] = [];
+  let page = 1;
+  const perPage = 100;
+
+  while (true) {
+    const response = await fetch(
+      `https://api.github.com/repos/n8n-io/n8n/releases?per_page=${perPage}&page=${page}`,
+      {
+        headers: {
+          'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'n8n-stats',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`GitHub releases API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data.length === 0) break;
+
+    const releases = data.map((release: Record<string, unknown>) => ({
+      tagName: release.tag_name as string,
+      name: release.name as string,
+      publishedAt: release.published_at as string,
+      htmlUrl: release.html_url as string,
+      prerelease: release.prerelease as boolean,
+      body: release.body as string,
+    }));
+
+    allReleases.push(...releases);
+    if (data.length < perPage) break;
+    page++;
+  }
+
+  return allReleases;
 }
 
 function loadRawLog(): GitHubDailyLog {
@@ -289,6 +339,16 @@ async function main() {
   console.log(`  Daily: ${history.daily.length} entries`);
   console.log(`  Weekly: ${history.weekly.length} entries`);
   console.log(`  Monthly: ${history.monthly.length} entries`);
+
+  // Fetch and save releases
+  console.log('\nFetching GitHub releases...');
+  try {
+    const releases = await fetchGitHubReleases();
+    writeFileSync(RELEASES_PATH, JSON.stringify(releases, null, 2));
+    console.log(`  Saved ${releases.length} releases`);
+  } catch (error) {
+    console.warn('  Warning: Could not fetch releases:', error);
+  }
 
   console.log('\nDone!');
 }

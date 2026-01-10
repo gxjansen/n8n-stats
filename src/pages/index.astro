@@ -6,16 +6,33 @@ import TemplateCard from '@/components/cards/TemplateCard.astro';
 import AIAdoptionCard from '@/components/cards/AIAdoptionCard.astro';
 import EcosystemGrowthChart from '@/components/charts/EcosystemGrowthChart.astro';
 import { fetchTemplates } from '@/lib/api/n8n';
-import { fetchGitHubStats } from '@/lib/api/github';
 import { fetchForumStats } from '@/lib/api/discourse';
 import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
-// Fetch all data at build time (with error handling)
-const [templatesResponse, githubStats, forumStats] = await Promise.all([
+// Load GitHub stats from stored data (no API calls during build)
+let githubStats = { stars: 0, forks: 0, watchers: 0, openIssues: 0, subscribers: 0 };
+try {
+  const historyPath = join(process.cwd(), 'public', 'data', 'github-history.json');
+  if (existsSync(historyPath)) {
+    const historyData = JSON.parse(readFileSync(historyPath, 'utf-8'));
+    const latest = historyData.monthly?.[historyData.monthly.length - 1];
+    if (latest) {
+      githubStats = {
+        stars: latest.stars || 0,
+        forks: latest.forks || 0,
+        watchers: latest.watchers || 0,
+        openIssues: latest.openIssues || 0,
+        subscribers: latest.watchers || 0,
+      };
+    }
+  }
+} catch (e) { /* use defaults */ }
+
+// Fetch templates and forum stats at build time (with error handling)
+const [templatesResponse, forumStats] = await Promise.all([
   fetchTemplates({ rows: 6, sort: 'trendingScore:desc' }),
-  fetchGitHubStats().catch(() => ({ stars: 0, forks: 0, watchers: 0, openIssues: 0, subscribers: 0 })),
   fetchForumStats().catch(() => ({ usersCount: 0, topicsCount: 0, postsCount: 0, likesCount: 0, activeUsers7Days: 0, postsLast7Days: 0 })),
 ]);
 

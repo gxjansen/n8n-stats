@@ -8,10 +8,17 @@
  * - Filterable by date range
  */
 
-import { fetchAllGitHubReleases } from '@/lib/api/github';
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
 
-// Fetch all releases (paginated)
-const allReleases = await fetchAllGitHubReleases();
+// Load releases from stored data (no API calls during build)
+let allReleases: Array<{ tagName: string; publishedAt: string; htmlUrl: string; prerelease: boolean }> = [];
+try {
+  const releasesPath = join(process.cwd(), 'public', 'data', 'github-releases.json');
+  if (existsSync(releasesPath)) {
+    allReleases = JSON.parse(readFileSync(releasesPath, 'utf-8'));
+  }
+} catch (e) { /* use empty array */ }
 
 // Filter: official releases only, starting from 1.0 (no 0.x versions)
 const releases = allReleases

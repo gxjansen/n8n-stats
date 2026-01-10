@@ -5,30 +5,49 @@ import MilestonePrediction from '@/components/cards/MilestonePrediction.astro';
 import GitHubHistoryChart from '@/components/charts/GitHubHistoryChart.astro';
 import GitHubIssuesChart from '@/components/charts/GitHubIssuesChart.astro';
 import ReleaseTimelineChart from '@/components/charts/ReleaseTimelineChart.astro';
-import { fetchGitHubStats, fetchGitHubReleases } from '@/lib/api/github';
 import { formatNumber } from '@/lib/utils/formatters';
 import { predictMilestone, getNextMilestones } from '@/lib/utils/predictions';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
-// Fetch GitHub data
-const [githubStats, releases] = await Promise.all([
-  fetchGitHubStats(),
-  fetchGitHubReleases(10),
-]);
+// Load GitHub data from stored history files (populated daily by scripts)
+// No API calls during build - all data comes from version-controlled JSON files
+const historyPath = join(process.cwd(), 'public', 'data', 'github-history.json');
+const releasesPath = join(process.cwd(), 'public', 'data', 'github-releases.json');
 
-// Load historical data for predictions
+let githubStats = { stars: 0, forks: 0, watchers: 0, openIssues: 0, subscribers: 0 };
+let releases: Array<{ tagName: string; name: string; publishedAt: string; htmlUrl: string; prerelease: boolean; body: string }> = [];
 let starHistory: Array<{ date: string; value: number }> = [];
+
 try {
-  const historyPath = join(process.cwd(), 'public', 'data', 'github-history.json');
   const historyData = JSON.parse(readFileSync(historyPath, 'utf-8'));
-  // Use monthly data for smoother predictions
+  // Get latest stats from most recent monthly entry
+  const latest = historyData.monthly?.[historyData.monthly.length - 1];
+  if (latest) {
+    githubStats = {
+      stars: latest.stars || 0,
+      forks: latest.forks || 0,
+      watchers: latest.watchers || 0,
+      openIssues: latest.openIssues || 0,
+      subscribers: latest.watchers || 0,
+    };
+  }
+  // Use monthly data for predictions
   starHistory = historyData.monthly?.map((d: any) => ({
     date: d.date,
     value: d.stars,
   })) || [];
 } catch (e) {
-  console.warn('Could not load GitHub history for predictions');
+  console.warn('Could not load GitHub history');
+}
+
+// Load releases if available
+try {
+  if (existsSync(releasesPath)) {
+    releases = JSON.parse(readFileSync(releasesPath, 'utf-8'));
+  }
+} catch (e) {
+  console.warn('Could not load GitHub releases');
 }
 
 // Calculate milestone predictions
@@ -116,6 +135,7 @@ const recentReleases = releases.slice(0, 5);
     </section>
 
     <!-- Recent Releases -->
+    {recentReleases.length > 0 && (
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">Recent Releases</h2>
       <div class="space-y-4">
@@ -151,6 +171,7 @@ const recentReleases = releases.slice(0, 5);
         ))}
       </div>
     </section>
+    )}
 
     <!-- Link to GitHub -->
     <div class="text-center">
