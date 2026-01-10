@@ -1,0 +1,751 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { DATA_SOURCES, getAllMetrics } from '@/lib/playground/registry';
+
+// Prepare metrics data for client-side
+const metricsData = getAllMetrics();
+const sourcesData = DATA_SOURCES.map(s => ({
+  id: s.id,
+  label: s.label,
+  shortLabel: s.shortLabel,
+  historyStart: s.historyStart,
+}));
+---
+
+<BaseLayout title="Data Playground" description="Explore and compare n8n ecosystem metrics">
+  <div class="container-narrow py-12">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-white mb-2">Data Playground</h1>
+      <p class="text-gray-400">
+        Compare metrics across the n8n ecosystem. Select up to 4 data series to visualize trends and correlations.
+      </p>
+    </div>
+
+    <!-- Controls Card -->
+    <div class="card mb-6">
+      <div class="flex flex-wrap items-start gap-6">
+        <!-- Series Selector -->
+        <div class="flex-1 min-w-[280px]">
+          <label class="block text-sm font-medium text-gray-300 mb-2">Data Series</label>
+          <div id="series-selector" class="space-y-2">
+            <!-- Series slots will be populated by JS -->
+            <div id="series-slots" class="space-y-2"></div>
+            <button
+              id="add-series-btn"
+              class="flex items-center gap-2 text-sm text-n8n-primary hover:text-n8n-primary/80 transition-colors"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Add series
+            </button>
+          </div>
+        </div>
+
+        <!-- Right-side controls -->
+        <div class="flex flex-wrap gap-4">
+          <!-- Date Range -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Date Range</label>
+            <select
+              id="range-select"
+              class="bg-n8n-darker border border-n8n-border rounded px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary min-w-[120px]"
+            >
+              <option value="1m">Last month</option>
+              <option value="3m">Last 3 months</option>
+              <option value="6m">Last 6 months</option>
+              <option value="1y" selected>Last year</option>
+              <option value="2y">Last 2 years</option>
+              <option value="all">All time</option>
+            </select>
+          </div>
+
+          <!-- Chart Type -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Chart Type</label>
+            <select
+              id="chart-type-select"
+              class="bg-n8n-darker border border-n8n-border rounded px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary min-w-[100px]"
+            >
+              <option value="line" selected>Line</option>
+              <option value="area">Area</option>
+            </select>
+          </div>
+
+          <!-- Data Mode -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Data Mode</label>
+            <select
+              id="data-mode-select"
+              class="bg-n8n-darker border border-n8n-border rounded px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary min-w-[140px]"
+            >
+              <option value="cumulative" selected>Cumulative</option>
+              <option value="change">Period Change</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex items-center gap-3 mt-4 pt-4 border-t border-n8n-border">
+        <button
+          id="reset-btn"
+          class="text-sm text-gray-400 hover:text-white transition-colors"
+        >
+          Reset
+        </button>
+        <button
+          id="share-btn"
+          class="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+          </svg>
+          Share
+        </button>
+        <span id="share-feedback" class="text-sm text-green-400 opacity-0 transition-opacity">Copied!</span>
+      </div>
+    </div>
+
+    <!-- Chart Area -->
+    <div class="card">
+      <div id="chart-container" class="relative" style="height: 400px;">
+        <canvas id="playground-chart"></canvas>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center">
+          <div class="text-center max-w-md">
+            <div class="text-6xl mb-4 opacity-50">📊</div>
+            <h3 class="text-xl font-semibold text-white mb-2">Start Exploring</h3>
+            <p class="text-gray-400 mb-4">
+              Select one or more data series above to visualize trends across the n8n ecosystem.
+            </p>
+            <p class="text-sm text-gray-500">
+              Try comparing GitHub Stars with Forum Members to see how community growth correlates.
+            </p>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
+          <div class="flex items-center gap-3 text-gray-400">
+            <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Loading data...
+          </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
+          <div class="text-center">
+            <div class="text-4xl mb-2">⚠️</div>
+            <p class="text-red-400">Failed to load data. Please try again.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div id="chart-legend" class="hidden flex flex-wrap items-center justify-center gap-4 mt-4 pt-4 border-t border-n8n-border">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Dual axis indicator -->
+      <div id="dual-axis-notice" class="hidden text-center text-sm text-gray-500 mt-2">
+        Using dual Y-axis due to different scales
+      </div>
+    </div>
+
+    <!-- Info -->
+    <p class="text-center text-sm text-gray-500 mt-6">
+      Data updates daily. Some metrics have longer history than others.
+    </p>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ metricsData, sourcesData }}>
+  window.__playgroundMetrics = metricsData;
+  window.__playgroundSources = sourcesData;
+</script>
+
+<script>
+  import Chart from 'chart.js/auto';
+
+  interface MetricInfo {
+    id: string;
+    label: string;
+    color: string;
+    path: string;
+    valueKey?: string;
+    dateKey?: string;
+    sourceId: string;
+    sourceLabel: string;
+  }
+
+  interface SourceInfo {
+    id: string;
+    label: string;
+    shortLabel: string;
+    historyStart: string;
+  }
+
+  interface TimeSeriesPoint {
+    date: string;
+    value: number;
+  }
+
+  interface LoadedData {
+    metricId: string;
+    label: string;
+    color: string;
+    data: TimeSeriesPoint[];
+  }
+
+  interface PlaygroundState {
+    metrics: string[];
+    range: '1m' | '3m' | '6m' | '1y' | '2y' | 'all';
+    chartType: 'line' | 'area';
+    dataMode: 'cumulative' | 'change';
+  }
+
+  // Get data from server
+  const allMetrics: MetricInfo[] = (window as any).__playgroundMetrics;
+  const allSources: SourceInfo[] = (window as any).__playgroundSources;
+
+  // Group metrics by source for the dropdown
+  const metricsBySource = allSources.map(source => ({
+    source,
+    metrics: allMetrics.filter(m => m.sourceId === source.id),
+  }));
+
+  // State
+  let state: PlaygroundState = {
+    metrics: [],
+    range: '1y',
+    chartType: 'line',
+    dataMode: 'cumulative',
+  };
+
+  let chart: Chart | null = null;
+  const dataCache: Map<string, any> = new Map();
+
+  // DOM elements
+  const seriesSlots = document.getElementById('series-slots')!;
+  const addSeriesBtn = document.getElementById('add-series-btn')!;
+  const rangeSelect = document.getElementById('range-select') as HTMLSelectElement;
+  const chartTypeSelect = document.getElementById('chart-type-select') as HTMLSelectElement;
+  const dataModeSelect = document.getElementById('data-mode-select') as HTMLSelectElement;
+  const resetBtn = document.getElementById('reset-btn')!;
+  const shareBtn = document.getElementById('share-btn')!;
+  const shareFeedback = document.getElementById('share-feedback')!;
+  const chartCanvas = document.getElementById('playground-chart') as HTMLCanvasElement;
+  const emptyState = document.getElementById('empty-state')!;
+  const loadingState = document.getElementById('loading-state')!;
+  const errorState = document.getElementById('error-state')!;
+  const chartLegend = document.getElementById('chart-legend')!;
+  const dualAxisNotice = document.getElementById('dual-axis-notice')!;
+
+  // Initialize from URL
+  function parseUrlState(): Partial<PlaygroundState> {
+    const params = new URLSearchParams(window.location.search);
+    const metricsParam = params.get('m');
+    return {
+      metrics: metricsParam ? metricsParam.split(',').filter(Boolean).slice(0, 4) : undefined,
+      range: (params.get('r') as PlaygroundState['range']) || undefined,
+      chartType: (params.get('t') as PlaygroundState['chartType']) || undefined,
+      dataMode: (params.get('d') as PlaygroundState['dataMode']) || undefined,
+    };
+  }
+
+  function updateUrl(): void {
+    const params = new URLSearchParams();
+    if (state.metrics.length > 0) params.set('m', state.metrics.join(','));
+    if (state.range !== '1y') params.set('r', state.range);
+    if (state.chartType !== 'line') params.set('t', state.chartType);
+    if (state.dataMode !== 'cumulative') params.set('d', state.dataMode);
+
+    const queryString = params.toString();
+    const url = queryString ? `?${queryString}` : window.location.pathname;
+    window.history.replaceState({}, '', url);
+  }
+
+  // Create metric selector dropdown
+  function createMetricSelect(selectedId?: string): HTMLSelectElement {
+    const select = document.createElement('select');
+    select.className = 'flex-1 bg-n8n-darker border border-n8n-border rounded px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary';
+
+    // Empty option
+    const emptyOpt = document.createElement('option');
+    emptyOpt.value = '';
+    emptyOpt.textContent = 'Select a metric...';
+    select.appendChild(emptyOpt);
+
+    // Group by source
+    for (const group of metricsBySource) {
+      const optgroup = document.createElement('optgroup');
+      optgroup.label = group.source.label;
+
+      for (const metric of group.metrics) {
+        const option = document.createElement('option');
+        option.value = metric.id;
+        option.textContent = metric.label;
+        // Disable if already selected elsewhere
+        if (state.metrics.includes(metric.id) && metric.id !== selectedId) {
+          option.disabled = true;
+        }
+        if (metric.id === selectedId) {
+          option.selected = true;
+        }
+        optgroup.appendChild(option);
+      }
+
+      select.appendChild(optgroup);
+    }
+
+    return select;
+  }
+
+  // Render series slots
+  function renderSeriesSlots(): void {
+    seriesSlots.innerHTML = '';
+
+    state.metrics.forEach((metricId, index) => {
+      const metric = allMetrics.find(m => m.id === metricId);
+      if (!metric) return;
+
+      const slot = document.createElement('div');
+      slot.className = 'flex items-center gap-2';
+
+      // Color indicator
+      const colorDot = document.createElement('span');
+      colorDot.className = 'w-3 h-3 rounded-full flex-shrink-0';
+      colorDot.style.backgroundColor = metric.color;
+      slot.appendChild(colorDot);
+
+      // Dropdown
+      const select = createMetricSelect(metricId);
+      select.addEventListener('change', () => {
+        if (select.value) {
+          state.metrics[index] = select.value;
+        } else {
+          state.metrics.splice(index, 1);
+        }
+        updateUrl();
+        renderSeriesSlots();
+        updateChart();
+      });
+      slot.appendChild(select);
+
+      // Remove button
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'text-gray-500 hover:text-red-400 transition-colors p-1';
+      removeBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>';
+      removeBtn.addEventListener('click', () => {
+        state.metrics.splice(index, 1);
+        updateUrl();
+        renderSeriesSlots();
+        updateChart();
+      });
+      slot.appendChild(removeBtn);
+
+      seriesSlots.appendChild(slot);
+    });
+
+    // Update add button visibility
+    addSeriesBtn.classList.toggle('hidden', state.metrics.length >= 4);
+  }
+
+  // Fetch data file
+  async function fetchData(filePath: string): Promise<any> {
+    if (dataCache.has(filePath)) {
+      return dataCache.get(filePath);
+    }
+    const response = await fetch(filePath);
+    if (!response.ok) throw new Error(`Failed to fetch ${filePath}`);
+    const data = await response.json();
+    dataCache.set(filePath, data);
+    return data;
+  }
+
+  // Get file path for a metric
+  function getFilePath(metricId: string): string {
+    const metric = allMetrics.find(m => m.id === metricId);
+    if (!metric) return '';
+
+    const pathMap: Record<string, string> = {
+      github: '/data/github-history.json',
+      community: '/data/community-history.json',
+      templates: '/data/all-templates-data.json',
+      creators: '/data/history/creators-stats.json',
+      discord: '/data/history/discord.json',
+    };
+    return pathMap[metric.sourceId] || '';
+  }
+
+  // Extract time series from data
+  function extractTimeSeries(data: any, metric: MetricInfo): TimeSeriesPoint[] {
+    // Handle templates special case
+    if (metric.path.includes('.')) {
+      const parts = metric.path.split('.');
+      let current = data;
+      for (const part of parts) {
+        current = current?.[part];
+      }
+      if (Array.isArray(current)) {
+        return current.map(item => ({
+          date: item[metric.dateKey || 'date'],
+          value: item[metric.valueKey || 'value'],
+        }));
+      }
+      return [];
+    }
+
+    // Standard: use monthly data
+    const granularityData = data.monthly || data.weekly || data.daily;
+    if (!Array.isArray(granularityData)) return [];
+
+    return granularityData.map((item: any) => ({
+      date: item.date,
+      value: item[metric.path],
+    })).filter((p: TimeSeriesPoint) => p.value !== undefined && p.value !== null);
+  }
+
+  // Load all selected metrics
+  async function loadMetrics(): Promise<LoadedData[]> {
+    const results: LoadedData[] = [];
+
+    for (const metricId of state.metrics) {
+      const metric = allMetrics.find(m => m.id === metricId);
+      if (!metric) continue;
+
+      const filePath = getFilePath(metricId);
+      if (!filePath) continue;
+
+      try {
+        const data = await fetchData(filePath);
+        const timeSeries = extractTimeSeries(data, metric);
+
+        results.push({
+          metricId: metric.id,
+          label: metric.label,
+          color: metric.color,
+          data: timeSeries,
+        });
+      } catch (error) {
+        console.error(`Failed to load ${metricId}:`, error);
+      }
+    }
+
+    return results;
+  }
+
+  // Filter by date range
+  function filterByRange(data: TimeSeriesPoint[]): TimeSeriesPoint[] {
+    if (state.range === 'all') return data;
+
+    const now = new Date();
+    let monthsBack: number;
+    switch (state.range) {
+      case '1m': monthsBack = 1; break;
+      case '3m': monthsBack = 3; break;
+      case '6m': monthsBack = 6; break;
+      case '1y': monthsBack = 12; break;
+      case '2y': monthsBack = 24; break;
+      default: return data;
+    }
+
+    const startDate = new Date(now);
+    startDate.setMonth(startDate.getMonth() - monthsBack);
+    const startStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}`;
+
+    return data.filter(p => p.date >= startStr);
+  }
+
+  // Convert to period change
+  function toPeriodChange(data: TimeSeriesPoint[]): TimeSeriesPoint[] {
+    if (data.length < 2) return data;
+    return data.slice(1).map((point, index) => ({
+      date: point.date,
+      value: point.value - data[index].value,
+    }));
+  }
+
+  // Check if dual axis needed
+  function needsDualAxis(datasets: LoadedData[]): boolean {
+    if (datasets.length < 2) return false;
+    const maxValues = datasets.map(d => Math.max(...d.data.map(p => p.value)));
+    const minMax = Math.min(...maxValues);
+    const maxMax = Math.max(...maxValues);
+    return minMax > 0 && maxMax / minMax > 10;
+  }
+
+  // Update chart
+  async function updateChart(): Promise<void> {
+    if (state.metrics.length === 0) {
+      emptyState.classList.remove('hidden');
+      loadingState.classList.add('hidden');
+      errorState.classList.add('hidden');
+      chartLegend.classList.add('hidden');
+      dualAxisNotice.classList.add('hidden');
+      if (chart) {
+        chart.destroy();
+        chart = null;
+      }
+      return;
+    }
+
+    emptyState.classList.add('hidden');
+    loadingState.classList.remove('hidden');
+    errorState.classList.add('hidden');
+
+    try {
+      let datasets = await loadMetrics();
+
+      if (datasets.length === 0) {
+        throw new Error('No data loaded');
+      }
+
+      // Apply date range filter
+      datasets = datasets.map(d => ({
+        ...d,
+        data: filterByRange(d.data),
+      }));
+
+      // Apply data mode transformation
+      if (state.dataMode === 'change') {
+        datasets = datasets.map(d => ({
+          ...d,
+          data: toPeriodChange(d.data),
+          label: `${d.label} (Change)`,
+        }));
+      }
+
+      // Check for dual axis
+      const useDualAxis = needsDualAxis(datasets);
+      dualAxisNotice.classList.toggle('hidden', !useDualAxis);
+
+      // Find common date range
+      const allDates = new Set<string>();
+      datasets.forEach(d => d.data.forEach(p => allDates.add(p.date)));
+      const labels = Array.from(allDates).sort();
+
+      // Build chart datasets
+      const isArea = state.chartType === 'area';
+      const chartDatasets = datasets.map((d, index) => {
+        // Map data to labels
+        const dataMap = new Map(d.data.map(p => [p.date, p.value]));
+        const values = labels.map(date => dataMap.get(date) ?? null);
+
+        return {
+          label: d.label,
+          data: values,
+          borderColor: d.color,
+          backgroundColor: isArea ? `${d.color}20` : d.color,
+          fill: isArea,
+          tension: 0.1,
+          pointRadius: labels.length > 60 ? 0 : 3,
+          pointHoverRadius: 5,
+          yAxisID: useDualAxis && index >= 1 ? 'y1' : 'y',
+        };
+      });
+
+      loadingState.classList.add('hidden');
+
+      // Create or update chart
+      if (chart) {
+        chart.data.labels = labels;
+        chart.data.datasets = chartDatasets;
+        if (chart.options.scales) {
+          (chart.options.scales as any).y1.display = useDualAxis;
+        }
+        chart.update();
+      } else {
+        chart = new Chart(chartCanvas, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: chartDatasets,
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+              mode: 'index',
+              intersect: false,
+            },
+            plugins: {
+              legend: {
+                display: false,
+              },
+              tooltip: {
+                backgroundColor: '#1e1e1e',
+                titleColor: '#fff',
+                bodyColor: '#9ca3af',
+                borderColor: '#333',
+                borderWidth: 1,
+                callbacks: {
+                  label: (context) => {
+                    const value = context.parsed.y;
+                    if (value === null) return '';
+                    return `${context.dataset.label}: ${value.toLocaleString()}`;
+                  },
+                },
+              },
+            },
+            scales: {
+              x: {
+                grid: { color: 'rgba(255,255,255,0.05)' },
+                ticks: { color: '#6b7280', maxRotation: 45 },
+              },
+              y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                grid: { color: 'rgba(255,255,255,0.05)' },
+                ticks: {
+                  color: '#6b7280',
+                  callback: (value) => {
+                    if (typeof value === 'number') {
+                      if (Math.abs(value) >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                      if (Math.abs(value) >= 1000) return (value / 1000).toFixed(1) + 'K';
+                    }
+                    return value;
+                  },
+                },
+              },
+              y1: {
+                type: 'linear',
+                display: useDualAxis,
+                position: 'right',
+                grid: { drawOnChartArea: false },
+                ticks: {
+                  color: datasets[1]?.color || '#6b7280',
+                  callback: (value) => {
+                    if (typeof value === 'number') {
+                      if (Math.abs(value) >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                      if (Math.abs(value) >= 1000) return (value / 1000).toFixed(1) + 'K';
+                    }
+                    return value;
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // Update legend
+      chartLegend.innerHTML = '';
+      chartLegend.classList.remove('hidden');
+      datasets.forEach((d, index) => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center gap-2';
+        item.innerHTML = `
+          <span class="w-3 h-3 rounded-full" style="background-color: ${d.color}"></span>
+          <span class="text-gray-400 text-sm">${d.label}</span>
+          ${useDualAxis ? `<span class="text-xs text-gray-500">(${index === 0 ? 'left' : 'right'} axis)</span>` : ''}
+        `;
+        chartLegend.appendChild(item);
+      });
+
+    } catch (error) {
+      console.error('Chart update failed:', error);
+      loadingState.classList.add('hidden');
+      errorState.classList.remove('hidden');
+    }
+  }
+
+  // Event handlers
+  addSeriesBtn.addEventListener('click', () => {
+    if (state.metrics.length >= 4) return;
+    // Add empty slot - first available metric
+    const available = allMetrics.find(m => !state.metrics.includes(m.id));
+    if (available) {
+      state.metrics.push(available.id);
+      updateUrl();
+      renderSeriesSlots();
+      updateChart();
+    }
+  });
+
+  rangeSelect.addEventListener('change', () => {
+    state.range = rangeSelect.value as PlaygroundState['range'];
+    updateUrl();
+    updateChart();
+  });
+
+  chartTypeSelect.addEventListener('change', () => {
+    state.chartType = chartTypeSelect.value as PlaygroundState['chartType'];
+    updateUrl();
+    updateChart();
+  });
+
+  dataModeSelect.addEventListener('change', () => {
+    state.dataMode = dataModeSelect.value as PlaygroundState['dataMode'];
+    updateUrl();
+    updateChart();
+  });
+
+  resetBtn.addEventListener('click', () => {
+    state = {
+      metrics: [],
+      range: '1y',
+      chartType: 'line',
+      dataMode: 'cumulative',
+    };
+    rangeSelect.value = state.range;
+    chartTypeSelect.value = state.chartType;
+    dataModeSelect.value = state.dataMode;
+    updateUrl();
+    renderSeriesSlots();
+    updateChart();
+  });
+
+  shareBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      shareFeedback.classList.remove('opacity-0');
+      setTimeout(() => shareFeedback.classList.add('opacity-0'), 2000);
+    } catch {
+      // Fallback: select URL bar
+      window.prompt('Copy this URL:', window.location.href);
+    }
+  });
+
+  // Initialize
+  function init(): void {
+    const urlState = parseUrlState();
+
+    // Apply URL state
+    if (urlState.metrics) state.metrics = urlState.metrics;
+    if (urlState.range) {
+      state.range = urlState.range;
+      rangeSelect.value = state.range;
+    }
+    if (urlState.chartType) {
+      state.chartType = urlState.chartType;
+      chartTypeSelect.value = state.chartType;
+    }
+    if (urlState.dataMode) {
+      state.dataMode = urlState.dataMode;
+      dataModeSelect.value = state.dataMode;
+    }
+
+    renderSeriesSlots();
+    updateChart();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+</script>
+
+<style>
+  #chart-container {
+    position: relative;
+  }
+</style>
