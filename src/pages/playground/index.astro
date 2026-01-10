@@ -164,6 +164,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
     dateKey?: string;
     sourceId: string;
     sourceLabel: string;
+    excludeZero?: boolean;
   }
 
   interface SourceInfo {
@@ -427,6 +428,13 @@ const sourcesData = DATA_SOURCES.map(s => ({
 
   // Extract time series from data
   function extractTimeSeries(data: any, metric: MetricInfo): TimeSeriesPoint[] {
+    // Filter function: exclude undefined, null, and optionally 0
+    const isValidValue = (value: any): boolean => {
+      if (value === undefined || value === null) return false;
+      if (metric.excludeZero && value === 0) return false;
+      return true;
+    };
+
     // Handle templates special case
     if (metric.path.includes('.')) {
       const parts = metric.path.split('.');
@@ -435,10 +443,12 @@ const sourcesData = DATA_SOURCES.map(s => ({
         current = current?.[part];
       }
       if (Array.isArray(current)) {
-        return current.map(item => ({
-          date: item[metric.dateKey || 'date'],
-          value: item[metric.valueKey || 'value'],
-        }));
+        return current
+          .map(item => ({
+            date: item[metric.dateKey || 'date'],
+            value: item[metric.valueKey || 'value'],
+          }))
+          .filter((p: TimeSeriesPoint) => isValidValue(p.value));
       }
       return [];
     }
@@ -450,7 +460,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
     return granularityData.map((item: any) => ({
       date: item.date,
       value: item[metric.path],
-    })).filter((p: TimeSeriesPoint) => p.value !== undefined && p.value !== null);
+    })).filter((p: TimeSeriesPoint) => isValidValue(p.value));
   }
 
   // Load all selected series

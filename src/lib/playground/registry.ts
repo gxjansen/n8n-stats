@@ -16,6 +16,8 @@ export interface MetricDefinition {
   valueKey?: string;
   /** For nested arrays, the key containing the date */
   dateKey?: string;
+  /** If true, treat 0 values as missing data (for cumulative metrics where 0 is never valid) */
+  excludeZero?: boolean;
 }
 
 export interface DataSource {
@@ -76,10 +78,10 @@ export const DATA_SOURCES: DataSource[] = [
     historyStart: '2019-06',
     measuredSince: '2026-01-08', // Before: ossinsight API (estimated), after: github-api (measured)
     metrics: [
-      { id: 'github-stars', label: 'GitHub Stars', color: COLORS.stars, path: 'stars' },
-      { id: 'github-forks', label: 'GitHub Forks', color: COLORS.forks, path: 'forks' },
-      { id: 'github-watchers', label: 'GitHub Watchers', color: COLORS.watchers, path: 'watchers' },
-      { id: 'github-issues', label: 'Open Issues', color: COLORS.issues, path: 'openIssues' },
+      { id: 'github-stars', label: 'GitHub Stars', color: COLORS.stars, path: 'stars', excludeZero: true },
+      { id: 'github-forks', label: 'GitHub Forks', color: COLORS.forks, path: 'forks', excludeZero: true },
+      { id: 'github-watchers', label: 'GitHub Watchers', color: COLORS.watchers, path: 'watchers', excludeZero: true },
+      { id: 'github-issues', label: 'Open Issues', color: COLORS.issues, path: 'openIssues', excludeZero: true },
     ],
   },
   {
@@ -93,10 +95,10 @@ export const DATA_SOURCES: DataSource[] = [
     historyStart: '2019-11',
     measuredSince: '2026-01-07', // Before: wayback/interpolated, after: discourse-api (measured)
     metrics: [
-      { id: 'forum-users', label: 'Forum Members', color: COLORS.users, path: 'users' },
-      { id: 'forum-topics', label: 'Forum Topics', color: COLORS.topics, path: 'topics' },
-      { id: 'forum-posts', label: 'Forum Posts', color: COLORS.posts, path: 'posts' },
-      { id: 'forum-likes', label: 'Forum Likes', color: COLORS.likes, path: 'likes' },
+      { id: 'forum-users', label: 'Forum Members', color: COLORS.users, path: 'users', excludeZero: true },
+      { id: 'forum-topics', label: 'Forum Topics', color: COLORS.topics, path: 'topics', excludeZero: true },
+      { id: 'forum-posts', label: 'Forum Posts', color: COLORS.posts, path: 'posts', excludeZero: true },
+      { id: 'forum-likes', label: 'Forum Likes', color: COLORS.likes, path: 'likes', excludeZero: true },
     ],
   },
   {
@@ -139,10 +141,10 @@ export const DATA_SOURCES: DataSource[] = [
     historyStart: '2024-11',
     measuredSince: '2024-11', // All data from n8n Arena API (measured)
     metrics: [
-      { id: 'creators-total', label: 'Total Creators', color: COLORS.creatorsTotal, path: 'total' },
-      { id: 'creators-verified', label: 'Verified Creators', color: COLORS.creatorsVerified, path: 'verified' },
-      { id: 'creators-views', label: 'Total Views', color: COLORS.creatorViews, path: 'totalViews' },
-      { id: 'creators-inserters', label: 'Total Inserters', color: COLORS.creatorInserters, path: 'totalInserters' },
+      { id: 'creators-total', label: 'Total Creators', color: COLORS.creatorsTotal, path: 'total', excludeZero: true },
+      { id: 'creators-verified', label: 'Verified Creators', color: COLORS.creatorsVerified, path: 'verified', excludeZero: true },
+      { id: 'creators-views', label: 'Total Views', color: COLORS.creatorViews, path: 'totalViews', excludeZero: true },
+      { id: 'creators-inserters', label: 'Total Inserters', color: COLORS.creatorInserters, path: 'totalInserters', excludeZero: true },
     ],
   },
   {
@@ -156,8 +158,8 @@ export const DATA_SOURCES: DataSource[] = [
     historyStart: '2026-01',
     measuredSince: '2026-01', // All data from Discord API (measured)
     metrics: [
-      { id: 'discord-members', label: 'Discord Members', color: COLORS.discordMembers, path: 'members' },
-      { id: 'discord-online', label: 'Discord Online', color: COLORS.discordOnline, path: 'online' },
+      { id: 'discord-members', label: 'Discord Members', color: COLORS.discordMembers, path: 'members', excludeZero: true },
+      { id: 'discord-online', label: 'Discord Online', color: COLORS.discordOnline, path: 'online', excludeZero: true },
     ],
   },
 ];
