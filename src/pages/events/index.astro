@@ -1,0 +1,304 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import StatCard from '@/components/cards/StatCard.astro';
+import EventsMapChart from '@/components/charts/EventsMapChart.astro';
+import EventsHistoryChart from '@/components/charts/EventsHistoryChart.astro';
+import { formatNumber } from '@/lib/utils/formatters';
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+
+// Define types for events data
+interface LumaEvent {
+  id: string;
+  name: string;
+  description?: string;
+  startDate: string;
+  endDate?: string;
+  url: string;
+  location: {
+    name: string;
+    address?: string;
+    city?: string;
+    country?: string;
+    coordinates?: {
+      lat: number;
+      lng: number;
+    };
+  };
+  isOnline: boolean;
+  registrations: number;
+}
+
+interface EventsData {
+  lastUpdated: string;
+  upcoming: LumaEvent[];
+  past: LumaEvent[];
+  byMonth: Array<{ month: string; count: number; registrations: number }>;
+  byCountry: Array<{
+    country: string;
+    count: number;
+    registrations: number;
+    coordinates?: { lat: number; lng: number };
+  }>;
+  stats: {
+    totalEvents: number;
+    totalRegistrations: number;
+    upcomingCount: number;
+    pastCount: number;
+    countriesCount: number;
+    onlineCount: number;
+    firstEventDate: string;
+    lastEventDate: string;
+  };
+  locations: Array<{
+    name: string;
+    city: string;
+    country: string;
+    lat: number;
+    lng: number;
+    eventCount: number;
+    totalRegistrations: number;
+  }>;
+}
+
+// Load events data
+let eventsData: EventsData | null = null;
+const dataPath = join(process.cwd(), 'public', 'data', 'history', 'events.json');
+
+if (existsSync(dataPath)) {
+  try {
+    eventsData = JSON.parse(readFileSync(dataPath, 'utf-8'));
+  } catch (e) {
+    console.warn('Could not load events data:', e);
+  }
+}
+
+// Format date for display
+function formatEventDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+function formatEventTime(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
+
+// Get upcoming events sorted by date
+const upcomingEvents = eventsData?.upcoming || [];
+const locations = eventsData?.locations || [];
+const byMonth = eventsData?.byMonth || [];
+const byCountry = eventsData?.byCountry || [];
+const stats = eventsData?.stats || {
+  totalEvents: 0,
+  upcomingCount: 0,
+  pastCount: 0,
+  countriesCount: 0,
+  onlineCount: 0,
+};
+---
+
+<BaseLayout title="Community Events" description="n8n community meetups, workshops, and events around the world">
+  <div class="container-narrow py-12">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-white mb-2">Community Events</h1>
+      <p class="text-gray-400">
+        n8n community meetups, workshops, and events from the
+        <a href="https://luma.com/n8n-events" target="_blank" rel="noopener" class="text-n8n-primary hover:underline">official n8n calendar</a>
+      </p>
+    </div>
+
+    <!-- Stats Overview -->
+    <section class="mb-12">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard
+          label="Upcoming Events"
+          value={stats.upcomingCount}
+          href="https://luma.com/n8n-events"
+        />
+        <StatCard
+          label="Countries"
+          value={stats.countriesCount}
+        />
+        <StatCard
+          label="In-Person Events"
+          value={stats.totalEvents - stats.onlineCount}
+        />
+        <StatCard
+          label="Virtual Events"
+          value={stats.onlineCount}
+        />
+      </div>
+    </section>
+
+    <!-- Upcoming Events List -->
+    {upcomingEvents.length > 0 && (
+      <section class="mb-12">
+        <div class="flex items-center gap-3 mb-6">
+          <svg class="w-6 h-6 text-n8n-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <h2 class="text-2xl font-bold text-white">Upcoming Events</h2>
+        </div>
+
+        <div class="space-y-4">
+          {upcomingEvents.slice(0, 10).map((event) => (
+            <a
+              href={event.url || `https://luma.com/n8n-events`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="card block hover:border-n8n-primary/50 hover:bg-gray-800/30 transition-all group"
+            >
+              <div class="flex flex-col md:flex-row md:items-center gap-4">
+                <!-- Date Badge -->
+                <div class="flex-shrink-0 text-center md:w-20">
+                  <div class="inline-block md:block bg-n8n-primary/20 rounded-lg px-3 py-2">
+                    <div class="text-n8n-primary font-bold text-lg">
+                      {new Date(event.startDate).getDate()}
+                    </div>
+                    <div class="text-xs text-gray-400 uppercase">
+                      {new Date(event.startDate).toLocaleDateString('en-US', { month: 'short' })}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Event Details -->
+                <div class="flex-grow min-w-0">
+                  <h3 class="text-white font-semibold group-hover:text-n8n-primary transition-colors truncate">
+                    {event.name}
+                  </h3>
+                  <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-gray-400">
+                    <span class="flex items-center gap-1">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {formatEventTime(event.startDate)}
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      {event.isOnline ? 'Online' : `${event.location.city || event.location.name}${event.location.country ? `, ${event.location.country}` : ''}`}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Arrow -->
+                <div class="flex-shrink-0 hidden md:block">
+                  <svg class="w-5 h-5 text-gray-600 group-hover:text-n8n-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+
+        {upcomingEvents.length > 10 && (
+          <p class="text-center text-gray-400 mt-4">
+            +{upcomingEvents.length - 10} more events on <a href="https://luma.com/n8n-events" target="_blank" rel="noopener" class="text-n8n-primary hover:underline">Luma</a>
+          </p>
+        )}
+      </section>
+    )}
+
+    <!-- World Map -->
+    {locations.length > 0 && (
+      <section class="mb-12">
+        <div class="flex items-center gap-3 mb-6">
+          <svg class="w-6 h-6 text-n8n-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h2 class="text-2xl font-bold text-white">Event Locations</h2>
+        </div>
+        <p class="text-gray-400 mb-6">
+          Where n8n community events are happening. Hover over markers for details.
+        </p>
+        <EventsMapChart locations={locations} />
+      </section>
+    )}
+
+    <!-- Events by Country -->
+    {byCountry.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold text-white mb-6">Events by Country</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {byCountry.slice(0, 8).map((country) => (
+            <div class="card">
+              <div class="text-lg font-semibold text-white">{country.country}</div>
+              <div class="text-2xl font-bold text-n8n-primary mt-1">{country.count}</div>
+              <div class="text-sm text-gray-400">event{country.count !== 1 ? 's' : ''}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Monthly Trend Chart -->
+    {byMonth.length > 1 && (
+      <section class="mb-12">
+        <div class="flex items-center gap-3 mb-6">
+          <svg class="w-6 h-6 text-n8n-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          <h2 class="text-2xl font-bold text-white">Events Over Time</h2>
+        </div>
+        <p class="text-gray-400 mb-6">
+          Monthly breakdown of n8n community events.
+        </p>
+        <EventsHistoryChart data={byMonth} />
+      </section>
+    )}
+
+    <!-- Call to Action -->
+    <section class="text-center">
+      <div class="card bg-gradient-to-r from-n8n-primary/10 to-transparent border-n8n-primary/30">
+        <h3 class="text-xl font-bold text-white mb-2">Want to attend or host an event?</h3>
+        <p class="text-gray-400 mb-4">
+          Join the n8n community and connect with automation enthusiasts worldwide.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a
+            href="https://luma.com/n8n-events"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-n8n-primary text-white rounded-lg font-medium hover:bg-n8n-primary/90 transition-colors"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Browse Events on Luma
+          </a>
+          <a
+            href="mailto:community@n8n.io"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-gray-700 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            Contact community@n8n.io
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Data Attribution -->
+    <p class="text-center text-xs text-gray-500 mt-8">
+      Event data from the <a href="https://luma.com/n8n-events" target="_blank" rel="noopener" class="hover:text-gray-400">n8n Community Events calendar on Luma</a>.
+      {eventsData?.lastUpdated && (
+        <span> Last updated: {new Date(eventsData.lastUpdated).toLocaleDateString()}</span>
+      )}
+    </p>
+  </div>
+</BaseLayout>

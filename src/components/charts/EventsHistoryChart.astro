@@ -1,0 +1,145 @@
+---
+/**
+ * Events History Chart
+ * Shows monthly event counts as a bar chart
+ */
+
+interface MonthlyData {
+  month: string;
+  count: number;
+  registrations: number;
+}
+
+interface Props {
+  data: MonthlyData[];
+}
+
+const { data } = Astro.props;
+
+// Ensure we have at least some data to display
+const chartData = data.length > 0 ? data : [];
+const maxCount = Math.max(...chartData.map(d => d.count), 1);
+---
+
+<div id="events-history-container" class="card">
+  {chartData.length === 0 ? (
+    <div class="flex items-center justify-center h-64 text-gray-400">
+      <p>No historical event data available yet. Check back after more events are tracked.</p>
+    </div>
+  ) : (
+    <>
+      <div class="relative" style="height: 300px;">
+        <canvas id="events-history-chart"></canvas>
+      </div>
+      <p class="text-xs text-gray-500 mt-2 text-center">
+        Events are tracked from the n8n Community Events calendar on Luma
+      </p>
+    </>
+  )}
+</div>
+
+<script define:vars={{ chartData }}>
+  // Make data available to the client-side script
+  window.eventsChartData = chartData;
+</script>
+
+<script>
+  import Chart from 'chart.js/auto';
+
+  interface MonthlyData {
+    month: string;
+    count: number;
+    registrations: number;
+  }
+
+  declare global {
+    interface Window {
+      eventsChartData: MonthlyData[];
+    }
+  }
+
+  function initEventsChart() {
+    const canvas = document.getElementById('events-history-chart') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const data = window.eventsChartData || [];
+    if (data.length === 0) return;
+
+    // Format month labels (e.g., "2024-01" -> "Jan 2024")
+    const formatMonth = (monthStr: string) => {
+      const [year, month] = monthStr.split('-');
+      const date = new Date(parseInt(year), parseInt(month) - 1);
+      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    };
+
+    const labels = data.map(d => formatMonth(d.month));
+    const counts = data.map(d => d.count);
+
+    new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Events',
+          data: counts,
+          backgroundColor: '#ff6d5a',
+          borderColor: '#ff6d5a',
+          borderWidth: 1,
+          borderRadius: 4,
+          hoverBackgroundColor: '#ff8a7a',
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#fff',
+            bodyColor: '#9ca3af',
+            borderColor: '#333',
+            borderWidth: 1,
+            callbacks: {
+              label: (context) => {
+                const value = context.parsed.y;
+                return `${value} event${value !== 1 ? 's' : ''}`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: '#6b7280',
+              maxRotation: 45,
+            },
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: '#6b7280',
+              stepSize: 1,
+              callback: (value) => {
+                if (Number.isInteger(value)) {
+                  return value;
+                }
+                return null;
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initEventsChart);
+  } else {
+    initEventsChart();
+  }
+</script>

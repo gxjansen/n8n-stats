@@ -1,0 +1,247 @@
+---
+/**
+ * Events Map Chart
+ * Displays event locations on an interactive SVG world map
+ * Uses dots/markers to show where events have been held
+ */
+
+interface Location {
+  name: string;
+  city: string;
+  country: string;
+  lat: number;
+  lng: number;
+  eventCount: number;
+  totalRegistrations: number;
+}
+
+interface Props {
+  locations: Location[];
+}
+
+const { locations } = Astro.props;
+
+// Convert lat/lng to SVG coordinates
+// Using a simple equirectangular projection
+function latLngToXY(lat: number, lng: number, width: number, height: number): { x: number; y: number } {
+  const x = ((lng + 180) / 360) * width;
+  const y = ((90 - lat) / 180) * height;
+  return { x, y };
+}
+
+const svgWidth = 800;
+const svgHeight = 400;
+
+// Process locations for display
+const markers = locations.map(loc => {
+  const { x, y } = latLngToXY(loc.lat, loc.lng, svgWidth, svgHeight);
+  // Size based on event count (min 6, max 20)
+  const size = Math.min(20, Math.max(6, 4 + loc.eventCount * 3));
+  return {
+    ...loc,
+    x,
+    y,
+    size,
+  };
+});
+---
+
+<div id="events-map-container" class="card">
+  <div class="relative">
+    <svg
+      viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+      class="w-full h-auto"
+      style="max-height: 400px;"
+    >
+      <!-- World map background (simplified) -->
+      <rect width="100%" height="100%" fill="#1a1a2e" />
+
+      <!-- Grid lines for reference -->
+      <g stroke="#333" stroke-width="0.5" opacity="0.3">
+        <!-- Longitude lines -->
+        {[...Array(13)].map((_, i) => (
+          <line
+            x1={(i * svgWidth) / 12}
+            y1="0"
+            x2={(i * svgWidth) / 12}
+            y2={svgHeight}
+          />
+        ))}
+        <!-- Latitude lines -->
+        {[...Array(7)].map((_, i) => (
+          <line
+            x1="0"
+            y1={(i * svgHeight) / 6}
+            x2={svgWidth}
+            y2={(i * svgHeight) / 6}
+          />
+        ))}
+      </g>
+
+      <!-- Continent outlines (simplified paths) -->
+      <g fill="#2a2a4a" stroke="#444" stroke-width="0.5">
+        <!-- Europe -->
+        <ellipse cx="440" cy="120" rx="60" ry="40" opacity="0.5" />
+        <!-- Asia -->
+        <ellipse cx="580" cy="140" rx="100" ry="60" opacity="0.5" />
+        <!-- North America -->
+        <ellipse cx="180" cy="130" rx="80" ry="50" opacity="0.5" />
+        <!-- South America -->
+        <ellipse cx="240" cy="280" rx="40" ry="60" opacity="0.5" />
+        <!-- Africa -->
+        <ellipse cx="460" cy="220" rx="50" ry="60" opacity="0.5" />
+        <!-- Australia -->
+        <ellipse cx="700" cy="290" rx="40" ry="30" opacity="0.5" />
+      </g>
+
+      <!-- Event markers -->
+      <g class="markers">
+        {markers.map((marker, index) => (
+          <g
+            class="marker-group"
+            data-city={marker.city}
+            data-country={marker.country}
+            data-events={marker.eventCount}
+          >
+            <!-- Glow effect -->
+            <circle
+              cx={marker.x}
+              cy={marker.y}
+              r={marker.size + 4}
+              fill="url(#glow)"
+              opacity="0.5"
+            />
+            <!-- Main marker -->
+            <circle
+              cx={marker.x}
+              cy={marker.y}
+              r={marker.size}
+              fill="#ff6d5a"
+              stroke="#fff"
+              stroke-width="1.5"
+              class="marker"
+              style={`animation-delay: ${index * 100}ms`}
+            />
+            <!-- Event count label for larger markers -->
+            {marker.eventCount > 1 && (
+              <text
+                x={marker.x}
+                y={marker.y + 4}
+                text-anchor="middle"
+                fill="#fff"
+                font-size="10"
+                font-weight="bold"
+              >
+                {marker.eventCount}
+              </text>
+            )}
+          </g>
+        ))}
+      </g>
+
+      <!-- Gradient definitions -->
+      <defs>
+        <radialGradient id="glow">
+          <stop offset="0%" stop-color="#ff6d5a" stop-opacity="0.6" />
+          <stop offset="100%" stop-color="#ff6d5a" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+    </svg>
+
+    <!-- Tooltip -->
+    <div
+      id="map-tooltip"
+      class="absolute hidden bg-n8n-card border border-n8n-border rounded-lg px-3 py-2 text-sm shadow-lg pointer-events-none z-10"
+    >
+      <div class="font-medium text-white" id="tooltip-city"></div>
+      <div class="text-gray-400" id="tooltip-country"></div>
+      <div class="text-n8n-primary mt-1" id="tooltip-events"></div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="flex items-center justify-center gap-6 mt-4 text-sm text-gray-400">
+    <div class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff6d5a]"></span>
+      <span>Event location</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="w-5 h-5 rounded-full bg-[#ff6d5a] flex items-center justify-center text-xs text-white font-bold">2</span>
+      <span>Multiple events</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .marker {
+    cursor: pointer;
+    transition: transform 0.2s ease, r 0.2s ease;
+    transform-origin: center;
+  }
+
+  .marker-group:hover .marker {
+    transform: scale(1.2);
+  }
+
+  .marker {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+</style>
+
+<script>
+  function initMapTooltip() {
+    const tooltip = document.getElementById('map-tooltip');
+    const tooltipCity = document.getElementById('tooltip-city');
+    const tooltipCountry = document.getElementById('tooltip-country');
+    const tooltipEvents = document.getElementById('tooltip-events');
+    const markers = document.querySelectorAll('.marker-group');
+
+    if (!tooltip || !tooltipCity || !tooltipCountry || !tooltipEvents) return;
+
+    markers.forEach(marker => {
+      marker.addEventListener('mouseenter', (e) => {
+        const city = marker.getAttribute('data-city') || 'Unknown';
+        const country = marker.getAttribute('data-country') || '';
+        const events = marker.getAttribute('data-events') || '1';
+
+        tooltipCity.textContent = city;
+        tooltipCountry.textContent = country;
+        tooltipEvents.textContent = `${events} event${parseInt(events) !== 1 ? 's' : ''}`;
+
+        tooltip.classList.remove('hidden');
+      });
+
+      marker.addEventListener('mousemove', (e) => {
+        const container = document.getElementById('events-map-container');
+        if (!container) return;
+
+        const rect = container.getBoundingClientRect();
+        const mouseEvent = e as MouseEvent;
+        const x = mouseEvent.clientX - rect.left;
+        const y = mouseEvent.clientY - rect.top;
+
+        tooltip.style.left = `${x + 15}px`;
+        tooltip.style.top = `${y - 10}px`;
+      });
+
+      marker.addEventListener('mouseleave', () => {
+        tooltip.classList.add('hidden');
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMapTooltip);
+  } else {
+    initMapTooltip();
+  }
+</script>
