@@ -124,18 +124,96 @@ function aggregateByPeriod(
   return aggregated.sort((a, b) => a.date.localeCompare(b.date));
 }
 
+function loadExistingHistory(): GitHubHistory | null {
+  if (!existsSync(HISTORY_PATH)) {
+    return null;
+  }
+  try {
+    const content = readFileSync(HISTORY_PATH, 'utf-8');
+    return JSON.parse(content);
+  } catch {
+    return null;
+  }
+}
+
+function mergeMonthlyData(
+  existing: GitHubDataPoint[],
+  fresh: GitHubDataPoint[]
+): GitHubDataPoint[] {
+  // Create map of fresh data by date
+  const freshByDate = new Map(fresh.map(e => [e.date, e]));
+  const existingByDate = new Map(existing.map(e => [e.date, e]));
+
+  // Get all unique dates
+  const allDates = new Set([...freshByDate.keys(), ...existingByDate.keys()]);
+
+  const merged: GitHubDataPoint[] = [];
+  for (const date of allDates) {
+    const freshEntry = freshByDate.get(date);
+    const existingEntry = existingByDate.get(date);
+
+    if (freshEntry) {
+      // Fresh data from API takes precedence for recent entries
+      // But preserve backfilled fields (forks, watchers, openIssues, issuesOpened, issuesClosed)
+      // if they were 0 in fresh but non-zero in existing
+      const mergedEntry: any = { ...freshEntry };
+
+      if (existingEntry) {
+        // Preserve backfilled forks if fresh shows 0
+        if (freshEntry.forks === 0 && existingEntry.forks > 0) {
+          mergedEntry.forks = existingEntry.forks;
+        }
+        // Preserve backfilled watchers if fresh shows 0
+        if (freshEntry.watchers === 0 && existingEntry.watchers > 0) {
+          mergedEntry.watchers = existingEntry.watchers;
+        }
+        // Preserve backfilled openIssues if fresh shows 0
+        if (freshEntry.openIssues === 0 && existingEntry.openIssues > 0) {
+          mergedEntry.openIssues = existingEntry.openIssues;
+        }
+        // Preserve issuesOpened/issuesClosed if they exist in existing
+        if ((existingEntry as any).issuesOpened !== undefined) {
+          mergedEntry.issuesOpened = (existingEntry as any).issuesOpened;
+        }
+        if ((existingEntry as any).issuesClosed !== undefined) {
+          mergedEntry.issuesClosed = (existingEntry as any).issuesClosed;
+        }
+        // Preserve source detail if it shows multiple sources
+        if (existingEntry.sourceDetail && existingEntry.sourceDetail.includes('+')) {
+          mergedEntry.sourceDetail = existingEntry.sourceDetail;
+        }
+      }
+
+      merged.push(mergedEntry);
+    } else if (existingEntry) {
+      // Keep existing backfilled data that's not in raw log
+      merged.push(existingEntry);
+    }
+  }
+
+  return merged.sort((a, b) => a.date.localeCompare(b.date));
+}
+
 function generateHistory(rawLog: GitHubDailyLog): GitHubHistory {
   const now = new Date();
   const entries = rawLog.entries;
+
+  // Load existing history to preserve backfilled data
+  const existing = loadExistingHistory();
 
   // Daily: last 90 days
   const dailyCutoff = new Date(now);
   dailyCutoff.setDate(dailyCutoff.getDate() - DAILY_RETENTION_DAYS);
   const dailyCutoffStr = dailyCutoff.toISOString().split('T')[0];
 
-  const daily = entries
+  let daily = entries
     .filter(e => e.date >= dailyCutoffStr)
     .sort((a, b) => a.date.localeCompare(b.date));
+
+  // Merge with existing daily if available
+  if (existing?.daily) {
+    daily = mergeMonthlyData(existing.daily, daily);
+  }
 
   // Weekly: last 2 years
   const weeklyCutoff = new Date(now);
@@ -143,10 +221,20 @@ function generateHistory(rawLog: GitHubDailyLog): GitHubHistory {
   const weeklyCutoffStr = weeklyCutoff.toISOString().split('T')[0];
 
   const weeklyEntries = entries.filter(e => e.date >= weeklyCutoffStr);
-  const weekly = aggregateByPeriod(weeklyEntries, getWeekKey);
+  let weekly = aggregateByPeriod(weeklyEntries, getWeekKey);
+
+  // Merge with existing weekly
+  if (existing?.weekly) {
+    weekly = mergeMonthlyData(existing.weekly, weekly);
+  }
 
   // Monthly: all time
-  const monthly = aggregateByPeriod(entries, getMonthKey);
+  let monthly = aggregateByPeriod(entries, getMonthKey);
+
+  // Merge with existing monthly to preserve backfilled data
+  if (existing?.monthly) {
+    monthly = mergeMonthlyData(existing.monthly, monthly);
+  }
 
   return {
     lastUpdated: now.toISOString(),

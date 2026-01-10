@@ -23,9 +23,10 @@ const FORKS_CSV = path.join(__dirname, '../data/ForkEvent.csv');
 const ISSUES_CSV = path.join(__dirname, '../data/bquxjob_49f3cf2a_19ba8a31443.csv');
 const HISTORY_FILE = path.join(__dirname, '../public/data/github-history.json');
 
-// Known calibration: 2026-01 has 1224 open issues from GitHub API
-const ISSUES_CALIBRATION_MONTH = '2026-01';
+// Known calibration values from GitHub API (2026-01)
+const CALIBRATION_MONTH = '2026-01';
 const ISSUES_CALIBRATION_VALUE = 1224;
+const FORKS_CALIBRATION_VALUE = 53369; // BigQuery cumulative is 41860, so offset is 11509
 
 interface HistoryEntry {
   date: string;
@@ -88,7 +89,7 @@ function main() {
   console.log(`  Added watchers to ${watchersAdded} months\n`);
 
   // ============================================
-  // 2. MERGE BIGQUERY FORKS (CUMULATIVE)
+  // 2. MERGE BIGQUERY FORKS (CUMULATIVE WITH CALIBRATION)
   // ============================================
   console.log('--- Step 2: BigQuery Forks ---');
   const forksContent = fs.readFileSync(FORKS_CSV, 'utf-8');
@@ -121,15 +122,30 @@ function main() {
     console.log(`  Interpolated 2025-11 forks: ${nov}`);
   }
 
+  // Calculate calibration offset (BigQuery undercounts forks)
+  const bigqueryCalibrationForks = cumulativeForks.get(CALIBRATION_MONTH);
+  let forksCalibrationOffset = 0;
+  if (bigqueryCalibrationForks !== undefined) {
+    forksCalibrationOffset = FORKS_CALIBRATION_VALUE - bigqueryCalibrationForks;
+    console.log(`  BigQuery cumulative at ${CALIBRATION_MONTH}: ${bigqueryCalibrationForks}`);
+    console.log(`  Known API value: ${FORKS_CALIBRATION_VALUE}`);
+    console.log(`  Calibration offset: ${forksCalibrationOffset}`);
+  }
+
   let forksAdded = 0;
   for (const entry of historyData.monthly) {
-    const forks = cumulativeForks.get(entry.date);
-    if (forks !== undefined && entry.forks === 0) {
-      entry.forks = forks;
-      forksAdded++;
+    const rawForks = cumulativeForks.get(entry.date);
+    if (rawForks !== undefined) {
+      const calibratedForks = rawForks + forksCalibrationOffset;
+      // Update if missing OR if this is historical data that needs calibration
+      // (source is ossinsight, not github-api)
+      if (entry.forks === 0 || (entry.source === 'ossinsight' && entry.forks !== calibratedForks)) {
+        entry.forks = calibratedForks;
+        forksAdded++;
+      }
     }
   }
-  console.log(`  Added forks to ${forksAdded} months\n`);
+  console.log(`  Updated forks for ${forksAdded} months\n`);
 
   // ============================================
   // 3. MERGE BIGQUERY ISSUES OPENED/CLOSED
@@ -176,20 +192,20 @@ function main() {
   }
 
   // Calculate calibration offset using known value
-  const bigqueryValue = cumulativeOpen.get(ISSUES_CALIBRATION_MONTH);
-  let calibrationOffset = 0;
+  const bigqueryValue = cumulativeOpen.get(CALIBRATION_MONTH);
+  let issuesCalibrationOffset = 0;
   if (bigqueryValue !== undefined) {
-    calibrationOffset = ISSUES_CALIBRATION_VALUE - bigqueryValue;
-    console.log(`  BigQuery cumulative at ${ISSUES_CALIBRATION_MONTH}: ${bigqueryValue}`);
+    issuesCalibrationOffset = ISSUES_CALIBRATION_VALUE - bigqueryValue;
+    console.log(`  BigQuery cumulative at ${CALIBRATION_MONTH}: ${bigqueryValue}`);
     console.log(`  Known API value: ${ISSUES_CALIBRATION_VALUE}`);
-    console.log(`  Calibration offset: ${calibrationOffset}`);
+    console.log(`  Calibration offset: ${issuesCalibrationOffset}`);
   }
 
   let openIssuesAdded = 0;
   for (const entry of historyData.monthly) {
     const cumOpen = cumulativeOpen.get(entry.date);
     if (cumOpen !== undefined && entry.openIssues === 0) {
-      entry.openIssues = cumOpen + calibrationOffset;
+      entry.openIssues = cumOpen + issuesCalibrationOffset;
       openIssuesAdded++;
     }
   }
