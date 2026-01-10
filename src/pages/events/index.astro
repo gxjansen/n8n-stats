@@ -112,9 +112,17 @@ const stats = eventsData?.stats || {
   onlineCount: 0,
 };
 
-// Calculate average participants per event (past events only)
-const avgParticipants = stats.pastCount > 0
-  ? Math.round(stats.totalRegistrations / stats.pastCount)
+// Calculate median participants per event (past events only)
+// Using median instead of mean to avoid skewing by large online events
+const pastRegistrations = (eventsData?.past || [])
+  .map(e => e.registrations)
+  .filter(r => r !== undefined)
+  .sort((a, b) => a - b);
+const mid = Math.floor(pastRegistrations.length / 2);
+const medianParticipants = pastRegistrations.length > 0
+  ? (pastRegistrations.length % 2 !== 0
+      ? pastRegistrations[mid]
+      : Math.round((pastRegistrations[mid - 1] + pastRegistrations[mid]) / 2))
   : 0;
 ---
 
@@ -141,8 +149,8 @@ const avgParticipants = stats.pastCount > 0
           value={formatNumber(stats.totalRegistrations)}
         />
         <StatCard
-          label="Avg Participants/Event"
-          value={avgParticipants}
+          label="Median Participants"
+          value={medianParticipants}
         />
         <StatCard
           label="Upcoming Events"

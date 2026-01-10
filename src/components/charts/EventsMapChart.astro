@@ -1,8 +1,10 @@
 ---
 /**
  * Events Map Chart
- * Displays event locations on an SVG world map
- * World map SVG from flekschas/simple-world-map (CC BY-SA 3.0)
+ * Displays event locations on a world map using equirectangular projection
+ *
+ * Map source: NASA Blue Marble (public domain)
+ * https://visibleearth.nasa.gov/collection/1484/blue-marble
  */
 
 interface Location {
@@ -21,27 +23,15 @@ interface Props {
 
 const { locations } = Astro.props;
 
-// Match the world-map.svg viewBox exactly: "30.767 241.591 784.077 458.627"
-// This ensures our coordinate system matches the SVG's internal coordinates
-const svgViewBox = {
-  x: 30.767,
-  y: 241.591,
-  width: 784.077,
-  height: 458.627,
-};
+// Map dimensions (2:1 ratio for equirectangular projection)
+const mapWidth = 800;
+const mapHeight = 400;
 
-// The simple-world-map uses equirectangular projection
-// Map covers approximately -168° to +190° longitude and -56° to +84° latitude
-// (based on the SVG's actual content bounds)
-const lngMin = -168;
-const lngMax = 192;  // wraps around date line
-const latMin = -56;
-const latMax = 84;
-
-// Convert lat/lng to SVG coordinates
+// Standard equirectangular projection formula
+// Maps longitude -180 to +180 across width, latitude +90 to -90 across height
 function latLngToXY(lat: number, lng: number): { x: number; y: number } {
-  const x = svgViewBox.x + ((lng - lngMin) / (lngMax - lngMin)) * svgViewBox.width;
-  const y = svgViewBox.y + ((latMax - lat) / (latMax - latMin)) * svgViewBox.height;
+  const x = ((lng + 180) / 360) * mapWidth;
+  const y = ((90 - lat) / 180) * mapHeight;
   return { x, y };
 }
 
@@ -58,8 +48,7 @@ const markers = locations.map(loc => {
   };
 });
 
-// Use the SVG's native viewBox
-const viewBox = `${svgViewBox.x} ${svgViewBox.y} ${svgViewBox.width} ${svgViewBox.height}`;
+const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
 ---
 
 <div id="events-map-container" class="card">
@@ -67,18 +56,17 @@ const viewBox = `${svgViewBox.x} ${svgViewBox.y} ${svgViewBox.width} ${svgViewBo
     <svg
       viewBox={viewBox}
       class="w-full h-auto"
-      style="max-height: 450px; background: #0f1419;"
+      style="max-height: 450px;"
     >
-      <!-- Ocean background -->
-      <rect x={svgViewBox.x} y={svgViewBox.y} width={svgViewBox.width} height={svgViewBox.height} fill="#0f1419" />
-
-      <!-- World map from flekschas/simple-world-map (CC BY-SA 3.0) -->
+      <!-- World map background (NASA Blue Marble, equirectangular projection) -->
       <image
-        href="/images/world-map.svg"
-        x={svgViewBox.x}
-        y={svgViewBox.y}
-        width={svgViewBox.width}
-        height={svgViewBox.height}
+        href="/images/world-equirect.jpg"
+        x="0"
+        y="0"
+        width={mapWidth}
+        height={mapHeight}
+        preserveAspectRatio="none"
+        class="map-image"
       />
 
       <!-- Event markers -->
@@ -95,9 +83,9 @@ const viewBox = `${svgViewBox.x} ${svgViewBox.y} ${svgViewBox.width} ${svgViewBo
             <circle
               cx={marker.x}
               cy={marker.y}
-              r={marker.size + 6}
+              r={marker.size + 5}
               fill="url(#markerGlow)"
-              opacity="0.6"
+              opacity="0.7"
             />
             <!-- Main marker -->
             <circle
@@ -114,10 +102,10 @@ const viewBox = `${svgViewBox.x} ${svgViewBox.y} ${svgViewBox.width} ${svgViewBo
             {marker.eventCount > 1 && (
               <text
                 x={marker.x}
-                y={marker.y + 4}
+                y={marker.y + 3}
                 text-anchor="middle"
                 fill="#fff"
-                font-size="10"
+                font-size="8"
                 font-weight="bold"
               >
                 {marker.eventCount}
@@ -161,6 +149,11 @@ const viewBox = `${svgViewBox.x} ${svgViewBox.y} ${svgViewBox.width} ${svgViewBo
 </div>
 
 <style>
+  /* Dark theme filter for the map image */
+  .map-image {
+    filter: brightness(0.4) saturate(0.6) hue-rotate(180deg);
+  }
+
   .marker {
     cursor: pointer;
     transition: transform 0.2s ease;

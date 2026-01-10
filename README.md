@@ -75,7 +75,7 @@ This is an independent community project, not affiliated with n8n GmbH.
 
 ## Attributions
 
-- **World Map SVG**: [Simple World Map](https://github.com/flekschas/simple-world-map) by Al MacDonald, edited by Fritz Lekschas ([CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/))
+- **World Map**: [NASA Blue Marble](https://visibleearth.nasa.gov/collection/1484/blue-marble) (public domain)
 
 ## License
 
