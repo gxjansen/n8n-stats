@@ -284,18 +284,25 @@ const byMonthFull = byMonth.map(m => ({
       <section class="mb-12">
         <h2 class="text-2xl font-bold text-white mb-6">Events by Country</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {byCountry.slice(0, 8).map((country) => (
-            <div class="card">
-              <div class="flex items-center gap-2">
-                <span class="text-2xl" role="img" aria-label={`${country.country} flag`}>
-                  {getCountryFlag(country.country)}
-                </span>
-                <span class="text-lg font-semibold text-white">{country.country}</span>
+          {byCountry.slice(0, 8).map((country) => {
+            const code = countryToCode[country.country]?.toLowerCase();
+            const flagUrl = code && code !== '🌐' ? `https://flagcdn.com/w320/${code}.png` : null;
+            return (
+              <div
+                class="card relative overflow-hidden"
+                style={flagUrl ? `background-image: url('${flagUrl}'); background-size: cover; background-position: center;` : ''}
+              >
+                {/* Dark overlay for readability */}
+                <div class="absolute inset-0 bg-black/70"></div>
+                {/* Content */}
+                <div class="relative z-10">
+                  <div class="text-lg font-semibold text-white">{country.country}</div>
+                  <div class="text-3xl font-bold text-n8n-primary mt-2">{country.count}</div>
+                  <div class="text-sm text-gray-300">event{country.count !== 1 ? 's' : ''}</div>
+                </div>
               </div>
-              <div class="text-2xl font-bold text-n8n-primary mt-2">{country.count}</div>
-              <div class="text-sm text-gray-400">event{country.count !== 1 ? 's' : ''}</div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
     )}
