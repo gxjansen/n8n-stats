@@ -73,6 +73,88 @@ if (existsSync(dataPath)) {
   }
 }
 
+// Country name to ISO 2-letter code mapping
+const countryToCode: Record<string, string> = {
+  'United States': 'US',
+  'Germany': 'DE',
+  'Austria': 'AT',
+  'Netherlands': 'NL',
+  'Spain': 'ES',
+  'United Kingdom': 'GB',
+  'France': 'FR',
+  'Denmark': 'DK',
+  'Switzerland': 'CH',
+  'South Korea': 'KR',
+  'Poland': 'PL',
+  'Israel': 'IL',
+  'Hungary': 'HU',
+  'Canada': 'CA',
+  'Kenya': 'KE',
+  'Italy': 'IT',
+  'Turkey': 'TR',
+  'UAE': 'AE',
+  'Portugal': 'PT',
+  'Ghana': 'GH',
+  'Belgium': 'BE',
+  'Australia': 'AU',
+  'Brazil': 'BR',
+  'Japan': 'JP',
+  'India': 'IN',
+  'Mexico': 'MX',
+  'Argentina': 'AR',
+  'Sweden': 'SE',
+  'Norway': 'NO',
+  'Finland': 'FI',
+  'Ireland': 'IE',
+  'Czech Republic': 'CZ',
+  'Romania': 'RO',
+  'Greece': 'GR',
+  'Singapore': 'SG',
+  'New Zealand': 'NZ',
+  'South Africa': 'ZA',
+  'Nigeria': 'NG',
+  'Colombia': 'CO',
+  'Chile': 'CL',
+  'Peru': 'PE',
+  'Thailand': 'TH',
+  'Vietnam': 'VN',
+  'Philippines': 'PH',
+  'Indonesia': 'ID',
+  'Malaysia': 'MY',
+  'Taiwan': 'TW',
+  'Hong Kong': 'HK',
+  'China': 'CN',
+  'Russia': 'RU',
+  'Ukraine': 'UA',
+  'Croatia': 'HR',
+  'Slovakia': 'SK',
+  'Slovenia': 'SI',
+  'Bulgaria': 'BG',
+  'Serbia': 'RS',
+  'Lithuania': 'LT',
+  'Latvia': 'LV',
+  'Estonia': 'EE',
+  'Luxembourg': 'LU',
+  'Iceland': 'IS',
+  'Malta': 'MT',
+  'Cyprus': 'CY',
+  'Online': '🌐', // Special case for online events
+};
+
+// Convert ISO country code to emoji flag
+function getCountryFlag(countryName: string): string {
+  const code = countryToCode[countryName];
+  if (!code) return '';
+  if (code === '🌐') return code; // Online events
+
+  // Convert 2-letter code to regional indicator symbols
+  // Each letter A-Z maps to regional indicator symbol starting at 0x1F1E6
+  const codePoints = [...code.toUpperCase()].map(
+    char => 0x1F1E6 + char.charCodeAt(0) - 65
+  );
+  return String.fromCodePoint(...codePoints);
+}
+
 // Format date for display
 function formatEventDate(dateStr: string): string {
   const date = new Date(dateStr);
@@ -204,8 +286,13 @@ const byMonthFull = byMonth.map(m => ({
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           {byCountry.slice(0, 8).map((country) => (
             <div class="card">
-              <div class="text-lg font-semibold text-white">{country.country}</div>
-              <div class="text-2xl font-bold text-n8n-primary mt-1">{country.count}</div>
+              <div class="flex items-center gap-2">
+                <span class="text-2xl" role="img" aria-label={`${country.country} flag`}>
+                  {getCountryFlag(country.country)}
+                </span>
+                <span class="text-lg font-semibold text-white">{country.country}</span>
+              </div>
+              <div class="text-2xl font-bold text-n8n-primary mt-2">{country.count}</div>
               <div class="text-sm text-gray-400">event{country.count !== 1 ? 's' : ''}</div>
             </div>
           ))}
