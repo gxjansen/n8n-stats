@@ -139,6 +139,66 @@ const sourcesData = DATA_SOURCES.map(s => ({
         </svg>
         <span>Dashed lines indicate historical/estimated data</span>
       </div>
+
+      <!-- Correlation Analysis -->
+      <div id="correlation-section" class="hidden mt-4 pt-4 border-t border-n8n-border">
+        <div class="flex items-center gap-2 mb-3">
+          <h3 class="text-sm font-medium text-gray-300">Correlation Analysis</h3>
+          <button
+            id="correlation-help"
+            class="text-gray-500 hover:text-gray-300 transition-colors"
+            title="About correlation"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+        </div>
+        <div id="correlation-content" class="space-y-2">
+          <!-- Populated by JS -->
+        </div>
+        <p id="correlation-note" class="text-xs text-gray-500 mt-2">
+          Based on <span id="correlation-datapoints">0</span> overlapping data points in selected range
+        </p>
+      </div>
+
+      <!-- Correlation Help Modal -->
+      <div id="correlation-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div class="bg-n8n-card border border-n8n-border rounded-lg p-6 max-w-md mx-4">
+          <h3 class="text-lg font-semibold text-white mb-3">Understanding Correlation</h3>
+          <p class="text-gray-400 text-sm mb-4">
+            Correlation measures how two metrics move together over time. Values range from -1 to +1:
+          </p>
+          <ul class="text-sm space-y-2 mb-4">
+            <li class="flex items-center gap-2">
+              <span class="text-green-400 font-mono">+0.7 to +1.0</span>
+              <span class="text-gray-400">Strong positive - metrics rise/fall together</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-yellow-400 font-mono">+0.3 to +0.7</span>
+              <span class="text-gray-400">Moderate positive correlation</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-gray-400 font-mono">-0.3 to +0.3</span>
+              <span class="text-gray-400">Weak/no correlation</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-orange-400 font-mono">-0.7 to -0.3</span>
+              <span class="text-gray-400">Moderate negative correlation</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-red-400 font-mono">-1.0 to -0.7</span>
+              <span class="text-gray-400">Strong negative - one rises, other falls</span>
+            </li>
+          </ul>
+          <p class="text-xs text-gray-500 mb-4">
+            Note: Correlation does not imply causation. Two metrics may correlate due to a third factor or coincidence.
+          </p>
+          <button id="close-correlation-modal" class="w-full py-2 bg-n8n-primary text-white rounded text-sm hover:bg-n8n-primary/90">
+            Got it
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Info -->
@@ -239,6 +299,12 @@ const sourcesData = DATA_SOURCES.map(s => ({
   const chartLegend = document.getElementById('chart-legend')!;
   const dualAxisNotice = document.getElementById('dual-axis-notice')!;
   const estimatedNotice = document.getElementById('estimated-notice')!;
+  const correlationSection = document.getElementById('correlation-section')!;
+  const correlationContent = document.getElementById('correlation-content')!;
+  const correlationDatapoints = document.getElementById('correlation-datapoints')!;
+  const correlationHelp = document.getElementById('correlation-help')!;
+  const correlationModal = document.getElementById('correlation-modal')!;
+  const closeCorrelationModal = document.getElementById('close-correlation-modal')!;
 
   // Parse URL state - new format: m=metricId:mode:type,metricId:mode:type
   function parseUrlState(): Partial<PlaygroundState> {
@@ -542,6 +608,124 @@ const sourcesData = DATA_SOURCES.map(s => ({
     }));
   }
 
+  // Calculate Pearson correlation coefficient between two aligned series
+  function calculateCorrelation(values1: (number | null)[], values2: (number | null)[]): { r: number; n: number } {
+    // Filter to only overlapping non-null values
+    const pairs: [number, number][] = [];
+    for (let i = 0; i < values1.length; i++) {
+      if (values1[i] !== null && values2[i] !== null) {
+        pairs.push([values1[i]!, values2[i]!]);
+      }
+    }
+
+    const n = pairs.length;
+    if (n < 3) return { r: NaN, n }; // Need at least 3 points for meaningful correlation
+
+    const mean1 = pairs.reduce((sum, p) => sum + p[0], 0) / n;
+    const mean2 = pairs.reduce((sum, p) => sum + p[1], 0) / n;
+
+    let num = 0, den1 = 0, den2 = 0;
+    for (const [v1, v2] of pairs) {
+      const d1 = v1 - mean1;
+      const d2 = v2 - mean2;
+      num += d1 * d2;
+      den1 += d1 * d1;
+      den2 += d2 * d2;
+    }
+
+    const denominator = Math.sqrt(den1 * den2);
+    const r = denominator === 0 ? 0 : num / denominator;
+    return { r, n };
+  }
+
+  // Interpret correlation strength
+  function interpretCorrelation(r: number): { label: string; colorClass: string } {
+    const abs = Math.abs(r);
+    const direction = r >= 0 ? 'positive' : 'negative';
+
+    if (isNaN(r)) return { label: 'Insufficient data', colorClass: 'text-gray-500' };
+    if (abs >= 0.9) return { label: `Very strong ${direction}`, colorClass: r >= 0 ? 'text-green-400' : 'text-red-400' };
+    if (abs >= 0.7) return { label: `Strong ${direction}`, colorClass: r >= 0 ? 'text-green-500' : 'text-red-500' };
+    if (abs >= 0.5) return { label: `Moderate ${direction}`, colorClass: r >= 0 ? 'text-yellow-400' : 'text-orange-400' };
+    if (abs >= 0.3) return { label: `Weak ${direction}`, colorClass: 'text-gray-400' };
+    return { label: 'Very weak / none', colorClass: 'text-gray-500' };
+  }
+
+  // Calculate and display correlations between all series pairs
+  interface CorrelationResult {
+    label1: string;
+    label2: string;
+    color1: string;
+    color2: string;
+    r: number;
+    n: number;
+  }
+
+  function calculateAllCorrelations(datasets: LoadedData[], labels: string[]): CorrelationResult[] {
+    const results: CorrelationResult[] = [];
+
+    // Get aligned data for each dataset
+    const alignedData = datasets.map(d => {
+      const dataMap = new Map(d.data.map(p => [p.date, p.value]));
+      return labels.map(date => dataMap.get(date) ?? null);
+    });
+
+    // Calculate pairwise correlations
+    for (let i = 0; i < datasets.length; i++) {
+      for (let j = i + 1; j < datasets.length; j++) {
+        const { r, n } = calculateCorrelation(alignedData[i], alignedData[j]);
+        results.push({
+          label1: datasets[i].label,
+          label2: datasets[j].label,
+          color1: datasets[i].color,
+          color2: datasets[j].color,
+          r,
+          n,
+        });
+      }
+    }
+
+    // Sort by absolute correlation strength (strongest first)
+    results.sort((a, b) => Math.abs(b.r) - Math.abs(a.r));
+    return results;
+  }
+
+  function renderCorrelations(correlations: CorrelationResult[]): void {
+    if (correlations.length === 0) {
+      correlationSection.classList.add('hidden');
+      return;
+    }
+
+    correlationSection.classList.remove('hidden');
+    correlationContent.innerHTML = '';
+
+    // Track min data points for the note
+    const minN = Math.min(...correlations.map(c => c.n));
+    correlationDatapoints.textContent = minN.toString();
+
+    for (const corr of correlations) {
+      const { label, colorClass } = interpretCorrelation(corr.r);
+      const rDisplay = isNaN(corr.r) ? '—' : (corr.r >= 0 ? '+' : '') + corr.r.toFixed(2);
+
+      const row = document.createElement('div');
+      row.className = 'flex flex-wrap items-center gap-2 text-sm';
+      row.innerHTML = `
+        <span class="flex items-center gap-1">
+          <span class="w-2 h-2 rounded-full" style="background-color: ${corr.color1}"></span>
+          <span class="text-gray-400 truncate max-w-[120px]" title="${corr.label1}">${corr.label1.split(':')[1]?.trim() || corr.label1}</span>
+        </span>
+        <span class="text-gray-600">↔</span>
+        <span class="flex items-center gap-1">
+          <span class="w-2 h-2 rounded-full" style="background-color: ${corr.color2}"></span>
+          <span class="text-gray-400 truncate max-w-[120px]" title="${corr.label2}">${corr.label2.split(':')[1]?.trim() || corr.label2}</span>
+        </span>
+        <span class="ml-auto font-mono ${colorClass}">${rDisplay}</span>
+        <span class="text-xs ${colorClass}">${label}</span>
+      `;
+      correlationContent.appendChild(row);
+    }
+  }
+
   // Check if dual axis needed
   function needsDualAxis(datasets: LoadedData[]): boolean {
     if (datasets.length < 2) return false;
@@ -560,6 +744,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
       chartLegend.classList.add('hidden');
       dualAxisNotice.classList.add('hidden');
       estimatedNotice.classList.add('hidden');
+      correlationSection.classList.add('hidden');
       if (chart) {
         chart.destroy();
         chart = null;
@@ -757,6 +942,14 @@ const sourcesData = DATA_SOURCES.map(s => ({
         chartLegend.appendChild(item);
       });
 
+      // Calculate and display correlations (only if 2+ series)
+      if (datasets.length >= 2) {
+        const correlations = calculateAllCorrelations(datasets, labels);
+        renderCorrelations(correlations);
+      } else {
+        correlationSection.classList.add('hidden');
+      }
+
     } catch (error) {
       console.error('Chart update failed:', error);
       loadingState.classList.add('hidden');
@@ -806,6 +999,21 @@ const sourcesData = DATA_SOURCES.map(s => ({
     } catch {
       // Fallback: select URL bar
       window.prompt('Copy this URL:', window.location.href);
+    }
+  });
+
+  // Correlation help modal
+  correlationHelp.addEventListener('click', () => {
+    correlationModal.classList.remove('hidden');
+  });
+
+  closeCorrelationModal.addEventListener('click', () => {
+    correlationModal.classList.add('hidden');
+  });
+
+  correlationModal.addEventListener('click', (e) => {
+    if (e.target === correlationModal) {
+      correlationModal.classList.add('hidden');
     }
   });
 
