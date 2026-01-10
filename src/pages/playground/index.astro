@@ -163,8 +163,8 @@ const sourcesData = DATA_SOURCES.map(s => ({
       </div>
 
       <!-- Correlation Help Modal -->
-      <div id="correlation-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-        <div class="bg-n8n-card border border-n8n-border rounded-lg p-6 max-w-md mx-4">
+      <div id="correlation-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+        <div class="bg-[#1a1a1a] border border-n8n-border rounded-lg p-6 max-w-md mx-4 shadow-xl">
           <h3 class="text-lg font-semibold text-white mb-3">Understanding Correlation</h3>
           <p class="text-gray-400 text-sm mb-4">
             Correlation measures how two metrics move together over time. Values range from -1 to +1:
@@ -215,6 +215,18 @@ const sourcesData = DATA_SOURCES.map(s => ({
 
 <script>
   import Chart from 'chart.js/auto';
+  import 'chartjs-adapter-date-fns';
+
+  // Normalize date strings to ISO format (YYYY-MM-DD)
+  // Handles: YYYY-MM → YYYY-MM-01, YYYY-MM-DD → YYYY-MM-DD
+  function normalizeDate(dateStr: string): string {
+    if (!dateStr) return dateStr;
+    // If it's just YYYY-MM format, add day
+    if (/^\d{4}-\d{2}$/.test(dateStr)) {
+      return `${dateStr}-01`;
+    }
+    return dateStr;
+  }
 
   interface MetricInfo {
     id: string;
@@ -511,7 +523,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
       if (Array.isArray(current)) {
         return current
           .map(item => ({
-            date: item[metric.dateKey || 'date'],
+            date: normalizeDate(item[metric.dateKey || 'date']),
             value: item[metric.valueKey || 'value'],
           }))
           .filter((p: TimeSeriesPoint) => isValidValue(p.value));
@@ -524,7 +536,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
     if (!Array.isArray(granularityData)) return [];
 
     return granularityData.map((item: any) => ({
-      date: item.date,
+      date: normalizeDate(item.date),
       value: item[metric.path],
     })).filter((p: TimeSeriesPoint) => isValidValue(p.value));
   }
@@ -661,13 +673,18 @@ const sourcesData = DATA_SOURCES.map(s => ({
     n: number;
   }
 
-  function calculateAllCorrelations(datasets: LoadedData[], labels: string[]): CorrelationResult[] {
+  function calculateAllCorrelations(datasets: LoadedData[]): CorrelationResult[] {
     const results: CorrelationResult[] = [];
+
+    // Get all unique dates from all datasets
+    const allDates = new Set<string>();
+    datasets.forEach(d => d.data.forEach(p => allDates.add(p.date)));
+    const sortedDates = Array.from(allDates).sort();
 
     // Get aligned data for each dataset
     const alignedData = datasets.map(d => {
       const dataMap = new Map(d.data.map(p => [p.date, p.value]));
-      return labels.map(date => dataMap.get(date) ?? null);
+      return sortedDates.map(date => dataMap.get(date) ?? null);
     });
 
     // Calculate pairwise correlations
@@ -708,19 +725,20 @@ const sourcesData = DATA_SOURCES.map(s => ({
       const rDisplay = isNaN(corr.r) ? '—' : (corr.r >= 0 ? '+' : '') + corr.r.toFixed(2);
 
       const row = document.createElement('div');
-      row.className = 'flex flex-wrap items-center gap-2 text-sm';
+      row.className = 'flex flex-wrap items-center gap-x-2 gap-y-1 text-sm';
       row.innerHTML = `
         <span class="flex items-center gap-1">
           <span class="w-2 h-2 rounded-full" style="background-color: ${corr.color1}"></span>
-          <span class="text-gray-400 truncate max-w-[120px]" title="${corr.label1}">${corr.label1.split(':')[1]?.trim() || corr.label1}</span>
+          <span class="text-gray-400 truncate max-w-[100px]" title="${corr.label1}">${corr.label1.split(':')[1]?.trim() || corr.label1}</span>
         </span>
         <span class="text-gray-600">↔</span>
         <span class="flex items-center gap-1">
           <span class="w-2 h-2 rounded-full" style="background-color: ${corr.color2}"></span>
-          <span class="text-gray-400 truncate max-w-[120px]" title="${corr.label2}">${corr.label2.split(':')[1]?.trim() || corr.label2}</span>
+          <span class="text-gray-400 truncate max-w-[100px]" title="${corr.label2}">${corr.label2.split(':')[1]?.trim() || corr.label2}</span>
         </span>
-        <span class="ml-auto font-mono ${colorClass}">${rDisplay}</span>
-        <span class="text-xs ${colorClass}">${label}</span>
+        <span class="text-gray-600">=</span>
+        <span class="font-mono ${colorClass}">${rDisplay}</span>
+        <span class="text-xs ${colorClass}">(${label})</span>
       `;
       correlationContent.appendChild(row);
     }
@@ -776,23 +794,19 @@ const sourcesData = DATA_SOURCES.map(s => ({
       const useDualAxis = needsDualAxis(datasets);
       dualAxisNotice.classList.toggle('hidden', !useDualAxis);
 
-      // Find common date range
-      const allDates = new Set<string>();
-      datasets.forEach(d => d.data.forEach(p => allDates.add(p.date)));
-      const labels = Array.from(allDates).sort();
-
-      // Build chart datasets with estimated data styling
+      // Build chart datasets with time-based data points {x, y}
       let hasEstimatedData = false;
 
       const chartDatasets = datasets.map((d, index) => {
-        // Map data to labels, tracking estimated status
-        const dataMap = new Map(d.data.map(p => [p.date, p.value]));
-        const estimatedMap = new Map(d.data.map(p => [p.date, p.isEstimated]));
-        const values = labels.map(date => dataMap.get(date) ?? null);
-        const isEstimatedArr = labels.map(date => estimatedMap.get(date) ?? false);
+        // Convert to {x: Date, y: value} format for time scale
+        const dataPoints = d.data.map(p => ({
+          x: new Date(p.date).getTime(),
+          y: p.value,
+          isEstimated: p.isEstimated,
+        }));
 
         // Track if any estimated data is visible
-        if (isEstimatedArr.some(e => e)) {
+        if (d.data.some(p => p.isEstimated)) {
           hasEstimatedData = true;
         }
 
@@ -804,29 +818,27 @@ const sourcesData = DATA_SOURCES.map(s => ({
           segment: {
             borderDash: (ctx: any) => {
               // Check if either endpoint of segment is estimated
-              const p0Estimated = isEstimatedArr[ctx.p0DataIndex];
-              const p1Estimated = isEstimatedArr[ctx.p1DataIndex];
-              return (p0Estimated || p1Estimated) ? [6, 3] : undefined;
+              const p0 = dataPoints[ctx.p0DataIndex];
+              const p1 = dataPoints[ctx.p1DataIndex];
+              return (p0?.isEstimated || p1?.isEstimated) ? [6, 3] : undefined;
             },
             borderColor: (ctx: any) => {
               // Slightly transparent for estimated segments
-              const p0Estimated = isEstimatedArr[ctx.p0DataIndex];
-              const p1Estimated = isEstimatedArr[ctx.p1DataIndex];
-              return (p0Estimated || p1Estimated) ? `${d.color}aa` : undefined;
+              const p0 = dataPoints[ctx.p0DataIndex];
+              const p1 = dataPoints[ctx.p1DataIndex];
+              return (p0?.isEstimated || p1?.isEstimated) ? `${d.color}aa` : undefined;
             },
           },
         } : {};
 
         return {
           label: d.label,
-          data: values,
+          data: dataPoints,
           borderColor: d.color,
-          backgroundColor: isBar
-            ? isEstimatedArr.map(e => e ? `${d.color}55` : `${d.color}99`) // Lighter bars for estimated
-            : isArea ? `${d.color}20` : d.color,
+          backgroundColor: isArea ? `${d.color}20` : `${d.color}99`,
           fill: isArea,
           tension: 0.1,
-          pointRadius: isBar ? 0 : labels.length > 60 ? 0 : 3,
+          pointRadius: isBar ? 0 : dataPoints.length > 60 ? 0 : 3,
           pointHoverRadius: isBar ? 0 : 5,
           yAxisID: useDualAxis && index >= 1 ? 'y1' : 'y',
           type: isBar ? 'bar' : 'line',
@@ -842,7 +854,6 @@ const sourcesData = DATA_SOURCES.map(s => ({
 
       // Create or update chart
       if (chart) {
-        chart.data.labels = labels;
         chart.data.datasets = chartDatasets as any;
         if (chart.options.scales) {
           (chart.options.scales as any).y1.display = useDualAxis;
@@ -855,14 +866,13 @@ const sourcesData = DATA_SOURCES.map(s => ({
         chart = new Chart(chartCanvas, {
           type: 'line',
           data: {
-            labels,
             datasets: chartDatasets as any,
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
             interaction: {
-              mode: 'index',
+              mode: 'nearest',
               intersect: false,
             },
             plugins: {
@@ -876,6 +886,11 @@ const sourcesData = DATA_SOURCES.map(s => ({
                 borderColor: '#333',
                 borderWidth: 1,
                 callbacks: {
+                  title: (items) => {
+                    if (items.length === 0) return '';
+                    const date = new Date(items[0].parsed.x);
+                    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                  },
                   label: (context) => {
                     const value = context.parsed.y;
                     if (value === null) return '';
@@ -886,6 +901,13 @@ const sourcesData = DATA_SOURCES.map(s => ({
             },
             scales: {
               x: {
+                type: 'time',
+                time: {
+                  unit: 'month',
+                  displayFormats: {
+                    month: 'MMM yyyy',
+                  },
+                },
                 grid: { color: 'rgba(255,255,255,0.05)' },
                 ticks: { color: '#6b7280', maxRotation: 45 },
               },
@@ -944,7 +966,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
 
       // Calculate and display correlations (only if 2+ series)
       if (datasets.length >= 2) {
-        const correlations = calculateAllCorrelations(datasets, labels);
+        const correlations = calculateAllCorrelations(datasets);
         renderCorrelations(correlations);
       } else {
         correlationSection.classList.add('hidden');
