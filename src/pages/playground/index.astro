@@ -676,15 +676,24 @@ const sourcesData = DATA_SOURCES.map(s => ({
   function calculateAllCorrelations(datasets: LoadedData[]): CorrelationResult[] {
     const results: CorrelationResult[] = [];
 
-    // Get all unique dates from all datasets
-    const allDates = new Set<string>();
-    datasets.forEach(d => d.data.forEach(p => allDates.add(p.date)));
-    const sortedDates = Array.from(allDates).sort();
+    // Align data by MONTH (YYYY-MM) to handle different granularities
+    // For each month, take the last value in that month
+    const getMonthKey = (date: string) => date.slice(0, 7); // YYYY-MM
 
-    // Get aligned data for each dataset
+    // Get all unique months from all datasets
+    const allMonths = new Set<string>();
+    datasets.forEach(d => d.data.forEach(p => allMonths.add(getMonthKey(p.date))));
+    const sortedMonths = Array.from(allMonths).sort();
+
+    // Get aligned data for each dataset (by month, using last value in month)
     const alignedData = datasets.map(d => {
-      const dataMap = new Map(d.data.map(p => [p.date, p.value]));
-      return sortedDates.map(date => dataMap.get(date) ?? null);
+      // Group by month, keep last value per month
+      const monthMap = new Map<string, number>();
+      for (const p of d.data) {
+        const month = getMonthKey(p.date);
+        monthMap.set(month, p.value); // Later dates overwrite earlier ones
+      }
+      return sortedMonths.map(month => monthMap.get(month) ?? null);
     });
 
     // Calculate pairwise correlations
