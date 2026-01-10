@@ -74,6 +74,10 @@ const COLORS = {
   // Events
   eventsCount: '#ff6d5a',       // n8n coral/red
   eventsRegistrations: '#10b981', // Green
+  eventsInPersonCount: '#f97316', // Orange (in-person events)
+  eventsInPersonReg: '#22c55e',   // Green (in-person registrations)
+  eventsOnlineCount: '#8b5cf6',   // Violet (online events)
+  eventsOnlineReg: '#06b6d4',     // Cyan (online registrations)
 };
 
 export const DATA_SOURCES: DataSource[] = [
@@ -201,8 +205,12 @@ export const DATA_SOURCES: DataSource[] = [
     historyStart: '2021-04',
     measuredSince: '2021-04', // All data from Luma calendar (scraped)
     metrics: [
-      { id: 'events-count', label: 'Events/Month', color: COLORS.eventsCount, path: 'events' },
-      { id: 'events-registrations', label: 'Registrations/Month', color: COLORS.eventsRegistrations, path: 'registrations' },
+      { id: 'events-count', label: 'All Events/Month', color: COLORS.eventsCount, path: 'events' },
+      { id: 'events-registrations', label: 'All Registrations/Month', color: COLORS.eventsRegistrations, path: 'registrations' },
+      { id: 'events-inperson-count', label: 'In-Person Events/Month', color: COLORS.eventsInPersonCount, path: 'inPersonEvents' },
+      { id: 'events-inperson-reg', label: 'In-Person Registrations/Month', color: COLORS.eventsInPersonReg, path: 'inPersonRegistrations' },
+      { id: 'events-online-count', label: 'Online Events/Month', color: COLORS.eventsOnlineCount, path: 'onlineEvents' },
+      { id: 'events-online-reg', label: 'Online Registrations/Month', color: COLORS.eventsOnlineReg, path: 'onlineRegistrations' },
     ],
   },
 ];

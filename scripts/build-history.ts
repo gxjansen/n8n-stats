@@ -324,7 +324,17 @@ function buildTemplatesHistory(snapshots: Map<string, any>): TemplatesHistory {
 
 // Build Events history for playground (normalized from events.json)
 // Only includes past events - excludes future months to avoid skewing correlation statistics
-function buildEventsHistory(): { monthly: Array<{ date: string; events: number; registrations: number }> } | null {
+interface EventsHistoryEntry {
+  date: string;
+  events: number;
+  registrations: number;
+  inPersonEvents: number;
+  inPersonRegistrations: number;
+  onlineEvents: number;
+  onlineRegistrations: number;
+}
+
+function buildEventsHistory(): { monthly: EventsHistoryEntry[] } | null {
   const eventsPath = join(DATA_DIR, 'history', 'events.json');
 
   if (!existsSync(eventsPath)) {
@@ -344,12 +354,25 @@ function buildEventsHistory(): { monthly: Array<{ date: string; events: number; 
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
   // Transform to playground-compatible format, filtering out future months
+  // Includes split data for in-person and online events
   const monthly = eventsData.byMonth
     .filter((m: { month: string }) => m.month <= currentMonth)
-    .map((m: { month: string; count: number; registrations: number }) => ({
+    .map((m: {
+      month: string;
+      count: number;
+      registrations: number;
+      inPersonCount?: number;
+      inPersonRegistrations?: number;
+      onlineCount?: number;
+      onlineRegistrations?: number;
+    }) => ({
       date: m.month, // Already in YYYY-MM format
       events: m.count,
       registrations: m.registrations,
+      inPersonEvents: m.inPersonCount || 0,
+      inPersonRegistrations: m.inPersonRegistrations || 0,
+      onlineEvents: m.onlineCount || 0,
+      onlineRegistrations: m.onlineRegistrations || 0,
     }));
 
   return { monthly };

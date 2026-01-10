@@ -320,8 +320,18 @@ function processEvents(): LumaEvent[] {
   return events;
 }
 
-function groupByMonth(events: LumaEvent[]): Array<{ month: string; count: number; registrations: number }> {
-  const byMonth = new Map<string, { count: number; registrations: number }>();
+interface MonthlyData {
+  month: string;
+  count: number;
+  registrations: number;
+  inPersonCount: number;
+  inPersonRegistrations: number;
+  onlineCount: number;
+  onlineRegistrations: number;
+}
+
+function groupByMonth(events: LumaEvent[]): MonthlyData[] {
+  const byMonth = new Map<string, MonthlyData>();
 
   for (const event of events) {
     if (!event.startDate) continue;
@@ -329,15 +339,31 @@ function groupByMonth(events: LumaEvent[]): Array<{ month: string; count: number
     if (isNaN(date.getTime())) continue;
 
     const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-    const existing = byMonth.get(month) || { count: 0, registrations: 0 };
-    byMonth.set(month, {
-      count: existing.count + 1,
-      registrations: existing.registrations + event.registrations,
-    });
+    const existing = byMonth.get(month) || {
+      month,
+      count: 0,
+      registrations: 0,
+      inPersonCount: 0,
+      inPersonRegistrations: 0,
+      onlineCount: 0,
+      onlineRegistrations: 0,
+    };
+
+    existing.count++;
+    existing.registrations += event.registrations;
+
+    if (event.isOnline) {
+      existing.onlineCount++;
+      existing.onlineRegistrations += event.registrations;
+    } else {
+      existing.inPersonCount++;
+      existing.inPersonRegistrations += event.registrations;
+    }
+
+    byMonth.set(month, existing);
   }
 
-  return Array.from(byMonth.entries())
-    .map(([month, data]) => ({ month, ...data }))
+  return Array.from(byMonth.values())
     .sort((a, b) => a.month.localeCompare(b.month));
 }
 
@@ -415,7 +441,12 @@ async function main() {
   past.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
 
   const inPersonEvents = events.filter(e => !e.isOnline);
+  const onlineEvents = events.filter(e => e.isOnline);
   const countries = new Set(inPersonEvents.map(e => e.location.country).filter(Boolean));
+
+  // Split past events for stats
+  const pastInPerson = past.filter(e => !e.isOnline);
+  const pastOnline = past.filter(e => e.isOnline);
 
   const dates = events
     .map(e => new Date(e.startDate))
@@ -434,7 +465,13 @@ async function main() {
       upcomingCount: upcoming.length,
       pastCount: past.length,
       countriesCount: countries.size,
-      onlineCount: events.filter(e => e.isOnline).length,
+      onlineCount: onlineEvents.length,
+      inPersonCount: inPersonEvents.length,
+      // Split stats for past events (for calculating averages)
+      pastInPersonCount: pastInPerson.length,
+      pastInPersonRegistrations: pastInPerson.reduce((sum, e) => sum + e.registrations, 0),
+      pastOnlineCount: pastOnline.length,
+      pastOnlineRegistrations: pastOnline.reduce((sum, e) => sum + e.registrations, 0),
       firstEventDate: dates.length > 0 ? dates[0].toISOString().split('T')[0] : '',
       lastEventDate: dates.length > 0 ? dates[dates.length - 1].toISOString().split('T')[0] : '',
     },
