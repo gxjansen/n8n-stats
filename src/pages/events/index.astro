@@ -93,10 +93,15 @@ function formatEventTime(dateStr: string): string {
   });
 }
 
+// Get current month for filtering (exclude future data from charts)
+const now = new Date();
+const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
 // Get upcoming events sorted by date
 const upcomingEvents = eventsData?.upcoming || [];
 const locations = eventsData?.locations || [];
-const byMonth = eventsData?.byMonth || [];
+// Filter out future months from the chart data
+const byMonth = (eventsData?.byMonth || []).filter(m => m.month <= currentMonth);
 const byCountry = eventsData?.byCountry || [];
 const stats = eventsData?.stats || {
   totalEvents: 0,
