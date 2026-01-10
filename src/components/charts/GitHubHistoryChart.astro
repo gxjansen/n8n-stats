@@ -4,8 +4,8 @@
  *
  * Client-side component that:
  * - Loads history data from /data/github-history.json
- * - Renders Chart.js line/area chart
- * - Allows filtering by date range, metrics, and chart type
+ * - Renders Chart.js line/area chart for cumulative stars
+ * - Optionally overlays monthly new star bars
  * - Shows dashed lines for scaled/estimated historical data
  */
 ---
@@ -30,14 +30,31 @@
       <select id="chart-type" class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary">
         <option value="line">Line</option>
         <option value="area" selected>Area</option>
-        <option value="bar">Bar</option>
       </select>
     </div>
+
+    <!-- Show Monthly New Toggle -->
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="checkbox" id="github-show-monthly" checked class="w-4 h-4 rounded border-gray-600 bg-n8n-darker text-n8n-primary focus:ring-n8n-primary focus:ring-offset-0">
+      <span class="text-sm text-gray-400">Show monthly new</span>
+    </label>
   </div>
 
   <!-- Chart Canvas -->
   <div class="relative" style="height: 400px;">
     <canvas id="github-history-chart"></canvas>
+  </div>
+
+  <!-- Legend -->
+  <div id="github-chart-legend" class="flex items-center justify-center gap-6 mt-4 text-sm">
+    <div class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff6384]"></span>
+      <span class="text-gray-400">Total Stars</span>
+    </div>
+    <div id="github-legend-monthly" class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded bg-[#4bc0c0]"></span>
+      <span class="text-gray-400">New This Month</span>
+    </div>
   </div>
 
   <!-- Legend note for scaled data -->
@@ -77,12 +94,19 @@
     monthly: GitHubDataPoint[];
   }
 
+  interface ChartDataPoint {
+    date: string;
+    stars: number;
+    newStars: number;
+    source?: string;
+  }
+
   let chart: Chart | null = null;
-  let historyData: GitHubHistory | null = null;
-  let currentChartData: GitHubDataPoint[] = [];
+  let chartData: ChartDataPoint[] = [];
 
   const COLORS = {
     stars: { border: '#ff6384', background: 'rgba(255, 99, 132, 0.1)' },
+    newStars: { border: '#4bc0c0', background: 'rgba(75, 192, 192, 0.6)' },
   };
 
   // Sources that indicate scaled/estimated data
@@ -92,25 +116,31 @@
     return SCALED_SOURCES.includes(source || '');
   }
 
-  async function loadData(): Promise<GitHubHistory | null> {
+  async function loadData(): Promise<ChartDataPoint[]> {
     try {
       const response = await fetch('/data/github-history.json');
       if (!response.ok) throw new Error('Failed to fetch');
-      return await response.json();
+      const data: GitHubHistory = await response.json();
+
+      // Convert to chart format and calculate monthly new
+      return data.monthly.map((point, index) => {
+        const prevStars = index > 0 ? data.monthly[index - 1].stars : point.stars;
+        return {
+          date: point.date,
+          stars: point.stars,
+          newStars: Math.max(0, point.stars - prevStars),
+          source: point.source,
+        };
+      });
     } catch (error) {
       console.error('Failed to load history data:', error);
-      return null;
+      return [];
     }
   }
 
-  function filterByMonths(points: GitHubDataPoint[], months: number | 'all'): GitHubDataPoint[] {
+  function filterByMonths(points: ChartDataPoint[], months: number | 'all'): ChartDataPoint[] {
     if (months === 'all') return points;
-    // Return last N months
     return points.slice(-months);
-  }
-
-  function getChartType(): 'line' | 'bar' {
-    return (document.getElementById('chart-type') as HTMLSelectElement).value as 'line' | 'bar';
   }
 
   function isAreaChart(): boolean {
@@ -122,36 +152,18 @@
     return value === 'all' ? 'all' : parseInt(value, 10);
   }
 
-  function createDataset(data: GitHubDataPoint[], isArea: boolean) {
-    return [{
-      label: 'Stars',
-      data: data.map(d => d.stars),
-      borderColor: COLORS.stars.border,
-      backgroundColor: isArea ? COLORS.stars.background : COLORS.stars.border,
-      fill: isArea,
-      tension: 0.1,
-      pointRadius: data.length > 60 ? 0 : 3,
-      pointHoverRadius: 5,
-      // Use dashed line segments for scaled/estimated data
-      segment: {
-        borderDash: (ctx: any) => {
-          const index = ctx.p0DataIndex;
-          const isEstimated = isScaledData(data[index]?.source) ||
-                              isScaledData(data[index + 1]?.source);
-          return isEstimated ? [5, 5] : [];
-        },
-      },
-    }];
+  function showMonthly(): boolean {
+    return (document.getElementById('github-show-monthly') as HTMLInputElement).checked;
   }
 
   function updateChart() {
-    if (!historyData) return;
+    if (chartData.length === 0) return;
 
     const range = getDateRange();
-    const chartType = getChartType();
     const isArea = isAreaChart();
+    const includeMonthly = showMonthly();
 
-    const filteredData = filterByMonths(historyData.monthly, range);
+    const filteredData = filterByMonths(chartData, range);
 
     if (filteredData.length === 0) {
       document.getElementById('chart-no-data')?.classList.remove('hidden');
@@ -159,16 +171,56 @@
     }
     document.getElementById('chart-no-data')?.classList.add('hidden');
 
-    // Store for tooltip access
-    currentChartData = filteredData;
+    // Show/hide monthly legend
+    const monthlyLegend = document.getElementById('github-legend-monthly');
+    if (includeMonthly) {
+      monthlyLegend?.classList.remove('hidden');
+    } else {
+      monthlyLegend?.classList.add('hidden');
+    }
 
     const labels = filteredData.map(d => d.date);
-    const datasets = createDataset(filteredData, isArea);
+    const datasets: any[] = [{
+      label: 'Total Stars',
+      data: filteredData.map(d => d.stars),
+      borderColor: COLORS.stars.border,
+      backgroundColor: isArea ? COLORS.stars.background : COLORS.stars.border,
+      fill: isArea,
+      tension: 0.1,
+      pointRadius: filteredData.length > 60 ? 0 : 3,
+      pointHoverRadius: 5,
+      yAxisID: 'y',
+      type: 'line',
+      order: 1,
+      // Use dashed line segments for scaled/estimated data
+      segment: {
+        borderDash: (ctx: any) => {
+          const index = ctx.p0DataIndex;
+          const isEstimated = isScaledData(filteredData[index]?.source) ||
+                              isScaledData(filteredData[index + 1]?.source);
+          return isEstimated ? [5, 5] : [];
+        },
+      },
+    }];
+
+    if (includeMonthly) {
+      datasets.push({
+        label: 'New This Month',
+        data: filteredData.map(d => d.newStars),
+        borderColor: COLORS.newStars.border,
+        backgroundColor: COLORS.newStars.background,
+        type: 'bar',
+        yAxisID: 'y1',
+        order: 2,
+      });
+    }
 
     if (chart) {
       chart.data.labels = labels;
       chart.data.datasets = datasets;
-      (chart.config as any).type = chartType === 'bar' ? 'bar' : 'line';
+      if ((chart.options.scales as any)?.y1) {
+        (chart.options.scales as any).y1.display = includeMonthly;
+      }
       chart.update();
     }
   }
@@ -179,30 +231,59 @@
     const errorEl = document.getElementById('chart-error');
     const noDataEl = document.getElementById('chart-no-data');
 
-    historyData = await loadData();
+    chartData = await loadData();
 
     loadingEl?.classList.add('hidden');
 
-    if (!historyData) {
+    if (chartData.length === 0) {
       errorEl?.classList.remove('hidden');
       return;
     }
 
-    if (historyData.monthly.length === 0) {
+    if (chartData.length === 0) {
       noDataEl?.classList.remove('hidden');
       return;
     }
 
     const range = getDateRange();
     const isArea = isAreaChart();
+    const includeMonthly = showMonthly();
 
-    const filteredData = filterByMonths(historyData.monthly, range);
-
-    // Store for tooltip access
-    currentChartData = filteredData;
-
+    const filteredData = filterByMonths(chartData, range);
     const labels = filteredData.map(d => d.date);
-    const datasets = createDataset(filteredData, isArea);
+    const datasets: any[] = [{
+      label: 'Total Stars',
+      data: filteredData.map(d => d.stars),
+      borderColor: COLORS.stars.border,
+      backgroundColor: isArea ? COLORS.stars.background : COLORS.stars.border,
+      fill: isArea,
+      tension: 0.1,
+      pointRadius: filteredData.length > 60 ? 0 : 3,
+      pointHoverRadius: 5,
+      yAxisID: 'y',
+      type: 'line',
+      order: 1,
+      segment: {
+        borderDash: (ctx: any) => {
+          const index = ctx.p0DataIndex;
+          const isEstimated = isScaledData(filteredData[index]?.source) ||
+                              isScaledData(filteredData[index + 1]?.source);
+          return isEstimated ? [5, 5] : [];
+        },
+      },
+    }];
+
+    if (includeMonthly) {
+      datasets.push({
+        label: 'New This Month',
+        data: filteredData.map(d => d.newStars),
+        borderColor: COLORS.newStars.border,
+        backgroundColor: COLORS.newStars.background,
+        type: 'bar',
+        yAxisID: 'y1',
+        order: 2,
+      });
+    }
 
     chart = new Chart(canvas, {
       type: 'line',
@@ -227,10 +308,15 @@
             callbacks: {
               label: (context) => {
                 const value = context.parsed.y;
-                const dataPoint = currentChartData[context.dataIndex];
+                const dataIndex = context.dataIndex;
+                const dataPoint = filteredData[dataIndex];
                 const isScaled = isScaledData(dataPoint?.source);
-                const suffix = isScaled ? ' (scaled)' : '';
-                return `Stars: ${value.toLocaleString()}${suffix}`;
+
+                if (context.dataset.label === 'Total Stars') {
+                  const suffix = isScaled ? ' (scaled)' : '';
+                  return `Stars: ${value.toLocaleString()}${suffix}`;
+                }
+                return `${context.dataset.label}: ${value.toLocaleString()}`;
               },
             },
           },
@@ -255,6 +341,32 @@
                 return value;
               },
             },
+            title: {
+              display: true,
+              text: 'Total Stars',
+              color: '#6b7280',
+            },
+          },
+          y1: {
+            type: 'linear',
+            display: includeMonthly,
+            position: 'right',
+            beginAtZero: true,
+            grid: { drawOnChartArea: false },
+            ticks: {
+              color: '#4bc0c0',
+              callback: (value) => {
+                if (typeof value === 'number') {
+                  if (value >= 1000) return (value / 1000).toFixed(1) + 'K';
+                }
+                return value;
+              },
+            },
+            title: {
+              display: true,
+              text: 'New / Month',
+              color: '#4bc0c0',
+            },
           },
         },
       },
@@ -263,6 +375,7 @@
     // Attach event listeners
     document.getElementById('date-range')?.addEventListener('change', updateChart);
     document.getElementById('chart-type')?.addEventListener('change', updateChart);
+    document.getElementById('github-show-monthly')?.addEventListener('change', updateChart);
   }
 
   // Initialize when DOM is ready

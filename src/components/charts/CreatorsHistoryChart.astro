@@ -6,6 +6,7 @@
  * - Loads history data from /data/history/creators-stats.json
  * - Renders Chart.js line/area chart
  * - Shows total and verified creator growth over time
+ * - Optionally overlays weekly new creator bars
  */
 ---
 
@@ -16,9 +17,9 @@
     <div class="flex items-center gap-2">
       <label class="text-sm text-gray-400">Range:</label>
       <select id="creators-date-range" class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary">
-        <option value="12">Last 12 months</option>
-        <option value="24" selected>Last 24 months</option>
-        <option value="36">Last 3 years</option>
+        <option value="12">Last 12 weeks</option>
+        <option value="24" selected>Last 24 weeks</option>
+        <option value="52">Last year</option>
         <option value="all">All time</option>
       </select>
     </div>
@@ -32,22 +33,28 @@
       </select>
     </div>
 
-    <!-- Metrics Toggle -->
-    <div class="flex items-center gap-3 ml-auto">
-      <label class="flex items-center gap-1.5 cursor-pointer">
-        <input type="checkbox" id="creators-toggle-total" checked class="accent-[#ff6d5a]" />
-        <span class="text-sm text-gray-300">Total Creators</span>
-      </label>
-      <label class="flex items-center gap-1.5 cursor-pointer">
-        <input type="checkbox" id="creators-toggle-verified" checked class="accent-[#36a2eb]" />
-        <span class="text-sm text-gray-300">Verified</span>
-      </label>
-    </div>
+    <!-- Show Weekly New Toggle -->
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="checkbox" id="creators-show-weekly" checked class="w-4 h-4 rounded border-gray-600 bg-n8n-darker text-n8n-primary focus:ring-n8n-primary focus:ring-offset-0">
+      <span class="text-sm text-gray-400">Show weekly new</span>
+    </label>
   </div>
 
   <!-- Chart Canvas -->
   <div class="relative" style="height: 350px;">
     <canvas id="creators-history-chart"></canvas>
+  </div>
+
+  <!-- Legend -->
+  <div id="creators-chart-legend" class="flex items-center justify-center gap-6 mt-4 text-sm">
+    <div class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff6d5a]"></span>
+      <span class="text-gray-400">Total Creators</span>
+    </div>
+    <div id="creators-legend-weekly" class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded bg-[#4bc0c0]"></span>
+      <span class="text-gray-400">New This Week</span>
+    </div>
   </div>
 
   <!-- Loading/Error States -->
@@ -81,30 +88,41 @@
     weekly: CreatorStats[];
   }
 
-  let creatorsChart: Chart | null = null;
-  let creatorsHistoryData: CreatorsHistory | null = null;
+  interface ChartDataPoint {
+    date: string;
+    total: number;
+    verified: number;
+    newCount: number;
+  }
 
-  const CREATORS_COLORS = {
+  let creatorsChart: Chart | null = null;
+  let chartData: ChartDataPoint[] = [];
+
+  const COLORS = {
     total: { border: '#ff6d5a', background: 'rgba(255, 109, 90, 0.1)' },
-    verified: { border: '#36a2eb', background: 'rgba(54, 162, 235, 0.1)' },
+    newCount: { border: '#4bc0c0', background: 'rgba(75, 192, 192, 0.6)' },
   };
 
-  async function loadCreatorsData(): Promise<CreatorsHistory | null> {
+  async function loadCreatorsData(): Promise<ChartDataPoint[]> {
     try {
       const response = await fetch('/data/history/creators-stats.json');
       if (!response.ok) throw new Error('Failed to fetch');
-      return await response.json();
+      const data: CreatorsHistory = await response.json();
+
+      // Convert to chart format and calculate weekly new
+      return data.weekly.map((point, index) => {
+        const prevTotal = index > 0 ? data.weekly[index - 1].total : point.total;
+        return {
+          date: point.date,
+          total: point.total,
+          verified: point.verified,
+          newCount: Math.max(0, point.total - prevTotal),
+        };
+      });
     } catch (error) {
       console.error('Failed to load creators history data:', error);
-      return null;
+      return [];
     }
-  }
-
-  function getCreatorsVisibleMetrics(): string[] {
-    const metrics: string[] = [];
-    if ((document.getElementById('creators-toggle-total') as HTMLInputElement).checked) metrics.push('total');
-    if ((document.getElementById('creators-toggle-verified') as HTMLInputElement).checked) metrics.push('verified');
-    return metrics;
   }
 
   function isCreatorsAreaChart(): boolean {
@@ -116,45 +134,65 @@
     return value === 'all' ? 'all' : parseInt(value, 10);
   }
 
-  function filterCreatorsByMonths(points: CreatorStats[], months: number | 'all'): CreatorStats[] {
-    if (months === 'all') return points;
-    return points.slice(-months);
+  function showWeekly(): boolean {
+    return (document.getElementById('creators-show-weekly') as HTMLInputElement).checked;
   }
 
-  function createCreatorsDatasets(data: CreatorStats[], metrics: string[], isArea: boolean) {
-    const metricLabels: Record<string, string> = {
-      total: 'Total Creators',
-      verified: 'Verified Creators',
-    };
-
-    return metrics.map(metric => ({
-      label: metricLabels[metric],
-      data: data.map(d => d[metric as keyof CreatorStats] as number),
-      borderColor: CREATORS_COLORS[metric as keyof typeof CREATORS_COLORS].border,
-      backgroundColor: isArea ? CREATORS_COLORS[metric as keyof typeof CREATORS_COLORS].background : CREATORS_COLORS[metric as keyof typeof CREATORS_COLORS].border,
-      fill: isArea,
-      tension: 0.1,
-      pointRadius: data.length > 60 ? 0 : 3,
-      pointHoverRadius: 5,
-    }));
+  function filterByWeeks(points: ChartDataPoint[], weeks: number | 'all'): ChartDataPoint[] {
+    if (weeks === 'all') return points;
+    return points.slice(-weeks);
   }
 
   function updateCreatorsChart() {
-    if (!creatorsHistoryData) return;
+    if (chartData.length === 0) return;
 
-    const metrics = getCreatorsVisibleMetrics();
     const isArea = isCreatorsAreaChart();
     const range = getCreatorsDateRange();
+    const includeWeekly = showWeekly();
 
-    // Use weekly data filtered by date range
-    const filteredData = filterCreatorsByMonths(creatorsHistoryData.weekly, range);
+    const filteredData = filterByWeeks(chartData, range);
+
+    // Show/hide weekly legend
+    const weeklyLegend = document.getElementById('creators-legend-weekly');
+    if (includeWeekly) {
+      weeklyLegend?.classList.remove('hidden');
+    } else {
+      weeklyLegend?.classList.add('hidden');
+    }
 
     const labels = filteredData.map(d => d.date);
-    const datasets = createCreatorsDatasets(filteredData, metrics, isArea);
+    const datasets: any[] = [{
+      label: 'Total Creators',
+      data: filteredData.map(d => d.total),
+      borderColor: COLORS.total.border,
+      backgroundColor: isArea ? COLORS.total.background : COLORS.total.border,
+      fill: isArea,
+      tension: 0.1,
+      pointRadius: filteredData.length > 60 ? 0 : 3,
+      pointHoverRadius: 5,
+      yAxisID: 'y',
+      type: 'line',
+      order: 1,
+    }];
+
+    if (includeWeekly) {
+      datasets.push({
+        label: 'New This Week',
+        data: filteredData.map(d => d.newCount),
+        borderColor: COLORS.newCount.border,
+        backgroundColor: COLORS.newCount.background,
+        type: 'bar',
+        yAxisID: 'y1',
+        order: 2,
+      });
+    }
 
     if (creatorsChart) {
       creatorsChart.data.labels = labels;
       creatorsChart.data.datasets = datasets;
+      if ((creatorsChart.options.scales as any)?.y1) {
+        (creatorsChart.options.scales as any).y1.display = includeWeekly;
+      }
       creatorsChart.update();
     }
   }
@@ -164,27 +202,46 @@
     const loadingEl = document.getElementById('creators-chart-loading');
     const errorEl = document.getElementById('creators-chart-error');
 
-    creatorsHistoryData = await loadCreatorsData();
+    chartData = await loadCreatorsData();
 
     loadingEl?.classList.add('hidden');
 
-    if (!creatorsHistoryData) {
+    if (chartData.length === 0) {
       errorEl?.classList.remove('hidden');
       return;
     }
 
-    if (creatorsHistoryData.weekly.length === 0) {
-      errorEl?.classList.remove('hidden');
-      return;
-    }
-
-    const metrics = getCreatorsVisibleMetrics();
     const isArea = isCreatorsAreaChart();
     const range = getCreatorsDateRange();
+    const includeWeekly = showWeekly();
 
-    const filteredData = filterCreatorsByMonths(creatorsHistoryData.weekly, range);
+    const filteredData = filterByWeeks(chartData, range);
     const labels = filteredData.map(d => d.date);
-    const datasets = createCreatorsDatasets(filteredData, metrics, isArea);
+    const datasets: any[] = [{
+      label: 'Total Creators',
+      data: filteredData.map(d => d.total),
+      borderColor: COLORS.total.border,
+      backgroundColor: isArea ? COLORS.total.background : COLORS.total.border,
+      fill: isArea,
+      tension: 0.1,
+      pointRadius: filteredData.length > 60 ? 0 : 3,
+      pointHoverRadius: 5,
+      yAxisID: 'y',
+      type: 'line',
+      order: 1,
+    }];
+
+    if (includeWeekly) {
+      datasets.push({
+        label: 'New This Week',
+        data: filteredData.map(d => d.newCount),
+        borderColor: COLORS.newCount.border,
+        backgroundColor: COLORS.newCount.background,
+        type: 'bar',
+        yAxisID: 'y1',
+        order: 2,
+      });
+    }
 
     creatorsChart = new Chart(canvas, {
       type: 'line',
@@ -198,13 +255,7 @@
         },
         plugins: {
           legend: {
-            display: true,
-            position: 'bottom',
-            labels: {
-              color: '#9ca3af',
-              usePointStyle: true,
-              padding: 20,
-            },
+            display: false,
           },
           tooltip: {
             backgroundColor: '#1e1e1e',
@@ -229,7 +280,7 @@
             type: 'linear',
             display: true,
             position: 'left',
-            beginAtZero: true,
+            beginAtZero: false,
             grid: { color: 'rgba(255,255,255,0.05)' },
             ticks: {
               color: '#6b7280',
@@ -240,6 +291,26 @@
                 return value;
               },
             },
+            title: {
+              display: true,
+              text: 'Total Creators',
+              color: '#6b7280',
+            },
+          },
+          y1: {
+            type: 'linear',
+            display: includeWeekly,
+            position: 'right',
+            beginAtZero: true,
+            grid: { drawOnChartArea: false },
+            ticks: {
+              color: '#4bc0c0',
+            },
+            title: {
+              display: true,
+              text: 'New / Week',
+              color: '#4bc0c0',
+            },
           },
         },
       },
@@ -248,8 +319,7 @@
     // Attach event listeners
     document.getElementById('creators-date-range')?.addEventListener('change', updateCreatorsChart);
     document.getElementById('creators-chart-type')?.addEventListener('change', updateCreatorsChart);
-    document.getElementById('creators-toggle-total')?.addEventListener('change', updateCreatorsChart);
-    document.getElementById('creators-toggle-verified')?.addEventListener('change', updateCreatorsChart);
+    document.getElementById('creators-show-weekly')?.addEventListener('change', updateCreatorsChart);
   }
 
   // Initialize when DOM is ready
