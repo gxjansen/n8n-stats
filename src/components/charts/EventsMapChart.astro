@@ -21,28 +21,24 @@ interface Props {
 
 const { locations } = Astro.props;
 
-// The world map SVG has viewBox="30.767 241.591 784.077 458.627"
-// We need to convert lat/lng to match this coordinate system
-const mapViewBox = {
-  x: 30.767,
-  y: 241.591,
-  width: 784.077,
-  height: 458.627,
-};
+// Use a simple 0-based coordinate system
+// The world map SVG will be scaled to fit this viewBox
+const mapWidth = 800;
+const mapHeight = 400;
 
-// Convert lat/lng to SVG coordinates matching the world-map.svg viewBox
+// Convert lat/lng to SVG coordinates using equirectangular projection
 function latLngToXY(lat: number, lng: number): { x: number; y: number } {
   // Equirectangular projection: lng -180 to +180, lat +90 to -90
-  const x = mapViewBox.x + ((lng + 180) / 360) * mapViewBox.width;
-  const y = mapViewBox.y + ((90 - lat) / 180) * mapViewBox.height;
+  const x = ((lng + 180) / 360) * mapWidth;
+  const y = ((90 - lat) / 180) * mapHeight;
   return { x, y };
 }
 
 // Process locations for display
 const markers = locations.map(loc => {
   const { x, y } = latLngToXY(loc.lat, loc.lng);
-  // Size based on event count (min 5, max 15)
-  const size = Math.min(15, Math.max(5, 3 + loc.eventCount * 2));
+  // Size based on event count (min 4, max 12 for cleaner look)
+  const size = Math.min(12, Math.max(4, 2 + loc.eventCount * 1.5));
   return {
     ...loc,
     x,
@@ -51,8 +47,8 @@ const markers = locations.map(loc => {
   };
 });
 
-// Full viewBox string for the SVG
-const viewBox = `${mapViewBox.x} ${mapViewBox.y} ${mapViewBox.width} ${mapViewBox.height}`;
+// Simple viewBox starting at 0,0
+const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
 ---
 
 <div id="events-map-container" class="card">
@@ -63,16 +59,16 @@ const viewBox = `${mapViewBox.x} ${mapViewBox.y} ${mapViewBox.width} ${mapViewBo
       style="max-height: 450px; background: #0f1419;"
     >
       <!-- Ocean background -->
-      <rect x={mapViewBox.x} y={mapViewBox.y} width={mapViewBox.width} height={mapViewBox.height} fill="#0f1419" />
+      <rect x="0" y="0" width={mapWidth} height={mapHeight} fill="#0f1419" />
 
       <!-- World map from flekschas/simple-world-map (CC BY-SA 3.0) -->
       <image
         href="/images/world-map.svg"
-        x={mapViewBox.x}
-        y={mapViewBox.y}
-        width={mapViewBox.width}
-        height={mapViewBox.height}
-        preserveAspectRatio="xMidYMid meet"
+        x="0"
+        y="0"
+        width={mapWidth}
+        height={mapHeight}
+        preserveAspectRatio="none"
       />
 
       <!-- Event markers -->
