@@ -1,8 +1,7 @@
 ---
 /**
  * Events Map Chart
- * Displays event locations on an interactive SVG world map
- * Uses dots/markers to show where events have been held
+ * Displays event locations on an SVG world map with continent outlines
  */
 
 interface Location {
@@ -21,16 +20,15 @@ interface Props {
 
 const { locations } = Astro.props;
 
-// Convert lat/lng to SVG coordinates
-// Using a simple equirectangular projection
+// Convert lat/lng to SVG coordinates using equirectangular projection
 function latLngToXY(lat: number, lng: number, width: number, height: number): { x: number; y: number } {
   const x = ((lng + 180) / 360) * width;
   const y = ((90 - lat) / 180) * height;
   return { x, y };
 }
 
-const svgWidth = 800;
-const svgHeight = 400;
+const svgWidth = 900;
+const svgHeight = 450;
 
 // Process locations for display
 const markers = locations.map(loc => {
@@ -44,54 +42,57 @@ const markers = locations.map(loc => {
     size,
   };
 });
+
+// Simplified world map paths (Natural Earth style, simplified for SVG)
+// Coordinates are pre-calculated for 900x450 viewBox
+const continentPaths = {
+  // North America
+  northAmerica: "M165,95 L175,85 L195,80 L215,75 L235,78 L250,85 L255,95 L248,105 L240,115 L235,130 L225,145 L215,155 L200,165 L185,175 L170,180 L155,178 L145,170 L135,155 L125,140 L115,125 L110,110 L115,100 L125,92 L140,88 L155,90 Z M260,100 L275,95 L285,100 L280,115 L270,125 L260,120 L255,110 Z",
+  // South America
+  southAmerica: "M200,200 L215,195 L230,200 L245,210 L255,225 L260,245 L255,270 L245,295 L230,315 L215,330 L200,340 L190,335 L185,320 L190,300 L195,280 L190,260 L185,240 L190,220 L195,205 Z",
+  // Europe
+  europe: "M420,70 L440,65 L460,70 L480,75 L495,85 L500,100 L495,115 L480,125 L460,130 L445,128 L430,120 L420,110 L415,95 L418,80 Z M505,90 L520,85 L535,90 L540,100 L535,110 L520,115 L510,110 L505,100 Z",
+  // Africa
+  africa: "M420,145 L445,140 L470,145 L490,155 L505,175 L510,200 L505,230 L495,260 L480,285 L460,300 L440,305 L420,300 L405,285 L395,260 L390,230 L395,200 L405,175 L415,155 Z",
+  // Asia
+  asia: "M510,55 L550,50 L600,55 L650,65 L700,80 L730,100 L745,125 L740,155 L720,180 L690,195 L650,200 L610,195 L570,185 L540,170 L515,150 L505,125 L510,100 L520,75 Z M755,130 L770,125 L785,135 L790,150 L780,165 L765,160 L755,145 Z",
+  // Australia
+  australia: "M700,260 L730,255 L760,265 L780,280 L785,305 L775,325 L750,335 L720,330 L700,315 L695,290 L698,270 Z M790,320 L805,315 L815,325 L810,340 L795,345 L785,335 Z",
+  // Antarctica (optional, usually not shown)
+  // Greenland
+  greenland: "M310,40 L335,35 L355,45 L360,60 L350,75 L330,80 L310,75 L300,60 L305,45 Z",
+};
 ---
 
 <div id="events-map-container" class="card">
-  <div class="relative">
+  <div class="relative overflow-hidden rounded-lg">
     <svg
       viewBox={`0 0 ${svgWidth} ${svgHeight}`}
       class="w-full h-auto"
-      style="max-height: 400px;"
+      style="max-height: 450px; background: #0f1419;"
     >
-      <!-- World map background (simplified) -->
-      <rect width="100%" height="100%" fill="#1a1a2e" />
+      <!-- Ocean background -->
+      <rect width="100%" height="100%" fill="#0f1419" />
 
-      <!-- Grid lines for reference -->
-      <g stroke="#333" stroke-width="0.5" opacity="0.3">
-        <!-- Longitude lines -->
-        {[...Array(13)].map((_, i) => (
-          <line
-            x1={(i * svgWidth) / 12}
-            y1="0"
-            x2={(i * svgWidth) / 12}
-            y2={svgHeight}
-          />
+      <!-- Subtle grid -->
+      <g stroke="#1a2634" stroke-width="0.5" opacity="0.5">
+        {[...Array(19)].map((_, i) => (
+          <line x1={(i * svgWidth) / 18} y1="0" x2={(i * svgWidth) / 18} y2={svgHeight} />
         ))}
-        <!-- Latitude lines -->
-        {[...Array(7)].map((_, i) => (
-          <line
-            x1="0"
-            y1={(i * svgHeight) / 6}
-            x2={svgWidth}
-            y2={(i * svgHeight) / 6}
-          />
+        {[...Array(10)].map((_, i) => (
+          <line x1="0" y1={(i * svgHeight) / 9} x2={svgWidth} y2={(i * svgHeight) / 9} />
         ))}
       </g>
 
-      <!-- Continent outlines (simplified paths) -->
-      <g fill="#2a2a4a" stroke="#444" stroke-width="0.5">
-        <!-- Europe -->
-        <ellipse cx="440" cy="120" rx="60" ry="40" opacity="0.5" />
-        <!-- Asia -->
-        <ellipse cx="580" cy="140" rx="100" ry="60" opacity="0.5" />
-        <!-- North America -->
-        <ellipse cx="180" cy="130" rx="80" ry="50" opacity="0.5" />
-        <!-- South America -->
-        <ellipse cx="240" cy="280" rx="40" ry="60" opacity="0.5" />
-        <!-- Africa -->
-        <ellipse cx="460" cy="220" rx="50" ry="60" opacity="0.5" />
-        <!-- Australia -->
-        <ellipse cx="700" cy="290" rx="40" ry="30" opacity="0.5" />
+      <!-- Continent shapes -->
+      <g fill="#1e2d3d" stroke="#2a3f54" stroke-width="1">
+        <path d={continentPaths.northAmerica} />
+        <path d={continentPaths.southAmerica} />
+        <path d={continentPaths.europe} />
+        <path d={continentPaths.africa} />
+        <path d={continentPaths.asia} />
+        <path d={continentPaths.australia} />
+        <path d={continentPaths.greenland} />
       </g>
 
       <!-- Event markers -->
@@ -102,14 +103,15 @@ const markers = locations.map(loc => {
             data-city={marker.city}
             data-country={marker.country}
             data-events={marker.eventCount}
+            data-registrations={marker.totalRegistrations}
           >
             <!-- Glow effect -->
             <circle
               cx={marker.x}
               cy={marker.y}
-              r={marker.size + 4}
-              fill="url(#glow)"
-              opacity="0.5"
+              r={marker.size + 6}
+              fill="url(#markerGlow)"
+              opacity="0.6"
             />
             <!-- Main marker -->
             <circle
@@ -120,7 +122,7 @@ const markers = locations.map(loc => {
               stroke="#fff"
               stroke-width="1.5"
               class="marker"
-              style={`animation-delay: ${index * 100}ms`}
+              style={`animation-delay: ${index * 50}ms`}
             />
             <!-- Event count label for larger markers -->
             {marker.eventCount > 1 && (
@@ -141,8 +143,8 @@ const markers = locations.map(loc => {
 
       <!-- Gradient definitions -->
       <defs>
-        <radialGradient id="glow">
-          <stop offset="0%" stop-color="#ff6d5a" stop-opacity="0.6" />
+        <radialGradient id="markerGlow">
+          <stop offset="0%" stop-color="#ff6d5a" stop-opacity="0.8" />
           <stop offset="100%" stop-color="#ff6d5a" stop-opacity="0" />
         </radialGradient>
       </defs>
@@ -151,11 +153,11 @@ const markers = locations.map(loc => {
     <!-- Tooltip -->
     <div
       id="map-tooltip"
-      class="absolute hidden bg-n8n-card border border-n8n-border rounded-lg px-3 py-2 text-sm shadow-lg pointer-events-none z-10"
+      class="absolute hidden bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm shadow-xl pointer-events-none z-10"
     >
-      <div class="font-medium text-white" id="tooltip-city"></div>
-      <div class="text-gray-400" id="tooltip-country"></div>
-      <div class="text-n8n-primary mt-1" id="tooltip-events"></div>
+      <div class="font-semibold text-white" id="tooltip-city"></div>
+      <div class="text-gray-400 text-xs" id="tooltip-country"></div>
+      <div class="text-n8n-primary mt-1 font-medium" id="tooltip-events"></div>
     </div>
   </div>
 
@@ -166,7 +168,7 @@ const markers = locations.map(loc => {
       <span>Event location</span>
     </div>
     <div class="flex items-center gap-2">
-      <span class="w-5 h-5 rounded-full bg-[#ff6d5a] flex items-center justify-center text-xs text-white font-bold">2</span>
+      <span class="w-5 h-5 rounded-full bg-[#ff6d5a] flex items-center justify-center text-xs text-white font-bold">3</span>
       <span>Multiple events</span>
     </div>
   </div>
@@ -175,25 +177,21 @@ const markers = locations.map(loc => {
 <style>
   .marker {
     cursor: pointer;
-    transition: transform 0.2s ease, r 0.2s ease;
+    transition: transform 0.2s ease;
     transform-origin: center;
   }
 
   .marker-group:hover .marker {
-    transform: scale(1.2);
+    transform: scale(1.3);
   }
 
   .marker {
-    animation: pulse 2s ease-in-out infinite;
+    animation: markerPulse 3s ease-in-out infinite;
   }
 
-  @keyframes pulse {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.7;
-    }
+  @keyframes markerPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.75; }
   }
 </style>
 
@@ -212,10 +210,11 @@ const markers = locations.map(loc => {
         const city = marker.getAttribute('data-city') || 'Unknown';
         const country = marker.getAttribute('data-country') || '';
         const events = marker.getAttribute('data-events') || '1';
+        const registrations = marker.getAttribute('data-registrations') || '0';
 
-        tooltipCity.textContent = city;
+        tooltipCity.textContent = city || country;
         tooltipCountry.textContent = country;
-        tooltipEvents.textContent = `${events} event${parseInt(events) !== 1 ? 's' : ''}`;
+        tooltipEvents.textContent = `${events} event${parseInt(events) !== 1 ? 's' : ''} · ${parseInt(registrations).toLocaleString()} registrations`;
 
         tooltip.classList.remove('hidden');
       });
@@ -229,8 +228,17 @@ const markers = locations.map(loc => {
         const x = mouseEvent.clientX - rect.left;
         const y = mouseEvent.clientY - rect.top;
 
-        tooltip.style.left = `${x + 15}px`;
-        tooltip.style.top = `${y - 10}px`;
+        // Position tooltip, keeping it within bounds
+        const tooltipRect = tooltip.getBoundingClientRect();
+        let left = x + 15;
+        let top = y - 10;
+
+        if (left + tooltipRect.width > rect.width) {
+          left = x - tooltipRect.width - 15;
+        }
+
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${top}px`;
       });
 
       marker.addEventListener('mouseleave', () => {
