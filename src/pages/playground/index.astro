@@ -24,67 +24,40 @@ const sourcesData = DATA_SOURCES.map(s => ({
 
     <!-- Controls Card -->
     <div class="card mb-6">
-      <div class="flex flex-wrap items-start gap-6">
-        <!-- Series Selector -->
-        <div class="flex-1 min-w-[280px]">
-          <label class="block text-sm font-medium text-gray-300 mb-2">Data Series</label>
-          <div id="series-selector" class="space-y-2">
-            <!-- Series slots will be populated by JS -->
-            <div id="series-slots" class="space-y-2"></div>
-            <button
-              id="add-series-btn"
-              class="flex items-center gap-2 text-sm text-n8n-primary hover:text-n8n-primary/80 transition-colors"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              Add series
-            </button>
-          </div>
+      <!-- Global Date Range -->
+      <div class="flex flex-wrap items-center gap-4 mb-4 pb-4 border-b border-n8n-border">
+        <div class="flex items-center gap-3">
+          <label class="text-sm font-medium text-gray-300">Date Range:</label>
+          <select
+            id="range-select"
+            class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary"
+          >
+            <option value="1m">Last month</option>
+            <option value="3m">Last 3 months</option>
+            <option value="6m">Last 6 months</option>
+            <option value="1y" selected>Last year</option>
+            <option value="2y">Last 2 years</option>
+            <option value="all">All time</option>
+          </select>
         </div>
+        <span class="text-xs text-gray-500">Applies to all series</span>
+      </div>
 
-        <!-- Right-side controls -->
-        <div class="flex flex-wrap gap-4">
-          <!-- Date Range -->
-          <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">Date Range</label>
-            <select
-              id="range-select"
-              class="bg-n8n-darker border border-n8n-border rounded px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary min-w-[120px]"
-            >
-              <option value="1m">Last month</option>
-              <option value="3m">Last 3 months</option>
-              <option value="6m">Last 6 months</option>
-              <option value="1y" selected>Last year</option>
-              <option value="2y">Last 2 years</option>
-              <option value="all">All time</option>
-            </select>
-          </div>
-
-          <!-- Chart Type -->
-          <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">Chart Type</label>
-            <select
-              id="chart-type-select"
-              class="bg-n8n-darker border border-n8n-border rounded px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary min-w-[100px]"
-            >
-              <option value="line" selected>Line</option>
-              <option value="area">Area</option>
-            </select>
-          </div>
-
-          <!-- Data Mode -->
-          <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">Data Mode</label>
-            <select
-              id="data-mode-select"
-              class="bg-n8n-darker border border-n8n-border rounded px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary min-w-[140px]"
-            >
-              <option value="cumulative" selected>Cumulative</option>
-              <option value="change">Period Change</option>
-            </select>
-          </div>
+      <!-- Series List -->
+      <div class="space-y-3">
+        <label class="block text-sm font-medium text-gray-300">Data Series</label>
+        <div id="series-slots" class="space-y-2">
+          <!-- Series rows populated by JS -->
         </div>
+        <button
+          id="add-series-btn"
+          class="flex items-center gap-2 text-sm text-n8n-primary hover:text-n8n-primary/80 transition-colors mt-2"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Add series
+        </button>
       </div>
 
       <!-- Action buttons -->
@@ -191,6 +164,12 @@ const sourcesData = DATA_SOURCES.map(s => ({
     historyStart: string;
   }
 
+  interface SeriesConfig {
+    metricId: string;
+    dataMode: 'cumulative' | 'change';
+    chartType: 'line' | 'area' | 'bar';
+  }
+
   interface TimeSeriesPoint {
     date: string;
     value: number;
@@ -201,13 +180,13 @@ const sourcesData = DATA_SOURCES.map(s => ({
     label: string;
     color: string;
     data: TimeSeriesPoint[];
+    dataMode: 'cumulative' | 'change';
+    chartType: 'line' | 'area' | 'bar';
   }
 
   interface PlaygroundState {
-    metrics: string[];
+    series: SeriesConfig[];
     range: '1m' | '3m' | '6m' | '1y' | '2y' | 'all';
-    chartType: 'line' | 'area';
-    dataMode: 'cumulative' | 'change';
   }
 
   // Get data from server
@@ -222,10 +201,8 @@ const sourcesData = DATA_SOURCES.map(s => ({
 
   // State
   let state: PlaygroundState = {
-    metrics: [],
+    series: [],
     range: '1y',
-    chartType: 'line',
-    dataMode: 'cumulative',
   };
 
   let chart: Chart | null = null;
@@ -235,8 +212,6 @@ const sourcesData = DATA_SOURCES.map(s => ({
   const seriesSlots = document.getElementById('series-slots')!;
   const addSeriesBtn = document.getElementById('add-series-btn')!;
   const rangeSelect = document.getElementById('range-select') as HTMLSelectElement;
-  const chartTypeSelect = document.getElementById('chart-type-select') as HTMLSelectElement;
-  const dataModeSelect = document.getElementById('data-mode-select') as HTMLSelectElement;
   const resetBtn = document.getElementById('reset-btn')!;
   const shareBtn = document.getElementById('share-btn')!;
   const shareFeedback = document.getElementById('share-feedback')!;
@@ -247,39 +222,55 @@ const sourcesData = DATA_SOURCES.map(s => ({
   const chartLegend = document.getElementById('chart-legend')!;
   const dualAxisNotice = document.getElementById('dual-axis-notice')!;
 
-  // Initialize from URL
+  // Parse URL state - new format: m=metricId:mode:type,metricId:mode:type
   function parseUrlState(): Partial<PlaygroundState> {
     const params = new URLSearchParams(window.location.search);
-    const metricsParam = params.get('m');
+    const seriesParam = params.get('s');
+
+    let series: SeriesConfig[] = [];
+    if (seriesParam) {
+      series = seriesParam.split(',').map(s => {
+        const [metricId, mode, type] = s.split(':');
+        return {
+          metricId,
+          dataMode: (mode === 'c' ? 'cumulative' : 'change') as 'cumulative' | 'change',
+          chartType: (type === 'l' ? 'line' : type === 'a' ? 'area' : 'bar') as 'line' | 'area' | 'bar',
+        };
+      }).filter(s => s.metricId && allMetrics.some(m => m.id === s.metricId)).slice(0, 4);
+    }
+
     return {
-      metrics: metricsParam ? metricsParam.split(',').filter(Boolean).slice(0, 4) : undefined,
+      series: series.length > 0 ? series : undefined,
       range: (params.get('r') as PlaygroundState['range']) || undefined,
-      chartType: (params.get('t') as PlaygroundState['chartType']) || undefined,
-      dataMode: (params.get('d') as PlaygroundState['dataMode']) || undefined,
     };
   }
 
   function updateUrl(): void {
     const params = new URLSearchParams();
-    if (state.metrics.length > 0) params.set('m', state.metrics.join(','));
+    if (state.series.length > 0) {
+      const seriesStr = state.series.map(s => {
+        const mode = s.dataMode === 'cumulative' ? 'c' : 'p';
+        const type = s.chartType === 'line' ? 'l' : s.chartType === 'area' ? 'a' : 'b';
+        return `${s.metricId}:${mode}:${type}`;
+      }).join(',');
+      params.set('s', seriesStr);
+    }
     if (state.range !== '1y') params.set('r', state.range);
-    if (state.chartType !== 'line') params.set('t', state.chartType);
-    if (state.dataMode !== 'cumulative') params.set('d', state.dataMode);
 
     const queryString = params.toString();
     const url = queryString ? `?${queryString}` : window.location.pathname;
     window.history.replaceState({}, '', url);
   }
 
-  // Create metric selector dropdown
+  // Create metric selector dropdown (allow all metrics, including duplicates)
   function createMetricSelect(selectedId?: string): HTMLSelectElement {
     const select = document.createElement('select');
-    select.className = 'flex-1 bg-n8n-darker border border-n8n-border rounded px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary';
+    select.className = 'flex-1 min-w-[140px] bg-n8n-darker border border-n8n-border rounded px-2 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary';
 
     // Empty option
     const emptyOpt = document.createElement('option');
     emptyOpt.value = '';
-    emptyOpt.textContent = 'Select a metric...';
+    emptyOpt.textContent = 'Select metric...';
     select.appendChild(emptyOpt);
 
     // Group by source
@@ -291,10 +282,6 @@ const sourcesData = DATA_SOURCES.map(s => ({
         const option = document.createElement('option');
         option.value = metric.id;
         option.textContent = metric.label;
-        // Disable if already selected elsewhere
-        if (state.metrics.includes(metric.id) && metric.id !== selectedId) {
-          option.disabled = true;
-        }
         if (metric.id === selectedId) {
           option.selected = true;
         }
@@ -307,16 +294,39 @@ const sourcesData = DATA_SOURCES.map(s => ({
     return select;
   }
 
+  // Create mode selector
+  function createModeSelect(selectedMode: 'cumulative' | 'change'): HTMLSelectElement {
+    const select = document.createElement('select');
+    select.className = 'bg-n8n-darker border border-n8n-border rounded px-2 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary';
+    select.innerHTML = `
+      <option value="cumulative" ${selectedMode === 'cumulative' ? 'selected' : ''}>Cumulative</option>
+      <option value="change" ${selectedMode === 'change' ? 'selected' : ''}>Change</option>
+    `;
+    return select;
+  }
+
+  // Create chart type selector
+  function createChartTypeSelect(selectedType: 'line' | 'area' | 'bar'): HTMLSelectElement {
+    const select = document.createElement('select');
+    select.className = 'bg-n8n-darker border border-n8n-border rounded px-2 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary';
+    select.innerHTML = `
+      <option value="line" ${selectedType === 'line' ? 'selected' : ''}>Line</option>
+      <option value="area" ${selectedType === 'area' ? 'selected' : ''}>Area</option>
+      <option value="bar" ${selectedType === 'bar' ? 'selected' : ''}>Bar</option>
+    `;
+    return select;
+  }
+
   // Render series slots
   function renderSeriesSlots(): void {
     seriesSlots.innerHTML = '';
 
-    state.metrics.forEach((metricId, index) => {
-      const metric = allMetrics.find(m => m.id === metricId);
+    state.series.forEach((seriesConfig, index) => {
+      const metric = allMetrics.find(m => m.id === seriesConfig.metricId);
       if (!metric) return;
 
       const slot = document.createElement('div');
-      slot.className = 'flex items-center gap-2';
+      slot.className = 'flex flex-wrap items-center gap-2 p-2 bg-n8n-darker/50 rounded-lg';
 
       // Color indicator
       const colorDot = document.createElement('span');
@@ -324,26 +334,44 @@ const sourcesData = DATA_SOURCES.map(s => ({
       colorDot.style.backgroundColor = metric.color;
       slot.appendChild(colorDot);
 
-      // Dropdown
-      const select = createMetricSelect(metricId);
-      select.addEventListener('change', () => {
-        if (select.value) {
-          state.metrics[index] = select.value;
+      // Metric dropdown
+      const metricSelect = createMetricSelect(seriesConfig.metricId);
+      metricSelect.addEventListener('change', () => {
+        if (metricSelect.value) {
+          state.series[index].metricId = metricSelect.value;
         } else {
-          state.metrics.splice(index, 1);
+          state.series.splice(index, 1);
         }
         updateUrl();
         renderSeriesSlots();
         updateChart();
       });
-      slot.appendChild(select);
+      slot.appendChild(metricSelect);
+
+      // Mode dropdown
+      const modeSelect = createModeSelect(seriesConfig.dataMode);
+      modeSelect.addEventListener('change', () => {
+        state.series[index].dataMode = modeSelect.value as 'cumulative' | 'change';
+        updateUrl();
+        updateChart();
+      });
+      slot.appendChild(modeSelect);
+
+      // Chart type dropdown
+      const chartTypeSelect = createChartTypeSelect(seriesConfig.chartType);
+      chartTypeSelect.addEventListener('change', () => {
+        state.series[index].chartType = chartTypeSelect.value as 'line' | 'area' | 'bar';
+        updateUrl();
+        updateChart();
+      });
+      slot.appendChild(chartTypeSelect);
 
       // Remove button
       const removeBtn = document.createElement('button');
-      removeBtn.className = 'text-gray-500 hover:text-red-400 transition-colors p-1';
+      removeBtn.className = 'text-gray-500 hover:text-red-400 transition-colors p-1 ml-auto';
       removeBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>';
       removeBtn.addEventListener('click', () => {
-        state.metrics.splice(index, 1);
+        state.series.splice(index, 1);
         updateUrl();
         renderSeriesSlots();
         updateChart();
@@ -354,7 +382,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
     });
 
     // Update add button visibility
-    addSeriesBtn.classList.toggle('hidden', state.metrics.length >= 4);
+    addSeriesBtn.classList.toggle('hidden', state.series.length >= 4);
   }
 
   // Fetch data file
@@ -412,29 +440,34 @@ const sourcesData = DATA_SOURCES.map(s => ({
     })).filter((p: TimeSeriesPoint) => p.value !== undefined && p.value !== null);
   }
 
-  // Load all selected metrics
-  async function loadMetrics(): Promise<LoadedData[]> {
+  // Load all selected series
+  async function loadSeries(): Promise<LoadedData[]> {
     const results: LoadedData[] = [];
 
-    for (const metricId of state.metrics) {
-      const metric = allMetrics.find(m => m.id === metricId);
+    for (const seriesConfig of state.series) {
+      const metric = allMetrics.find(m => m.id === seriesConfig.metricId);
       if (!metric) continue;
 
-      const filePath = getFilePath(metricId);
+      const filePath = getFilePath(seriesConfig.metricId);
       if (!filePath) continue;
 
       try {
         const data = await fetchData(filePath);
         const timeSeries = extractTimeSeries(data, metric);
 
+        // Create label based on mode
+        const modeLabel = seriesConfig.dataMode === 'change' ? ' (Change)' : '';
+
         results.push({
           metricId: metric.id,
-          label: metric.label,
+          label: metric.label + modeLabel,
           color: metric.color,
           data: timeSeries,
+          dataMode: seriesConfig.dataMode,
+          chartType: seriesConfig.chartType,
         });
       } catch (error) {
-        console.error(`Failed to load ${metricId}:`, error);
+        console.error(`Failed to load ${seriesConfig.metricId}:`, error);
       }
     }
 
@@ -475,7 +508,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
   // Check if dual axis needed
   function needsDualAxis(datasets: LoadedData[]): boolean {
     if (datasets.length < 2) return false;
-    const maxValues = datasets.map(d => Math.max(...d.data.map(p => p.value)));
+    const maxValues = datasets.map(d => Math.max(...d.data.map(p => Math.abs(p.value))));
     const minMax = Math.min(...maxValues);
     const maxMax = Math.max(...maxValues);
     return minMax > 0 && maxMax / minMax > 10;
@@ -483,7 +516,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
 
   // Update chart
   async function updateChart(): Promise<void> {
-    if (state.metrics.length === 0) {
+    if (state.series.length === 0) {
       emptyState.classList.remove('hidden');
       loadingState.classList.add('hidden');
       errorState.classList.add('hidden');
@@ -501,26 +534,20 @@ const sourcesData = DATA_SOURCES.map(s => ({
     errorState.classList.add('hidden');
 
     try {
-      let datasets = await loadMetrics();
+      let datasets = await loadSeries();
 
       if (datasets.length === 0) {
         throw new Error('No data loaded');
       }
 
-      // Apply date range filter
-      datasets = datasets.map(d => ({
-        ...d,
-        data: filterByRange(d.data),
-      }));
-
-      // Apply data mode transformation
-      if (state.dataMode === 'change') {
-        datasets = datasets.map(d => ({
-          ...d,
-          data: toPeriodChange(d.data),
-          label: `${d.label} (Change)`,
-        }));
-      }
+      // Apply date range filter and data mode transformation
+      datasets = datasets.map(d => {
+        let filteredData = filterByRange(d.data);
+        if (d.dataMode === 'change') {
+          filteredData = toPeriodChange(filteredData);
+        }
+        return { ...d, data: filteredData };
+      });
 
       // Check for dual axis
       const useDualAxis = needsDualAxis(datasets);
@@ -532,22 +559,26 @@ const sourcesData = DATA_SOURCES.map(s => ({
       const labels = Array.from(allDates).sort();
 
       // Build chart datasets
-      const isArea = state.chartType === 'area';
       const chartDatasets = datasets.map((d, index) => {
         // Map data to labels
         const dataMap = new Map(d.data.map(p => [p.date, p.value]));
         const values = labels.map(date => dataMap.get(date) ?? null);
 
+        const isArea = d.chartType === 'area';
+        const isBar = d.chartType === 'bar';
+
         return {
           label: d.label,
           data: values,
           borderColor: d.color,
-          backgroundColor: isArea ? `${d.color}20` : d.color,
+          backgroundColor: isBar ? `${d.color}99` : isArea ? `${d.color}20` : d.color,
           fill: isArea,
           tension: 0.1,
-          pointRadius: labels.length > 60 ? 0 : 3,
-          pointHoverRadius: 5,
+          pointRadius: isBar ? 0 : labels.length > 60 ? 0 : 3,
+          pointHoverRadius: isBar ? 0 : 5,
           yAxisID: useDualAxis && index >= 1 ? 'y1' : 'y',
+          type: isBar ? 'bar' : 'line',
+          order: isBar ? 2 : 1, // Bars render behind lines
         };
       });
 
@@ -556,9 +587,12 @@ const sourcesData = DATA_SOURCES.map(s => ({
       // Create or update chart
       if (chart) {
         chart.data.labels = labels;
-        chart.data.datasets = chartDatasets;
+        chart.data.datasets = chartDatasets as any;
         if (chart.options.scales) {
           (chart.options.scales as any).y1.display = useDualAxis;
+          if (useDualAxis && datasets[1]) {
+            (chart.options.scales as any).y1.ticks.color = datasets[1].color;
+          }
         }
         chart.update();
       } else {
@@ -566,7 +600,7 @@ const sourcesData = DATA_SOURCES.map(s => ({
           type: 'line',
           data: {
             labels,
-            datasets: chartDatasets,
+            datasets: chartDatasets as any,
           },
           options: {
             responsive: true,
@@ -642,10 +676,12 @@ const sourcesData = DATA_SOURCES.map(s => ({
       datasets.forEach((d, index) => {
         const item = document.createElement('div');
         item.className = 'flex items-center gap-2';
+        const typeIcon = d.chartType === 'bar' ? '▮' : d.chartType === 'area' ? '▬' : '─';
         item.innerHTML = `
           <span class="w-3 h-3 rounded-full" style="background-color: ${d.color}"></span>
           <span class="text-gray-400 text-sm">${d.label}</span>
-          ${useDualAxis ? `<span class="text-xs text-gray-500">(${index === 0 ? 'left' : 'right'} axis)</span>` : ''}
+          <span class="text-xs text-gray-600">${typeIcon}</span>
+          ${useDualAxis ? `<span class="text-xs text-gray-500">(${index === 0 ? 'L' : 'R'})</span>` : ''}
         `;
         chartLegend.appendChild(item);
       });
@@ -659,11 +695,15 @@ const sourcesData = DATA_SOURCES.map(s => ({
 
   // Event handlers
   addSeriesBtn.addEventListener('click', () => {
-    if (state.metrics.length >= 4) return;
-    // Add empty slot - first available metric
-    const available = allMetrics.find(m => !state.metrics.includes(m.id));
-    if (available) {
-      state.metrics.push(available.id);
+    if (state.series.length >= 4) return;
+    // Add new series with first available metric
+    const firstMetric = allMetrics[0];
+    if (firstMetric) {
+      state.series.push({
+        metricId: firstMetric.id,
+        dataMode: 'cumulative',
+        chartType: 'line',
+      });
       updateUrl();
       renderSeriesSlots();
       updateChart();
@@ -676,28 +716,12 @@ const sourcesData = DATA_SOURCES.map(s => ({
     updateChart();
   });
 
-  chartTypeSelect.addEventListener('change', () => {
-    state.chartType = chartTypeSelect.value as PlaygroundState['chartType'];
-    updateUrl();
-    updateChart();
-  });
-
-  dataModeSelect.addEventListener('change', () => {
-    state.dataMode = dataModeSelect.value as PlaygroundState['dataMode'];
-    updateUrl();
-    updateChart();
-  });
-
   resetBtn.addEventListener('click', () => {
     state = {
-      metrics: [],
+      series: [],
       range: '1y',
-      chartType: 'line',
-      dataMode: 'cumulative',
     };
     rangeSelect.value = state.range;
-    chartTypeSelect.value = state.chartType;
-    dataModeSelect.value = state.dataMode;
     updateUrl();
     renderSeriesSlots();
     updateChart();
@@ -719,18 +743,10 @@ const sourcesData = DATA_SOURCES.map(s => ({
     const urlState = parseUrlState();
 
     // Apply URL state
-    if (urlState.metrics) state.metrics = urlState.metrics;
+    if (urlState.series) state.series = urlState.series;
     if (urlState.range) {
       state.range = urlState.range;
       rangeSelect.value = state.range;
-    }
-    if (urlState.chartType) {
-      state.chartType = urlState.chartType;
-      chartTypeSelect.value = state.chartType;
-    }
-    if (urlState.dataMode) {
-      state.dataMode = urlState.dataMode;
-      dataModeSelect.value = state.dataMode;
     }
 
     renderSeriesSlots();
