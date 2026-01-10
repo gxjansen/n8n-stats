@@ -2,8 +2,6 @@
 
 Community health dashboard and ecosystem explorer for n8n. Shows social proof and helps users discover popular/trending templates, nodes, and community activity.
 
-**Built with n8n, for n8n.**
-
 ## Project Overview
 
 - **Stack**: Astro 5 + Tailwind CSS + Chart.js
@@ -61,7 +59,17 @@ See `docs/DATA-STRATEGY.md` for full ETL documentation.
 - **Why**: n8n API doesn't expose inserter data
 - **Attribution**: Display "Creator metrics powered by n8n Arena"
 
-### 6. YouTube Data API (Future)
+### 6. Luma Events
+- **URL**: `https://lu.ma` (scraped from n8n community calendar)
+- **Data**: Community events, meetups, locations, registrations
+- **Update**: Daily
+
+### 7. Discord API
+- **Server**: n8n Community Discord
+- **Data**: Member count, online count
+- **Auth**: Bot token required
+
+### 8. YouTube Data API (Future)
 - **Search**: Videos with "n8n" keyword
 - **Data**: View counts, channel stats
 - **Auth**: API key required
@@ -83,12 +91,15 @@ See `docs/DATA-STRATEGY.md` for full ETL documentation.
 │   │   ├── templates/       # Template explorer
 │   │   ├── nodes/           # Node usage stats
 │   │   ├── community/       # Forum stats
-│   │   └── github/          # GitHub stats
+│   │   ├── github/          # GitHub stats
+│   │   ├── events/          # Community events
+│   │   └── playground/      # Data playground
 │   ├── lib/
 │   │   ├── api/
 │   │   │   ├── n8n.ts       # n8n templates API
 │   │   │   ├── discourse.ts # Forum API
-│   │   │   └── github.ts    # GitHub API
+│   │   │   ├── github.ts    # GitHub API
+│   │   │   └── luma.ts      # Events API
 │   │   ├── utils/
 │   │   │   ├── formatters.ts
 │   │   │   └── date.ts
