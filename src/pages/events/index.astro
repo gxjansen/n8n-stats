@@ -105,11 +105,17 @@ const byMonth = (eventsData?.byMonth || []).filter(m => m.month <= currentMonth)
 const byCountry = eventsData?.byCountry || [];
 const stats = eventsData?.stats || {
   totalEvents: 0,
+  totalRegistrations: 0,
   upcomingCount: 0,
   pastCount: 0,
   countriesCount: 0,
   onlineCount: 0,
 };
+
+// Calculate average participants per event (past events only)
+const avgParticipants = stats.pastCount > 0
+  ? Math.round(stats.totalRegistrations / stats.pastCount)
+  : 0;
 ---
 
 <BaseLayout title="Community Events" description="n8n community meetups, workshops, and events around the world">
@@ -125,7 +131,19 @@ const stats = eventsData?.stats || {
 
     <!-- Stats Overview -->
     <section class="mb-12">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <StatCard
+          label="Past Events"
+          value={stats.pastCount}
+        />
+        <StatCard
+          label="Total Registrations"
+          value={formatNumber(stats.totalRegistrations)}
+        />
+        <StatCard
+          label="Avg Participants/Event"
+          value={avgParticipants}
+        />
         <StatCard
           label="Upcoming Events"
           value={stats.upcomingCount}
@@ -134,10 +152,6 @@ const stats = eventsData?.stats || {
         <StatCard
           label="Countries"
           value={stats.countriesCount}
-        />
-        <StatCard
-          label="In-Person Events"
-          value={stats.totalEvents - stats.onlineCount}
         />
         <StatCard
           label="Virtual Events"

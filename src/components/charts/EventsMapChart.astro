@@ -1,7 +1,8 @@
 ---
 /**
  * Events Map Chart
- * Displays event locations on an SVG world map with continent outlines
+ * Displays event locations on an SVG world map
+ * World map SVG from flekschas/simple-world-map (CC BY-SA 3.0)
  */
 
 interface Location {
@@ -20,21 +21,28 @@ interface Props {
 
 const { locations } = Astro.props;
 
-// Convert lat/lng to SVG coordinates using equirectangular projection
-function latLngToXY(lat: number, lng: number, width: number, height: number): { x: number; y: number } {
-  const x = ((lng + 180) / 360) * width;
-  const y = ((90 - lat) / 180) * height;
+// The world map SVG has viewBox="30.767 241.591 784.077 458.627"
+// We need to convert lat/lng to match this coordinate system
+const mapViewBox = {
+  x: 30.767,
+  y: 241.591,
+  width: 784.077,
+  height: 458.627,
+};
+
+// Convert lat/lng to SVG coordinates matching the world-map.svg viewBox
+function latLngToXY(lat: number, lng: number): { x: number; y: number } {
+  // Equirectangular projection: lng -180 to +180, lat +90 to -90
+  const x = mapViewBox.x + ((lng + 180) / 360) * mapViewBox.width;
+  const y = mapViewBox.y + ((90 - lat) / 180) * mapViewBox.height;
   return { x, y };
 }
 
-const svgWidth = 900;
-const svgHeight = 450;
-
 // Process locations for display
 const markers = locations.map(loc => {
-  const { x, y } = latLngToXY(loc.lat, loc.lng, svgWidth, svgHeight);
-  // Size based on event count (min 6, max 20)
-  const size = Math.min(20, Math.max(6, 4 + loc.eventCount * 3));
+  const { x, y } = latLngToXY(loc.lat, loc.lng);
+  // Size based on event count (min 5, max 15)
+  const size = Math.min(15, Math.max(5, 3 + loc.eventCount * 2));
   return {
     ...loc,
     x,
@@ -43,57 +51,29 @@ const markers = locations.map(loc => {
   };
 });
 
-// Simplified world map paths (Natural Earth style, simplified for SVG)
-// Coordinates are pre-calculated for 900x450 viewBox
-const continentPaths = {
-  // North America
-  northAmerica: "M165,95 L175,85 L195,80 L215,75 L235,78 L250,85 L255,95 L248,105 L240,115 L235,130 L225,145 L215,155 L200,165 L185,175 L170,180 L155,178 L145,170 L135,155 L125,140 L115,125 L110,110 L115,100 L125,92 L140,88 L155,90 Z M260,100 L275,95 L285,100 L280,115 L270,125 L260,120 L255,110 Z",
-  // South America
-  southAmerica: "M200,200 L215,195 L230,200 L245,210 L255,225 L260,245 L255,270 L245,295 L230,315 L215,330 L200,340 L190,335 L185,320 L190,300 L195,280 L190,260 L185,240 L190,220 L195,205 Z",
-  // Europe
-  europe: "M420,70 L440,65 L460,70 L480,75 L495,85 L500,100 L495,115 L480,125 L460,130 L445,128 L430,120 L420,110 L415,95 L418,80 Z M505,90 L520,85 L535,90 L540,100 L535,110 L520,115 L510,110 L505,100 Z",
-  // Africa
-  africa: "M420,145 L445,140 L470,145 L490,155 L505,175 L510,200 L505,230 L495,260 L480,285 L460,300 L440,305 L420,300 L405,285 L395,260 L390,230 L395,200 L405,175 L415,155 Z",
-  // Asia
-  asia: "M510,55 L550,50 L600,55 L650,65 L700,80 L730,100 L745,125 L740,155 L720,180 L690,195 L650,200 L610,195 L570,185 L540,170 L515,150 L505,125 L510,100 L520,75 Z M755,130 L770,125 L785,135 L790,150 L780,165 L765,160 L755,145 Z",
-  // Australia
-  australia: "M700,260 L730,255 L760,265 L780,280 L785,305 L775,325 L750,335 L720,330 L700,315 L695,290 L698,270 Z M790,320 L805,315 L815,325 L810,340 L795,345 L785,335 Z",
-  // Antarctica (optional, usually not shown)
-  // Greenland
-  greenland: "M310,40 L335,35 L355,45 L360,60 L350,75 L330,80 L310,75 L300,60 L305,45 Z",
-};
+// Full viewBox string for the SVG
+const viewBox = `${mapViewBox.x} ${mapViewBox.y} ${mapViewBox.width} ${mapViewBox.height}`;
 ---
 
 <div id="events-map-container" class="card">
   <div class="relative overflow-hidden rounded-lg">
     <svg
-      viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+      viewBox={viewBox}
       class="w-full h-auto"
       style="max-height: 450px; background: #0f1419;"
     >
       <!-- Ocean background -->
-      <rect width="100%" height="100%" fill="#0f1419" />
+      <rect x={mapViewBox.x} y={mapViewBox.y} width={mapViewBox.width} height={mapViewBox.height} fill="#0f1419" />
 
-      <!-- Subtle grid -->
-      <g stroke="#1a2634" stroke-width="0.5" opacity="0.5">
-        {[...Array(19)].map((_, i) => (
-          <line x1={(i * svgWidth) / 18} y1="0" x2={(i * svgWidth) / 18} y2={svgHeight} />
-        ))}
-        {[...Array(10)].map((_, i) => (
-          <line x1="0" y1={(i * svgHeight) / 9} x2={svgWidth} y2={(i * svgHeight) / 9} />
-        ))}
-      </g>
-
-      <!-- Continent shapes -->
-      <g fill="#1e2d3d" stroke="#2a3f54" stroke-width="1">
-        <path d={continentPaths.northAmerica} />
-        <path d={continentPaths.southAmerica} />
-        <path d={continentPaths.europe} />
-        <path d={continentPaths.africa} />
-        <path d={continentPaths.asia} />
-        <path d={continentPaths.australia} />
-        <path d={continentPaths.greenland} />
-      </g>
+      <!-- World map from flekschas/simple-world-map (CC BY-SA 3.0) -->
+      <image
+        href="/images/world-map.svg"
+        x={mapViewBox.x}
+        y={mapViewBox.y}
+        width={mapViewBox.width}
+        height={mapViewBox.height}
+        preserveAspectRatio="xMidYMid meet"
+      />
 
       <!-- Event markers -->
       <g class="markers">
