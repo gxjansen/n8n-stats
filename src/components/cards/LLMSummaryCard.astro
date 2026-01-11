@@ -1,0 +1,133 @@
+---
+/**
+ * LLM Summary Card
+ *
+ * Compact card showing the most popular LLM providers in n8n templates.
+ * Shows top 5 with a simple horizontal bar chart.
+ */
+import { formatNumber } from '@/lib/utils/formatters';
+
+interface LLMModel {
+  name: string;
+  count: number;
+}
+
+interface Props {
+  llmModels: LLMModel[];
+  href?: string;
+}
+
+const { llmModels, href = '/nodes' } = Astro.props;
+
+// Get top 5 models
+const topModels = llmModels.slice(0, 5);
+const maxCount = topModels[0]?.count || 1;
+const totalLLMTemplates = llmModels.reduce((sum, m) => sum + m.count, 0);
+
+// Shorter display names
+function getShortName(name: string): string {
+  return name
+    .replace(' Chat Model', '')
+    .replace('Google ', '')
+    .replace(' Cloud', '');
+}
+
+// Brand colors for LLM providers
+const llmColors: Record<string, string> = {
+  'OpenAI Chat Model': '#10a37f',
+  'Google Gemini Chat Model': '#4285f4',
+  'OpenRouter Chat Model': '#6366f1',
+  'Anthropic Chat Model': '#d4a574',
+  'Azure OpenAI Chat Model': '#0078d4',
+  'Groq Chat Model': '#f55036',
+  'Ollama Chat Model': '#ffffff',
+  'Mistral Cloud Chat Model': '#ff7000',
+  'DeepSeek Chat Model': '#4d6bfe',
+  'xAI Grok Chat Model': '#000000',
+  'Cohere Chat Model': '#39594d',
+};
+
+function getColor(name: string): string {
+  return llmColors[name] || '#6b7280';
+}
+---
+
+<a
+  href={href}
+  class="card block hover:border-emerald-500/50 hover:bg-gray-800/30 transition-all group relative overflow-hidden"
+>
+  <!-- Green accent bar -->
+  <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-80 group-hover:opacity-100 transition-opacity"></div>
+
+  <div class="relative pt-2">
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+        <svg class="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <polyline points="7.5 4.21 12 6.81 16.5 4.21"/>
+          <polyline points="7.5 19.79 7.5 14.6 3 12"/>
+          <polyline points="21 12 16.5 14.6 16.5 19.79"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+          <line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold text-white group-hover:text-emerald-400 transition-colors">
+          LLM Providers
+        </h3>
+        <p class="text-xs text-gray-500">Models used in templates</p>
+      </div>
+    </div>
+
+    <!-- Winner highlight -->
+    {topModels[0] && (
+      <div class="mb-4 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-xs text-emerald-400 uppercase tracking-wide mb-1">Most Popular</div>
+            <div class="text-xl font-bold text-white">{getShortName(topModels[0].name)}</div>
+          </div>
+          <div class="text-right">
+            <div class="text-2xl font-bold text-emerald-400">
+              {Math.round((topModels[0].count / totalLLMTemplates) * 100)}%
+            </div>
+            <div class="text-xs text-gray-500">{formatNumber(topModels[0].count)} templates</div>
+          </div>
+        </div>
+      </div>
+    )}
+
+    <!-- Bar chart for top 5 -->
+    <div class="space-y-2 mb-4">
+      {topModels.map((model, i) => {
+        const pct = (model.count / maxCount) * 100;
+        const color = getColor(model.name);
+        return (
+          <div class="flex items-center gap-2">
+            <div class="w-20 text-xs text-gray-400 truncate" title={model.name}>
+              {getShortName(model.name)}
+            </div>
+            <div class="flex-1 h-5 bg-gray-800 rounded overflow-hidden">
+              <div
+                class="h-full rounded transition-all duration-500"
+                style={`width: ${pct}%; background: ${color}`}
+              />
+            </div>
+            <div class="w-14 text-xs text-gray-500 text-right">
+              {formatNumber(model.count)}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- CTA -->
+    <div class="flex items-center gap-1 text-emerald-400 text-sm font-medium group-hover:gap-2 transition-all">
+      <span>View full breakdown</span>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </div>
+  </div>
+</a>

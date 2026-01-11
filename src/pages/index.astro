@@ -7,6 +7,7 @@ import SubpageTeaserCard from '@/components/cards/SubpageTeaserCard.astro';
 import EventsSpotlightCard from '@/components/cards/EventsSpotlightCard.astro';
 import CommunityActivityCard from '@/components/cards/CommunityActivityCard.astro';
 import AIInsightCard from '@/components/cards/AIInsightCard.astro';
+import LLMSummaryCard from '@/components/cards/LLMSummaryCard.astro';
 import { fetchTemplates } from '@/lib/api/n8n';
 import { fetchForumStats } from '@/lib/api/discourse';
 import { formatNumber } from '@/lib/utils/formatters';
@@ -89,12 +90,13 @@ try {
   templatesHistory = JSON.parse(readFileSync(templatesPath, 'utf-8'));
 } catch (e) { /* use defaults */ }
 
-// Load templates raw log for AI Agent node count and top nodes
+// Load templates raw log for AI Agent node count, top nodes, and LLM models
 interface TemplatesRawEntry {
   date: string;
   total: number;
   categories: Record<string, number>;
   topNodes: { name: string; count: number }[];
+  llmModels?: { name: string; count: number }[];
 }
 let templatesRawLog: { entries: TemplatesRawEntry[] } = { entries: [] };
 try {
@@ -185,6 +187,7 @@ const aiTemplates = latestTemplateData?.categories?.['AI'] || 5189;
 // Get node stats from latest raw log entry (all templates)
 const latestRawEntry = templatesRawLog.entries?.[templatesRawLog.entries.length - 1];
 const topNodes = latestRawEntry?.topNodes || [];
+const llmModels = latestRawEntry?.llmModels || [];
 
 // Calculate AI percentage for AIInsightCard
 const aiPercentage = totalWorkflows > 0 ? (aiTemplates / totalWorkflows) * 100 : 67;
@@ -309,9 +312,9 @@ const buildTime = new Date().toISOString();
       </div>
     </section>
 
-    <!-- AI Dominance Insight - Visual Highlight -->
+    <!-- AI & LLM Insight Section -->
     <section class="mb-12">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <AIInsightCard
           aiPercentage={aiPercentage}
           aiTemplates={aiTemplates}
@@ -319,15 +322,18 @@ const buildTime = new Date().toISOString();
           topAINodes={finalAINodes}
           href="/templates"
         />
-        <!-- Community & Events combined in this row -->
-        <div class="grid grid-cols-1 gap-4">
-          <CommunityActivityCard
-            discordMembers={latestDiscord.members}
-            discordOnline={latestDiscord.online}
-            forumUsers={forumStats.usersCount}
-            forumTopics={forumStats.topicsCount}
+        {llmModels.length > 0 && (
+          <LLMSummaryCard
+            llmModels={llmModels}
+            href="/nodes#llm-models"
           />
-        </div>
+        )}
+        <CommunityActivityCard
+          discordMembers={latestDiscord.members}
+          discordOnline={latestDiscord.online}
+          forumUsers={forumStats.usersCount}
+          forumTopics={forumStats.topicsCount}
+        />
       </div>
     </section>
 

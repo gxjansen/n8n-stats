@@ -4,7 +4,7 @@ import NodeTreemapChart from '@/components/charts/NodeTreemapChart.astro';
 import CategoryNodesTable from '@/components/CategoryNodesTable.astro';
 import { fetchTemplates, aggregateNodeUsage } from '@/lib/api/n8n';
 import { formatNumber, getNodeIntegrationUrl, getNodePageUrl } from '@/lib/utils/formatters';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
 // Load complete node data (fetched weekly via fetch-all-nodes.ts)
@@ -34,6 +34,60 @@ try {
   allNodesData = JSON.parse(readFileSync(dataPath, 'utf-8'));
 } catch (e) {
   console.warn('all-nodes-data.json not found, using fallback data');
+}
+
+// Load LLM models data from templates-raw-log
+interface LLMModel {
+  name: string;
+  count: number;
+}
+let llmModels: LLMModel[] = [];
+try {
+  const rawLogPath = join(process.cwd(), 'public', 'data', 'templates-raw-log.json');
+  if (existsSync(rawLogPath)) {
+    const rawLog = JSON.parse(readFileSync(rawLogPath, 'utf-8'));
+    const latestEntry = rawLog.entries?.[rawLog.entries.length - 1];
+    llmModels = latestEntry?.llmModels || [];
+  }
+} catch (e) {
+  console.warn('Could not load LLM models data');
+}
+
+// Calculate LLM statistics
+const totalLLMTemplates = llmModels.reduce((sum, m) => sum + m.count, 0);
+const topLLM = llmModels[0];
+const openSourceLLMs = llmModels.filter(m =>
+  ['Ollama Chat Model', 'Hugging Face Chat Model'].includes(m.name)
+);
+const cloudLLMs = llmModels.filter(m =>
+  !['Ollama Chat Model', 'Hugging Face Chat Model'].includes(m.name)
+);
+
+// LLM brand colors
+const llmColors: Record<string, string> = {
+  'OpenAI Chat Model': '#10a37f',
+  'Google Gemini Chat Model': '#4285f4',
+  'OpenRouter Chat Model': '#6366f1',
+  'Anthropic Chat Model': '#d4a574',
+  'Azure OpenAI Chat Model': '#0078d4',
+  'Groq Chat Model': '#f55036',
+  'Ollama Chat Model': '#ffffff',
+  'Mistral Cloud Chat Model': '#ff7000',
+  'DeepSeek Chat Model': '#4d6bfe',
+  'xAI Grok Chat Model': '#1da1f2',
+  'Cohere Chat Model': '#39594d',
+  'Hugging Face Chat Model': '#ffcc00',
+};
+
+function getLLMColor(name: string): string {
+  return llmColors[name] || '#6b7280';
+}
+
+function getShortLLMName(name: string): string {
+  return name
+    .replace(' Chat Model', '')
+    .replace('Google ', '')
+    .replace(' Cloud', '');
 }
 
 // Also fetch trending templates for comparison
@@ -261,6 +315,170 @@ const lastUpdated = allNodesData?.lastUpdated
         ))}
       </div>
     </section>
+
+    <!-- LLM Models Section -->
+    {llmModels.length > 0 && (
+      <section id="llm-models" class="mb-12 scroll-mt-20">
+        <div class="flex items-center gap-3 mb-2">
+          <h2 class="text-2xl font-bold text-white">LLM Provider Breakdown</h2>
+          <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded">AI</span>
+        </div>
+        <p class="text-gray-400 mb-6">
+          Language model nodes used across {formatNumber(totalLLMTemplates)} AI-powered templates.
+        </p>
+
+        <!-- LLM Stats Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div class="card text-center">
+            <div class="text-3xl font-bold text-emerald-400 mb-1">
+              {llmModels.length}
+            </div>
+            <div class="text-sm text-gray-400">LLM Providers</div>
+          </div>
+          <div class="card text-center">
+            <div class="text-3xl font-bold text-white mb-1">
+              {formatNumber(totalLLMTemplates)}
+            </div>
+            <div class="text-sm text-gray-400">Templates with LLMs</div>
+          </div>
+          <div class="card text-center">
+            <div class="text-3xl font-bold mb-1" style={`color: ${getLLMColor(topLLM?.name || '')}`}>
+              {topLLM ? Math.round((topLLM.count / totalLLMTemplates) * 100) : 0}%
+            </div>
+            <div class="text-sm text-gray-400">{getShortLLMName(topLLM?.name || 'OpenAI')} Dominance</div>
+          </div>
+          <div class="card text-center">
+            <div class="text-3xl font-bold text-gray-400 mb-1">
+              {openSourceLLMs.reduce((sum, m) => sum + m.count, 0)}
+            </div>
+            <div class="text-sm text-gray-400">Open Source LLM Usage</div>
+          </div>
+        </div>
+
+        <!-- Full LLM Chart -->
+        <div class="card p-6 mb-6">
+          <h3 class="text-lg font-semibold text-white mb-4">Market Share by Provider</h3>
+          <div class="space-y-3">
+            {llmModels.map((model, i) => {
+              const pct = (model.count / totalLLMTemplates) * 100;
+              const maxPct = (llmModels[0]?.count / totalLLMTemplates) * 100;
+              const barWidth = (pct / maxPct) * 100;
+              const color = getLLMColor(model.name);
+              return (
+                <div class="group">
+                  <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                      <span class="text-gray-500 w-6 text-right">#{i + 1}</span>
+                      <span
+                        class="w-3 h-3 rounded-full flex-shrink-0"
+                        style={`background: ${color}`}
+                      />
+                      <span class="text-white font-medium">{getShortLLMName(model.name)}</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                      <span class="text-gray-400">{formatNumber(model.count)} templates</span>
+                      <span class="text-white font-semibold w-14 text-right">{pct.toFixed(1)}%</span>
+                    </div>
+                  </div>
+                  <div class="ml-8 h-6 bg-gray-800 rounded overflow-hidden">
+                    <div
+                      class="h-full rounded transition-all duration-500 group-hover:opacity-80"
+                      style={`width: ${barWidth}%; background: ${color}`}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <!-- Cloud vs Open Source Comparison -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Cloud Providers -->
+          <div class="card p-6">
+            <div class="flex items-center gap-2 mb-4">
+              <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+              </svg>
+              <h3 class="text-lg font-semibold text-white">Cloud Providers</h3>
+            </div>
+            <div class="space-y-2">
+              {cloudLLMs.slice(0, 6).map((model) => {
+                const pct = (model.count / totalLLMTemplates) * 100;
+                return (
+                  <div class="flex items-center justify-between p-2 rounded bg-gray-800/50">
+                    <div class="flex items-center gap-2">
+                      <span
+                        class="w-2 h-2 rounded-full"
+                        style={`background: ${getLLMColor(model.name)}`}
+                      />
+                      <span class="text-white text-sm">{getShortLLMName(model.name)}</span>
+                    </div>
+                    <div class="text-sm">
+                      <span class="text-gray-400">{formatNumber(model.count)}</span>
+                      <span class="text-gray-600 ml-1">({pct.toFixed(1)}%)</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div class="mt-4 pt-4 border-t border-gray-700">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-400">Total Cloud Usage</span>
+                <span class="text-white font-medium">
+                  {formatNumber(cloudLLMs.reduce((sum, m) => sum + m.count, 0))} templates
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Open Source / Self-Hosted -->
+          <div class="card p-6">
+            <div class="flex items-center gap-2 mb-4">
+              <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+              </svg>
+              <h3 class="text-lg font-semibold text-white">Open Source / Self-Hosted</h3>
+            </div>
+            {openSourceLLMs.length > 0 ? (
+              <div class="space-y-2">
+                {openSourceLLMs.map((model) => {
+                  const pct = (model.count / totalLLMTemplates) * 100;
+                  return (
+                    <div class="flex items-center justify-between p-2 rounded bg-gray-800/50">
+                      <div class="flex items-center gap-2">
+                        <span
+                          class="w-2 h-2 rounded-full"
+                          style={`background: ${getLLMColor(model.name)}`}
+                        />
+                        <span class="text-white text-sm">{getShortLLMName(model.name)}</span>
+                      </div>
+                      <div class="text-sm">
+                        <span class="text-gray-400">{formatNumber(model.count)}</span>
+                        <span class="text-gray-600 ml-1">({pct.toFixed(1)}%)</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p class="text-gray-500 text-sm">No open source LLM usage tracked yet.</p>
+            )}
+            <div class="mt-4 pt-4 border-t border-gray-700">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-400">Total Self-Hosted Usage</span>
+                <span class="text-white font-medium">
+                  {formatNumber(openSourceLLMs.reduce((sum, m) => sum + m.count, 0))} templates
+                </span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-3">
+              Self-hosted options like Ollama let you run models locally without API costs.
+            </p>
+          </div>
+        </div>
+      </section>
+    )}
 
     <!-- Trending Boost Section -->
     {trendingBoostNodes.length > 0 && (

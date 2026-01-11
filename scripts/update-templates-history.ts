@@ -18,7 +18,24 @@ interface TemplatesDataPoint {
   total: number;
   categories: Record<string, number>;
   topNodes: Array<{ name: string; count: number }>;
+  llmModels?: Array<{ name: string; count: number }>;
 }
+
+// LLM models to track (API only returns top 10 nodes, so we query these separately)
+const LLM_MODELS_TO_TRACK = [
+  'OpenAI Chat Model',
+  'Google Gemini Chat Model',
+  'Anthropic Chat Model',
+  'Azure OpenAI Chat Model',
+  'Groq Chat Model',
+  'Ollama Chat Model',
+  'Mistral Cloud Chat Model',
+  'DeepSeek Chat Model',
+  'Cohere Chat Model',
+  'OpenRouter Chat Model',
+  'Hugging Face Chat Model',
+  'xAI Grok Chat Model',
+];
 
 interface TemplatesHistory {
   lastUpdated: string;
@@ -45,6 +62,41 @@ const HISTORY_PATH = join(DATA_DIR, 'templates-history.json');
 const DAILY_RETENTION_DAYS = 90;
 const WEEKLY_RETENTION_DAYS = 730; // ~2 years
 
+async function fetchNodeCount(nodeName: string): Promise<number> {
+  const response = await fetch(
+    `https://api.n8n.io/api/templates/search?rows=1&apps=${encodeURIComponent(nodeName)}`,
+    {
+      headers: {
+        'User-Agent': 'n8n-stats',
+      },
+    }
+  );
+
+  if (!response.ok) {
+    console.warn(`  Warning: Could not fetch count for ${nodeName}`);
+    return 0;
+  }
+
+  const data = await response.json();
+  return data.totalWorkflows || 0;
+}
+
+async function fetchLLMModelCounts(): Promise<Array<{ name: string; count: number }>> {
+  const llmModels: Array<{ name: string; count: number }> = [];
+
+  for (const model of LLM_MODELS_TO_TRACK) {
+    const count = await fetchNodeCount(model);
+    if (count > 0) {
+      llmModels.push({ name: model, count });
+    }
+    // Small delay to be nice to the API
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  // Sort by count descending
+  return llmModels.sort((a, b) => b.count - a.count);
+}
+
 async function fetchTemplatesStats(): Promise<TemplatesDataPoint> {
   const response = await fetch('https://api.n8n.io/api/templates/search?rows=1', {
     headers: {
@@ -67,20 +119,25 @@ async function fetchTemplatesStats(): Promise<TemplatesDataPoint> {
     }
   }
 
-  // Extract top node counts from filters
+  // Extract top node counts from filters (API returns max 10)
   const nodesFilter = data.filters?.find((f: ApiFilter) => f.field_name === 'apps');
   const topNodes: Array<{ name: string; count: number }> = [];
   if (nodesFilter) {
-    for (const item of nodesFilter.counts.slice(0, 20)) {
+    for (const item of nodesFilter.counts) {
       topNodes.push({ name: item.value, count: item.count });
     }
   }
+
+  // Fetch LLM model counts separately (since API only returns top 10 nodes)
+  console.log('  Fetching LLM model counts...');
+  const llmModels = await fetchLLMModelCounts();
 
   return {
     date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
     total: data.totalWorkflows,
     categories,
     topNodes,
+    llmModels,
   };
 }
 
@@ -191,6 +248,13 @@ async function main() {
   console.log(`  Total templates: ${todayStats.total.toLocaleString()}`);
   console.log(`  Categories tracked: ${Object.keys(todayStats.categories).length}`);
   console.log(`  Top nodes tracked: ${todayStats.topNodes.length}`);
+  console.log(`  LLM models tracked: ${todayStats.llmModels?.length || 0}`);
+  if (todayStats.llmModels && todayStats.llmModels.length > 0) {
+    console.log('  Top LLM models:');
+    for (const model of todayStats.llmModels.slice(0, 5)) {
+      console.log(`    - ${model.name}: ${model.count.toLocaleString()}`);
+    }
+  }
 
   // Check if we already have an entry for today
   const existingToday = rawLog.entries.find(e => e.date === todayStats.date);
