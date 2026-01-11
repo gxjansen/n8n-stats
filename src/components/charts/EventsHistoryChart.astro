@@ -60,6 +60,10 @@ const chartData = data
 
 <script>
   import Chart from 'chart.js/auto';
+  import { axisTruncationPlugin } from '../../lib/utils/chartPlugins';
+
+  // Register the axis truncation plugin globally
+  Chart.register(axisTruncationPlugin);
 
   interface MonthlyData {
     month: string;
