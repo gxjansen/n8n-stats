@@ -3,11 +3,12 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import StatCard from '@/components/cards/StatCard.astro';
 import VelocityCard from '@/components/cards/VelocityCard.astro';
 import TemplateCard from '@/components/cards/TemplateCard.astro';
-import AIAdoptionCard from '@/components/cards/AIAdoptionCard.astro';
-import EcosystemGrowthChart from '@/components/charts/EcosystemGrowthChart.astro';
+import SubpageTeaserCard from '@/components/cards/SubpageTeaserCard.astro';
+import EventsSpotlightCard from '@/components/cards/EventsSpotlightCard.astro';
+import CommunityActivityCard from '@/components/cards/CommunityActivityCard.astro';
 import { fetchTemplates } from '@/lib/api/n8n';
 import { fetchForumStats } from '@/lib/api/discourse';
-import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
+import { formatNumber } from '@/lib/utils/formatters';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
@@ -73,7 +74,7 @@ try {
   templatesHistory = JSON.parse(readFileSync(templatesPath, 'utf-8'));
 } catch (e) { /* use defaults */ }
 
-// Load templates raw log for AI Agent node count
+// Load templates raw log for AI Agent node count and top nodes
 interface TemplatesRawEntry {
   date: string;
   total: number;
@@ -85,6 +86,37 @@ try {
   const rawPath = join(process.cwd(), 'public', 'data', 'templates-raw-log.json');
   templatesRawLog = JSON.parse(readFileSync(rawPath, 'utf-8'));
 } catch (e) { /* use defaults */ }
+
+// Load events data
+interface EventData {
+  id: string;
+  name: string;
+  startDate: string;
+  location: { city: string; country: string };
+  isOnline: boolean;
+  registrations?: number;
+}
+interface EventsHistory {
+  upcoming: EventData[];
+  stats: { upcomingCount: number; countriesCount: number; totalEvents: number };
+}
+let eventsData: EventsHistory = { upcoming: [], stats: { upcomingCount: 0, countriesCount: 0, totalEvents: 0 } };
+try {
+  const eventsPath = join(process.cwd(), 'public', 'data', 'history', 'events.json');
+  eventsData = JSON.parse(readFileSync(eventsPath, 'utf-8'));
+} catch (e) { /* use defaults */ }
+
+// Load Discord data
+interface DiscordHistory {
+  daily: { date: string; members: number; online: number }[];
+}
+let discordData: DiscordHistory = { daily: [] };
+try {
+  const discordPath = join(process.cwd(), 'public', 'data', 'history', 'discord.json');
+  discordData = JSON.parse(readFileSync(discordPath, 'utf-8'));
+} catch (e) { /* use defaults */ }
+
+const latestDiscord = discordData.daily?.[discordData.daily.length - 1] || { members: 0, online: 0 };
 
 // Filter GitHub data to ONLY real collected data (exclude seed, ossinsight, etc.)
 const realGithubData = githubRawLog.entries
@@ -138,8 +170,6 @@ const aiTemplates = latestTemplateData?.categories?.['AI'] || 5189;
 // Get node stats from latest raw log entry (all templates)
 const latestRawEntry = templatesRawLog.entries?.[templatesRawLog.entries.length - 1];
 const topNodes = latestRawEntry?.topNodes || [];
-const aiAgentNode = topNodes.find(n => n.name === 'AI Agent');
-const aiAgentTemplates = aiAgentNode?.count || 0;
 
 // Data status for UI feedback
 const dataStatus = {
@@ -154,13 +184,10 @@ const dataStatus = {
   },
 };
 
-// Compile stats for trust indicators
-const stats = {
-  templates: totalWorkflows,
-  githubStars: githubStats.stars,
-  forumUsers: forumStats.usersCount,
-  integrations: 1313, // Hardcoded - scraped from n8n.io/integrations
-};
+// Calculate milestone prediction for GitHub
+const nextMilestone = Math.ceil(githubStats.stars / 10000) * 10000;
+const starsToMilestone = nextMilestone - githubStats.stars;
+const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilestone / starsPerDay) : null;
 
 // Build timestamp for "last updated"
 const buildTime = new Date().toISOString();
@@ -228,16 +255,125 @@ const buildTime = new Date().toISOString();
       </div>
     </section>
 
-    <!-- Ecosystem Insights - 2 column layout -->
+    <!-- Explore the Ecosystem - Subpage Teasers Grid -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">Ecosystem Insights</h2>
+      <h2 class="text-2xl font-bold text-white mb-6">Explore the Ecosystem</h2>
+      <p class="text-gray-400 mb-6">Dive deeper into the n8n community data.</p>
 
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Templates -->
+        <SubpageTeaserCard
+          title="Templates"
+          href="/templates"
+          mainStat={totalWorkflows}
+          mainLabel="workflow templates"
+          secondaryStat={aiTemplates}
+          secondaryLabel="AI templates"
+          accentColor="#ff6d5a"
+          ctaText="Browse templates"
+        >
+          <svg slot="icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+          </svg>
+        </SubpageTeaserCard>
+
+        <!-- Nodes -->
+        <SubpageTeaserCard
+          title="Nodes"
+          href="/nodes"
+          mainStat={topNodes.length > 0 ? topNodes[0].name : 'Loading...'}
+          mainLabel="most used node"
+          secondaryStat={topNodes.length > 0 ? topNodes[0].count : 0}
+          secondaryLabel="templates use it"
+          accentColor="#36a2eb"
+          ctaText="View node stats"
+        >
+          <svg slot="icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+          </svg>
+        </SubpageTeaserCard>
+
+        <!-- Creators -->
+        <SubpageTeaserCard
+          title="Creators"
+          href="/creators"
+          mainStat={latestCreators?.total || 0}
+          mainLabel="template creators"
+          secondaryStat={creatorsPerWeek !== null ? `+${creatorsPerWeek}/week` : undefined}
+          secondaryLabel="new creators"
+          accentColor="#9966ff"
+          ctaText="See leaderboard"
+        >
+          <svg slot="icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        </SubpageTeaserCard>
+
+        <!-- GitHub -->
+        <SubpageTeaserCard
+          title="GitHub"
+          href="/github"
+          mainStat={githubStats.stars}
+          mainLabel="stars on GitHub"
+          secondaryStat={daysToMilestone !== null ? `${daysToMilestone} days` : undefined}
+          secondaryLabel={`to ${formatNumber(nextMilestone)}`}
+          accentColor="#f97316"
+          ctaText="View repo stats"
+        >
+          <svg slot="icon" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+          </svg>
+        </SubpageTeaserCard>
+
+        <!-- Community -->
+        <SubpageTeaserCard
+          title="Community"
+          href="/community"
+          mainStat={latestDiscord.members + forumStats.usersCount}
+          mainLabel="total members"
+          secondaryStat={latestDiscord.online}
+          secondaryLabel="online now"
+          accentColor="#10b981"
+          ctaText="View community"
+        >
+          <svg slot="icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </SubpageTeaserCard>
+
+        <!-- Events -->
+        <SubpageTeaserCard
+          title="Events"
+          href="/events"
+          mainStat={eventsData.stats.upcomingCount}
+          mainLabel="upcoming events"
+          secondaryStat={eventsData.stats.countriesCount}
+          secondaryLabel="countries"
+          accentColor="#8b5cf6"
+          ctaText="See events"
+        >
+          <svg slot="icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </SubpageTeaserCard>
+      </div>
+    </section>
+
+    <!-- Community & Events Side by Side -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Community & Events</h2>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Creator Economy Growth Chart -->
-        <EcosystemGrowthChart height={200} />
-
-        <!-- AI Adoption Visual -->
-        <AIAdoptionCard aiTemplates={aiTemplates} totalTemplates={totalWorkflows} aiAgentTemplates={aiAgentTemplates} />
+        <CommunityActivityCard
+          discordMembers={latestDiscord.members}
+          discordOnline={latestDiscord.online}
+          forumUsers={forumStats.usersCount}
+          forumTopics={forumStats.topicsCount}
+        />
+        <EventsSpotlightCard
+          upcomingEvents={eventsData.upcoming}
+          totalUpcoming={eventsData.stats.upcomingCount}
+          countriesCount={eventsData.stats.countriesCount}
+        />
       </div>
     </section>
 
@@ -285,7 +421,7 @@ const buildTime = new Date().toISOString();
       </div>
     </section>
 
-    <!-- Trust Indicators (totals) -->
+    <!-- By the Numbers (Trust Indicators) -->
     <section class="mb-8">
       <div class="flex items-center gap-2 mb-6">
         <h2 class="text-xl font-semibold text-gray-300">By the Numbers</h2>
@@ -294,29 +430,29 @@ const buildTime = new Date().toISOString();
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
           label="Workflow Templates"
-          value={stats.templates}
+          value={totalWorkflows}
           to="/templates"
         />
         <StatCard
           label="GitHub Stars"
-          value={stats.githubStars}
+          value={githubStats.stars}
           to="/github"
         />
         <StatCard
           label="Community Members"
-          value={stats.forumUsers}
-          href={n8nUrls.community()}
+          value={latestDiscord.members + forumStats.usersCount}
+          to="/community"
         />
         <StatCard
-          label="Integrations"
-          value={stats.integrations}
-          href={n8nUrls.integrations()}
+          label="Community Events"
+          value={eventsData.stats.totalEvents}
+          to="/events"
         />
       </div>
     </section>
 
     <!-- Footer note -->
-    <p class="text-center text-sm text-gray-500">
+    <p class="text-center text-sm text-gray-500 mt-8">
       Last updated: {new Date(buildTime).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',

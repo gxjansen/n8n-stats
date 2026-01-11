@@ -1,0 +1,75 @@
+---
+import { formatNumber } from '@/lib/utils/formatters';
+
+interface Props {
+  title: string;
+  href: string;
+  mainStat: string | number;
+  mainLabel: string;
+  secondaryStat?: string | number;
+  secondaryLabel?: string;
+  accentColor?: string;
+  ctaText?: string;
+}
+
+const {
+  title,
+  href,
+  mainStat,
+  mainLabel,
+  secondaryStat,
+  secondaryLabel,
+  accentColor = '#ff6d5a',
+  ctaText = 'Explore'
+} = Astro.props;
+
+const formattedMainStat = typeof mainStat === 'number' ? formatNumber(mainStat) : mainStat;
+const formattedSecondaryStat = secondaryStat !== undefined
+  ? (typeof secondaryStat === 'number' ? formatNumber(secondaryStat) : secondaryStat)
+  : null;
+---
+
+<a
+  href={href}
+  class="card block hover:border-n8n-primary/50 hover:bg-gray-800/30 transition-all group relative overflow-hidden"
+>
+  <!-- Accent bar at top -->
+  <div
+    class="absolute top-0 left-0 right-0 h-1 opacity-60 group-hover:opacity-100 transition-opacity"
+    style={`background: ${accentColor}`}
+  ></div>
+
+  <div class="pt-2">
+    <!-- Icon slot -->
+    <div class="mb-4 text-gray-400 group-hover:text-white transition-colors">
+      <slot name="icon" />
+    </div>
+
+    <!-- Title -->
+    <h3 class="text-lg font-semibold text-white mb-3 group-hover:text-n8n-primary transition-colors">
+      {title}
+    </h3>
+
+    <!-- Main stat -->
+    <div class="mb-1">
+      <span class="text-2xl font-bold text-white">{formattedMainStat}</span>
+    </div>
+    <p class="text-sm text-gray-400 mb-4">{mainLabel}</p>
+
+    <!-- Secondary stat (revealed on hover) -->
+    {formattedSecondaryStat && secondaryLabel && (
+      <div class="text-sm text-gray-500 mb-4 opacity-0 group-hover:opacity-100 transition-opacity -mt-2">
+        <span class="text-gray-300">{formattedSecondaryStat}</span>
+        <span class="ml-1">{secondaryLabel}</span>
+      </div>
+    )}
+
+    <!-- CTA -->
+    <div class="flex items-center gap-1 text-n8n-primary text-sm font-medium group-hover:gap-2 transition-all">
+      <span>{ctaText}</span>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </div>
+  </div>
+</a>

@@ -1,6 +1,7 @@
 ---
 import '@/styles/global.css';
 import { n8nUrls } from '@/lib/utils/formatters';
+import PlaygroundCTA from '@/components/PlaygroundCTA.astro';
 
 interface Props {
   title: string;
@@ -8,6 +9,10 @@ interface Props {
 }
 
 const { title, description = 'Community health dashboard and ecosystem explorer for n8n' } = Astro.props;
+
+// Get current path to conditionally show PlaygroundCTA
+const currentPath = Astro.url.pathname;
+const showPlaygroundCTA = currentPath !== '/playground' && currentPath !== '/playground/';
 ---
 
 <!doctype html>
@@ -66,6 +71,8 @@ const { title, description = 'Community health dashboard and ecosystem explorer 
     <main>
       <slot />
     </main>
+
+    {showPlaygroundCTA && <PlaygroundCTA />}
 
     <footer class="border-t border-n8n-border mt-16">
       <div class="container-narrow py-8">
