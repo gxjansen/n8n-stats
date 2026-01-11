@@ -245,9 +245,6 @@ const dataStatus = {
 const nextMilestone = Math.ceil(githubStats.stars / 10000) * 10000;
 const starsToMilestone = nextMilestone - githubStats.stars;
 const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilestone / starsPerDay) : null;
-
-// Build timestamp for "last updated"
-const buildTime = new Date().toISOString();
 ---
 
 <BaseLayout title="Dashboard">
@@ -527,17 +524,5 @@ const buildTime = new Date().toISOString();
         />
       </div>
     </section>
-
-    <!-- Footer note -->
-    <p class="text-center text-sm text-gray-500 mt-8">
-      Last updated: {new Date(buildTime).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZoneName: 'short'
-      })}
-    </p>
   </div>
 </BaseLayout>

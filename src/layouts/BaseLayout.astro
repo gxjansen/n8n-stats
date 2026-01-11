@@ -13,6 +13,9 @@ const { title, description = 'Community health dashboard and ecosystem explorer 
 // Get current path to conditionally show PlaygroundCTA
 const currentPath = Astro.url.pathname;
 const showPlaygroundCTA = currentPath !== '/playground' && currentPath !== '/playground/';
+
+// Build timestamp for "last data update" in footer
+const buildTime = new Date();
 ---
 
 <!doctype html>
@@ -79,6 +82,16 @@ const showPlaygroundCTA = currentPath !== '/playground' && currentPath !== '/pla
         <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-400">
           <p>
             Made by <a href="https://gui.do" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Guido X Jansen</a>
+          </p>
+          <p class="text-gray-500">
+            Last data update: {buildTime.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZoneName: 'short'
+            })}
           </p>
           <div class="flex items-center gap-4">
             <a href={n8nUrls.home()} target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
