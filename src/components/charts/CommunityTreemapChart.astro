@@ -4,9 +4,10 @@
  *
  * Visualizes forum category distribution as a treemap where:
  * - Rectangle size = number of topics in category
- * - Color = distinct color per category
+ * - Color = distinct color per category (colorblind-friendly)
  * - Click opens the category on community.n8n.io
  */
+import { COMMUNITY_CATEGORY_COLORS, FALLBACK_COLORS } from '@/lib/utils/colors';
 
 interface CategoryData {
   name: string;
@@ -22,6 +23,10 @@ interface Props {
 }
 
 const { data } = Astro.props;
+
+// Pass colors to client-side script
+const categoryColors = COMMUNITY_CATEGORY_COLORS;
+const fallbackColors = FALLBACK_COLORS;
 ---
 
 <div id="community-treemap-container" class="card">
@@ -36,8 +41,10 @@ const { data } = Astro.props;
   </div>
 </div>
 
-<script define:vars={{ data }}>
+<script define:vars={{ data, categoryColors, fallbackColors }}>
   window.__communityTreemapData = data;
+  window.__communityColors = categoryColors;
+  window.__communityFallbackColors = fallbackColors;
 </script>
 
 <script>
@@ -56,25 +63,51 @@ const { data } = Astro.props;
     description?: string;
   }
 
-  // Colors for community categories - vibrant with good white text contrast
-  const CATEGORY_COLORS: Record<string, string> = {
-    'Questions': '#2563eb',    // Blue
-    'Feature Requests': '#7c3aed', // Purple
-    'Show n Tell': '#dc2626',  // Red
-    'Bug Reports': '#b91c1c',  // Dark red
-    'Tutorials': '#0891b2',    // Cyan
-    'Announcements': '#ca8a04', // Amber
-    'Jobs': '#ea580c',         // Orange
-    'Resources': '#059669',    // Emerald
-    'General': '#4b5563',      // Gray
-  };
+  // Colorblind-friendly palette passed from server (WCAG AA compliant)
+  const CATEGORY_COLORS: Record<string, string> = (window as any).__communityColors || {};
 
-  // Fallback colors - vibrant, saturated for white text contrast
-  const FALLBACK_COLORS = [
-    '#dc2626', '#2563eb', '#059669', '#ca8a04', '#7c3aed',
-    '#db2777', '#0891b2', '#16a34a', '#d97706', '#4f46e5',
-    '#be185d', '#0d9488', '#65a30d', '#c026d3', '#0284c7',
-  ];
+  // Fallback colors - colorblind-friendly spectrum (WCAG AA compliant)
+  const FALLBACK_COLORS: string[] = (window as any).__communityFallbackColors || [];
+
+  // ============================================================================
+  // WCAG Contrast Utilities (client-side)
+  // ============================================================================
+
+  function hexToRgb(hex: string): { r: number; g: number; b: number } {
+    const cleanHex = hex.replace('#', '');
+    return {
+      r: parseInt(cleanHex.substring(0, 2), 16),
+      g: parseInt(cleanHex.substring(2, 4), 16),
+      b: parseInt(cleanHex.substring(4, 6), 16),
+    };
+  }
+
+  function getLuminance(hex: string): number {
+    const { r, g, b } = hexToRgb(hex);
+    const rsRGB = r / 255;
+    const gsRGB = g / 255;
+    const bsRGB = b / 255;
+    const rLinear = rsRGB <= 0.03928 ? rsRGB / 12.92 : Math.pow((rsRGB + 0.055) / 1.055, 2.4);
+    const gLinear = gsRGB <= 0.03928 ? gsRGB / 12.92 : Math.pow((gsRGB + 0.055) / 1.055, 2.4);
+    const bLinear = bsRGB <= 0.03928 ? bsRGB / 12.92 : Math.pow((bsRGB + 0.055) / 1.055, 2.4);
+    return 0.2126 * rLinear + 0.7152 * gLinear + 0.0722 * bLinear;
+  }
+
+  function getContrastRatio(hex1: string, hex2: string): number {
+    const lum1 = getLuminance(hex1);
+    const lum2 = getLuminance(hex2);
+    const lighter = Math.max(lum1, lum2);
+    const darker = Math.min(lum1, lum2);
+    return (lighter + 0.05) / (darker + 0.05);
+  }
+
+  function getAccessibleTextColor(bgHex: string): string {
+    const WHITE = '#FFFFFF';
+    const BLACK = '#000000';
+    const whiteContrast = getContrastRatio(bgHex, WHITE);
+    // WCAG AA requires 4.5:1 for normal text
+    return whiteContrast >= 4.5 ? WHITE : BLACK;
+  }
 
   function getColorForCategory(name: string, index: number): string {
     // Check for partial matches in category names
@@ -83,7 +116,7 @@ const { data } = Astro.props;
         return color;
       }
     }
-    return FALLBACK_COLORS[index % FALLBACK_COLORS.length];
+    return FALLBACK_COLORS[index % FALLBACK_COLORS.length] || '#666666';
   }
 
   // Build a color map for quick lookup
@@ -141,7 +174,14 @@ const { data } = Astro.props;
               const count = item._data?.count || item.v || 0;
               return [name, count.toLocaleString() + ' topics'];
             },
-            color: '#fff',
+            // Dynamic text color based on background luminance (WCAG AA compliant)
+            color: (ctx: any) => {
+              if (ctx.type !== 'data') return '#fff';
+              const item = ctx.raw;
+              const name = item.g || item._data?.name || '';
+              const bgColor = categoryColorMap[name] || '#666666';
+              return getAccessibleTextColor(bgColor);
+            },
             font: {
               size: 11,
               weight: 'bold',

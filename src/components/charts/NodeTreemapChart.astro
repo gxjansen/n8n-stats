@@ -49,28 +49,48 @@ const categoryColors = NODE_CATEGORY_COLORS;
     category: string;
   }
 
-  // Colorblind-friendly palette passed from server
-  // Based on Wong's palette (Nature Methods) and Paul Tol's color schemes
-  const CATEGORY_COLORS: Record<string, string> = (window as any).__categoryColors || {
-    'Triggers': '#009E73',           // Bluish green (Wong)
-    'Flow Control': '#E69F00',       // Orange (Wong)
-    'Data Transform': '#F0E442',     // Yellow (Wong)
-    'HTTP & APIs': '#0072B2',        // Blue (Wong)
-    'AI': '#AA3377',                 // Purple (Tol)
-    'Communication': '#56B4E9',      // Sky blue (Wong)
-    'Google': '#4285F4',             // Google brand blue
-    'Database & Storage': '#666666', // Dark gray
-    'Files': '#CC6600',              // Burnt orange/brown
-    'CRM & Sales': '#CC79A7',        // Reddish purple (Wong)
-    'Productivity': '#332288',       // Dark blue/indigo (Tol)
-    'Social Media': '#44AA99',       // Teal (Tol)
-    'E-Commerce': '#D55E00',         // Vermillion (Wong)
-    'Developer Tools': '#117733',    // Forest green (Tol)
-    'CMS': '#882255',                // Wine/maroon (Tol)
-    'Marketing': '#CC3311',          // Red-orange (Tol)
-    'Utility': '#888888',            // Medium gray
-    'Other': '#AAAAAA',              // Light gray
-  };
+  // Colorblind-friendly palette passed from server (WCAG AA compliant)
+  const CATEGORY_COLORS: Record<string, string> = (window as any).__categoryColors || {};
+
+  // ============================================================================
+  // WCAG Contrast Utilities (client-side)
+  // ============================================================================
+
+  function hexToRgb(hex: string): { r: number; g: number; b: number } {
+    const cleanHex = hex.replace('#', '');
+    return {
+      r: parseInt(cleanHex.substring(0, 2), 16),
+      g: parseInt(cleanHex.substring(2, 4), 16),
+      b: parseInt(cleanHex.substring(4, 6), 16),
+    };
+  }
+
+  function getLuminance(hex: string): number {
+    const { r, g, b } = hexToRgb(hex);
+    const rsRGB = r / 255;
+    const gsRGB = g / 255;
+    const bsRGB = b / 255;
+    const rLinear = rsRGB <= 0.03928 ? rsRGB / 12.92 : Math.pow((rsRGB + 0.055) / 1.055, 2.4);
+    const gLinear = gsRGB <= 0.03928 ? gsRGB / 12.92 : Math.pow((gsRGB + 0.055) / 1.055, 2.4);
+    const bLinear = bsRGB <= 0.03928 ? bsRGB / 12.92 : Math.pow((bsRGB + 0.055) / 1.055, 2.4);
+    return 0.2126 * rLinear + 0.7152 * gLinear + 0.0722 * bLinear;
+  }
+
+  function getContrastRatio(hex1: string, hex2: string): number {
+    const lum1 = getLuminance(hex1);
+    const lum2 = getLuminance(hex2);
+    const lighter = Math.max(lum1, lum2);
+    const darker = Math.min(lum1, lum2);
+    return (lighter + 0.05) / (darker + 0.05);
+  }
+
+  function getAccessibleTextColor(bgHex: string): string {
+    const WHITE = '#FFFFFF';
+    const BLACK = '#000000';
+    const whiteContrast = getContrastRatio(bgHex, WHITE);
+    // WCAG AA requires 4.5:1 for normal text
+    return whiteContrast >= 4.5 ? WHITE : BLACK;
+  }
 
   // Generate n8n integrations URL from node name (with UTM + partner tracking)
   function getNodeIntegrationUrl(name: string): string {
@@ -123,7 +143,14 @@ const categoryColors = NODE_CATEGORY_COLORS;
               if (item.w < 60 || item.h < 30) return '';
               return item._data?.name || '';
             },
-            color: '#fff',
+            // Dynamic text color based on background luminance (WCAG AA compliant)
+            color: (ctx: any) => {
+              if (ctx.type !== 'data') return '#fff';
+              const item = ctx.raw;
+              const category = item._data?.category || 'Other';
+              const bgColor = CATEGORY_COLORS[category] || '#777777';
+              return getAccessibleTextColor(bgColor);
+            },
             font: {
               size: 11,
               weight: 'bold',

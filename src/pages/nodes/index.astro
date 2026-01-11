@@ -4,6 +4,7 @@ import NodeTreemapChart from '@/components/charts/NodeTreemapChart.astro';
 import CategoryNodesTable from '@/components/CategoryNodesTable.astro';
 import { fetchTemplates, aggregateNodeUsage } from '@/lib/api/n8n';
 import { formatNumber, getNodeIntegrationUrl, getNodePageUrl } from '@/lib/utils/formatters';
+import { NODE_CATEGORY_COLORS, NODE_CATEGORY_ORDER } from '@/lib/utils/colors';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
@@ -115,48 +116,9 @@ const totalNodes = allNodesData?.nodes?.total || uniqueNodes;
 // Calculate total node usages
 const totalNodeUsages = nodeUsage.reduce((sum: number, n: any) => sum + n.count, 0);
 
-// Define category order and colors
-const categoryOrder = [
-  'Triggers',
-  'Flow Control',
-  'Data Transform',
-  'HTTP & APIs',
-  'AI',
-  'Communication',
-  'Google',
-  'Database & Storage',
-  'Files',
-  'CRM & Sales',
-  'Productivity',
-  'Social Media',
-  'E-Commerce',
-  'Developer Tools',
-  'CMS',
-  'Marketing',
-  'Utility',
-  'Other'
-];
-
-const categoryColors: Record<string, string> = {
-  'Triggers': '#22c55e',           // Green - entry points
-  'Flow Control': '#ff9f40',       // Orange - logic flow
-  'Data Transform': '#ffce56',     // Yellow - data manipulation
-  'HTTP & APIs': '#ff6384',        // Red - external calls
-  'AI': '#9966ff',                 // Purple - AI/ML
-  'Communication': '#36a2eb',      // Blue - messaging
-  'Google': '#4bc0c0',             // Teal - Google suite
-  'Database & Storage': '#c9cbcf', // Gray - data storage
-  'Files': '#8b5cf6',              // Violet - file operations
-  'CRM & Sales': '#f472b6',        // Pink - sales tools
-  'Productivity': '#a78bfa',       // Light purple - productivity
-  'Social Media': '#06b6d4',       // Cyan - social
-  'E-Commerce': '#f59e0b',         // Amber - e-commerce
-  'Developer Tools': '#10b981',    // Emerald - dev tools
-  'CMS': '#ec4899',                // Pink - content management
-  'Marketing': '#ef4444',          // Red - marketing
-  'Utility': '#6b7280',            // Dark gray - utility nodes
-  'Other': '#7c8798',              // Gray - uncategorized
-};
+// Use colorblind-friendly palette from shared utility
+const categoryOrder = NODE_CATEGORY_ORDER;
+const categoryColors = NODE_CATEGORY_COLORS;
 
 // Group nodes by category (using pre-categorized data)
 const nodesByCategory: Record<string, typeof nodeUsage> = {};
