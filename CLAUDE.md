@@ -15,19 +15,23 @@ Community health dashboard and ecosystem explorer for n8n. Shows social proof an
 EXTRACT (Daily)              TRANSFORM                    LOAD (Build)
 ─────────────────────────────────────────────────────────────────────────
 n8n Templates API ─┐
-GitHub API ────────┼──► data/snapshots/  ──► data/history/  ──► Astro
-Discourse API ─────┤    (raw responses)      (time series)      (Netlify)
+GitHub API ────────┤
+Discourse API ─────┼──► data/snapshots/  ──► data/history/  ──► Astro
+Discord API ───────┤    (raw responses)      (time series)      (Netlify)
 npm API ───────────┘
 
 n8n Arena ─────────────► data/external/  ──► (merged into history)
 (creator metrics)        (cached + attributed)
+
+Luma Events ───────────► data/history/events.json
+(scraped)
 ```
 
 See `docs/DATA-STRATEGY.md` for full ETL documentation.
 
 ## Data Sources
 
-### 1. n8n Templates API (Primary for v1)
+### 1. n8n Templates API (Primary)
 - **Endpoint**: `https://api.n8n.io/api/templates/search`
 - **Parameters**: `sort`, `category`, `rows`, `page`
 - **Data**: Workflow templates, nodes used, views, creators
@@ -44,9 +48,9 @@ See `docs/DATA-STRATEGY.md` for full ETL documentation.
 
 ### 3. GitHub API
 - **Repo**: `n8n-io/n8n`
-- **Data**: Stars (166k+), forks, releases, contributors
+- **Data**: Stars, forks, releases, contributors, issues
 - **Auth**: Use token for higher rate limits
-- **Historical**: Use star-history patterns or store daily snapshots
+- **Historical**: Daily snapshots + BigQuery backfill
 
 ### 4. npm API
 - **Package**: `n8n`
@@ -67,7 +71,7 @@ See `docs/DATA-STRATEGY.md` for full ETL documentation.
 ### 7. Discord API
 - **Server**: n8n Community Discord
 - **Data**: Member count, online count
-- **Auth**: Bot token required
+- **Auth**: Bot token required (DISCORD_BOT_TOKEN)
 
 ### 8. YouTube Data API (Future)
 - **Search**: Videos with "n8n" keyword
@@ -80,51 +84,121 @@ See `docs/DATA-STRATEGY.md` for full ETL documentation.
 /n8n-stats
 ├── src/
 │   ├── components/
-│   │   ├── charts/          # Chart components
-│   │   ├── cards/           # Stat cards, template cards
-│   │   ├── layout/          # Header, footer, nav
-│   │   └── ui/              # Base UI components
+│   │   ├── cards/
+│   │   │   ├── AIAdoptionCard.astro
+│   │   │   ├── AIInsightCard.astro
+│   │   │   ├── CommunityActivityCard.astro
+│   │   │   ├── EventsSpotlightCard.astro
+│   │   │   ├── LLMSummaryCard.astro
+│   │   │   ├── MilestonePrediction.astro
+│   │   │   ├── StatCard.astro
+│   │   │   ├── SubpageTeaserCard.astro
+│   │   │   ├── TemplateCard.astro
+│   │   │   └── VelocityCard.astro
+│   │   ├── charts/
+│   │   │   ├── CategoryTreemapChart.astro
+│   │   │   ├── CommunityHistoryChart.astro
+│   │   │   ├── CommunityTreemapChart.astro
+│   │   │   ├── CreatorsHistoryChart.astro
+│   │   │   ├── EcosystemGrowthChart.astro
+│   │   │   ├── EventsHistoryChart.astro
+│   │   │   ├── EventsMapChart.astro
+│   │   │   ├── GitHubHistoryChart.astro
+│   │   │   ├── GitHubIssuesChart.astro
+│   │   │   ├── MiniSparkline.astro
+│   │   │   ├── NodeTreemapChart.astro
+│   │   │   ├── ReleaseTimelineChart.astro
+│   │   │   └── TemplatesHistoryChart.astro
+│   │   ├── CategoryNodesTable.astro
+│   │   └── PlaygroundCTA.astro
 │   ├── layouts/
 │   │   └── BaseLayout.astro
 │   ├── pages/
-│   │   ├── index.astro      # Dashboard overview
-│   │   ├── templates/       # Template explorer
-│   │   ├── nodes/           # Node usage stats
-│   │   ├── community/       # Forum stats
-│   │   ├── github/          # GitHub stats
-│   │   ├── events/          # Community events
-│   │   └── playground/      # Data playground
+│   │   ├── index.astro           # Dashboard overview
+│   │   ├── community/index.astro # Forum stats
+│   │   ├── creators/index.astro  # Creator leaderboard
+│   │   ├── events/index.astro    # Community events
+│   │   ├── github/index.astro    # GitHub stats
+│   │   ├── nodes/
+│   │   │   ├── index.astro       # Node usage stats
+│   │   │   └── [slug].astro      # Individual node pages
+│   │   ├── playground/index.astro # Data playground
+│   │   └── templates/index.astro  # Template explorer
 │   ├── lib/
 │   │   ├── api/
-│   │   │   ├── n8n.ts       # n8n templates API
-│   │   │   ├── discourse.ts # Forum API
-│   │   │   ├── github.ts    # GitHub API
-│   │   │   └── luma.ts      # Events API
+│   │   │   ├── discord.ts        # Discord API
+│   │   │   ├── discourse.ts      # Forum API
+│   │   │   ├── github.ts         # GitHub API
+│   │   │   ├── luma.ts           # Events API
+│   │   │   └── n8n.ts            # n8n templates API
+│   │   ├── playground/
+│   │   │   ├── loaders.ts        # Data loaders for playground
+│   │   │   ├── registry.ts       # Dataset registry
+│   │   │   └── state.ts          # Playground state management
 │   │   ├── utils/
-│   │   │   ├── formatters.ts
-│   │   │   └── date.ts
+│   │   │   ├── colors.ts         # Chart color utilities
+│   │   │   ├── formatters.ts     # Number/date formatting
+│   │   │   └── predictions.ts    # Milestone predictions
 │   │   └── types/
-│   │       └── index.ts     # TypeScript interfaces
+│   │       └── index.ts          # TypeScript interfaces
 │   └── styles/
 │       └── global.css
 ├── public/
 │   ├── favicon.svg
-│   └── data/                # All data files (version controlled)
-│       ├── snapshots/       # Raw API responses by date
-│       ├── external/        # Cached external data (n8n Arena)
-│       ├── history/         # Time series for charts
-│       └── seed/            # Historical backfill data
+│   └── data/                     # All data files (version controlled)
+│       ├── all-nodes-data.json   # Complete node catalog
+│       ├── all-templates-data.json
+│       ├── community-history.json
+│       ├── community-raw-log.json
+│       ├── github-history.json
+│       ├── github-raw-log.json
+│       ├── github-releases.json
+│       ├── nodes-history.json
+│       ├── templates-history.json
+│       ├── templates-raw-log.json
+│       ├── external/
+│       │   ├── n8narena-creators.json
+│       │   └── n8narena.meta.json
+│       ├── history/
+│       │   ├── community.json
+│       │   ├── creators.json
+│       │   ├── creators-stats.json
+│       │   ├── discord.json
+│       │   ├── discord-raw-log.json
+│       │   ├── events.json
+│       │   ├── events-history.json
+│       │   ├── github.json
+│       │   └── templates.json
+│       ├── seed/                 # Historical backfill data
+│       │   ├── community.json
+│       │   ├── github-stars.json
+│       │   └── github-wayback.json
+│       └── snapshots/            # Raw API responses by date
 ├── scripts/
-│   ├── fetch-daily.ts       # Daily data collection
-│   ├── fetch-external.ts    # External source fetching
-│   └── build-history.ts     # Transform snapshots → history
+│   ├── fetch-daily.ts            # Daily data collection
+│   ├── fetch-data.ts             # Combined fetch script
+│   ├── fetch-external.ts         # External source fetching (n8n Arena)
+│   ├── fetch-events.ts           # Luma events fetching
+│   ├── fetch-all-nodes.ts        # Full node catalog fetch
+│   ├── fetch-all-templates.ts    # Full template catalog fetch
+│   ├── build-history.ts          # Transform snapshots → history
+│   ├── update-github-history.ts
+│   ├── update-community-history.ts
+│   ├── update-templates-history.ts
+│   ├── update-discord-history.ts
+│   ├── update-nodes-history.ts
+│   ├── process-scraped-events.ts
+│   ├── backfill-*.ts             # Various backfill scripts
+│   ├── merge-*.ts                # Data merge utilities
+│   └── seed-*.ts                 # Seed data generators
 ├── docs/
-│   └── DATA-STRATEGY.md     # ETL architecture documentation
+│   ├── DATA-STRATEGY.md          # ETL architecture documentation
+│   └── PRD-playground.md         # Playground feature PRD
 ├── .github/
 │   └── workflows/
-│       └── daily-build.yml
-├── CLAUDE.md                 # This file
-├── PRD.md                    # Product requirements
+│       ├── daily-build.yml       # Daily data fetch + deploy
+│       └── weekly-templates-fetch.yml # Weekly full template refresh
+├── CLAUDE.md                     # This file
 ├── astro.config.mjs
 ├── tailwind.config.mjs
 ├── tsconfig.json
@@ -140,14 +214,28 @@ npm install
 # Start dev server
 npm run dev
 
-# Build for production
+# Build for production (updates all history first)
 npm run build
+
+# Build without updating history
+npm run build:only
 
 # Preview production build
 npm run preview
 
-# Fetch fresh data (build-time)
+# Fetch fresh data
 npm run fetch-data
+npm run fetch-daily
+npm run fetch-external
+
+# Update history files individually
+npm run update-github-history
+npm run update-community-history
+npm run update-templates-history
+npm run update-discord-history
+
+# Update all history files
+npm run update-all-history
 ```
 
 ## Environment Variables
@@ -155,6 +243,9 @@ npm run fetch-data
 ```env
 # GitHub (optional, for higher rate limits)
 GITHUB_TOKEN=
+
+# Discord (required for Discord stats)
+DISCORD_BOT_TOKEN=
 
 # YouTube (future)
 YOUTUBE_API_KEY=
@@ -172,13 +263,23 @@ YOUTUBE_API_KEY=
 />
 ```
 
-### Chart Component
+### Velocity Card
 ```astro
-<LineChart
-  data={starHistory}
-  xKey="date"
-  yKey="stars"
-  title="Star Growth"
+<VelocityCard
+  title="Star Velocity"
+  currentValue={245}
+  previousValue={230}
+  unit="stars/day"
+/>
+```
+
+### Milestone Prediction
+```astro
+<MilestonePrediction
+  metric="stars"
+  currentValue={166509}
+  targetValue={200000}
+  velocity={245}
 />
 ```
 
@@ -196,11 +297,12 @@ YOUTUBE_API_KEY=
 ## Build Process
 
 1. GitHub Action triggers daily at 06:00 UTC
-2. `fetch-daily.ts` pulls from all primary APIs → `data/snapshots/`
-3. `fetch-external.ts` pulls n8n Arena data → `data/external/`
-4. `build-history.ts` transforms snapshots → `data/history/`
-5. Astro builds static site reading from `data/history/`
-6. Deploys to Netlify
+2. `fetch-daily.ts` pulls from primary APIs
+3. `update-*-history.ts` scripts append to history files
+4. Astro builds static site reading from `public/data/`
+5. Deploys to Netlify
+
+Weekly: `weekly-templates-fetch.yml` refreshes full template catalog
 
 ## Code Style
 
@@ -210,11 +312,61 @@ YOUTUBE_API_KEY=
 - Use Astro's built-in scoped styles
 - Semantic HTML for accessibility
 
+### Accessibility Requirements
+All new charts, pages, and features must be WCAG AA compliant:
+- Minimum contrast ratio 4.5:1 for normal text, 3:1 for large text
+- Charts must use colorblind-friendly palettes (see `src/lib/utils/colors.ts`)
+- Interactive elements need visible focus states
+- Data visualizations need text alternatives or accessible descriptions
+
 ## Testing
 
-- Component tests with Vitest
-- E2E tests with Playwright (critical paths only)
-- Visual regression optional
+### Unit Tests (Vitest)
+Tests for utility functions in `src/lib/utils/`:
+
+```bash
+# Run all unit tests
+npm run test
+
+# Run in watch mode during development
+npm run test:watch
+
+# Run with UI
+npm run test:ui
+
+# Run with coverage report
+npm run test:coverage
+```
+
+Test files:
+- `src/lib/utils/formatters.test.ts` - Number formatting, URL generation, slugs
+- `src/lib/utils/predictions.test.ts` - Milestone prediction logic
+- `src/lib/utils/colors.test.ts` - WCAG contrast, color palettes
+
+### E2E Tests (Playwright)
+Smoke tests and navigation tests in `e2e/`:
+
+```bash
+# Run E2E tests (requires build first)
+npm run build:only && npm run test:e2e
+
+# Run with UI for debugging
+npm run test:e2e:ui
+
+# Run all tests (unit + E2E)
+npm run test:all
+```
+
+Test coverage:
+- All pages load without errors
+- Charts render (canvas elements present)
+- Navigation between pages works
+- External links have tracking parameters
+- Data displays correctly (not empty states)
+
+### Adding New Tests
+- Unit tests: Create `*.test.ts` next to the source file
+- E2E tests: Add to `e2e/smoke.spec.ts` or create new spec files
 
 ## Using Ralph Loop for Autonomous Tasks
 
