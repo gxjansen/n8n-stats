@@ -10,6 +10,7 @@ const DATA_DIR = join(process.cwd(), 'public', 'data', 'external');
 
 // n8n Arena data URLs
 const N8N_ARENA_CREATORS_URL = 'https://raw.githubusercontent.com/teds-tech-talks/n8n-community-leaderboard/main/stats_aggregate_creators.json';
+const N8N_ARENA_WORKFLOWS_URL = 'https://raw.githubusercontent.com/teds-tech-talks/n8n-community-leaderboard/main/stats_aggregate_workflows.json';
 
 interface N8nArenaCreator {
   user_username: string;
@@ -62,6 +63,48 @@ interface ExternalDataMeta {
   recordCount: number;
 }
 
+// n8n Arena workflow data interfaces
+interface N8nArenaWorkflow {
+  template_url: string;
+  template_id: number;
+  template_name: string;
+  unique_visitors: number;
+  unique_inserters: number;
+  unique_weekly_visitors: number;
+  unique_weekly_inserters: number;
+  unique_monthly_visitors: number;
+  unique_monthly_inserters: number;
+  wf_detais: {
+    id: number;
+    name: string;
+    createdAt: string;
+    workflowInfo?: {
+      nodeCount: number;
+      nodeTypes: Record<string, { count: number }>;
+    };
+  };
+  user: {
+    name: string;
+    username: string;
+    verified: boolean;
+  };
+}
+
+interface WeightedNodeScore {
+  type: string;
+  weightedScore: number;      // Sum of (node_count * template_inserters)
+  templateCount: number;      // Number of templates using this node
+  totalNodeUsages: number;    // Total times node appears across all templates
+  avgInsertersPerTemplate: number;
+}
+
+interface WeightedNodesData {
+  lastUpdated: string;
+  totalWorkflows: number;
+  totalInserters: number;
+  nodes: WeightedNodeScore[];
+}
+
 async function fetchN8nArenaCreators(): Promise<N8nArenaCreator[]> {
   console.log('Fetching n8n Arena creators data...');
 
@@ -100,6 +143,82 @@ function processCreators(rawCreators: N8nArenaCreator[]): ProcessedCreator[] {
     .sort((a, b) => b.totalInserters - a.totalInserters); // Sort by inserters
 }
 
+async function fetchN8nArenaWorkflows(): Promise<N8nArenaWorkflow[]> {
+  console.log('Fetching n8n Arena workflows data...');
+
+  const response = await fetch(N8N_ARENA_WORKFLOWS_URL);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch n8n Arena workflows: ${response.status}`);
+  }
+
+  const data = await response.json();
+  console.log(`Fetched ${data.length} workflows from n8n Arena`);
+
+  return data;
+}
+
+function calculateWeightedNodeScores(workflows: N8nArenaWorkflow[]): WeightedNodesData {
+  // Map to accumulate scores per node type
+  const nodeScores = new Map<string, {
+    weightedScore: number;
+    templateCount: number;
+    totalNodeUsages: number;
+    insertersSum: number;
+  }>();
+
+  let totalInserters = 0;
+  let workflowsWithNodes = 0;
+
+  for (const workflow of workflows) {
+    const inserters = workflow.unique_inserters || 0;
+    totalInserters += inserters;
+
+    const nodeTypes = workflow.wf_detais?.workflowInfo?.nodeTypes;
+    if (!nodeTypes) continue;
+
+    workflowsWithNodes++;
+
+    for (const [nodeType, nodeInfo] of Object.entries(nodeTypes)) {
+      const nodeCount = nodeInfo.count || 1;
+
+      const existing = nodeScores.get(nodeType) || {
+        weightedScore: 0,
+        templateCount: 0,
+        totalNodeUsages: 0,
+        insertersSum: 0,
+      };
+
+      existing.weightedScore += nodeCount * inserters;
+      existing.templateCount += 1;
+      existing.totalNodeUsages += nodeCount;
+      existing.insertersSum += inserters;
+
+      nodeScores.set(nodeType, existing);
+    }
+  }
+
+  // Convert to array and calculate averages
+  const nodes: WeightedNodeScore[] = Array.from(nodeScores.entries())
+    .map(([type, data]) => ({
+      type,
+      weightedScore: data.weightedScore,
+      templateCount: data.templateCount,
+      totalNodeUsages: data.totalNodeUsages,
+      avgInsertersPerTemplate: data.templateCount > 0
+        ? Math.round(data.insertersSum / data.templateCount)
+        : 0,
+    }))
+    .sort((a, b) => b.weightedScore - a.weightedScore);
+
+  return {
+    lastUpdated: new Date().toISOString(),
+    totalWorkflows: workflowsWithNodes,
+    totalInserters,
+    nodes,
+  };
+}
+
 async function main() {
   // Ensure directory exists
   if (!existsSync(DATA_DIR)) {
@@ -107,13 +226,25 @@ async function main() {
   }
 
   try {
-    // Fetch raw data
+    // === CREATORS DATA ===
     const rawCreators = await fetchN8nArenaCreators();
-
-    // Process into our format
     const creators = processCreators(rawCreators);
 
-    // Create metadata
+    // Save processed creators data
+    const creatorsPath = join(DATA_DIR, 'n8narena-creators.json');
+    writeFileSync(creatorsPath, JSON.stringify(creators, null, 2));
+    console.log(`Saved ${creators.length} creators to ${creatorsPath}`);
+
+    // === WORKFLOWS DATA (for weighted node scores) ===
+    const workflows = await fetchN8nArenaWorkflows();
+    const weightedNodes = calculateWeightedNodeScores(workflows);
+
+    // Save weighted node scores (compact, no raw workflow data)
+    const weightedNodesPath = join(DATA_DIR, 'n8narena-weighted-nodes.json');
+    writeFileSync(weightedNodesPath, JSON.stringify(weightedNodes, null, 2));
+    console.log(`Saved ${weightedNodes.nodes.length} weighted node scores to ${weightedNodesPath}`);
+
+    // === METADATA ===
     const meta: ExternalDataMeta = {
       fetchedAt: new Date().toISOString(),
       source: 'n8n Arena',
@@ -126,22 +257,16 @@ async function main() {
       recordCount: creators.length,
     };
 
-    // Save processed data
-    const creatorsPath = join(DATA_DIR, 'n8narena-creators.json');
-    writeFileSync(creatorsPath, JSON.stringify(creators, null, 2));
-    console.log(`Saved ${creators.length} creators to ${creatorsPath}`);
-
-    // Save metadata
     const metaPath = join(DATA_DIR, 'n8narena.meta.json');
     writeFileSync(metaPath, JSON.stringify(meta, null, 2));
     console.log(`Saved metadata to ${metaPath}`);
 
-    // Log some stats
+    // === STATS ===
     const totalViews = creators.reduce((sum, c) => sum + c.totalViews, 0);
     const totalInserters = creators.reduce((sum, c) => sum + c.totalInserters, 0);
     const verifiedCount = creators.filter(c => c.verified).length;
 
-    console.log('\n--- Stats ---');
+    console.log('\n--- Creators Stats ---');
     console.log(`Total creators: ${creators.length}`);
     console.log(`Verified creators: ${verifiedCount}`);
     console.log(`Total views: ${totalViews.toLocaleString()}`);
@@ -149,6 +274,16 @@ async function main() {
     console.log(`Top 5 by inserters:`);
     creators.slice(0, 5).forEach((c, i) => {
       console.log(`  ${i + 1}. ${c.name} (@${c.username}) - ${c.totalInserters.toLocaleString()} inserters`);
+    });
+
+    console.log('\n--- Weighted Nodes Stats ---');
+    console.log(`Workflows analyzed: ${weightedNodes.totalWorkflows.toLocaleString()}`);
+    console.log(`Total inserters: ${weightedNodes.totalInserters.toLocaleString()}`);
+    console.log(`Unique nodes: ${weightedNodes.nodes.length}`);
+    console.log(`Top 10 by weighted score:`);
+    weightedNodes.nodes.slice(0, 10).forEach((n, i) => {
+      const shortName = n.type.split('.').pop() || n.type;
+      console.log(`  ${i + 1}. ${shortName} - ${n.weightedScore.toLocaleString()} weighted (${n.templateCount} templates)`);
     });
 
   } catch (error) {

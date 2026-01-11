@@ -4,6 +4,7 @@
  *
  * Compact table showing top nodes per category with clickable links.
  * More readable than grouped bar chart, shows all names visible.
+ * Supports weighted scores when available.
  */
 
 import { formatNumber, getNodePageUrl } from '@/lib/utils/formatters';
@@ -12,6 +13,8 @@ interface NodeData {
   displayName: string;
   count: number;
   category: string;
+  weightedScore?: number;
+  avgInserters?: number;
 }
 
 interface Props {
@@ -19,23 +22,23 @@ interface Props {
   categoryOrder: string[];
   categoryColors: Record<string, string>;
   nodesPerCategory?: number;
+  showWeighted?: boolean;
 }
 
-const { data, categoryOrder, categoryColors, nodesPerCategory = 5 } = Astro.props;
+const { data, categoryOrder, categoryColors, nodesPerCategory = 5, showWeighted = false } = Astro.props;
 
 // Filter to categories with data
 const categoriesWithData = categoryOrder.filter(cat => data[cat]?.length > 0);
 
-// Find max count across all nodes for relative bar widths
-const allCounts = categoriesWithData.flatMap(cat => data[cat].slice(0, nodesPerCategory).map(n => n.count));
-const maxCount = Math.max(...allCounts);
+// Determine what value to use for bar widths
+const getValue = (node: NodeData) => showWeighted && node.weightedScore ? node.weightedScore : node.count;
 ---
 
 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
   {categoriesWithData.map((category) => {
     const nodes = data[category].slice(0, nodesPerCategory);
     const color = categoryColors[category] || '#7c8798';
-    const categoryMax = nodes[0]?.count || 1;
+    const categoryMax = getValue(nodes[0]) || 1;
 
     return (
       <div class="card p-4">
@@ -46,7 +49,9 @@ const maxCount = Math.max(...allCounts);
         </h3>
         <div class="space-y-2">
           {nodes.map((node: NodeData, index: number) => {
-            const barWidth = (node.count / categoryMax) * 100;
+            const nodeValue = getValue(node);
+            const barWidth = (nodeValue / categoryMax) * 100;
+            const hasWeighted = showWeighted && node.weightedScore && node.weightedScore > 0;
             return (
               <a
                 href={getNodePageUrl(node.displayName)}
@@ -57,9 +62,15 @@ const maxCount = Math.max(...allCounts);
                   <span class="text-gray-300 group-hover:text-white transition-colors truncate flex-1 min-w-0">
                     {node.displayName}
                   </span>
-                  <span class="text-gray-500 flex-shrink-0 tabular-nums">
-                    {formatNumber(node.count)}
-                  </span>
+                  {hasWeighted ? (
+                    <span class="text-cyan-400/80 flex-shrink-0 tabular-nums" title={`${formatNumber(node.count)} templates`}>
+                      ~{formatNumber(node.weightedScore!)}
+                    </span>
+                  ) : (
+                    <span class="text-gray-500 flex-shrink-0 tabular-nums">
+                      {formatNumber(node.count)}
+                    </span>
+                  )}
                 </div>
                 <div class="relative h-1 bg-gray-800 rounded-full overflow-hidden mt-1 ml-6">
                   <div

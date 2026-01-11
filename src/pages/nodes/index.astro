@@ -29,12 +29,47 @@ interface AllNodesData {
   };
 }
 
+// Weighted node scores from n8n Arena
+interface WeightedNodeScore {
+  type: string;
+  weightedScore: number;
+  templateCount: number;
+  totalNodeUsages: number;
+  avgInsertersPerTemplate: number;
+}
+
+interface WeightedNodesData {
+  lastUpdated: string;
+  totalWorkflows: number;
+  totalInserters: number;
+  nodes: WeightedNodeScore[];
+}
+
 let allNodesData: AllNodesData | null = null;
 try {
   const dataPath = join(process.cwd(), 'public', 'data', 'all-nodes-data.json');
   allNodesData = JSON.parse(readFileSync(dataPath, 'utf-8'));
 } catch (e) {
   console.warn('all-nodes-data.json not found, using fallback data');
+}
+
+// Load weighted node scores from n8n Arena
+let weightedNodesData: WeightedNodesData | null = null;
+try {
+  const weightedPath = join(process.cwd(), 'public', 'data', 'external', 'n8narena-weighted-nodes.json');
+  if (existsSync(weightedPath)) {
+    weightedNodesData = JSON.parse(readFileSync(weightedPath, 'utf-8'));
+  }
+} catch (e) {
+  console.warn('n8narena-weighted-nodes.json not found, weighted scores unavailable');
+}
+
+// Create a map of weighted scores by node type for quick lookup
+const weightedScoresMap = new Map<string, WeightedNodeScore>();
+if (weightedNodesData?.nodes) {
+  for (const node of weightedNodesData.nodes) {
+    weightedScoresMap.set(node.type, node);
+  }
 }
 
 // Load LLM models data from templates-raw-log
@@ -97,17 +132,29 @@ const trendingNodeUsage = aggregateNodeUsage(trendingWorkflows);
 
 // Use complete data if available
 const hasCompleteData = !!allNodesData?.nodes?.all;
+const hasWeightedData = !!weightedNodesData?.nodes?.length;
 
-// Get node data from all-nodes-data.json
+// Get node data from all-nodes-data.json with weighted scores merged
 const nodeUsage = hasCompleteData
-  ? allNodesData.nodes.all.filter(n => n.count > 0).map(n => ({
-      name: n.type,
-      displayName: n.displayName,
-      count: n.count,
-      percentage: n.percentage,
-      category: n.category,
-    }))
-  : trendingNodeUsage.map(n => ({ ...n, category: 'Other' }));
+  ? allNodesData.nodes.all.filter(n => n.count > 0).map(n => {
+      const weighted = weightedScoresMap.get(n.type);
+      return {
+        name: n.type,
+        displayName: n.displayName,
+        count: n.count,
+        percentage: n.percentage,
+        category: n.category,
+        // Weighted data from n8n Arena
+        weightedScore: weighted?.weightedScore || 0,
+        avgInserters: weighted?.avgInsertersPerTemplate || 0,
+      };
+    })
+  : trendingNodeUsage.map(n => ({ ...n, category: 'Other', weightedScore: 0, avgInserters: 0 }));
+
+// Sort by weighted score when available, otherwise by template count
+const nodeUsageSorted = hasWeightedData
+  ? [...nodeUsage].sort((a, b) => b.weightedScore - a.weightedScore)
+  : nodeUsage;
 
 const totalTemplates = allNodesData?.totalTemplates || 100;
 const uniqueNodes = allNodesData?.nodes?.withData || nodeUsage.length;
@@ -116,23 +163,34 @@ const totalNodes = allNodesData?.nodes?.total || uniqueNodes;
 // Calculate total node usages
 const totalNodeUsages = nodeUsage.reduce((sum: number, n: any) => sum + n.count, 0);
 
+// Calculate total weighted score (estimated deployments)
+const totalWeightedScore = nodeUsage.reduce((sum: number, n: any) => sum + n.weightedScore, 0);
+const totalInserters = weightedNodesData?.totalInserters || 0;
+
 // Use colorblind-friendly palette from shared utility
 const categoryOrder = NODE_CATEGORY_ORDER;
 const categoryColors = NODE_CATEGORY_COLORS;
 
-// Group nodes by category (using pre-categorized data)
+// Group nodes by category (using pre-categorized data) with weighted scores
 const nodesByCategory: Record<string, typeof nodeUsage> = {};
 if (hasCompleteData && allNodesData?.nodes?.byCategory) {
   for (const [category, nodes] of Object.entries(allNodesData.nodes.byCategory)) {
     const filteredNodes = nodes
       .filter((n: NodeData) => n.count > 0)
-      .map((n: NodeData) => ({
-        name: n.type,
-        displayName: n.displayName,
-        count: n.count,
-        percentage: n.percentage,
-        category: n.category,
-      }));
+      .map((n: NodeData) => {
+        const weighted = weightedScoresMap.get(n.type);
+        return {
+          name: n.type,
+          displayName: n.displayName,
+          count: n.count,
+          percentage: n.percentage,
+          category: n.category,
+          weightedScore: weighted?.weightedScore || 0,
+          avgInserters: weighted?.avgInsertersPerTemplate || 0,
+        };
+      })
+      // Sort by weighted score within each category
+      .sort((a, b) => b.weightedScore - a.weightedScore);
     if (filteredNodes.length > 0) {
       nodesByCategory[category] = filteredNodes;
     }
@@ -142,10 +200,10 @@ if (hasCompleteData && allNodesData?.nodes?.byCategory) {
   nodesByCategory['Other'] = nodeUsage;
 }
 
-// Prepare treemap data (top 50 nodes with categories)
-const treemapData = nodeUsage.slice(0, 50).map((node: any) => ({
+// Prepare treemap data (top 50 nodes by weighted score)
+const treemapData = nodeUsageSorted.slice(0, 50).map((node: any) => ({
   name: node.displayName,
-  count: node.count,
+  count: hasWeightedData ? node.weightedScore : node.count,
   category: node.category,
 }));
 
@@ -220,12 +278,21 @@ const lastUpdated = allNodesData?.lastUpdated
           </div>
           <div class="text-sm text-gray-400">Nodes With Usage</div>
         </div>
-        <div class="card text-center">
-          <div class="text-3xl font-bold text-cyan-400 mb-1">
-            {formatNumber(totalNodeUsages)}
+        {hasWeightedData ? (
+          <div class="card text-center">
+            <div class="text-3xl font-bold text-cyan-400 mb-1">
+              {formatNumber(totalInserters)}
+            </div>
+            <div class="text-sm text-gray-400">Total Template Insertions</div>
           </div>
-          <div class="text-sm text-gray-400">Total Node Usages</div>
-        </div>
+        ) : (
+          <div class="card text-center">
+            <div class="text-3xl font-bold text-cyan-400 mb-1">
+              {formatNumber(totalNodeUsages)}
+            </div>
+            <div class="text-sm text-gray-400">Total Node Usages</div>
+          </div>
+        )}
         <div class="card text-center">
           <div class="text-3xl font-bold text-green-400 mb-1">
             {Object.keys(nodesByCategory).length}
@@ -239,7 +306,9 @@ const lastUpdated = allNodesData?.lastUpdated
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-4">Node Usage Overview</h2>
       <p class="text-gray-400 mb-6">
-        Rectangle size represents usage frequency across all templates. Colors indicate category.
+        {hasWeightedData
+          ? 'Rectangle size represents estimated deployments (weighted by template insertions). Colors indicate category.'
+          : 'Rectangle size represents usage frequency across all templates. Colors indicate category.'}
       </p>
       <NodeTreemapChart data={treemapData} />
       <div class="flex flex-wrap gap-4 mt-4 text-sm">
@@ -254,9 +323,14 @@ const lastUpdated = allNodesData?.lastUpdated
 
     <!-- Top 10 Overall -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">Top 10 Most Used Nodes</h2>
+      <h2 class="text-2xl font-bold text-white mb-2">Top 10 Most Used Nodes</h2>
+      <p class="text-gray-400 mb-6">
+        {hasWeightedData
+          ? 'Ranked by estimated deployments (node usage weighted by template insertions).'
+          : 'Ranked by number of templates using each node.'}
+      </p>
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {nodeUsage.slice(0, 10).map((node: any, index: number) => (
+        {nodeUsageSorted.slice(0, 10).map((node: any, index: number) => (
           <a
             href={getNodePageUrl(node.displayName)}
             class="card text-center hover:border-n8n-primary transition-colors"
@@ -265,13 +339,26 @@ const lastUpdated = allNodesData?.lastUpdated
             <span class="font-medium text-white">
               {node.displayName}
             </span>
-            <div class="text-sm text-gray-400 mt-1">
-              {formatNumber(node.count)} templates
-            </div>
-            {node.percentage && (
-              <div class="text-xs text-gray-500">
-                {node.percentage}% of all
-              </div>
+            {hasWeightedData && node.weightedScore > 0 ? (
+              <>
+                <div class="text-sm text-cyan-400 mt-1">
+                  ~{formatNumber(node.weightedScore)} deployments
+                </div>
+                <div class="text-xs text-gray-500">
+                  {formatNumber(node.count)} templates
+                </div>
+              </>
+            ) : (
+              <>
+                <div class="text-sm text-gray-400 mt-1">
+                  {formatNumber(node.count)} templates
+                </div>
+                {node.percentage && (
+                  <div class="text-xs text-gray-500">
+                    {node.percentage}% of all
+                  </div>
+                )}
+              </>
             )}
           </a>
         ))}
@@ -473,13 +560,16 @@ const lastUpdated = allNodesData?.lastUpdated
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-2">Top Nodes by Category</h2>
       <p class="text-gray-400 mb-6">
-        Top 5 nodes in each category, ranked by template usage. Click any node to view details.
+        {hasWeightedData
+          ? 'Top 5 nodes in each category, ranked by estimated deployments. Hover over values to see template counts.'
+          : 'Top 5 nodes in each category, ranked by template usage. Click any node to view details.'}
       </p>
       <CategoryNodesTable
         data={nodesByCategory}
         categoryOrder={categoryOrder}
         categoryColors={categoryColors}
         nodesPerCategory={5}
+        showWeighted={hasWeightedData}
       />
     </section>
 
@@ -527,12 +617,44 @@ const lastUpdated = allNodesData?.lastUpdated
       </section>
     )}
 
+    <!-- Weighted Score Explanation -->
+    {hasWeightedData && (
+      <section class="mb-8">
+        <div class="card p-6 border-cyan-500/20">
+          <div class="flex items-start gap-3">
+            <div class="text-cyan-400 mt-0.5">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-white font-semibold mb-2">Understanding Estimated Deployments</h3>
+              <p class="text-gray-400 text-sm leading-relaxed">
+                "Estimated deployments" combines how often a node appears in templates with how often those templates
+                are actually used (inserted) by the community. A node used once in a highly-adopted template
+                (e.g., 5,000 insertions) ranks higher than one appearing in 50 templates with only 1 insertion each.
+                This gives a more accurate picture of real-world node usage.
+              </p>
+              <p class="text-gray-500 text-xs mt-3">
+                Template insertion data powered by <a href="https://n8narena.com" class="text-cyan-400 hover:underline" target="_blank" rel="noopener">n8n Arena</a>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    )}
+
     <!-- Note -->
     <p class="text-sm text-gray-500 text-center mt-8">
       {hasCompleteData
         ? `Data collected by querying each of ${totalNodes} nodes individually against ${formatNumber(totalTemplates)} templates.${lastUpdated ? ` Last updated: ${lastUpdated}.` : ''}`
         : 'Statistics based on trending templates sample. Full data coming soon.'
       }
+      {hasWeightedData && (
+        <span class="block mt-1">
+          Insertion metrics powered by <a href="https://n8narena.com" class="text-gray-400 hover:text-gray-300" target="_blank" rel="noopener">n8n Arena</a>.
+        </span>
+      )}
     </p>
   </div>
 </BaseLayout>
