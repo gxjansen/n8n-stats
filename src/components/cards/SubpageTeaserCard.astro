@@ -1,5 +1,6 @@
 ---
 import { formatNumber } from '@/lib/utils/formatters';
+import MiniSparkline from '@/components/charts/MiniSparkline.astro';
 
 interface Props {
   title: string;
@@ -10,6 +11,8 @@ interface Props {
   secondaryLabel?: string;
   accentColor?: string;
   ctaText?: string;
+  sparklineData?: number[];
+  sparklineColor?: string;
 }
 
 const {
@@ -20,8 +23,12 @@ const {
   secondaryStat,
   secondaryLabel,
   accentColor = '#ff6d5a',
-  ctaText = 'Explore'
+  ctaText = 'Explore',
+  sparklineData,
+  sparklineColor
 } = Astro.props;
+
+const hasSparkline = sparklineData && sparklineData.length > 1;
 
 const formattedMainStat = typeof mainStat === 'number' ? formatNumber(mainStat) : mainStat;
 const formattedSecondaryStat = secondaryStat !== undefined
@@ -50,9 +57,22 @@ const formattedSecondaryStat = secondaryStat !== undefined
       {title}
     </h3>
 
-    <!-- Main stat -->
-    <div class="mb-1">
-      <span class="text-2xl font-bold text-white">{formattedMainStat}</span>
+    <!-- Main stat with optional sparkline -->
+    <div class="flex items-end justify-between gap-3 mb-1">
+      <div>
+        <span class="text-2xl font-bold text-white">{formattedMainStat}</span>
+      </div>
+      {hasSparkline && (
+        <div class="opacity-60 group-hover:opacity-100 transition-opacity">
+          <MiniSparkline
+            data={sparklineData}
+            width={80}
+            height={28}
+            color={sparklineColor || accentColor}
+            showArea={true}
+          />
+        </div>
+      )}
     </div>
     <p class="text-sm text-gray-400 mb-4">{mainLabel}</p>
 

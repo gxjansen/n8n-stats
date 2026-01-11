@@ -1,0 +1,116 @@
+---
+/**
+ * AI Insight Card
+ *
+ * Displays the dominance of AI templates with a visual progress bar
+ * and breakdown of top AI nodes used in templates.
+ */
+import { formatNumber } from '@/lib/utils/formatters';
+
+interface AINode {
+  name: string;
+  displayName: string;
+  count: number;
+  icon?: string;
+}
+
+interface Props {
+  aiPercentage: number;
+  aiTemplates: number;
+  totalTemplates: number;
+  topAINodes: AINode[];
+  href?: string;
+}
+
+const {
+  aiPercentage,
+  aiTemplates,
+  totalTemplates,
+  topAINodes,
+  href = '/templates'
+} = Astro.props;
+
+// Take top 4 AI nodes
+const displayNodes = topAINodes.slice(0, 4);
+---
+
+<a
+  href={href}
+  class="card block hover:border-purple-500/50 hover:bg-gray-800/30 transition-all group relative overflow-hidden"
+>
+  <!-- Purple gradient accent -->
+  <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500 opacity-80 group-hover:opacity-100 transition-opacity"></div>
+
+  <!-- Background glow effect -->
+  <div class="absolute top-0 right-0 w-48 h-48 bg-purple-500/5 rounded-full blur-3xl -translate-y-1/4 translate-x-1/4 group-hover:bg-purple-500/10 transition-colors"></div>
+
+  <div class="relative pt-2">
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+        <svg class="w-5 h-5 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/>
+          <circle cx="7.5" cy="14.5" r="1.5" fill="currentColor"/>
+          <circle cx="16.5" cy="14.5" r="1.5" fill="currentColor"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold text-white group-hover:text-purple-400 transition-colors">
+          AI-Powered Automation
+        </h3>
+        <p class="text-xs text-gray-500">Templates with AI nodes</p>
+      </div>
+    </div>
+
+    <!-- Main percentage stat -->
+    <div class="mb-4">
+      <div class="flex items-baseline gap-2 mb-2">
+        <span class="text-4xl font-bold text-white">{Math.round(aiPercentage)}%</span>
+        <span class="text-sm text-gray-400">of templates use AI</span>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="relative h-3 bg-gray-800 rounded-full overflow-hidden">
+        <div
+          class="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
+          style={`width: ${aiPercentage}%`}
+        ></div>
+        <!-- Subtle shimmer effect -->
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+      </div>
+
+      <div class="flex justify-between text-xs text-gray-500 mt-1">
+        <span>{formatNumber(aiTemplates)} AI templates</span>
+        <span>{formatNumber(totalTemplates - aiTemplates)} non-AI</span>
+      </div>
+    </div>
+
+    <!-- Top AI Nodes Grid -->
+    {displayNodes.length > 0 && (
+      <div class="mb-4">
+        <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Top AI Nodes</p>
+        <div class="grid grid-cols-2 gap-2">
+          {displayNodes.map((node, index) => (
+            <div class="flex items-center gap-2 p-2 rounded-lg bg-gray-800/50 group-hover:bg-gray-800/70 transition-colors">
+              <div class="w-8 h-8 rounded bg-purple-500/20 flex items-center justify-center text-xs font-medium text-purple-300 shrink-0">
+                {node.displayName.slice(0, 2).toUpperCase()}
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-sm text-white truncate">{node.displayName}</div>
+                <div class="text-xs text-gray-500">{formatNumber(node.count)}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- CTA -->
+    <div class="flex items-center gap-1 text-purple-400 text-sm font-medium group-hover:gap-2 transition-all">
+      <span>Explore AI templates</span>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </div>
+  </div>
+</a>

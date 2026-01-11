@@ -6,14 +6,16 @@ import TemplateCard from '@/components/cards/TemplateCard.astro';
 import SubpageTeaserCard from '@/components/cards/SubpageTeaserCard.astro';
 import EventsSpotlightCard from '@/components/cards/EventsSpotlightCard.astro';
 import CommunityActivityCard from '@/components/cards/CommunityActivityCard.astro';
+import AIInsightCard from '@/components/cards/AIInsightCard.astro';
 import { fetchTemplates } from '@/lib/api/n8n';
 import { fetchForumStats } from '@/lib/api/discourse';
 import { formatNumber } from '@/lib/utils/formatters';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
-// Load GitHub stats from stored data (no API calls during build)
+// Load GitHub stats and monthly history from stored data (no API calls during build)
 let githubStats = { stars: 0, forks: 0, watchers: 0, openIssues: 0, subscribers: 0 };
+let githubMonthlyHistory: number[] = [];
 try {
   const historyPath = join(process.cwd(), 'public', 'data', 'github-history.json');
   if (existsSync(historyPath)) {
@@ -28,6 +30,19 @@ try {
         subscribers: latest.watchers || 0,
       };
     }
+    // Get last 12 months for sparkline
+    githubMonthlyHistory = historyData.monthly?.slice(-12).map((d: { stars: number }) => d.stars) || [];
+  }
+} catch (e) { /* use defaults */ }
+
+// Load Community/Forum monthly history for sparkline
+let communityMonthlyHistory: number[] = [];
+try {
+  const communityPath = join(process.cwd(), 'public', 'data', 'community-history.json');
+  if (existsSync(communityPath)) {
+    const communityData = JSON.parse(readFileSync(communityPath, 'utf-8'));
+    // Get last 12 months for sparkline
+    communityMonthlyHistory = communityData.monthly?.slice(-12).map((d: { users: number }) => d.users) || [];
   }
 } catch (e) { /* use defaults */ }
 
@@ -171,6 +186,45 @@ const aiTemplates = latestTemplateData?.categories?.['AI'] || 5189;
 const latestRawEntry = templatesRawLog.entries?.[templatesRawLog.entries.length - 1];
 const topNodes = latestRawEntry?.topNodes || [];
 
+// Calculate AI percentage for AIInsightCard
+const aiPercentage = totalWorkflows > 0 ? (aiTemplates / totalWorkflows) * 100 : 67;
+
+// Define AI-related nodes to highlight (common AI/LLM nodes in n8n)
+const aiNodeNames = [
+  'AI Agent', 'OpenAI Chat Model', 'Google Gemini Chat Model', 'Anthropic Chat Model',
+  'Groq Chat Model', 'Azure OpenAI Chat Model', 'Ollama Chat Model', 'Mistral Cloud Chat Model',
+  'OpenAI', 'Basic LLM Chain', 'Information Extractor', 'Text Classifier', 'Sentiment Analysis',
+  'Summarization Chain', 'Question and Answer Chain', 'Embeddings OpenAI', 'Embeddings Google Gemini'
+];
+
+// Get top AI nodes from all nodes (filter to AI-related ones)
+const topAINodes = topNodes
+  .filter(node => aiNodeNames.some(aiName =>
+    node.name.toLowerCase().includes(aiName.toLowerCase().replace(/ /g, ''))
+  ))
+  .slice(0, 4)
+  .map(node => ({
+    name: node.name,
+    displayName: node.name.replace(/([A-Z])/g, ' $1').trim(), // Add spaces before capitals
+    count: node.count
+  }));
+
+// If not enough AI nodes found, add some defaults with data from topNodes
+const aiNodeMatches = [
+  { searchTerm: 'aiagent', displayName: 'AI Agent' },
+  { searchTerm: 'openaichat', displayName: 'OpenAI Chat Model' },
+  { searchTerm: 'geminich', displayName: 'Gemini Chat Model' },
+  { searchTerm: 'anthropic', displayName: 'Anthropic Chat Model' },
+];
+
+const finalAINodes = topAINodes.length >= 4 ? topAINodes : aiNodeMatches
+  .map(ai => {
+    const found = topNodes.find(n => n.name.toLowerCase().includes(ai.searchTerm));
+    return found ? { name: found.name, displayName: ai.displayName, count: found.count } : null;
+  })
+  .filter((n): n is { name: string; displayName: string; count: number } => n !== null)
+  .slice(0, 4);
+
 // Data status for UI feedback
 const dataStatus = {
   github: {
@@ -255,6 +309,28 @@ const buildTime = new Date().toISOString();
       </div>
     </section>
 
+    <!-- AI Dominance Insight - Visual Highlight -->
+    <section class="mb-12">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <AIInsightCard
+          aiPercentage={aiPercentage}
+          aiTemplates={aiTemplates}
+          totalTemplates={totalWorkflows}
+          topAINodes={finalAINodes}
+          href="/templates"
+        />
+        <!-- Community & Events combined in this row -->
+        <div class="grid grid-cols-1 gap-4">
+          <CommunityActivityCard
+            discordMembers={latestDiscord.members}
+            discordOnline={latestDiscord.online}
+            forumUsers={forumStats.usersCount}
+            forumTopics={forumStats.topicsCount}
+          />
+        </div>
+      </div>
+    </section>
+
     <!-- Explore the Ecosystem - Subpage Teasers Grid -->
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">Explore the Ecosystem</h2>
@@ -309,7 +385,7 @@ const buildTime = new Date().toISOString();
           </svg>
         </SubpageTeaserCard>
 
-        <!-- GitHub -->
+        <!-- GitHub - with sparkline -->
         <SubpageTeaserCard
           title="GitHub"
           href="/github"
@@ -319,13 +395,15 @@ const buildTime = new Date().toISOString();
           secondaryLabel={`to ${formatNumber(nextMilestone)}`}
           accentColor="#f97316"
           ctaText="View repo stats"
+          sparklineData={githubMonthlyHistory}
+          sparklineColor="#f97316"
         >
           <svg slot="icon" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
             <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
           </svg>
         </SubpageTeaserCard>
 
-        <!-- Community -->
+        <!-- Community - with sparkline -->
         <SubpageTeaserCard
           title="Community"
           href="/community"
@@ -335,6 +413,8 @@ const buildTime = new Date().toISOString();
           secondaryLabel="online now"
           accentColor="#10b981"
           ctaText="View community"
+          sparklineData={communityMonthlyHistory}
+          sparklineColor="#10b981"
         >
           <svg slot="icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -359,22 +439,13 @@ const buildTime = new Date().toISOString();
       </div>
     </section>
 
-    <!-- Community & Events Side by Side -->
+    <!-- Events Spotlight -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">Community & Events</h2>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <CommunityActivityCard
-          discordMembers={latestDiscord.members}
-          discordOnline={latestDiscord.online}
-          forumUsers={forumStats.usersCount}
-          forumTopics={forumStats.topicsCount}
-        />
-        <EventsSpotlightCard
-          upcomingEvents={eventsData.upcoming}
-          totalUpcoming={eventsData.stats.upcomingCount}
-          countriesCount={eventsData.stats.countriesCount}
-        />
-      </div>
+      <EventsSpotlightCard
+        upcomingEvents={eventsData.upcoming}
+        totalUpcoming={eventsData.stats.upcomingCount}
+        countriesCount={eventsData.stats.countriesCount}
+      />
     </section>
 
     <!-- Trending Templates -->
