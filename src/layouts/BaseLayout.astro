@@ -39,31 +39,31 @@ const buildTime = new Date();
     <header class="border-b border-n8n-border">
       <nav class="container-narrow py-4">
         <div class="flex items-center justify-between">
-          <a href="/" class="flex items-center gap-2 text-xl font-bold text-white">
+          <a href="/" class="flex items-center gap-2 text-xl font-bold text-white" data-umami-event="nav-click" data-umami-event-target="home-logo">
             <img src="/logo.svg" alt="n8n Pulse logo" class="h-8 w-8" />
             n8n Pulse
           </a>
 
           <div class="flex items-center gap-6">
-            <a href="/templates" class="text-gray-300 hover:text-white transition-colors">
+            <a href="/templates" class="text-gray-300 hover:text-white transition-colors" data-umami-event="nav-click" data-umami-event-target="templates">
               Templates
             </a>
-            <a href="/nodes" class="text-gray-300 hover:text-white transition-colors">
+            <a href="/nodes" class="text-gray-300 hover:text-white transition-colors" data-umami-event="nav-click" data-umami-event-target="nodes">
               Nodes
             </a>
-            <a href="/creators" class="text-gray-300 hover:text-white transition-colors">
+            <a href="/creators" class="text-gray-300 hover:text-white transition-colors" data-umami-event="nav-click" data-umami-event-target="creators">
               Creators
             </a>
-            <a href="/community" class="text-gray-300 hover:text-white transition-colors">
+            <a href="/community" class="text-gray-300 hover:text-white transition-colors" data-umami-event="nav-click" data-umami-event-target="community">
               Community
             </a>
-            <a href="/events" class="text-gray-300 hover:text-white transition-colors">
+            <a href="/events" class="text-gray-300 hover:text-white transition-colors" data-umami-event="nav-click" data-umami-event-target="events">
               Events
             </a>
-            <a href="/github" class="text-gray-300 hover:text-white transition-colors">
+            <a href="/github" class="text-gray-300 hover:text-white transition-colors" data-umami-event="nav-click" data-umami-event-target="github">
               GitHub
             </a>
-            <a href="/playground" class="text-n8n-primary hover:text-n8n-primary/80 font-medium transition-colors flex items-center gap-1">
+            <a href="/playground" class="text-n8n-primary hover:text-n8n-primary/80 font-medium transition-colors flex items-center gap-1" data-umami-event="nav-click" data-umami-event-target="playground">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
@@ -84,7 +84,7 @@ const buildTime = new Date();
       <div class="container-narrow py-8">
         <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-400">
           <p>
-            Made by <a href="https://gui.do" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Guido X Jansen</a>
+            Made by <a href="https://gui.do" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors" data-umami-event="external-click" data-umami-event-target="gui-do-footer">Guido X Jansen</a>
           </p>
           <p class="text-gray-500">
             Last data update: {buildTime.toLocaleDateString('en-US', {
@@ -97,16 +97,16 @@ const buildTime = new Date();
             })}
           </p>
           <div class="flex items-center gap-4">
-            <a href={n8nUrls.home()} target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+            <a href={n8nUrls.home()} target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors" data-umami-event="external-click" data-umami-event-target="n8n-io">
               n8n.io
             </a>
-            <a href="https://n8narena.com/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+            <a href="https://n8narena.com/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors" data-umami-event="external-click" data-umami-event-target="n8n-arena">
               n8n Arena
             </a>
-            <a href="https://gui.do" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+            <a href="https://gui.do" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors" data-umami-event="external-click" data-umami-event-target="gui-do">
               gui.do
             </a>
-            <a href="https://github.com/gxjansen/n8n-stats/issues" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+            <a href="https://github.com/gxjansen/n8n-stats/issues" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors" data-umami-event="external-click" data-umami-event-target="feedback-issues">
               Feedback & Issues
             </a>
           </div>

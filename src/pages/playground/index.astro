@@ -436,8 +436,16 @@ const sourcesData = DATA_SOURCES.map(s => ({
       metricSelect.addEventListener('change', () => {
         if (metricSelect.value) {
           state.series[index].metricId = metricSelect.value;
+          // Track metric selection
+          if (typeof umami !== 'undefined') {
+            umami.track('playground-metric', { target: metricSelect.value });
+          }
         } else {
           state.series.splice(index, 1);
+          // Track series removal via empty selection
+          if (typeof umami !== 'undefined') {
+            umami.track('playground-remove-series', { value: 'dropdown' });
+          }
         }
         updateUrl();
         renderSeriesSlots();
@@ -449,6 +457,10 @@ const sourcesData = DATA_SOURCES.map(s => ({
       const modeSelect = createModeSelect(seriesConfig.dataMode);
       modeSelect.addEventListener('change', () => {
         state.series[index].dataMode = modeSelect.value as 'cumulative' | 'change';
+        // Track mode change
+        if (typeof umami !== 'undefined') {
+          umami.track('playground-mode', { target: modeSelect.value });
+        }
         updateUrl();
         updateChart();
       });
@@ -458,6 +470,10 @@ const sourcesData = DATA_SOURCES.map(s => ({
       const chartTypeSelect = createChartTypeSelect(seriesConfig.chartType);
       chartTypeSelect.addEventListener('change', () => {
         state.series[index].chartType = chartTypeSelect.value as 'line' | 'area' | 'bar';
+        // Track chart type change
+        if (typeof umami !== 'undefined') {
+          umami.track('playground-chart-type', { target: chartTypeSelect.value });
+        }
         updateUrl();
         updateChart();
       });
@@ -468,6 +484,10 @@ const sourcesData = DATA_SOURCES.map(s => ({
       removeBtn.className = 'text-gray-500 hover:text-red-400 transition-colors p-1 ml-auto';
       removeBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>';
       removeBtn.addEventListener('click', () => {
+        // Track series removal
+        if (typeof umami !== 'undefined') {
+          umami.track('playground-remove-series', { target: seriesConfig.metricId });
+        }
         state.series.splice(index, 1);
         updateUrl();
         renderSeriesSlots();
@@ -999,6 +1019,10 @@ const sourcesData = DATA_SOURCES.map(s => ({
         dataMode: 'cumulative',
         chartType: 'line',
       });
+      // Track add series
+      if (typeof umami !== 'undefined') {
+        umami.track('playground-add-series', { value: (state.series.length).toString() });
+      }
       updateUrl();
       renderSeriesSlots();
       updateChart();
@@ -1007,11 +1031,19 @@ const sourcesData = DATA_SOURCES.map(s => ({
 
   rangeSelect.addEventListener('change', () => {
     state.range = rangeSelect.value as PlaygroundState['range'];
+    // Track range selection
+    if (typeof umami !== 'undefined') {
+      umami.track('playground-range', { target: state.range });
+    }
     updateUrl();
     updateChart();
   });
 
   resetBtn.addEventListener('click', () => {
+    // Track reset
+    if (typeof umami !== 'undefined') {
+      umami.track('playground-reset');
+    }
     state = {
       series: [],
       range: '1y',
@@ -1023,6 +1055,11 @@ const sourcesData = DATA_SOURCES.map(s => ({
   });
 
   shareBtn.addEventListener('click', async () => {
+    // Track share click
+    if (typeof umami !== 'undefined') {
+      const seriesNames = state.series.map(s => s.metricId).join(',');
+      umami.track('playground-share', { target: seriesNames, value: state.range });
+    }
     try {
       await navigator.clipboard.writeText(window.location.href);
       shareFeedback.classList.remove('opacity-0');
@@ -1035,6 +1072,10 @@ const sourcesData = DATA_SOURCES.map(s => ({
 
   // Correlation help modal
   correlationHelp.addEventListener('click', () => {
+    // Track correlation help click
+    if (typeof umami !== 'undefined') {
+      umami.track('playground-correlation-help');
+    }
     correlationModal.classList.remove('hidden');
   });
 

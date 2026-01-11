@@ -38,6 +38,8 @@ const linkProps = href
   <a
     {...linkProps}
     class="card block hover:border-n8n-primary/50 hover:bg-gray-800/50 transition-all cursor-pointer group"
+    data-umami-event="card-click"
+    data-umami-event-target={`stat-${label.toLowerCase().replace(/\s+/g, '-')}`}
   >
     <div class="flex items-start justify-between">
       <div>

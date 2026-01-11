@@ -13,7 +13,7 @@ const displayNodes = template.nodes.slice(0, 3);
 const remainingCount = Math.max(0, template.nodes.length - 3);
 ---
 
-<a href={href} class="card block hover:border-n8n-primary/30 transition-colors group cursor-pointer">
+<a href={href} class="card block hover:border-n8n-primary/30 transition-colors group cursor-pointer" data-umami-event="template-click" data-umami-event-target={template.name.slice(0, 50)}>
   <!-- Node icons -->
   <div class="flex items-center gap-2 mb-4">
     {displayNodes.map((node) => (

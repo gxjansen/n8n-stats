@@ -394,6 +394,63 @@ Use the Ralph Loop plugin (`/ralph-loop:ralph-loop`) for tasks that meet these c
 
 Then provide the specific task with clear completion criteria.
 
+## Umami Analytics Event Tracking
+
+This site uses a self-hosted Umami Analytics instance at `https://u.a11y.nl` for privacy-friendly analytics.
+
+### Event Naming Convention
+Events follow the pattern: `{category}-{action}` with optional `data-umami-event-target` for specifics.
+
+**Categories:**
+- `nav` - Navigation elements (header links)
+- `cta` - Call-to-action buttons/banners
+- `external` - External links (n8n.io, Arena, GitHub)
+- `card` - Stat cards, velocity cards, subpage teasers
+- `template` - Template cards
+- `playground` - Data playground interactions
+
+### Implemented Events
+
+**Navigation (BaseLayout.astro):**
+| Event Name | Target | Location |
+|------------|--------|----------|
+| `nav-click` | `home-logo`, `templates`, `nodes`, `creators`, `community`, `events`, `github`, `playground` | Header nav |
+| `external-click` | `n8n-io`, `n8n-arena`, `gui-do`, `feedback-issues`, `gui-do-footer` | Footer links |
+
+**Cards:**
+| Event Name | Target | Location |
+|------------|--------|----------|
+| `card-click` | `stat-{label}`, `velocity-{label}`, `{title}` | StatCard, VelocityCard, SubpageTeaserCard |
+| `template-click` | Template name (first 50 chars) | TemplateCard |
+| `cta-click` | `playground-banner` | PlaygroundCTA |
+
+**Playground (playground/index.astro):**
+| Event Name | Target/Value | Tracks |
+|------------|--------------|--------|
+| `playground-metric` | Metric ID | Which metrics users select |
+| `playground-mode` | `cumulative`/`change` | Data mode preference |
+| `playground-chart-type` | `line`/`bar`/`area` | Chart type preference |
+| `playground-remove-series` | Metric ID | Which series get removed |
+| `playground-add-series` | Series count | How many series users add |
+| `playground-range` | Range value | Time range preference |
+| `playground-reset` | - | Reset frequency |
+| `playground-share` | Series names, range | Sharing behavior |
+| `playground-correlation-help` | - | Help usage |
+
+### Adding New Events
+
+**Static elements (links, buttons):**
+```html
+<a href="/page" data-umami-event="nav-click" data-umami-event-target="page-name">
+```
+
+**Dynamic tracking (JavaScript):**
+```javascript
+if (typeof umami !== 'undefined') {
+  umami.track('event-name', { target: 'value' });
+}
+```
+
 ## Related Resources
 
 - [n8n Templates API](https://api.n8n.io/api/templates/search)
