@@ -4,8 +4,9 @@
  *
  * Visualizes node usage as a treemap where:
  * - Rectangle size = number of templates using the node
- * - Color = category
+ * - Color = category (using colorblind-friendly palette)
  */
+import { NODE_CATEGORY_COLORS } from '@/lib/utils/colors';
 
 interface Props {
   data: Array<{
@@ -16,6 +17,9 @@ interface Props {
 }
 
 const { data } = Astro.props;
+
+// Pass colors to client-side script
+const categoryColors = NODE_CATEGORY_COLORS;
 ---
 
 <div id="node-treemap-container" class="card">
@@ -27,8 +31,9 @@ const { data } = Astro.props;
   </div>
 </div>
 
-<script define:vars={{ data }}>
+<script define:vars={{ data, categoryColors }}>
   window.__treemapData = data;
+  window.__categoryColors = categoryColors;
 </script>
 
 <script>
@@ -44,25 +49,27 @@ const { data } = Astro.props;
     category: string;
   }
 
-  const CATEGORY_COLORS: Record<string, string> = {
-    'Triggers': '#22c55e',           // Green - entry points
-    'Flow Control': '#ff9f40',       // Orange - logic flow
-    'Data Transform': '#ffce56',     // Yellow - data manipulation
-    'HTTP & APIs': '#ff6384',        // Red - external calls
-    'AI': '#9966ff',                 // Purple - AI/ML
-    'Communication': '#36a2eb',      // Blue - messaging
-    'Google': '#4bc0c0',             // Teal - Google suite
-    'Database & Storage': '#c9cbcf', // Gray - data storage
-    'Files': '#8b5cf6',              // Violet - file operations
-    'CRM & Sales': '#f472b6',        // Pink - sales tools
-    'Productivity': '#a78bfa',       // Light purple - productivity
-    'Social Media': '#06b6d4',       // Cyan - social
-    'E-Commerce': '#f59e0b',         // Amber - e-commerce
-    'Developer Tools': '#10b981',    // Emerald - dev tools
-    'CMS': '#ec4899',                // Pink - content management
-    'Marketing': '#ef4444',          // Red - marketing
-    'Utility': '#6b7280',            // Dark gray - utility nodes
-    'Other': '#7c8798',              // Gray - uncategorized
+  // Colorblind-friendly palette passed from server
+  // Based on Wong's palette (Nature Methods) and Paul Tol's color schemes
+  const CATEGORY_COLORS: Record<string, string> = (window as any).__categoryColors || {
+    'Triggers': '#009E73',           // Bluish green (Wong)
+    'Flow Control': '#E69F00',       // Orange (Wong)
+    'Data Transform': '#F0E442',     // Yellow (Wong)
+    'HTTP & APIs': '#0072B2',        // Blue (Wong)
+    'AI': '#AA3377',                 // Purple (Tol)
+    'Communication': '#56B4E9',      // Sky blue (Wong)
+    'Google': '#4285F4',             // Google brand blue
+    'Database & Storage': '#666666', // Dark gray
+    'Files': '#CC6600',              // Burnt orange/brown
+    'CRM & Sales': '#CC79A7',        // Reddish purple (Wong)
+    'Productivity': '#332288',       // Dark blue/indigo (Tol)
+    'Social Media': '#44AA99',       // Teal (Tol)
+    'E-Commerce': '#D55E00',         // Vermillion (Wong)
+    'Developer Tools': '#117733',    // Forest green (Tol)
+    'CMS': '#882255',                // Wine/maroon (Tol)
+    'Marketing': '#CC3311',          // Red-orange (Tol)
+    'Utility': '#888888',            // Medium gray
+    'Other': '#AAAAAA',              // Light gray
   };
 
   // Generate n8n integrations URL from node name (with UTM + partner tracking)
