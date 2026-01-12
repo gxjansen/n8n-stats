@@ -332,6 +332,24 @@ export const CATEGORICAL_SOURCES: CategoricalSource[] = [
       },
     ],
   },
+  {
+    id: 'node-usage-dist',
+    label: 'Node Usage Distribution',
+    shortLabel: 'Node Usage',
+    file: '/data/all-nodes-data.json',
+    sizeHint: 'small',
+    dataType: 'distribution',
+    lastUpdatedPath: 'lastUpdated',
+    distributionFields: [
+      {
+        id: 'templates-per-node',
+        label: 'Templates Using Each Node',
+        dataPath: 'nodes.all',
+        valueKey: 'count',
+        labelKey: 'displayName',
+      },
+    ],
+  },
 
   // Ranking sources
   {
@@ -383,22 +401,22 @@ export const CATEGORICAL_SOURCES: CategoricalSource[] = [
     ],
   },
 
-  // Correlation sources (using template data)
+  // Correlation sources
   {
-    id: 'template-correlations',
-    label: 'Template Analysis',
-    shortLabel: 'Templates',
-    file: '/data/all-templates-data.json',
-    sizeHint: 'small',
+    id: 'creator-correlations',
+    label: 'Creator Metrics',
+    shortLabel: 'Creators',
+    file: '/data/external/n8narena-creators.json',
+    sizeHint: 'large',
     dataType: 'correlation',
-    dataPath: 'creators',
-    lastUpdatedPath: 'lastUpdated',
     groupByField: 'verified',
     labelField: 'name',
     correlationFields: [
       { id: 'templateCount', label: 'Templates Created', path: 'templateCount' },
       { id: 'totalViews', label: 'Total Views', path: 'totalViews' },
       { id: 'totalInserters', label: 'Total Inserters', path: 'totalInserters' },
+      { id: 'monthlyViews', label: 'Monthly Views', path: 'monthlyViews' },
+      { id: 'weeklyViews', label: 'Weekly Views', path: 'weeklyViews' },
     ],
   },
 ];

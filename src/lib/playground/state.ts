@@ -91,7 +91,7 @@ const DEFAULT_RANKING_STATE: RankingState = {
 };
 
 const DEFAULT_CORRELATION_STATE: CorrelationState = {
-  source: 'template-correlations',
+  source: 'creator-correlations',
   xField: 'templateCount',
   yField: 'totalViews',
   showTrend: true,

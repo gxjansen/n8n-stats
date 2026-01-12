@@ -362,7 +362,7 @@ const correlationSources = getCategoricalSourcesByType('correlation');
             </select>
           </div>
           <div class="flex items-center gap-3">
-            <label class="text-sm font-medium text-gray-300">Sort by:</label>
+            <label class="text-sm font-medium text-gray-300">Metric:</label>
             <select
               id="rank-sort-select"
               class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary"
@@ -1640,6 +1640,8 @@ const correlationSources = getCategoricalSourcesByType('correlation');
   // DISTRIBUTION MODE
   // ============================================================================
   let distInitialized = false;
+  let currentDistBins: { label: string; value: number; count: number }[] = [];
+  let currentDistTitle: string = '';
 
   async function initDistributionMode(): Promise<void> {
     if (distInitialized) return;
@@ -1662,27 +1664,69 @@ const correlationSources = getCategoricalSourcesByType('correlation');
       const dataArray = getNestedValue(rawData, field.dataPath);
       if (!Array.isArray(dataArray)) throw new Error('Data is not an array');
 
-      // Get pre-binned data
-      const bins = dataArray.map((item: any) => ({
-        label: String(item[field.labelKey || field.valueKey]),
-        value: Number(item[field.valueKey]),
-        count: Number(item[field.countKey || 0]),
-      }));
+      let bins: { label: string; value: number; count: number }[];
+      let total: number, avg: number, median: number, max: number;
 
-      // Calculate stats
-      let total = 0, sum = 0, max = 0;
-      const values: number[] = [];
-      for (const bin of bins) {
-        total += bin.count;
-        sum += bin.value * bin.count;
-        max = Math.max(max, bin.value);
-        for (let i = 0; i < bin.count; i++) {
-          values.push(bin.value);
+      if (field.countKey) {
+        // Pre-binned data
+        bins = dataArray.map((item: any) => ({
+          label: String(item[field.labelKey || field.valueKey]),
+          value: Number(item[field.valueKey]),
+          count: Number(item[field.countKey]),
+        }));
+
+        // Calculate stats from pre-binned data
+        total = 0; let sum = 0; max = 0;
+        const values: number[] = [];
+        for (const bin of bins) {
+          total += bin.count;
+          sum += bin.value * bin.count;
+          max = Math.max(max, bin.value);
+          for (let i = 0; i < bin.count; i++) {
+            values.push(bin.value);
+          }
         }
+        values.sort((a, b) => a - b);
+        median = values.length > 0 ? values[Math.floor(values.length / 2)] : 0;
+        avg = total > 0 ? Math.round(sum / total) : 0;
+      } else {
+        // Raw values - need to bin them
+        const rawValues = dataArray.map((item: any) => Number(item[field.valueKey])).filter((v: number) => !isNaN(v));
+        if (rawValues.length === 0) throw new Error('No valid values found');
+
+        // Create histogram bins using Sturges' rule
+        const numBins = Math.min(Math.ceil(Math.log2(rawValues.length) + 1), 15);
+        const minVal = Math.min(...rawValues);
+        const maxVal = Math.max(...rawValues);
+        const binWidth = Math.ceil((maxVal - minVal) / numBins) || 1;
+
+        // Count values in each bin
+        const binCounts = new Map<number, number>();
+        for (let i = 0; i < numBins; i++) binCounts.set(i, 0);
+        for (const value of rawValues) {
+          const binIndex = Math.min(Math.floor((value - minVal) / binWidth), numBins - 1);
+          binCounts.set(binIndex, (binCounts.get(binIndex) || 0) + 1);
+        }
+
+        // Build bins array
+        bins = Array.from(binCounts.entries()).map(([index, count]) => {
+          const binMin = minVal + index * binWidth;
+          const binMax = binMin + binWidth;
+          return {
+            label: binWidth === 1 ? String(binMin) : `${binMin}-${binMax - 1}`,
+            value: binMin,
+            count,
+          };
+        });
+
+        // Calculate stats
+        total = rawValues.length;
+        const sum = rawValues.reduce((a: number, b: number) => a + b, 0);
+        const sortedValues = [...rawValues].sort((a: number, b: number) => a - b);
+        median = sortedValues[Math.floor(total / 2)];
+        max = maxVal;
+        avg = Math.round(sum / total);
       }
-      values.sort((a, b) => a - b);
-      const median = values.length > 0 ? values[Math.floor(values.length / 2)] : 0;
-      const avg = total > 0 ? Math.round(sum / total) : 0;
 
       // Update stats display
       distStatTotal.textContent = total.toLocaleString();
@@ -1693,6 +1737,10 @@ const correlationSources = getCategoricalSourcesByType('correlation');
       // Update timestamp
       const lastUpdated = source.lastUpdatedPath ? getNestedValue(rawData, source.lastUpdatedPath) : null;
       distUpdated.textContent = lastUpdated ? `Last updated: ${new Date(lastUpdated).toLocaleDateString()}` : '';
+
+      // Store for re-renders (e.g., scale changes)
+      currentDistBins = bins;
+      currentDistTitle = field.label;
 
       // Render chart
       renderDistributionChart(bins, field.label);
@@ -1867,10 +1915,9 @@ const correlationSources = getCategoricalSourcesByType('correlation');
       items = items.filter((item: any) => item.group === filterValue || item.label === filterValue);
     }
 
-    // Sort
+    // Sort (descending - highest values first)
     const sortBy = rankSortSelect.value;
-    const sortDir = -1; // Descending by default
-    items.sort((a: any, b: any) => (b.values[sortBy] - a.values[sortBy]) * sortDir);
+    items.sort((a: any, b: any) => b.values[sortBy] - a.values[sortBy]);
 
     // Limit
     const limit = parseInt(rankLimitSelect.value, 10);
@@ -2181,9 +2228,11 @@ const correlationSources = getCategoricalSourcesByType('correlation');
   }
   if (distScaleSelect) {
     distScaleSelect.addEventListener('change', () => {
-      if (distChart && distChart.options.scales?.y) {
-        (distChart.options.scales.y as any).type = distScaleSelect.value;
-        distChart.update();
+      // Chart.js requires destroying and recreating to change scale type
+      if (distChart && currentDistBins.length > 0) {
+        distChart.destroy();
+        distChart = null;
+        renderDistributionChart(currentDistBins, currentDistTitle);
       }
     });
   }

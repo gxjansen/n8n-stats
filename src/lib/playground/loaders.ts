@@ -371,10 +371,60 @@ export async function loadDistributionData(
     }
 
     // Otherwise, bin the raw values
-    const values = dataArray.map(item => Number(item[field.valueKey]));
-    // For now, return null if we need custom binning (can extend later)
-    console.error('Custom binning not yet implemented');
-    return null;
+    const values = dataArray.map(item => Number(item[field.valueKey])).filter(v => !isNaN(v));
+    if (values.length === 0) {
+      console.error('No valid values found for binning');
+      return null;
+    }
+
+    // Create histogram bins using Sturges' rule
+    const numBins = Math.min(Math.ceil(Math.log2(values.length) + 1), 20);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const binWidth = Math.ceil((max - min) / numBins) || 1;
+
+    // Initialize bins
+    const binCounts = new Map<number, number>();
+    for (let i = 0; i < numBins; i++) {
+      binCounts.set(i, 0);
+    }
+
+    // Count values in each bin
+    for (const value of values) {
+      const binIndex = Math.min(Math.floor((value - min) / binWidth), numBins - 1);
+      binCounts.set(binIndex, (binCounts.get(binIndex) || 0) + 1);
+    }
+
+    // Build bins array
+    const bins = Array.from(binCounts.entries()).map(([index, count]) => {
+      const binMin = min + index * binWidth;
+      const binMax = binMin + binWidth;
+      return {
+        label: binMin === binMax ? String(binMin) : `${binMin}-${binMax - 1}`,
+        value: binMin,
+        count,
+      };
+    });
+
+    // Calculate stats
+    const total = values.length;
+    const sum = values.reduce((a, b) => a + b, 0);
+    const sortedValues = [...values].sort((a, b) => a - b);
+    const median = sortedValues[Math.floor(total / 2)];
+
+    return {
+      sourceId,
+      fieldId,
+      label: field.label,
+      lastUpdated,
+      bins,
+      stats: {
+        average: Math.round(sum / total),
+        median,
+        max,
+        total,
+      },
+    };
   } catch (error) {
     console.error(`Failed to load distribution ${sourceId}/${fieldId}:`, error);
     return null;
