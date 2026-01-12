@@ -67,14 +67,14 @@ function interpolateRobinson(absLat: number): { plen: number; pdfe: number } {
 // SVG dimensions for Robinson projection (matching world-robinson.svg)
 const mapWidth = 1000;
 const mapHeight = 507.209;
-const centerX = mapWidth / 2;
 const centerY = mapHeight / 2;
 
-// Scale factors calibrated empirically from the SVG's actual country positions
-// Rx: derived from Japan (Tokyo at lng=139.69) being at x≈810 in the SVG
-// Ry: derived from ocean boundary at lat≈85 having y≈7.8 in the SVG
-const Rx = 159.1;
-const Ry = 186.2;
+// Calibrated projection parameters using country center positions:
+// - GB center at x≈469 (London at lng≈0°)
+// - JP center at x≈825 (Tokyo at lng≈140°)
+// Solving for center and scale gives these values:
+const centerX = 469.3;  // X position for longitude 0°
+const scale = 182.91;   // Unified scale factor for both X and Y
 
 // Robinson projection conversion
 // Converts lat/lng to x/y coordinates on the SVG
@@ -84,12 +84,29 @@ function latLngToXY(lat: number, lng: number): { x: number; y: number } {
   // Normalize longitude to [-180, 180]
   const normLng = ((lng + 180) % 360) - 180;
 
-  // X: scaled by Robinson constants, parallel length, and longitude in radians
-  const x = centerX + Rx * 0.8487 * (normLng * Math.PI / 180) * plen;
+  // X: Robinson projection formula with calibrated scale
+  let x = centerX + scale * 0.8487 * (normLng * Math.PI / 180) * plen;
 
-  // Y: scaled by PDFE lookup, inverted (north is up)
-  const yOffset = Ry * 1.3523 * pdfe;
-  const y = lat >= 0 ? centerY - yOffset : centerY + yOffset;
+  // SVG-specific corrections for regions where country boundaries
+  // don't perfectly match the Robinson projection formula
+
+  // Europe/Middle East (0-50°): shift markers slightly right
+  if (normLng > 0 && normLng <= 50) {
+    x += 5;
+  }
+  // Eastern Asia (>100°): gradual rightward correction
+  else if (normLng > 100) {
+    x += (normLng - 100) * 0.6;
+  }
+
+  // Y: Robinson projection formula (north is up, so subtract from center)
+  let y = centerY - scale * 1.3523 * pdfe * (lat >= 0 ? 1 : -1);
+
+  // Southern Canada / Great Lakes region: shift markers slightly north
+  // to ensure they appear clearly inside Canada's SVG boundary
+  if (lat >= 40 && lat <= 55 && normLng >= -100 && normLng <= -50) {
+    y -= 8;
+  }
 
   return { x, y };
 }
@@ -114,7 +131,7 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
 ---
 
 <div id="events-map-container" class="card">
-  <div class="relative overflow-hidden rounded-lg bg-[#1a1a2e]">
+  <div class="relative overflow-hidden rounded-lg">
     <!-- World map SVG container -->
     <div class="map-wrapper relative">
       <!-- Base world map (loaded via object for styling access) -->
@@ -226,7 +243,7 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
 
 <style>
   .map-wrapper {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16162a 100%);
+    background: transparent;
   }
 
   .marker {
@@ -255,35 +272,31 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
     // Get highlighted countries from the window object
     const highlightedCountries = (window as any).__highlightedCountries || [];
 
-    // Style the SVG map once it loads
-    if (mapObject) {
-      mapObject.addEventListener('load', () => {
-        const svgDoc = mapObject.contentDocument;
-        if (!svgDoc) return;
+    // Function to style the SVG map for dark theme
+    function styleSvgMap(svgDoc: Document) {
+      // Style the base map background - make transparent
+      const worldRect = svgDoc.getElementById('World');
+      if (worldRect) {
+        worldRect.setAttribute('fill', 'transparent');
+      }
 
-        // Style the base map for dark theme
-        const worldRect = svgDoc.getElementById('World');
-        if (worldRect) {
-          worldRect.setAttribute('fill', '#1a1a2e');
-        }
+      // Make ocean/water transparent to blend with card background
+      const ocean = svgDoc.getElementById('Ocean');
+      if (ocean) {
+        ocean.setAttribute('fill', 'transparent');
+        ocean.setAttribute('stroke', 'none');
+      }
 
-        const ocean = svgDoc.getElementById('Ocean');
-        if (ocean) {
-          ocean.setAttribute('fill', '#1a1a2e');
-          ocean.setAttribute('stroke', '#2a2a4e');
-        }
+      // Style country groups - countries are <g> elements with ISO code IDs containing child paths
+      const allGroups = svgDoc.querySelectorAll('g[id]');
+      allGroups.forEach((group: Element) => {
+        const countryCode = group.getAttribute('id');
+        if (!countryCode || countryCode.length !== 2) return; // Country codes are 2 letters
 
-        // Style all country paths
-        const paths = svgDoc.querySelectorAll('path');
-        paths.forEach((path: SVGPathElement) => {
-          const id = path.getAttribute('id');
+        const hasEvents = highlightedCountries.includes(countryCode);
+        const paths = group.querySelectorAll('path');
 
-          // Skip ocean and world background
-          if (id === 'Ocean' || id === 'World') return;
-
-          // Check if this country has events
-          const hasEvents = highlightedCountries.includes(id);
-
+        paths.forEach((path: Element) => {
           if (hasEvents) {
             // Highlighted country style
             path.setAttribute('fill', 'rgba(255, 109, 90, 0.25)');
@@ -296,6 +309,31 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
             path.setAttribute('stroke-width', '0.3');
           }
         });
+      });
+
+      // Also style any standalone paths (Ocean, borders, etc.)
+      const standalonePaths = svgDoc.querySelectorAll('svg > path, svg > g:not([id]) path');
+      standalonePaths.forEach((path: Element) => {
+        const id = path.getAttribute('id');
+        if (id === 'Ocean' || id === 'World') return; // Already handled
+        // Style as default land
+        path.setAttribute('fill', '#252540');
+        path.setAttribute('stroke', '#3a3a5e');
+        path.setAttribute('stroke-width', '0.3');
+      });
+    }
+
+    // Apply styling to SVG map
+    if (mapObject) {
+      // Check if SVG is already loaded
+      if (mapObject.contentDocument && mapObject.contentDocument.querySelector('svg')) {
+        styleSvgMap(mapObject.contentDocument);
+      }
+      // Also listen for load event in case it hasn't loaded yet
+      mapObject.addEventListener('load', () => {
+        if (mapObject.contentDocument) {
+          styleSvgMap(mapObject.contentDocument);
+        }
       });
     }
 
