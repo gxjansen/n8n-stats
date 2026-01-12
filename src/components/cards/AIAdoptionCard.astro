@@ -18,9 +18,12 @@ const { aiTemplates, totalTemplates, aiAgentTemplates } = Astro.props;
 
 const aiPercentage = Math.round((aiTemplates / totalTemplates) * 100);
 const aiAgentPercentage = aiAgentTemplates ? Math.round((aiAgentTemplates / totalTemplates) * 100) : null;
+
+// Generate unique ID for this instance
+const uniqueId = `ai-adoption-${Math.random().toString(36).slice(2, 9)}`;
 ---
 
-<div class="card">
+<div class="card ai-adoption-card" id={uniqueId} data-ai-pct={aiPercentage} data-agent-pct={aiAgentPercentage ?? ''}>
   <div class="flex items-center justify-between mb-3">
     <div>
       <h3 class="text-lg font-semibold text-white">AI Dominance</h3>
@@ -33,12 +36,12 @@ const aiAgentPercentage = aiAgentTemplates ? Math.round((aiAgentTemplates / tota
   <div class="mb-4">
     <div class="flex items-center justify-between mb-1">
       <span class="text-sm text-gray-300">AI Category Templates</span>
-      <span class="text-lg font-bold text-purple-400">{aiPercentage}%</span>
+      <span class="text-lg font-bold text-purple-400 ai-pct-value" data-target={aiPercentage}>{aiPercentage}%</span>
     </div>
     <div class="relative h-6 bg-gray-800 rounded overflow-hidden">
       <div
-        class="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-600 to-purple-400 transition-all duration-500"
-        style={`width: ${aiPercentage}%;`}
+        class="ai-bar absolute inset-y-0 left-0 bg-gradient-to-r from-purple-600 to-purple-400"
+        data-target-width={aiPercentage}
       />
     </div>
     <div class="text-xs text-gray-500 mt-1">
@@ -51,12 +54,12 @@ const aiAgentPercentage = aiAgentTemplates ? Math.round((aiAgentTemplates / tota
     <div>
       <div class="flex items-center justify-between mb-1">
         <span class="text-sm text-gray-300">Using AI Agent Node</span>
-        <span class="text-lg font-bold text-cyan-400">{aiAgentPercentage}%</span>
+        <span class="text-lg font-bold text-cyan-400 agent-pct-value" data-target={aiAgentPercentage}>{aiAgentPercentage}%</span>
       </div>
       <div class="relative h-6 bg-gray-800 rounded overflow-hidden">
         <div
-          class="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-600 to-cyan-400 transition-all duration-500"
-          style={`width: ${aiAgentPercentage}%;`}
+          class="agent-bar absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-600 to-cyan-400"
+          data-target-width={aiAgentPercentage}
         />
       </div>
       <div class="text-xs text-gray-500 mt-1">
@@ -65,3 +68,82 @@ const aiAgentPercentage = aiAgentTemplates ? Math.round((aiAgentTemplates / tota
     </div>
   )}
 </div>
+
+<style>
+  .ai-bar,
+  .agent-bar {
+    width: 0;
+    transition: none;
+  }
+
+  .ai-adoption-card.is-visible .ai-bar {
+    animation: fillBar 1s ease-out forwards;
+  }
+
+  .ai-adoption-card.is-visible .agent-bar {
+    animation: fillBar 1s ease-out forwards;
+    animation-delay: 200ms;
+  }
+
+  @keyframes fillBar {
+    from {
+      width: 0;
+    }
+    to {
+      width: var(--target-width);
+    }
+  }
+
+  /* Reduced motion: show immediately without animation */
+  @media (prefers-reduced-motion: reduce) {
+    .ai-bar,
+    .agent-bar {
+      animation: none !important;
+      width: var(--target-width) !important;
+    }
+  }
+</style>
+
+<script>
+  function initAIAdoptionAnimations() {
+    const cards = document.querySelectorAll<HTMLElement>('.ai-adoption-card');
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const card = entry.target as HTMLElement;
+
+            // Set target widths as CSS variables
+            const aiBars = card.querySelectorAll<HTMLElement>('.ai-bar');
+            const agentBars = card.querySelectorAll<HTMLElement>('.agent-bar');
+
+            aiBars.forEach((bar) => {
+              const target = bar.dataset.targetWidth;
+              if (target) bar.style.setProperty('--target-width', `${target}%`);
+            });
+
+            agentBars.forEach((bar) => {
+              const target = bar.dataset.targetWidth;
+              if (target) bar.style.setProperty('--target-width', `${target}%`);
+            });
+
+            // Trigger animation
+            card.classList.add('is-visible');
+            observer.unobserve(card);
+          }
+        });
+      },
+      {
+        threshold: 0.3,
+        rootMargin: '0px 0px -50px 0px',
+      }
+    );
+
+    cards.forEach((card) => observer.observe(card));
+  }
+
+  // Run on initial load and after view transitions
+  initAIAdoptionAnimations();
+  document.addEventListener('astro:after-swap', initAIAdoptionAnimations);
+</script>

@@ -11,6 +11,7 @@ interface Props {
   to?: string;          // Internal page link
   subtitle?: string;    // Optional subtitle below the value
   valueClass?: string;  // Custom class for value styling
+  animate?: boolean;    // Enable count-up animation (default: true for numbers)
 }
 
 const {
@@ -22,7 +23,8 @@ const {
   href,
   to,
   subtitle,
-  valueClass = 'stat-value'
+  valueClass = 'stat-value',
+  animate = true
 } = Astro.props;
 
 const isPositive = change !== undefined && change >= 0;
@@ -32,19 +34,30 @@ const linkProps = href
   : to
     ? { href: to }
     : {};
+
+// For numeric values, we'll animate them
+const isNumeric = typeof value === 'number';
+const displayValue = isNumeric ? formatNumber(value) : value;
+const shouldAnimate = animate && isNumeric;
 ---
 
 {isClickable ? (
   <a
     {...linkProps}
-    class="card block hover:border-n8n-primary/50 hover:bg-gray-800/50 transition-all cursor-pointer group"
+    class="card stat-card block hover:border-n8n-primary/50 hover:bg-gray-800/50 transition-all cursor-pointer group"
     data-umami-event="card-click"
     data-umami-event-target={`stat-${label.toLowerCase().replace(/\s+/g, '-')}`}
   >
     <div class="flex items-start justify-between">
       <div>
         <p class="stat-label group-hover:text-gray-300 transition-colors">{label}</p>
-        <p class={`${valueClass} mt-1`}>{typeof value === 'number' ? formatNumber(value) : value}</p>
+        <p
+          class={`${valueClass} mt-1 ${shouldAnimate ? 'count-up' : ''}`}
+          data-target={shouldAnimate ? value : undefined}
+          data-formatted={shouldAnimate ? displayValue : undefined}
+        >
+          {displayValue}
+        </p>
         {subtitle && (
           <p class="text-sm text-gray-500 mt-1">{subtitle}</p>
         )}
@@ -71,11 +84,17 @@ const linkProps = href
     </div>
   </a>
 ) : (
-  <div class="card">
+  <div class="card stat-card">
     <div class="flex items-start justify-between">
       <div>
         <p class="stat-label">{label}</p>
-        <p class={`${valueClass} mt-1`}>{typeof value === 'number' ? formatNumber(value) : value}</p>
+        <p
+          class={`${valueClass} mt-1 ${shouldAnimate ? 'count-up' : ''}`}
+          data-target={shouldAnimate ? value : undefined}
+          data-formatted={shouldAnimate ? displayValue : undefined}
+        >
+          {displayValue}
+        </p>
         {subtitle && (
           <p class="text-sm text-gray-500 mt-1">{subtitle}</p>
         )}
@@ -93,3 +112,87 @@ const linkProps = href
     </div>
   </div>
 )}
+
+<script>
+  // Format number with commas (matching formatNumber utility)
+  function formatNumberForAnimation(num: number): string {
+    return num.toLocaleString('en-US');
+  }
+
+  // Easing function for smooth deceleration
+  function easeOutQuart(t: number): number {
+    return 1 - Math.pow(1 - t, 4);
+  }
+
+  function animateCountUp(element: HTMLElement, target: number, duration: number = 1500) {
+    const start = 0;
+    const startTime = performance.now();
+
+    function update(currentTime: number) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = easeOutQuart(progress);
+      const currentValue = Math.round(start + (target - start) * easedProgress);
+
+      element.textContent = formatNumberForAnimation(currentValue);
+
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      } else {
+        // Ensure we end with the exact formatted value
+        const formatted = element.dataset.formatted;
+        if (formatted) {
+          element.textContent = formatted;
+        }
+      }
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  function initStatCardAnimations() {
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const countUpElements = document.querySelectorAll<HTMLElement>('.count-up:not(.animated)');
+
+    if (prefersReducedMotion) {
+      // Skip animation, show final values immediately
+      countUpElements.forEach((el) => {
+        el.classList.add('animated');
+      });
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement;
+            const target = parseFloat(el.dataset.target || '0');
+
+            if (!el.classList.contains('animated') && target > 0) {
+              el.classList.add('animated');
+              // Start from 0
+              el.textContent = '0';
+              // Animate to target
+              animateCountUp(el, target);
+            }
+
+            observer.unobserve(el);
+          }
+        });
+      },
+      {
+        threshold: 0.3,
+        rootMargin: '0px 0px -50px 0px',
+      }
+    );
+
+    countUpElements.forEach((el) => observer.observe(el));
+  }
+
+  // Run on initial load and after view transitions
+  initStatCardAnimations();
+  document.addEventListener('astro:after-swap', initStatCardAnimations);
+</script>

@@ -52,19 +52,50 @@ const isUpward = hasEnoughData && trend[trend.length - 1] > trend[0];
 // Show collecting state if value is null or collecting prop is set
 const isCollecting = value === null || collecting;
 const displayValue = value ?? 'Collecting...';
+
+// Parse value for animation: extract number and suffix (e.g., "245/day" -> { num: 245, suffix: "/day" })
+function parseVelocityValue(val: string | null): { num: number; suffix: string; formatted: string } | null {
+  if (!val) return null;
+  // Match patterns like "245/day", "1.2K/week", "+3.5%", "12,345"
+  const match = val.match(/^([+-]?[\d,.]+[KMB]?)(.*)/i);
+  if (!match) return null;
+
+  const numStr = match[1];
+  const suffix = match[2] || '';
+
+  // Parse the numeric part (handle K, M, B suffixes and commas)
+  let num = parseFloat(numStr.replace(/,/g, ''));
+  const multiplierMatch = numStr.match(/([KMB])$/i);
+  if (multiplierMatch) {
+    const multiplier = multiplierMatch[1].toUpperCase();
+    if (multiplier === 'K') num *= 1000;
+    else if (multiplier === 'M') num *= 1000000;
+    else if (multiplier === 'B') num *= 1000000000;
+  }
+
+  return { num, suffix, formatted: val };
+}
+
+const parsedValue = !isCollecting ? parseVelocityValue(displayValue) : null;
+const shouldAnimate = parsedValue !== null && parsedValue.num > 0;
 ---
 
 {isClickable ? (
   <a
     {...linkProps}
-    class={`card block transition-all cursor-pointer group ${isCollecting ? 'opacity-75' : 'hover:border-n8n-primary/50 hover:bg-gray-800/50'}`}
+    class={`card velocity-card block transition-all cursor-pointer group ${isCollecting ? 'opacity-75' : 'hover:border-n8n-primary/50 hover:bg-gray-800/50'}`}
     data-umami-event="card-click"
     data-umami-event-target={`velocity-${label.toLowerCase().replace(/\s+/g, '-')}`}
   >
     <div class="flex items-start justify-between gap-4">
       <div class="flex-1 min-w-0">
         <p class="text-sm text-gray-400 group-hover:text-gray-300 transition-colors truncate">{label}</p>
-        <p class={`text-2xl font-bold mt-1 ${isCollecting ? 'text-gray-500' : 'text-white'}`}>
+        <p
+          class={`text-2xl font-bold mt-1 ${isCollecting ? 'text-gray-500' : 'text-white'} ${shouldAnimate ? 'velocity-count-up' : ''}`}
+          data-target={shouldAnimate ? parsedValue?.num : undefined}
+          data-suffix={shouldAnimate ? parsedValue?.suffix : undefined}
+          data-formatted={shouldAnimate ? parsedValue?.formatted : undefined}
+        >
           {displayValue}
         </p>
         {isCollecting && collecting ? (
@@ -97,11 +128,16 @@ const displayValue = value ?? 'Collecting...';
     </div>
   </a>
 ) : (
-  <div class={`card ${isCollecting ? 'opacity-75' : ''}`}>
+  <div class={`card velocity-card ${isCollecting ? 'opacity-75' : ''}`}>
     <div class="flex items-start justify-between gap-4">
       <div class="flex-1 min-w-0">
         <p class="text-sm text-gray-400 truncate">{label}</p>
-        <p class={`text-2xl font-bold mt-1 ${isCollecting ? 'text-gray-500' : 'text-white'}`}>
+        <p
+          class={`text-2xl font-bold mt-1 ${isCollecting ? 'text-gray-500' : 'text-white'} ${shouldAnimate ? 'velocity-count-up' : ''}`}
+          data-target={shouldAnimate ? parsedValue?.num : undefined}
+          data-suffix={shouldAnimate ? parsedValue?.suffix : undefined}
+          data-formatted={shouldAnimate ? parsedValue?.formatted : undefined}
+        >
           {displayValue}
         </p>
         {isCollecting && collecting ? (
@@ -134,3 +170,108 @@ const displayValue = value ?? 'Collecting...';
     </div>
   </div>
 )}
+
+<script>
+  // Easing function for smooth deceleration
+  function easeOutQuart(t: number): number {
+    return 1 - Math.pow(1 - t, 4);
+  }
+
+  // Format number with appropriate suffix for velocity display
+  function formatVelocityNumber(num: number, originalFormatted: string): string {
+    // Check if original had K, M, B suffix
+    if (originalFormatted.match(/[\d.]+K/i)) {
+      return (num / 1000).toFixed(num >= 10000 ? 0 : 1).replace(/\.0$/, '') + 'K';
+    }
+    if (originalFormatted.match(/[\d.]+M/i)) {
+      return (num / 1000000).toFixed(num >= 10000000 ? 0 : 1).replace(/\.0$/, '') + 'M';
+    }
+    if (originalFormatted.match(/[\d.]+B/i)) {
+      return (num / 1000000000).toFixed(num >= 10000000000 ? 0 : 1).replace(/\.0$/, '') + 'B';
+    }
+    // Handle decimal values
+    if (originalFormatted.match(/\d+\.\d+/)) {
+      const decimals = originalFormatted.match(/\.(\d+)/)?.[1].length || 1;
+      return num.toFixed(decimals);
+    }
+    // Integer with commas
+    return Math.round(num).toLocaleString('en-US');
+  }
+
+  function animateVelocityCountUp(
+    element: HTMLElement,
+    target: number,
+    suffix: string,
+    formatted: string,
+    duration: number = 1200
+  ) {
+    const start = 0;
+    const startTime = performance.now();
+
+    function update(currentTime: number) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = easeOutQuart(progress);
+      const currentValue = start + (target - start) * easedProgress;
+
+      element.textContent = formatVelocityNumber(currentValue, formatted) + suffix;
+
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      } else {
+        // Ensure we end with exact formatted value
+        element.textContent = formatted;
+      }
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  function initVelocityCardAnimations() {
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const countUpElements = document.querySelectorAll<HTMLElement>('.velocity-count-up:not(.animated)');
+
+    if (prefersReducedMotion) {
+      // Skip animation, show final values immediately
+      countUpElements.forEach((el) => {
+        el.classList.add('animated');
+      });
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement;
+            const target = parseFloat(el.dataset.target || '0');
+            const suffix = el.dataset.suffix || '';
+            const formatted = el.dataset.formatted || '';
+
+            if (!el.classList.contains('animated') && target > 0) {
+              el.classList.add('animated');
+              // Start from 0 + suffix
+              el.textContent = '0' + suffix;
+              // Animate to target
+              animateVelocityCountUp(el, target, suffix, formatted);
+            }
+
+            observer.unobserve(el);
+          }
+        });
+      },
+      {
+        threshold: 0.3,
+        rootMargin: '0px 0px -50px 0px',
+      }
+    );
+
+    countUpElements.forEach((el) => observer.observe(el));
+  }
+
+  // Run on initial load and after view transitions
+  initVelocityCardAnimations();
+  document.addEventListener('astro:after-swap', initVelocityCardAnimations);
+</script>

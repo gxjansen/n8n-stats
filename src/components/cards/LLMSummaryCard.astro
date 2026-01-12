@@ -50,11 +50,15 @@ const llmColors: Record<string, string> = {
 function getColor(name: string): string {
   return llmColors[name] || '#6b7280';
 }
+
+// Generate unique ID for this instance
+const uniqueId = `llm-summary-${Math.random().toString(36).slice(2, 9)}`;
 ---
 
 <a
   href={href}
-  class="card block hover:border-emerald-500/50 hover:bg-gray-800/30 transition-all group relative overflow-hidden"
+  id={uniqueId}
+  class="card llm-summary-card block hover:border-emerald-500/50 hover:bg-gray-800/30 transition-all group relative overflow-hidden"
 >
   <!-- Green accent bar -->
   <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-80 group-hover:opacity-100 transition-opacity"></div>
@@ -110,8 +114,9 @@ function getColor(name: string): string {
             </div>
             <div class="flex-1 h-5 bg-gray-800 rounded overflow-hidden">
               <div
-                class="h-full rounded transition-all duration-500"
-                style={`width: ${pct}%; background: ${color}`}
+                class="llm-bar h-full rounded"
+                style={`--target-width: ${pct}%; --bar-color: ${color}; --bar-delay: ${i * 100}ms;`}
+                data-target-width={pct}
               />
             </div>
             <div class="w-14 text-xs text-gray-500 text-right">
@@ -131,3 +136,61 @@ function getColor(name: string): string {
     </div>
   </div>
 </a>
+
+<style>
+  .llm-bar {
+    width: 0;
+    background: var(--bar-color);
+    transition: none;
+  }
+
+  .llm-summary-card.is-visible .llm-bar {
+    animation: fillLLMBar 0.8s ease-out forwards;
+    animation-delay: var(--bar-delay);
+  }
+
+  @keyframes fillLLMBar {
+    from {
+      width: 0;
+    }
+    to {
+      width: var(--target-width);
+    }
+  }
+
+  /* Reduced motion: show immediately without animation */
+  @media (prefers-reduced-motion: reduce) {
+    .llm-bar {
+      animation: none !important;
+      width: var(--target-width) !important;
+    }
+  }
+</style>
+
+<script>
+  function initLLMSummaryAnimations() {
+    const cards = document.querySelectorAll<HTMLElement>('.llm-summary-card');
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const card = entry.target as HTMLElement;
+            card.classList.add('is-visible');
+            observer.unobserve(card);
+          }
+        });
+      },
+      {
+        threshold: 0.3,
+        rootMargin: '0px 0px -50px 0px',
+      }
+    );
+
+    cards.forEach((card) => observer.observe(card));
+  }
+
+  // Run on initial load and after view transitions
+  initLLMSummaryAnimations();
+  document.addEventListener('astro:after-swap', initLLMSummaryAnimations);
+</script>
