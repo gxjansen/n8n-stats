@@ -32,10 +32,12 @@ import {
   LineController,
   BarController,
   ScatterController,
+  DoughnutController,
   // Elements (visual components)
   LineElement,
   BarElement,
   PointElement,
+  ArcElement,
   // Scales
   CategoryScale,
   LinearScale,
@@ -52,10 +54,12 @@ Chart.register(
   LineController,
   BarController,
   ScatterController,
+  DoughnutController,
   // Elements
   LineElement,
   BarElement,
   PointElement,
+  ArcElement,
   // Scales
   CategoryScale,
   LinearScale,
