@@ -236,4 +236,125 @@ function drawZigzagBreak(
   ctx.restore();
 }
 
+/**
+ * Watermark Plugin
+ *
+ * Draws a subtle logo/branding watermark in the corner of charts.
+ * Useful for attribution when charts are screenshotted or shared.
+ *
+ * Configuration via chart options:
+ * plugins: {
+ *   watermark: {
+ *     image: '/logo.svg',      // Image path or URL
+ *     x: 'right',              // 'left' | 'right' | number
+ *     y: 'bottom',             // 'top' | 'bottom' | number
+ *     width: 24,               // Image width in pixels
+ *     height: 24,              // Image height in pixels
+ *     opacity: 0.3,            // 0-1 opacity
+ *     padding: 8,              // Padding from edge
+ *   }
+ * }
+ */
+
+interface WatermarkOptions {
+  image?: string;
+  x?: 'left' | 'right' | number;
+  y?: 'top' | 'bottom' | number;
+  width?: number;
+  height?: number;
+  opacity?: number;
+  padding?: number;
+}
+
+// Cache for loaded images
+const imageCache: Map<string, HTMLImageElement> = new Map();
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+  if (imageCache.has(src)) {
+    return Promise.resolve(imageCache.get(src)!);
+  }
+
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      imageCache.set(src, img);
+      resolve(img);
+    };
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+export const watermarkPlugin: Plugin = {
+  id: 'watermark',
+
+  afterDraw(chart: Chart) {
+    const options = (chart.options.plugins as any)?.watermark as WatermarkOptions | undefined;
+
+    if (!options?.image) return;
+
+    const { ctx, chartArea } = chart;
+    if (!chartArea) return;
+
+    const {
+      image: imageSrc,
+      x = 'right',
+      y = 'bottom',
+      width = 24,
+      height = 24,
+      opacity = 0.3,
+      padding = 8,
+    } = options;
+
+    // Calculate position
+    let posX: number;
+    let posY: number;
+
+    if (typeof x === 'number') {
+      posX = x;
+    } else if (x === 'left') {
+      posX = chartArea.left + padding;
+    } else {
+      posX = chartArea.right - width - padding;
+    }
+
+    if (typeof y === 'number') {
+      posY = y;
+    } else if (y === 'top') {
+      posY = chartArea.top + padding;
+    } else {
+      posY = chartArea.bottom - height - padding;
+    }
+
+    // Try to draw from cache, or queue load
+    const cachedImg = imageCache.get(imageSrc);
+    if (cachedImg) {
+      ctx.save();
+      ctx.globalAlpha = opacity;
+      ctx.drawImage(cachedImg, posX, posY, width, height);
+      ctx.restore();
+    } else {
+      // Load image and trigger redraw
+      loadImage(imageSrc).then(() => {
+        chart.draw();
+      }).catch(() => {
+        // Silently fail if image can't load
+      });
+    }
+  },
+};
+
+/**
+ * Default watermark configuration for n8n Pulse branding
+ */
+export const defaultWatermarkOptions: WatermarkOptions = {
+  image: '/logo.svg',
+  x: 'right',
+  y: 'bottom',
+  width: 20,
+  height: 20,
+  opacity: 0.25,
+  padding: 8,
+};
+
 export default axisTruncationPlugin;

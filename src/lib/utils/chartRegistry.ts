@@ -48,6 +48,9 @@ import {
   Filler,
 } from 'chart.js';
 
+// Import custom plugins
+import { watermarkPlugin, defaultWatermarkOptions } from './chartPlugins';
+
 // Register all components used across the site
 Chart.register(
   // Controllers
@@ -67,8 +70,13 @@ Chart.register(
   // Plugins
   Tooltip,
   Legend,
-  Filler
+  Filler,
+  // Custom plugins
+  watermarkPlugin
 );
+
+// Set default watermark options for all charts
+Chart.defaults.plugins.watermark = defaultWatermarkOptions;
 
 // Re-export Chart for use in components
 export { Chart };
