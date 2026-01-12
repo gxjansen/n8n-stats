@@ -61,6 +61,7 @@ const chartData = data
 <script>
   import Chart from 'chart.js/auto';
   import { axisTruncationPlugin } from '../../lib/utils/chartPlugins';
+  import { initChartWhenVisible } from '../../lib/utils/lazyChart';
 
   // Register the axis truncation plugin globally
   Chart.register(axisTruncationPlugin);
@@ -285,9 +286,12 @@ const chartData = data
     });
   }
 
+  // Initialize when DOM is ready and chart is visible
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initEventsChart);
+    document.addEventListener('DOMContentLoaded', () => {
+      initChartWhenVisible('events-history-container', initEventsChart);
+    });
   } else {
-    initEventsChart();
+    initChartWhenVisible('events-history-container', initEventsChart);
   }
 </script>

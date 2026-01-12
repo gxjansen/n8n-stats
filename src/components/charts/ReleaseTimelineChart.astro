@@ -82,6 +82,7 @@ const releaseData = JSON.stringify(releases);
   import Chart from 'chart.js/auto';
   import 'chartjs-adapter-date-fns';
   import { axisTruncationPlugin } from '../../lib/utils/chartPlugins';
+  import { initChartWhenVisible } from '../../lib/utils/lazyChart';
 
   // Register the axis truncation plugin globally
   Chart.register(axisTruncationPlugin);
@@ -306,10 +307,13 @@ const releaseData = JSON.stringify(releases);
     document.getElementById('release-date-range')?.addEventListener('change', updateChart);
   }
 
+  // Initialize when DOM is ready and chart is visible
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initReleaseTimeline);
+    document.addEventListener('DOMContentLoaded', () => {
+      initChartWhenVisible('release-timeline-container', initReleaseTimeline);
+    });
   } else {
-    initReleaseTimeline();
+    initChartWhenVisible('release-timeline-container', initReleaseTimeline);
   }
 </script>
 

@@ -87,6 +87,7 @@ const chartDataJson = JSON.stringify(weeklyData);
 <script>
   import Chart from 'chart.js/auto';
   import { axisTruncationPlugin } from '../../lib/utils/chartPlugins';
+  import { initChartWhenVisible } from '../../lib/utils/lazyChart';
 
   // Register the axis truncation plugin globally
   Chart.register(axisTruncationPlugin);
@@ -208,9 +209,11 @@ const chartDataJson = JSON.stringify(weeklyData);
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initEcosystemChart);
+    document.addEventListener('DOMContentLoaded', () => {
+      initChartWhenVisible('ecosystem-chart-container', initEcosystemChart);
+    });
   } else {
-    initEcosystemChart();
+    initChartWhenVisible('ecosystem-chart-container', initEcosystemChart);
   }
 </script>
 

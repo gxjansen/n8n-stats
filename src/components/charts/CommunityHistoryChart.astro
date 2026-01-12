@@ -106,6 +106,7 @@ const communityDataJson = JSON.stringify(communityHistoryData);
 <script>
   import Chart from 'chart.js/auto';
   import { axisTruncationPlugin } from '../../lib/utils/chartPlugins';
+  import { initChartWhenVisible } from '../../lib/utils/lazyChart';
 
   // Register the axis truncation plugin globally
   Chart.register(axisTruncationPlugin);
@@ -403,11 +404,13 @@ const communityDataJson = JSON.stringify(communityHistoryData);
     document.getElementById('community-toggle-likes')?.addEventListener('change', updateCommunityChart);
   }
 
-  // Initialize when DOM is ready
+  // Initialize when DOM is ready and chart is visible
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCommunityChart);
+    document.addEventListener('DOMContentLoaded', () => {
+      initChartWhenVisible('community-chart-container', initCommunityChart);
+    });
   } else {
-    initCommunityChart();
+    initChartWhenVisible('community-chart-container', initCommunityChart);
   }
 </script>
 

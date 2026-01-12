@@ -120,6 +120,7 @@ const chartDataJson = JSON.stringify(chartDataPoints);
 <script>
   import Chart from 'chart.js/auto';
   import { axisTruncationPlugin } from '../../lib/utils/chartPlugins';
+  import { initChartWhenVisible } from '../../lib/utils/lazyChart';
 
   // Register the axis truncation plugin globally
   Chart.register(axisTruncationPlugin);
@@ -376,11 +377,13 @@ const chartDataJson = JSON.stringify(chartDataPoints);
     document.getElementById('github-show-monthly')?.addEventListener('change', updateChart);
   }
 
-  // Initialize when DOM is ready
+  // Initialize when DOM is ready and chart is visible
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initChart);
+    document.addEventListener('DOMContentLoaded', () => {
+      initChartWhenVisible('github-chart-container', initChart);
+    });
   } else {
-    initChart();
+    initChartWhenVisible('github-chart-container', initChart);
   }
 </script>
 

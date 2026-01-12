@@ -50,6 +50,7 @@ const fallbackColors = FALLBACK_COLORS;
 <script>
   import Chart from 'chart.js/auto';
   import { TreemapController, TreemapElement } from 'chartjs-chart-treemap';
+  import { initChartWhenVisible } from '../../lib/utils/lazyChart';
 
   // Register the treemap plugin
   Chart.register(TreemapController, TreemapElement);
@@ -243,11 +244,13 @@ const fallbackColors = FALLBACK_COLORS;
     });
   }
 
-  // Initialize when DOM is ready
+  // Initialize when DOM is ready and chart is visible
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTreemap);
+    document.addEventListener('DOMContentLoaded', () => {
+      initChartWhenVisible('community-treemap-container', initTreemap);
+    });
   } else {
-    initTreemap();
+    initChartWhenVisible('community-treemap-container', initTreemap);
   }
 </script>
 
