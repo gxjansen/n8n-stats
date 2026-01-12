@@ -2,12 +2,58 @@
 /**
  * Interactive Creators History Chart
  *
- * Client-side component that:
- * - Loads history data from /data/history/creators-stats.json
- * - Renders Chart.js line/area chart
- * - Shows total and verified creator growth over time
- * - Optionally overlays weekly new creator bars
+ * Renders Chart.js line/area chart for creator growth.
+ * Data is loaded at build time for instant rendering.
  */
+
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+
+interface CreatorStats {
+  date: string;
+  total: number;
+  verified: number;
+  totalViews: number;
+  totalInserters: number;
+}
+
+interface CreatorsHistory {
+  lastUpdated: string;
+  dataSource: {
+    name: string;
+    repository: string;
+    attribution: string;
+  };
+  daily: CreatorStats[];
+  weekly: CreatorStats[];
+}
+
+interface ChartDataPoint {
+  date: string;
+  total: number;
+  verified: number;
+  newCount: number;
+}
+
+// Load data at build time
+let chartDataPoints: ChartDataPoint[] = [];
+try {
+  const dataPath = join(process.cwd(), 'public', 'data', 'history', 'creators-stats.json');
+  if (existsSync(dataPath)) {
+    const data: CreatorsHistory = JSON.parse(readFileSync(dataPath, 'utf-8'));
+    chartDataPoints = data.weekly.map((point, index) => {
+      const prevTotal = index > 0 ? data.weekly[index - 1].total : point.total;
+      return {
+        date: point.date,
+        total: point.total,
+        verified: point.verified,
+        newCount: Math.max(0, point.total - prevTotal),
+      };
+    });
+  }
+} catch (e) { /* use empty array */ }
+
+const chartDataJson = JSON.stringify(chartDataPoints);
 ---
 
 <div id="creators-chart-container" class="card">
@@ -57,14 +103,15 @@
     </div>
   </div>
 
-  <!-- Loading/Error States -->
-  <div id="creators-chart-loading" class="absolute inset-0 flex items-center justify-center bg-n8n-card/80">
-    <span class="text-gray-400">Loading chart data...</span>
-  </div>
-  <div id="creators-chart-error" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
-    <span class="text-red-400">Failed to load chart data</span>
+  <!-- No Data State (only shown if build-time data is empty) -->
+  <div id="creators-chart-no-data" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
+    <span class="text-gray-400">No historical data yet. Check back tomorrow!</span>
   </div>
 </div>
+
+<script define:vars={{ chartDataJson }}>
+  window.__creatorsChartData = JSON.parse(chartDataJson);
+</script>
 
 <script>
   import Chart from 'chart.js/auto';
@@ -72,25 +119,6 @@
 
   // Register the axis truncation plugin globally
   Chart.register(axisTruncationPlugin);
-
-  interface CreatorStats {
-    date: string;
-    total: number;
-    verified: number;
-    totalViews: number;
-    totalInserters: number;
-  }
-
-  interface CreatorsHistory {
-    lastUpdated: string;
-    dataSource: {
-      name: string;
-      repository: string;
-      attribution: string;
-    };
-    daily: CreatorStats[];
-    weekly: CreatorStats[];
-  }
 
   interface ChartDataPoint {
     date: string;
@@ -100,34 +128,13 @@
   }
 
   let creatorsChart: Chart | null = null;
-  let chartData: ChartDataPoint[] = [];
+  // Data is loaded at build time and passed via define:vars
+  let chartData: ChartDataPoint[] = (window as any).__creatorsChartData || [];
 
   const COLORS = {
     total: { border: '#ff6d5a', background: 'rgba(255, 109, 90, 0.1)' },
     newCount: { border: '#4bc0c0', background: 'rgba(75, 192, 192, 0.6)' },
   };
-
-  async function loadCreatorsData(): Promise<ChartDataPoint[]> {
-    try {
-      const response = await fetch('/data/history/creators-stats.json');
-      if (!response.ok) throw new Error('Failed to fetch');
-      const data: CreatorsHistory = await response.json();
-
-      // Convert to chart format and calculate weekly new
-      return data.weekly.map((point, index) => {
-        const prevTotal = index > 0 ? data.weekly[index - 1].total : point.total;
-        return {
-          date: point.date,
-          total: point.total,
-          verified: point.verified,
-          newCount: Math.max(0, point.total - prevTotal),
-        };
-      });
-    } catch (error) {
-      console.error('Failed to load creators history data:', error);
-      return [];
-    }
-  }
 
   function isCreatorsAreaChart(): boolean {
     return (document.getElementById('creators-chart-type') as HTMLSelectElement).value === 'area';
@@ -201,17 +208,12 @@
     }
   }
 
-  async function initCreatorsChart() {
+  function initCreatorsChart() {
     const canvas = document.getElementById('creators-history-chart') as HTMLCanvasElement;
-    const loadingEl = document.getElementById('creators-chart-loading');
-    const errorEl = document.getElementById('creators-chart-error');
-
-    chartData = await loadCreatorsData();
-
-    loadingEl?.classList.add('hidden');
+    const noDataEl = document.getElementById('creators-chart-no-data');
 
     if (chartData.length === 0) {
-      errorEl?.classList.remove('hidden');
+      noDataEl?.classList.remove('hidden');
       return;
     }
 

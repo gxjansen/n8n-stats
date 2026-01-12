@@ -2,11 +2,39 @@
 /**
  * Interactive Community History Chart
  *
- * Client-side component that:
- * - Loads history data from /data/community-history.json
- * - Renders Chart.js line/area chart
- * - Allows filtering by date range, metrics, and chart type
+ * Renders Chart.js line/area chart for community metrics.
+ * Data is loaded at build time for instant rendering.
  */
+
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+
+interface CommunityDataPoint {
+  date: string;
+  users: number | null;
+  topics: number | null;
+  posts: number | null;
+  likes: number | null;
+  source?: string;
+}
+
+interface CommunityHistory {
+  lastUpdated: string;
+  daily: CommunityDataPoint[];
+  weekly: CommunityDataPoint[];
+  monthly: CommunityDataPoint[];
+}
+
+// Load data at build time
+let communityHistoryData: CommunityHistory | null = null;
+try {
+  const dataPath = join(process.cwd(), 'public', 'data', 'community-history.json');
+  if (existsSync(dataPath)) {
+    communityHistoryData = JSON.parse(readFileSync(dataPath, 'utf-8'));
+  }
+} catch (e) { /* use null */ }
+
+const communityDataJson = JSON.stringify(communityHistoryData);
 ---
 
 <div id="community-chart-container" class="card">
@@ -65,17 +93,15 @@
     Dashed lines indicate estimated data based on available historical snapshots
   </p>
 
-  <!-- Loading/Error States -->
-  <div id="community-chart-loading" class="absolute inset-0 flex items-center justify-center bg-n8n-card/80">
-    <span class="text-gray-400">Loading chart data...</span>
-  </div>
-  <div id="community-chart-error" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
-    <span class="text-red-400">Failed to load chart data</span>
-  </div>
+  <!-- No Data State (only shown if build-time data is empty) -->
   <div id="community-chart-no-data" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
     <span class="text-gray-400">No historical data yet. Check back tomorrow!</span>
   </div>
 </div>
+
+<script define:vars={{ communityDataJson }}>
+  window.__communityHistoryData = JSON.parse(communityDataJson);
+</script>
 
 <script>
   import Chart from 'chart.js/auto';
@@ -101,7 +127,8 @@
   }
 
   let communityChart: Chart | null = null;
-  let communityHistoryData: CommunityHistory | null = null;
+  // Data is loaded at build time and passed via define:vars
+  let communityHistoryData: CommunityHistory | null = (window as any).__communityHistoryData || null;
 
   const COMMUNITY_COLORS = {
     users: { border: '#ff6384', background: 'rgba(255, 99, 132, 0.1)' },
@@ -109,17 +136,6 @@
     posts: { border: '#ffce56', background: 'rgba(255, 206, 86, 0.1)' },
     likes: { border: '#4bc0c0', background: 'rgba(75, 192, 192, 0.1)' },
   };
-
-  async function loadCommunityData(): Promise<CommunityHistory | null> {
-    try {
-      const response = await fetch('/data/community-history.json');
-      if (!response.ok) throw new Error('Failed to fetch');
-      return await response.json();
-    } catch (error) {
-      console.error('Failed to load community history data:', error);
-      return null;
-    }
-  }
 
   function getCommunityDataForRange(data: CommunityHistory, rangeDays: number | 'all'): CommunityDataPoint[] {
     // Use daily data only when we have enough entries and range is short
@@ -275,18 +291,12 @@
     }
   }
 
-  async function initCommunityChart() {
+  function initCommunityChart() {
     const canvas = document.getElementById('community-history-chart') as HTMLCanvasElement;
-    const loadingEl = document.getElementById('community-chart-loading');
-    const errorEl = document.getElementById('community-chart-error');
     const noDataEl = document.getElementById('community-chart-no-data');
 
-    communityHistoryData = await loadCommunityData();
-
-    loadingEl?.classList.add('hidden');
-
     if (!communityHistoryData) {
-      errorEl?.classList.remove('hidden');
+      noDataEl?.classList.remove('hidden');
       return;
     }
 

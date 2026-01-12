@@ -2,11 +2,57 @@
 /**
  * Interactive GitHub Issues Chart
  *
- * Client-side component that:
- * - Loads history data from /data/github-history.json
- * - Shows issues opened/closed per month as bars
- * - Shows cumulative open issues as a line
+ * Shows issues opened/closed per month as bars
+ * with cumulative open issues as a line overlay.
+ * Data is loaded at build time for instant rendering.
  */
+
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+
+interface GitHubDataPoint {
+  date: string;
+  stars: number;
+  forks: number;
+  watchers: number;
+  openIssues: number;
+  issuesOpened?: number;
+  issuesClosed?: number;
+  source?: string;
+}
+
+interface GitHubHistory {
+  lastUpdated: string;
+  daily: GitHubDataPoint[];
+  weekly: GitHubDataPoint[];
+  monthly: GitHubDataPoint[];
+}
+
+interface ChartDataPoint {
+  date: string;
+  opened: number;
+  closed: number;
+  openIssues: number;
+}
+
+// Load data at build time
+let chartDataPoints: ChartDataPoint[] = [];
+try {
+  const dataPath = join(process.cwd(), 'public', 'data', 'github-history.json');
+  if (existsSync(dataPath)) {
+    const data: GitHubHistory = JSON.parse(readFileSync(dataPath, 'utf-8'));
+    chartDataPoints = data.monthly
+      .filter(point => point.issuesOpened !== undefined)
+      .map(point => ({
+        date: point.date,
+        opened: point.issuesOpened || 0,
+        closed: point.issuesClosed || 0,
+        openIssues: point.openIssues || 0,
+      }));
+  }
+} catch (e) { /* use empty array */ }
+
+const chartDataJson = JSON.stringify(chartDataPoints);
 ---
 
 <div id="github-issues-chart-container" class="card relative">
@@ -51,14 +97,15 @@
     </div>
   </div>
 
-  <!-- Loading/Error States -->
-  <div id="issues-chart-loading" class="absolute inset-0 flex items-center justify-center bg-n8n-card/80">
-    <span class="text-gray-400">Loading chart data...</span>
-  </div>
-  <div id="issues-chart-error" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
-    <span class="text-red-400">Failed to load chart data</span>
+  <!-- No Data State (only shown if build-time data is empty) -->
+  <div id="issues-chart-no-data" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
+    <span class="text-gray-400">No historical data yet. Check back tomorrow!</span>
   </div>
 </div>
+
+<script define:vars={{ chartDataJson }}>
+  window.__githubIssuesChartData = JSON.parse(chartDataJson);
+</script>
 
 <script>
   import Chart from 'chart.js/auto';
@@ -66,24 +113,6 @@
 
   // Register the axis truncation plugin globally
   Chart.register(axisTruncationPlugin);
-
-  interface GitHubDataPoint {
-    date: string;
-    stars: number;
-    forks: number;
-    watchers: number;
-    openIssues: number;
-    issuesOpened?: number;
-    issuesClosed?: number;
-    source?: string;
-  }
-
-  interface GitHubHistory {
-    lastUpdated: string;
-    daily: GitHubDataPoint[];
-    weekly: GitHubDataPoint[];
-    monthly: GitHubDataPoint[];
-  }
 
   interface ChartDataPoint {
     date: string;
@@ -93,33 +122,14 @@
   }
 
   let chart: Chart | null = null;
-  let chartData: ChartDataPoint[] = [];
+  // Data is loaded at build time and passed via define:vars
+  let chartData: ChartDataPoint[] = (window as any).__githubIssuesChartData || [];
 
   const COLORS = {
     opened: { border: '#da3633', background: 'rgba(218, 54, 51, 0.8)' },
     closed: { border: '#238636', background: 'rgba(35, 134, 54, 0.8)' },
     openIssues: { border: '#f85149', background: 'rgba(248, 81, 73, 0.1)' },
   };
-
-  async function loadData(): Promise<ChartDataPoint[]> {
-    try {
-      const response = await fetch('/data/github-history.json');
-      if (!response.ok) throw new Error('Failed to fetch');
-      const data: GitHubHistory = await response.json();
-
-      return data.monthly
-        .filter(point => point.issuesOpened !== undefined)
-        .map(point => ({
-          date: point.date,
-          opened: point.issuesOpened || 0,
-          closed: point.issuesClosed || 0,
-          openIssues: point.openIssues || 0,
-        }));
-    } catch (error) {
-      console.error('Failed to load history data:', error);
-      return [];
-    }
-  }
 
   function filterByMonths(points: ChartDataPoint[], months: number | 'all'): ChartDataPoint[] {
     if (months === 'all') return points;
@@ -203,17 +213,12 @@
     }
   }
 
-  async function initChart() {
+  function initChart() {
     const canvas = document.getElementById('github-issues-chart') as HTMLCanvasElement;
-    const loadingEl = document.getElementById('issues-chart-loading');
-    const errorEl = document.getElementById('issues-chart-error');
-
-    chartData = await loadData();
-
-    loadingEl?.classList.add('hidden');
+    const noDataEl = document.getElementById('issues-chart-no-data');
 
     if (chartData.length === 0) {
-      errorEl?.classList.remove('hidden');
+      noDataEl?.classList.remove('hidden');
       return;
     }
 

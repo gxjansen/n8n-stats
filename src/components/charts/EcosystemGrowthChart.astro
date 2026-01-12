@@ -7,13 +7,48 @@
  * - Template inserters growth
  *
  * Designed for homepage hero placement.
+ * Data is loaded at build time for instant rendering.
  */
+
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
 
 interface Props {
   height?: number;
 }
 
 const { height = 200 } = Astro.props;
+
+interface CreatorStats {
+  date: string;
+  total: number;
+  verified: number;
+  totalViews: number;
+  totalInserters: number;
+}
+
+interface CreatorsHistory {
+  lastUpdated: string;
+  dataSource: {
+    name: string;
+    repository: string;
+    attribution: string;
+  };
+  daily: CreatorStats[];
+  weekly: CreatorStats[];
+}
+
+// Load data at build time - only last 16 weeks for compact view
+let weeklyData: CreatorStats[] = [];
+try {
+  const dataPath = join(process.cwd(), 'public', 'data', 'history', 'creators-stats.json');
+  if (existsSync(dataPath)) {
+    const data: CreatorsHistory = JSON.parse(readFileSync(dataPath, 'utf-8'));
+    weeklyData = data.weekly?.slice(-16) || [];
+  }
+} catch (e) { /* use empty array */ }
+
+const chartDataJson = JSON.stringify(weeklyData);
 ---
 
 <div id="ecosystem-chart-container" class="card">
@@ -39,10 +74,15 @@ const { height = 200 } = Astro.props;
     <canvas id="ecosystem-growth-chart"></canvas>
   </div>
 
-  <div id="ecosystem-chart-loading" class="absolute inset-0 flex items-center justify-center bg-n8n-card/80 rounded-lg">
-    <span class="text-gray-400 text-sm">Loading...</span>
+  <!-- No Data State (only shown if build-time data is empty) -->
+  <div id="ecosystem-chart-no-data" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80 rounded-lg">
+    <span class="text-gray-400 text-sm">No data available</span>
   </div>
 </div>
+
+<script define:vars={{ chartDataJson }}>
+  window.__ecosystemChartData = JSON.parse(chartDataJson);
+</script>
 
 <script>
   import Chart from 'chart.js/auto';
@@ -61,37 +101,29 @@ const { height = 200 } = Astro.props;
 
   let ecosystemChart: Chart | null = null;
 
-  async function initEcosystemChart() {
+  function initEcosystemChart() {
     const canvas = document.getElementById('ecosystem-growth-chart') as HTMLCanvasElement;
-    const loadingEl = document.getElementById('ecosystem-chart-loading');
+    const noDataEl = document.getElementById('ecosystem-chart-no-data');
 
-    try {
-      const response = await fetch('/data/history/creators-stats.json');
-      if (!response.ok) throw new Error('Failed to fetch');
-      const data = await response.json();
+    // Data is loaded at build time and passed via define:vars
+    const weeklyData: CreatorStats[] = (window as any).__ecosystemChartData || [];
 
-      loadingEl?.classList.add('hidden');
+    if (weeklyData.length === 0) {
+      noDataEl?.classList.remove('hidden');
+      return;
+    }
 
-      // Use last 16 weeks for compact view
-      const weeklyData: CreatorStats[] = data.weekly?.slice(-16) || [];
-
-      if (weeklyData.length === 0) {
-        loadingEl?.classList.remove('hidden');
-        if (loadingEl) loadingEl.textContent = 'No data available';
-        return;
+    const labels = weeklyData.map((d: CreatorStats) => {
+      // Shorten date labels
+      const date = d.date;
+      if (date.includes('W')) {
+        const [year, week] = date.split('-W');
+        return `W${week}`;
       }
+      return date;
+    });
 
-      const labels = weeklyData.map((d: CreatorStats) => {
-        // Shorten date labels
-        const date = d.date;
-        if (date.includes('W')) {
-          const [year, week] = date.split('-W');
-          return `W${week}`;
-        }
-        return date;
-      });
-
-      ecosystemChart = new Chart(canvas, {
+    ecosystemChart = new Chart(canvas, {
         type: 'line',
         data: {
           labels,
@@ -173,11 +205,6 @@ const { height = 200 } = Astro.props;
           },
         },
       });
-    } catch (error) {
-      console.error('Failed to load ecosystem data:', error);
-      loadingEl?.classList.remove('hidden');
-      if (loadingEl) loadingEl.innerHTML = '<span class="text-red-400 text-sm">Failed to load</span>';
-    }
   }
 
   if (document.readyState === 'loading') {

@@ -2,12 +2,56 @@
 /**
  * Interactive GitHub History Chart
  *
- * Client-side component that:
- * - Loads history data from /data/github-history.json
- * - Renders Chart.js line/area chart for cumulative stars
- * - Optionally overlays monthly new star bars
- * - Shows dashed lines for scaled/estimated historical data
+ * Renders Chart.js line/area chart for cumulative stars
+ * with optional monthly new star bars overlay.
+ * Data is loaded at build time for instant rendering.
  */
+
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+
+interface GitHubDataPoint {
+  date: string;
+  stars: number;
+  forks: number;
+  watchers: number;
+  openIssues: number;
+  source?: string;
+}
+
+interface GitHubHistory {
+  lastUpdated: string;
+  daily: GitHubDataPoint[];
+  weekly: GitHubDataPoint[];
+  monthly: GitHubDataPoint[];
+}
+
+interface ChartDataPoint {
+  date: string;
+  stars: number;
+  newStars: number;
+  source?: string;
+}
+
+// Load data at build time
+let chartDataPoints: ChartDataPoint[] = [];
+try {
+  const dataPath = join(process.cwd(), 'public', 'data', 'github-history.json');
+  if (existsSync(dataPath)) {
+    const data: GitHubHistory = JSON.parse(readFileSync(dataPath, 'utf-8'));
+    chartDataPoints = data.monthly.map((point, index) => {
+      const prevStars = index > 0 ? data.monthly[index - 1].stars : point.stars;
+      return {
+        date: point.date,
+        stars: point.stars,
+        newStars: Math.max(0, point.stars - prevStars),
+        source: point.source,
+      };
+    });
+  }
+} catch (e) { /* use empty array */ }
+
+const chartDataJson = JSON.stringify(chartDataPoints);
 ---
 
 <div id="github-chart-container" class="card">
@@ -63,17 +107,15 @@
     Dashed lines indicate scaled historical data from ossinsight.io
   </p>
 
-  <!-- Loading/Error States -->
-  <div id="chart-loading" class="absolute inset-0 flex items-center justify-center bg-n8n-card/80">
-    <span class="text-gray-400">Loading chart data...</span>
-  </div>
-  <div id="chart-error" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
-    <span class="text-red-400">Failed to load chart data</span>
-  </div>
+  <!-- No Data State (only shown if build-time data is empty) -->
   <div id="chart-no-data" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
     <span class="text-gray-400">No historical data yet. Check back tomorrow!</span>
   </div>
 </div>
+
+<script define:vars={{ chartDataJson }}>
+  window.__githubChartData = JSON.parse(chartDataJson);
+</script>
 
 <script>
   import Chart from 'chart.js/auto';
@@ -81,22 +123,6 @@
 
   // Register the axis truncation plugin globally
   Chart.register(axisTruncationPlugin);
-
-  interface GitHubDataPoint {
-    date: string;
-    stars: number;
-    forks: number;
-    watchers: number;
-    openIssues: number;
-    source?: string;
-  }
-
-  interface GitHubHistory {
-    lastUpdated: string;
-    daily: GitHubDataPoint[];
-    weekly: GitHubDataPoint[];
-    monthly: GitHubDataPoint[];
-  }
 
   interface ChartDataPoint {
     date: string;
@@ -106,7 +132,8 @@
   }
 
   let chart: Chart | null = null;
-  let chartData: ChartDataPoint[] = [];
+  // Data is loaded at build time and passed via define:vars
+  let chartData: ChartDataPoint[] = (window as any).__githubChartData || [];
 
   const COLORS = {
     stars: { border: '#ff6384', background: 'rgba(255, 99, 132, 0.1)' },
@@ -118,28 +145,6 @@
 
   function isScaledData(source?: string): boolean {
     return SCALED_SOURCES.includes(source || '');
-  }
-
-  async function loadData(): Promise<ChartDataPoint[]> {
-    try {
-      const response = await fetch('/data/github-history.json');
-      if (!response.ok) throw new Error('Failed to fetch');
-      const data: GitHubHistory = await response.json();
-
-      // Convert to chart format and calculate monthly new
-      return data.monthly.map((point, index) => {
-        const prevStars = index > 0 ? data.monthly[index - 1].stars : point.stars;
-        return {
-          date: point.date,
-          stars: point.stars,
-          newStars: Math.max(0, point.stars - prevStars),
-          source: point.source,
-        };
-      });
-    } catch (error) {
-      console.error('Failed to load history data:', error);
-      return [];
-    }
   }
 
   function filterByMonths(points: ChartDataPoint[], months: number | 'all'): ChartDataPoint[] {
@@ -229,20 +234,9 @@
     }
   }
 
-  async function initChart() {
+  function initChart() {
     const canvas = document.getElementById('github-history-chart') as HTMLCanvasElement;
-    const loadingEl = document.getElementById('chart-loading');
-    const errorEl = document.getElementById('chart-error');
     const noDataEl = document.getElementById('chart-no-data');
-
-    chartData = await loadData();
-
-    loadingEl?.classList.add('hidden');
-
-    if (chartData.length === 0) {
-      errorEl?.classList.remove('hidden');
-      return;
-    }
 
     if (chartData.length === 0) {
       noDataEl?.classList.remove('hidden');

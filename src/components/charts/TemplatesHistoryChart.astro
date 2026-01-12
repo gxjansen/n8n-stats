@@ -2,12 +2,49 @@
 /**
  * Interactive Templates History Chart
  *
- * Client-side component that:
- * - Loads timeline data from /data/all-templates-data.json
- * - Renders Chart.js line chart for cumulative template growth
- * - Optionally overlays monthly new template bars
- * - Allows filtering by date range and chart type
+ * Renders Chart.js line chart for cumulative template growth
+ * with optional monthly new template bars overlay.
+ * Data is loaded at build time for instant rendering.
  */
+
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+
+interface TimelinePoint {
+  month: string;
+  count: number;
+  cumulative: number;
+}
+
+interface AllTemplatesData {
+  timeline: {
+    monthly: TimelinePoint[];
+    firstTemplate: string;
+    latestTemplate: string;
+  };
+}
+
+interface ChartDataPoint {
+  date: string;
+  total: number;
+  newCount: number;
+}
+
+// Load data at build time
+let chartDataPoints: ChartDataPoint[] = [];
+try {
+  const dataPath = join(process.cwd(), 'public', 'data', 'all-templates-data.json');
+  if (existsSync(dataPath)) {
+    const data: AllTemplatesData = JSON.parse(readFileSync(dataPath, 'utf-8'));
+    chartDataPoints = data.timeline.monthly.map(point => ({
+      date: point.month,
+      total: point.cumulative,
+      newCount: point.count,
+    }));
+  }
+} catch (e) { /* use empty array */ }
+
+const chartDataJson = JSON.stringify(chartDataPoints);
 ---
 
 <div id="templates-chart-container" class="card">
@@ -57,17 +94,15 @@
     </div>
   </div>
 
-  <!-- Loading/Error States -->
-  <div id="templates-chart-loading" class="absolute inset-0 flex items-center justify-center bg-n8n-card/80">
-    <span class="text-gray-400">Loading chart data...</span>
-  </div>
-  <div id="templates-chart-error" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
-    <span class="text-red-400">Failed to load chart data</span>
-  </div>
+  <!-- No Data State (only shown if build-time data is empty) -->
   <div id="templates-chart-no-data" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
     <span class="text-gray-400">No historical data yet. Check back tomorrow!</span>
   </div>
 </div>
+
+<script define:vars={{ chartDataJson }}>
+  window.__templatesChartData = JSON.parse(chartDataJson);
+</script>
 
 <script>
   import Chart from 'chart.js/auto';
@@ -76,20 +111,6 @@
   // Register the axis truncation plugin globally
   Chart.register(axisTruncationPlugin);
 
-  interface TimelinePoint {
-    month: string;
-    count: number;
-    cumulative: number;
-  }
-
-  interface AllTemplatesData {
-    timeline: {
-      monthly: TimelinePoint[];
-      firstTemplate: string;
-      latestTemplate: string;
-    };
-  }
-
   interface ChartDataPoint {
     date: string;
     total: number;
@@ -97,30 +118,13 @@
   }
 
   let chart: Chart | null = null;
-  let chartData: ChartDataPoint[] = [];
+  // Data is loaded at build time and passed via define:vars
+  let chartData: ChartDataPoint[] = (window as any).__templatesChartData || [];
 
   const COLORS = {
     total: { border: '#ff6b9d', background: 'rgba(255, 107, 157, 0.1)' },
     newCount: { border: '#4bc0c0', background: 'rgba(75, 192, 192, 0.6)' },
   };
-
-  async function loadData(): Promise<ChartDataPoint[]> {
-    try {
-      const response = await fetch('/data/all-templates-data.json');
-      if (!response.ok) throw new Error('Failed to fetch');
-      const data: AllTemplatesData = await response.json();
-
-      // Convert timeline data to chart format
-      return data.timeline.monthly.map(point => ({
-        date: point.month,
-        total: point.cumulative,
-        newCount: point.count,
-      }));
-    } catch (error) {
-      console.error('Failed to load templates data:', error);
-      return [];
-    }
-  }
 
   function filterByMonths(points: ChartDataPoint[], months: number | 'all'): ChartDataPoint[] {
     if (months === 'all') return points;
@@ -203,17 +207,12 @@
     }
   }
 
-  async function initChart() {
+  function initChart() {
     const canvas = document.getElementById('templates-history-chart') as HTMLCanvasElement;
-    const loadingEl = document.getElementById('templates-chart-loading');
-    const errorEl = document.getElementById('templates-chart-error');
-
-    chartData = await loadData();
-
-    loadingEl?.classList.add('hidden');
+    const noDataEl = document.getElementById('templates-chart-no-data');
 
     if (chartData.length === 0) {
-      errorEl?.classList.remove('hidden');
+      noDataEl?.classList.remove('hidden');
       return;
     }
 
