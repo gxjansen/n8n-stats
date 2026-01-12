@@ -173,23 +173,24 @@ const completeDataStats = allTemplatesData ? {
     )}
 
     <!-- AI Dominance - uses complete API data -->
-    <section class="mb-12">
+    <section class="mb-12 ai-templates-section">
       <h2 class="text-2xl font-bold text-white mb-6">AI in Templates</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="card">
+        <div class="card ai-adoption-inline">
           <h4 class="text-lg font-semibold text-white mb-4">AI Adoption</h4>
           <!-- AI Category Templates -->
           <div class="mb-5">
             <div class="flex items-center justify-between mb-2">
               <span class="text-gray-300">AI Category Templates</span>
-              <span class="text-2xl font-bold text-purple-400">
+              <span class="text-2xl font-bold text-purple-400 ai-pct-display" data-target={Math.round((analytics.aiStats.aiCategories[0]?.count || 0) / analytics.totalWorkflows * 100)}>
                 {Math.round((analytics.aiStats.aiCategories[0]?.count || 0) / analytics.totalWorkflows * 100)}%
               </span>
             </div>
             <div class="relative h-5 bg-n8n-darker rounded overflow-hidden">
               <div
-                class="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-600 to-purple-400 rounded"
-                style={`width: ${Math.round((analytics.aiStats.aiCategories[0]?.count || 0) / analytics.totalWorkflows * 100)}%;`}
+                class="ai-inline-bar absolute inset-y-0 left-0 bg-gradient-to-r from-purple-600 to-purple-400 rounded"
+                style={`--target-width: ${Math.round((analytics.aiStats.aiCategories[0]?.count || 0) / analytics.totalWorkflows * 100)}%;`}
+                data-target-width={Math.round((analytics.aiStats.aiCategories[0]?.count || 0) / analytics.totalWorkflows * 100)}
               />
             </div>
             <div class="text-xs text-gray-500 mt-1">
@@ -200,14 +201,15 @@ const completeDataStats = allTemplatesData ? {
           <div>
             <div class="flex items-center justify-between mb-2">
               <span class="text-gray-300">Using AI Agent Node</span>
-              <span class="text-2xl font-bold text-cyan-400">
+              <span class="text-2xl font-bold text-cyan-400 ai-pct-display" data-target={Math.round((analytics.topNodes.find(n => n.value === 'AI Agent')?.count || 0) / analytics.totalWorkflows * 100)}>
                 {Math.round((analytics.topNodes.find(n => n.value === 'AI Agent')?.count || 0) / analytics.totalWorkflows * 100)}%
               </span>
             </div>
             <div class="relative h-5 bg-n8n-darker rounded overflow-hidden">
               <div
-                class="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-600 to-cyan-400 rounded"
-                style={`width: ${Math.round((analytics.topNodes.find(n => n.value === 'AI Agent')?.count || 0) / analytics.totalWorkflows * 100)}%;`}
+                class="ai-inline-bar ai-inline-bar-delay absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-600 to-cyan-400 rounded"
+                style={`--target-width: ${Math.round((analytics.topNodes.find(n => n.value === 'AI Agent')?.count || 0) / analytics.totalWorkflows * 100)}%;`}
+                data-target-width={Math.round((analytics.topNodes.find(n => n.value === 'AI Agent')?.count || 0) / analytics.totalWorkflows * 100)}
               />
             </div>
             <div class="text-xs text-gray-500 mt-1">
@@ -215,7 +217,7 @@ const completeDataStats = allTemplatesData ? {
             </div>
           </div>
         </div>
-        <div class="card">
+        <div class="card ai-breakdown-card">
           <h4 class="text-lg font-semibold text-white mb-4">AI Category Breakdown</h4>
           <div class="space-y-3">
             {analytics.aiStats.aiCategories.map((cat, index) => {
@@ -229,8 +231,9 @@ const completeDataStats = allTemplatesData ? {
                   </div>
                   <div class="flex-1 h-6 bg-n8n-darker rounded overflow-hidden">
                     <div
-                      class="h-full rounded transition-all duration-500"
-                      style={`width: ${percentage}%; background-color: ${colors[index % colors.length]};`}
+                      class="ai-category-bar h-full rounded"
+                      style={`--target-width: ${percentage}%; --bar-color: ${colors[index % colors.length]}; --bar-delay: ${index * 100}ms;`}
+                      data-target-width={percentage}
                     ></div>
                   </div>
                   <div class="w-16 text-right text-sm text-gray-400">
@@ -707,6 +710,9 @@ const completeDataStats = allTemplatesData ? {
       });
     }
 
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     // Views Distribution Chart
     const viewsCanvas = document.getElementById('views-chart') as HTMLCanvasElement;
     if (viewsCanvas) {
@@ -725,6 +731,12 @@ const completeDataStats = allTemplatesData ? {
           responsive: true,
           maintainAspectRatio: false,
           cutout: '55%',
+          animation: prefersReducedMotion ? false : {
+            animateRotate: true,
+            animateScale: true,
+            duration: 1200,
+            easing: 'easeOutQuart',
+          },
           onClick: (_event, elements) => {
             if (elements.length > 0) {
               const index = elements[0].index;
@@ -825,6 +837,11 @@ const completeDataStats = allTemplatesData ? {
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          animation: prefersReducedMotion ? false : {
+            duration: 1000,
+            easing: 'easeOutQuart',
+            delay: (context) => context.dataIndex * 50,
+          },
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -865,9 +882,153 @@ const completeDataStats = allTemplatesData ? {
 
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCharts);
-  } else {
-    initCharts();
+  // Initialize charts with viewport detection for animations
+  function initChartsWithAnimation() {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Observe the views chart section
+    const viewsCanvas = document.getElementById('views-chart');
+    const complexityCanvas = document.getElementById('complexity-chart');
+
+    if (viewsCanvas || complexityCanvas) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              initCharts();
+              observer.disconnect();
+            }
+          });
+        },
+        {
+          threshold: 0.2,
+          rootMargin: '50px',
+        }
+      );
+
+      if (viewsCanvas) observer.observe(viewsCanvas.closest('.card') || viewsCanvas);
+      if (complexityCanvas) observer.observe(complexityCanvas.closest('.card') || complexityCanvas);
+    }
+
+    // Initialize AI bar animations
+    initAIBarAnimations(prefersReducedMotion);
   }
+
+  function initAIBarAnimations(prefersReducedMotion: boolean) {
+    const section = document.querySelector('.ai-templates-section');
+    if (!section) return;
+
+    if (prefersReducedMotion) {
+      section.classList.add('is-visible');
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            section.classList.add('is-visible');
+
+            // Animate percentage displays
+            section.querySelectorAll<HTMLElement>('.ai-pct-display').forEach((el, index) => {
+              const target = parseFloat(el.dataset.target || '0');
+              animatePercentageDisplay(el, target, index * 200);
+            });
+
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.3,
+        rootMargin: '0px 0px -50px 0px',
+      }
+    );
+
+    observer.observe(section);
+  }
+
+  function animatePercentageDisplay(element: HTMLElement, target: number, delay: number) {
+    const duration = 1200;
+    const startTime = performance.now() + delay;
+
+    element.textContent = '0%';
+
+    function easeOutQuart(t: number): number {
+      return 1 - Math.pow(1 - t, 4);
+    }
+
+    function update(currentTime: number) {
+      if (currentTime < startTime) {
+        requestAnimationFrame(update);
+        return;
+      }
+
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = easeOutQuart(progress);
+      const currentValue = Math.round(target * easedProgress);
+
+      element.textContent = currentValue + '%';
+
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      }
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initChartsWithAnimation);
+  } else {
+    initChartsWithAnimation();
+  }
+
+  // Re-init on view transitions
+  document.addEventListener('astro:after-swap', initChartsWithAnimation);
 </script>
+
+<style>
+  /* AI Inline Bar Animations */
+  .ai-inline-bar,
+  .ai-category-bar {
+    width: 0;
+    transition: none;
+  }
+
+  .ai-category-bar {
+    background: var(--bar-color);
+  }
+
+  .ai-templates-section.is-visible .ai-inline-bar {
+    animation: fillAIBar 1s ease-out forwards;
+  }
+
+  .ai-templates-section.is-visible .ai-inline-bar.ai-inline-bar-delay {
+    animation-delay: 200ms;
+  }
+
+  .ai-templates-section.is-visible .ai-category-bar {
+    animation: fillAIBar 0.8s ease-out forwards;
+    animation-delay: var(--bar-delay);
+  }
+
+  @keyframes fillAIBar {
+    from {
+      width: 0;
+    }
+    to {
+      width: var(--target-width);
+    }
+  }
+
+  /* Reduced motion: show immediately without animation */
+  @media (prefers-reduced-motion: reduce) {
+    .ai-inline-bar,
+    .ai-category-bar {
+      animation: none !important;
+      width: var(--target-width) !important;
+    }
+  }
+</style>

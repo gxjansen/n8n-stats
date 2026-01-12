@@ -45,9 +45,12 @@ const confidenceLabels = {
   medium: 'Medium confidence',
   low: 'Low confidence',
 };
+
+// Generate unique ID for this instance
+const uniqueId = `milestone-${Math.random().toString(36).slice(2, 9)}`;
 ---
 
-<div class="card p-4">
+<div class="card milestone-card p-4" id={uniqueId}>
   <div class="flex items-start justify-between mb-3">
     <div>
       <span class="text-2xl">{icon}</span>
@@ -59,7 +62,11 @@ const confidenceLabels = {
   </div>
 
   <div class="mb-3">
-    <div class="text-2xl font-bold text-white">
+    <div
+      class="text-2xl font-bold text-white milestone-value"
+      data-target={milestone}
+      data-formatted={formatNumber(milestone)}
+    >
       {formatNumber(milestone)}
     </div>
     {predictedDate ? (
@@ -83,12 +90,13 @@ const confidenceLabels = {
   <div class="space-y-1">
     <div class="flex justify-between text-xs text-gray-500">
       <span>Current: {formatNumber(currentValue)}</span>
-      <span>{progress.toFixed(1)}%</span>
+      <span class="milestone-pct" data-target={progress.toFixed(1)}>{progress.toFixed(1)}%</span>
     </div>
     <div class="h-2 bg-gray-800 rounded-full overflow-hidden">
       <div
-        class="h-full bg-gradient-to-r from-n8n-primary to-purple-500 rounded-full transition-all duration-500"
-        style={`width: ${progress}%`}
+        class="milestone-bar h-full bg-gradient-to-r from-n8n-primary to-purple-500 rounded-full"
+        data-target-width={progress}
+        style={`--target-width: ${progress}%;`}
       />
     </div>
     <div class="text-xs text-gray-500 text-right">
@@ -96,3 +104,140 @@ const confidenceLabels = {
     </div>
   </div>
 </div>
+
+<style>
+  .milestone-bar {
+    width: 0;
+    transition: none;
+  }
+
+  .milestone-card.is-visible .milestone-bar {
+    animation: fillMilestoneBar 1.2s ease-out forwards;
+    animation-delay: 300ms;
+  }
+
+  @keyframes fillMilestoneBar {
+    from {
+      width: 0;
+    }
+    to {
+      width: var(--target-width);
+    }
+  }
+
+  /* Reduced motion: show immediately without animation */
+  @media (prefers-reduced-motion: reduce) {
+    .milestone-bar {
+      animation: none !important;
+      width: var(--target-width) !important;
+    }
+  }
+</style>
+
+<script>
+  // Easing function for smooth deceleration
+  function easeOutQuart(t: number): number {
+    return 1 - Math.pow(1 - t, 4);
+  }
+
+  function formatNumberForAnimation(num: number): string {
+    return Math.round(num).toLocaleString('en-US');
+  }
+
+  function animateMilestoneCountUp(element: HTMLElement, target: number, duration: number = 1500) {
+    const start = 0;
+    const startTime = performance.now();
+    const formatted = element.dataset.formatted || formatNumberForAnimation(target);
+
+    function update(currentTime: number) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = easeOutQuart(progress);
+      const currentValue = Math.round(start + (target - start) * easedProgress);
+
+      element.textContent = formatNumberForAnimation(currentValue);
+
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      } else {
+        element.textContent = formatted;
+      }
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  function animatePercentage(element: HTMLElement, target: number, duration: number = 1200) {
+    const start = 0;
+    const startTime = performance.now();
+
+    function update(currentTime: number) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = easeOutQuart(progress);
+      const currentValue = start + (target - start) * easedProgress;
+
+      element.textContent = currentValue.toFixed(1) + '%';
+
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      }
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  function initMilestoneAnimations() {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const cards = document.querySelectorAll<HTMLElement>('.milestone-card:not(.animated)');
+
+    if (prefersReducedMotion) {
+      cards.forEach((card) => card.classList.add('animated', 'is-visible'));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const card = entry.target as HTMLElement;
+
+            if (!card.classList.contains('animated')) {
+              card.classList.add('animated', 'is-visible');
+
+              // Animate milestone value
+              const valueEl = card.querySelector<HTMLElement>('.milestone-value');
+              if (valueEl) {
+                const target = parseFloat(valueEl.dataset.target || '0');
+                if (target > 0) {
+                  valueEl.textContent = '0';
+                  animateMilestoneCountUp(valueEl, target);
+                }
+              }
+
+              // Animate percentage
+              const pctEl = card.querySelector<HTMLElement>('.milestone-pct');
+              if (pctEl) {
+                const target = parseFloat(pctEl.dataset.target || '0');
+                pctEl.textContent = '0%';
+                setTimeout(() => animatePercentage(pctEl, target), 300);
+              }
+            }
+
+            observer.unobserve(card);
+          }
+        });
+      },
+      {
+        threshold: 0.3,
+        rootMargin: '0px 0px -50px 0px',
+      }
+    );
+
+    cards.forEach((card) => observer.observe(card));
+  }
+
+  // Run on initial load and after view transitions
+  initMilestoneAnimations();
+  document.addEventListener('astro:after-swap', initMilestoneAnimations);
+</script>
