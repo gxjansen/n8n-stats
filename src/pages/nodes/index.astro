@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import NodeTreemapChart from '@/components/charts/NodeTreemapChart.astro';
 import CategoryNodesTable from '@/components/CategoryNodesTable.astro';
+import StatCard from '@/components/cards/StatCard.astro';
 import { fetchTemplates, aggregateNodeUsage } from '@/lib/api/n8n';
 import { formatNumber, getNodeIntegrationUrl, getNodePageUrl } from '@/lib/utils/formatters';
 import { NODE_CATEGORY_COLORS, NODE_CATEGORY_ORDER } from '@/lib/utils/colors';
@@ -266,39 +267,29 @@ const lastUpdated = allNodesData?.lastUpdated
     <!-- Overview Stats -->
     <section class="mb-12">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="card text-center">
-          <div class="text-3xl font-bold text-n8n-primary mb-1">
-            {formatNumber(totalTemplates)}
-          </div>
-          <div class="text-sm text-gray-400">Templates Analyzed</div>
-        </div>
-        <div class="card text-center">
-          <div class="text-3xl font-bold text-purple-400 mb-1">
-            {uniqueNodes}
-          </div>
-          <div class="text-sm text-gray-400">Nodes With Usage</div>
-        </div>
+        <StatCard
+          label="Templates Analyzed"
+          value={totalTemplates}
+        />
+        <StatCard
+          label="Nodes With Usage"
+          value={uniqueNodes}
+        />
         {hasWeightedData ? (
-          <div class="card text-center">
-            <div class="text-3xl font-bold text-cyan-400 mb-1">
-              {formatNumber(totalInserters)}
-            </div>
-            <div class="text-sm text-gray-400">Total Template Insertions</div>
-          </div>
+          <StatCard
+            label="Total Template Insertions"
+            value={totalInserters}
+          />
         ) : (
-          <div class="card text-center">
-            <div class="text-3xl font-bold text-cyan-400 mb-1">
-              {formatNumber(totalNodeUsages)}
-            </div>
-            <div class="text-sm text-gray-400">Total Node Usages</div>
-          </div>
+          <StatCard
+            label="Total Node Usages"
+            value={totalNodeUsages}
+          />
         )}
-        <div class="card text-center">
-          <div class="text-3xl font-bold text-green-400 mb-1">
-            {Object.keys(nodesByCategory).length}
-          </div>
-          <div class="text-sm text-gray-400">Categories</div>
-        </div>
+        <StatCard
+          label="Categories"
+          value={Object.keys(nodesByCategory).length}
+        />
       </div>
     </section>
 

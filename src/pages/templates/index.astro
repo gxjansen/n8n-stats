@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import TemplatesHistoryChart from '@/components/charts/TemplatesHistoryChart.astro';
 import CategoryTreemapChart from '@/components/charts/CategoryTreemapChart.astro';
 import MilestonePrediction from '@/components/cards/MilestonePrediction.astro';
+import StatCard from '@/components/cards/StatCard.astro';
 import { fetchTemplateAnalytics } from '@/lib/api/n8n';
 import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
 import { predictMilestone, getNextMilestones } from '@/lib/utils/predictions';
@@ -119,24 +120,18 @@ const completeDataStats = allTemplatesData ? {
     <!-- Overview Stats -->
     <section class="mb-12">
       <div class="grid grid-cols-3 gap-4">
-        <div class="card text-center">
-          <div class="text-3xl font-bold text-n8n-primary mb-1">
-            {formatNumber(analytics.totalWorkflows)}
-          </div>
-          <div class="text-sm text-gray-400">Total Templates</div>
-        </div>
-        <div class="card text-center">
-          <div class="text-3xl font-bold text-purple-400 mb-1">
-            {completeDataStats?.uniqueNodes || analytics.topNodes.length}
-          </div>
-          <div class="text-sm text-gray-400">Unique Nodes Used</div>
-        </div>
-        <div class="card text-center">
-          <div class="text-3xl font-bold text-cyan-400 mb-1">
-            {formatNumber(completeDataStats?.totalCreators || 0)}
-          </div>
-          <div class="text-sm text-gray-400">Template Creators</div>
-        </div>
+        <StatCard
+          label="Total Templates"
+          value={analytics.totalWorkflows}
+        />
+        <StatCard
+          label="Unique Nodes Used"
+          value={completeDataStats?.uniqueNodes || analytics.topNodes.length}
+        />
+        <StatCard
+          label="Template Creators"
+          value={completeDataStats?.totalCreators || 0}
+        />
       </div>
     </section>
 
