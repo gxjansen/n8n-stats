@@ -1,5 +1,7 @@
 ---
 import '@/styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import LoadingIndicator from 'astro-loading-indicator/component';
 import { n8nUrls } from '@/lib/utils/formatters';
 import PlaygroundCTA from '@/components/PlaygroundCTA.astro';
 
@@ -34,6 +36,10 @@ const buildTime = new Date();
 
     <!-- Umami Analytics -->
     <script defer src="https://u.a11y.nl/script.js" data-website-id="c1686c78-37c4-4773-a663-a9bc7f9a6fbb"></script>
+
+    <!-- View Transitions + Loading Indicator -->
+    <ClientRouter />
+    <LoadingIndicator color="#ff6d5a" />
   </head>
   <body class="min-h-screen bg-n8n-darker">
     <header class="border-b border-n8n-border">
