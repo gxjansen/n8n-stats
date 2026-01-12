@@ -1,10 +1,17 @@
 /**
  * Data Loaders for Playground
  *
- * Fetches and transforms time-series data from various sources.
+ * Fetches and transforms time-series and categorical data from various sources.
  */
 
-import { DATA_SOURCES, getMetricById, type DataSource, type MetricDefinition } from './registry';
+import {
+  DATA_SOURCES,
+  getMetricById,
+  getCategoricalSourceById,
+  type DataSource,
+  type MetricDefinition,
+  type CategoricalSource,
+} from './registry';
 
 export interface TimeSeriesPoint {
   date: string;
@@ -222,4 +229,323 @@ export function needsDualAxis(datasets: LoadedMetricData[]): boolean {
   const maxMax = Math.max(...maxValues);
 
   return minMax > 0 && maxMax / minMax > 10;
+}
+
+// ============================================================================
+// Phase 2: Categorical Data Loaders
+// ============================================================================
+
+export interface DistributionData {
+  sourceId: string;
+  fieldId: string;
+  label: string;
+  lastUpdated: string | null;
+  bins: { label: string; value: number; count: number }[];
+  stats: {
+    average: number;
+    median: number;
+    max: number;
+    total: number;
+  };
+}
+
+export interface RankingItem {
+  label: string;
+  values: Record<string, number>;
+  group?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface RankingData {
+  sourceId: string;
+  label: string;
+  lastUpdated: string | null;
+  items: RankingItem[];
+  fields: { id: string; label: string; type: 'number' | 'percentage' }[];
+  groups: string[];
+}
+
+export interface CorrelationPoint {
+  x: number;
+  y: number;
+  label: string;
+  group?: string;
+}
+
+export interface CorrelationData {
+  sourceId: string;
+  label: string;
+  lastUpdated: string | null;
+  xField: { id: string; label: string };
+  yField: { id: string; label: string };
+  points: CorrelationPoint[];
+  groups: string[];
+}
+
+/**
+ * Navigate a nested path in an object (e.g., 'complexity.distribution')
+ */
+function getNestedValue(obj: any, path: string): any {
+  if (!path) return obj;
+  const parts = path.split('.');
+  let current = obj;
+  for (const part of parts) {
+    current = current?.[part];
+  }
+  return current;
+}
+
+/**
+ * Load distribution data for histogram charts
+ */
+export async function loadDistributionData(
+  sourceId: string,
+  fieldId: string
+): Promise<DistributionData | null> {
+  const source = getCategoricalSourceById(sourceId);
+  if (!source || source.dataType !== 'distribution' || !source.distributionFields) {
+    console.error(`Invalid distribution source: ${sourceId}`);
+    return null;
+  }
+
+  const field = source.distributionFields.find(f => f.id === fieldId);
+  if (!field) {
+    console.error(`Unknown field: ${fieldId} in source ${sourceId}`);
+    return null;
+  }
+
+  try {
+    const rawData = await fetchDataFile(source.file);
+    const lastUpdated = source.lastUpdatedPath
+      ? getNestedValue(rawData, source.lastUpdatedPath)
+      : null;
+
+    const dataArray = getNestedValue(rawData, field.dataPath);
+    if (!Array.isArray(dataArray)) {
+      console.error(`Data at path ${field.dataPath} is not an array`);
+      return null;
+    }
+
+    // If data is pre-binned (has countKey), use it directly
+    if (field.countKey) {
+      const bins = dataArray.map(item => ({
+        label: String(item[field.labelKey || field.valueKey]),
+        value: Number(item[field.valueKey]),
+        count: Number(item[field.countKey!]),
+      }));
+
+      // Calculate stats from pre-binned data
+      let total = 0;
+      let sum = 0;
+      let max = 0;
+      const values: number[] = [];
+
+      for (const bin of bins) {
+        total += bin.count;
+        sum += bin.value * bin.count;
+        max = Math.max(max, bin.value);
+        // Expand for median calculation
+        for (let i = 0; i < bin.count; i++) {
+          values.push(bin.value);
+        }
+      }
+
+      values.sort((a, b) => a - b);
+      const median = values.length > 0
+        ? values[Math.floor(values.length / 2)]
+        : 0;
+
+      return {
+        sourceId,
+        fieldId,
+        label: field.label,
+        lastUpdated,
+        bins,
+        stats: {
+          average: total > 0 ? Math.round(sum / total) : 0,
+          median,
+          max,
+          total,
+        },
+      };
+    }
+
+    // Otherwise, bin the raw values
+    const values = dataArray.map(item => Number(item[field.valueKey]));
+    // For now, return null if we need custom binning (can extend later)
+    console.error('Custom binning not yet implemented');
+    return null;
+  } catch (error) {
+    console.error(`Failed to load distribution ${sourceId}/${fieldId}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Load ranking data for bar charts and tables
+ */
+export async function loadRankingData(
+  sourceId: string
+): Promise<RankingData | null> {
+  const source = getCategoricalSourceById(sourceId);
+  if (!source || source.dataType !== 'ranking' || !source.rankingFields) {
+    console.error(`Invalid ranking source: ${sourceId}`);
+    return null;
+  }
+
+  try {
+    const rawData = await fetchDataFile(source.file);
+    const lastUpdated = source.lastUpdatedPath
+      ? getNestedValue(rawData, source.lastUpdatedPath)
+      : null;
+
+    let items: RankingItem[] = [];
+    const groups = new Set<string>();
+
+    // Handle special case: byCategory structure (object with category keys)
+    if (source.dataPath === 'nodes.byCategory') {
+      const byCategory = getNestedValue(rawData, source.dataPath);
+      if (byCategory && typeof byCategory === 'object') {
+        for (const [categoryName, nodes] of Object.entries(byCategory)) {
+          if (Array.isArray(nodes)) {
+            // Calculate category-level stats
+            const nodeCount = nodes.length;
+            const totalUsage = nodes.reduce((sum, n: any) => sum + (n.count || 0), 0);
+
+            items.push({
+              label: categoryName,
+              values: { nodeCount, totalUsage },
+              group: undefined,
+            });
+            groups.add(categoryName);
+          }
+        }
+      }
+    } else {
+      // Standard array data
+      const dataArray = source.dataPath
+        ? getNestedValue(rawData, source.dataPath)
+        : rawData;
+
+      if (!Array.isArray(dataArray)) {
+        console.error(`Data is not an array for source ${sourceId}`);
+        return null;
+      }
+
+      items = dataArray.map(item => {
+        const label = item[source.labelField || 'name'] || 'Unknown';
+        const group = source.groupByField ? item[source.groupByField] : undefined;
+
+        if (group !== undefined) {
+          groups.add(String(group));
+        }
+
+        const values: Record<string, number> = {};
+        for (const field of source.rankingFields!) {
+          values[field.id] = Number(item[field.id]) || 0;
+        }
+
+        return {
+          label,
+          values,
+          group: group !== undefined ? String(group) : undefined,
+          metadata: {
+            username: item.username,
+            avatar: item.avatar,
+            verified: item.verified,
+            bio: item.bio,
+            category: item.category,
+            type: item.type,
+          },
+        };
+      });
+    }
+
+    return {
+      sourceId,
+      label: source.label,
+      lastUpdated,
+      items,
+      fields: source.rankingFields,
+      groups: Array.from(groups).sort(),
+    };
+  } catch (error) {
+    console.error(`Failed to load ranking ${sourceId}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Load correlation data for scatter plots
+ */
+export async function loadCorrelationData(
+  sourceId: string,
+  xFieldId: string,
+  yFieldId: string
+): Promise<CorrelationData | null> {
+  const source = getCategoricalSourceById(sourceId);
+  if (!source || source.dataType !== 'correlation' || !source.correlationFields) {
+    console.error(`Invalid correlation source: ${sourceId}`);
+    return null;
+  }
+
+  const xField = source.correlationFields.find(f => f.id === xFieldId);
+  const yField = source.correlationFields.find(f => f.id === yFieldId);
+
+  if (!xField || !yField) {
+    console.error(`Unknown fields: ${xFieldId}, ${yFieldId}`);
+    return null;
+  }
+
+  try {
+    const rawData = await fetchDataFile(source.file);
+    const lastUpdated = source.lastUpdatedPath
+      ? getNestedValue(rawData, source.lastUpdatedPath)
+      : null;
+
+    const dataArray = source.dataPath
+      ? getNestedValue(rawData, source.dataPath)
+      : rawData;
+
+    if (!Array.isArray(dataArray)) {
+      console.error(`Data is not an array for source ${sourceId}`);
+      return null;
+    }
+
+    const groups = new Set<string>();
+    const points: CorrelationPoint[] = [];
+
+    for (const item of dataArray) {
+      const x = Number(getNestedValue(item, xField.path));
+      const y = Number(getNestedValue(item, yField.path));
+      const label = item[source.labelField || 'name'] || 'Unknown';
+      const group = source.groupByField ? String(item[source.groupByField]) : undefined;
+
+      if (!isNaN(x) && !isNaN(y)) {
+        points.push({ x, y, label, group });
+        if (group) groups.add(group);
+      }
+    }
+
+    return {
+      sourceId,
+      label: source.label,
+      lastUpdated,
+      xField: { id: xField.id, label: xField.label },
+      yField: { id: yField.id, label: yField.label },
+      points,
+      groups: Array.from(groups).sort(),
+    };
+  } catch (error) {
+    console.error(`Failed to load correlation ${sourceId}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Check if a source is safe to eager load (small file size)
+ */
+export function shouldEagerLoad(sourceId: string): boolean {
+  const source = getCategoricalSourceById(sourceId);
+  return source?.sizeHint === 'small';
 }

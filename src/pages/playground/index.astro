@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { DATA_SOURCES, getAllMetrics } from '@/lib/playground/registry';
+import { DATA_SOURCES, getAllMetrics, CATEGORICAL_SOURCES, getCategoricalSourcesByType } from '@/lib/playground/registry';
+import { MODE_LABELS } from '@/lib/playground/state';
 
 // Prepare metrics data for client-side
 const metricsData = getAllMetrics();
@@ -12,6 +13,11 @@ const sourcesData = DATA_SOURCES.map(s => ({
   historyStart: s.historyStart,
   measuredSince: s.measuredSince,
 }));
+
+// Prepare categorical sources for client-side
+const distributionSources = getCategoricalSourcesByType('distribution');
+const rankingSources = getCategoricalSourcesByType('ranking');
+const correlationSources = getCategoricalSourcesByType('correlation');
 ---
 
 <BaseLayout title="Data Playground" description="Explore and compare n8n ecosystem metrics">
@@ -20,9 +26,76 @@ const sourcesData = DATA_SOURCES.map(s => ({
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-white mb-2">Data Playground</h1>
       <p class="text-gray-400">
-        Compare metrics across the n8n ecosystem. Select up to 4 data series to visualize trends and correlations.
+        Explore n8n ecosystem data: track metrics over time, analyze distributions, compare rankings, or find correlations.
       </p>
     </div>
+
+    <!-- Mode Tabs -->
+    <div class="flex flex-wrap gap-2 mb-6" role="tablist">
+      <button
+        id="tab-timeseries"
+        class="mode-tab px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+        role="tab"
+        aria-selected="true"
+        data-mode="timeseries"
+      >
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+          </svg>
+          Time Series
+        </span>
+      </button>
+      <button
+        id="tab-distribution"
+        class="mode-tab px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+        role="tab"
+        aria-selected="false"
+        data-mode="distribution"
+      >
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          Distributions
+        </span>
+      </button>
+      <button
+        id="tab-ranking"
+        class="mode-tab px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+        role="tab"
+        aria-selected="false"
+        data-mode="ranking"
+      >
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+          </svg>
+          Rankings
+        </span>
+      </button>
+      <button
+        id="tab-correlation"
+        class="mode-tab px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+        role="tab"
+        aria-selected="false"
+        data-mode="correlation"
+      >
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+            <circle cx="8" cy="16" r="2" />
+            <circle cx="16" cy="8" r="2" />
+          </svg>
+          Correlations
+        </span>
+      </button>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- TIME SERIES MODE -->
+    <!-- ============================================== -->
+    <div id="mode-timeseries" class="mode-content">
 
     <!-- Controls Card -->
     <div class="card mb-6">
@@ -200,17 +273,255 @@ const sourcesData = DATA_SOURCES.map(s => ({
         </div>
       </div>
     </div>
+    </div> <!-- End mode-timeseries -->
 
-    <!-- Info -->
+    <!-- ============================================== -->
+    <!-- DISTRIBUTION MODE -->
+    <!-- ============================================== -->
+    <div id="mode-distribution" class="mode-content hidden">
+      <!-- Controls Card -->
+      <div class="card mb-6">
+        <div class="flex flex-wrap items-center gap-4">
+          <div class="flex items-center gap-3">
+            <label class="text-sm font-medium text-gray-300">Data:</label>
+            <select
+              id="dist-source-select"
+              class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary"
+            >
+              {distributionSources.map(s => (
+                <option value={s.id}>{s.label}</option>
+              ))}
+            </select>
+          </div>
+          <div class="flex items-center gap-3">
+            <label class="text-sm font-medium text-gray-300">Scale:</label>
+            <select
+              id="dist-scale-select"
+              class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary"
+            >
+              <option value="linear">Linear</option>
+              <option value="log">Logarithmic</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart Area -->
+      <div class="card">
+        <div id="dist-chart-container" class="relative" style="height: 400px;">
+          <canvas id="distribution-chart"></canvas>
+          <div id="dist-loading" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
+            <div class="flex items-center gap-3 text-gray-400">
+              <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Loading data...
+            </div>
+          </div>
+        </div>
+        <!-- Stats -->
+        <div id="dist-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-n8n-border">
+          <div class="text-center">
+            <div class="text-2xl font-bold text-white" id="dist-stat-total">-</div>
+            <div class="text-xs text-gray-500">Total</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-white" id="dist-stat-avg">-</div>
+            <div class="text-xs text-gray-500">Average</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-white" id="dist-stat-median">-</div>
+            <div class="text-xs text-gray-500">Median</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-white" id="dist-stat-max">-</div>
+            <div class="text-xs text-gray-500">Max</div>
+          </div>
+        </div>
+        <div id="dist-updated" class="text-center text-xs text-gray-500 mt-3"></div>
+      </div>
+    </div> <!-- End mode-distribution -->
+
+    <!-- ============================================== -->
+    <!-- RANKING MODE -->
+    <!-- ============================================== -->
+    <div id="mode-ranking" class="mode-content hidden">
+      <!-- Controls Card -->
+      <div class="card mb-6">
+        <div class="flex flex-wrap items-center gap-4">
+          <div class="flex items-center gap-3">
+            <label class="text-sm font-medium text-gray-300">Data:</label>
+            <select
+              id="rank-source-select"
+              class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary"
+            >
+              {rankingSources.map(s => (
+                <option value={s.id}>{s.label}</option>
+              ))}
+            </select>
+          </div>
+          <div class="flex items-center gap-3">
+            <label class="text-sm font-medium text-gray-300">Sort by:</label>
+            <select
+              id="rank-sort-select"
+              class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary"
+            >
+              <!-- Populated by JS based on source -->
+            </select>
+          </div>
+          <div class="flex items-center gap-3">
+            <label class="text-sm font-medium text-gray-300">Filter:</label>
+            <select
+              id="rank-filter-select"
+              class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary"
+            >
+              <option value="">All</option>
+              <!-- Populated by JS based on groups -->
+            </select>
+          </div>
+          <div class="flex items-center gap-3">
+            <label class="text-sm font-medium text-gray-300">Show:</label>
+            <select
+              id="rank-limit-select"
+              class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary"
+            >
+              <option value="10">Top 10</option>
+              <option value="20" selected>Top 20</option>
+              <option value="50">Top 50</option>
+              <option value="100">Top 100</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart + Table Area -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Bar Chart -->
+        <div class="card">
+          <h3 class="text-sm font-medium text-gray-300 mb-4">Chart</h3>
+          <div id="rank-chart-container" class="relative" style="height: 400px;">
+            <canvas id="ranking-chart"></canvas>
+            <div id="rank-loading" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
+              <div class="flex items-center gap-3 text-gray-400">
+                <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Loading...
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Data Table -->
+        <div class="card">
+          <h3 class="text-sm font-medium text-gray-300 mb-4">Data Table</h3>
+          <div id="rank-table-container" class="overflow-x-auto max-h-[400px] overflow-y-auto">
+            <table class="w-full text-sm">
+              <thead id="rank-table-head" class="sticky top-0 bg-n8n-card">
+                <!-- Populated by JS -->
+              </thead>
+              <tbody id="rank-table-body" class="divide-y divide-n8n-border">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+          <div id="rank-updated" class="text-center text-xs text-gray-500 mt-3"></div>
+        </div>
+      </div>
+    </div> <!-- End mode-ranking -->
+
+    <!-- ============================================== -->
+    <!-- CORRELATION MODE -->
+    <!-- ============================================== -->
+    <div id="mode-correlation" class="mode-content hidden">
+      <!-- Controls Card -->
+      <div class="card mb-6">
+        <div class="flex flex-wrap items-center gap-4">
+          <div class="flex items-center gap-3">
+            <label class="text-sm font-medium text-gray-300">Data:</label>
+            <select
+              id="corr-source-select"
+              class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary"
+            >
+              {correlationSources.map(s => (
+                <option value={s.id}>{s.label}</option>
+              ))}
+            </select>
+          </div>
+          <div class="flex items-center gap-3">
+            <label class="text-sm font-medium text-gray-300">X-Axis:</label>
+            <select
+              id="corr-x-select"
+              class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary"
+            >
+              <!-- Populated by JS -->
+            </select>
+          </div>
+          <div class="flex items-center gap-3">
+            <label class="text-sm font-medium text-gray-300">Y-Axis:</label>
+            <select
+              id="corr-y-select"
+              class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary"
+            >
+              <!-- Populated by JS -->
+            </select>
+          </div>
+          <div class="flex items-center gap-3">
+            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+              <input type="checkbox" id="corr-trend-check" checked class="rounded bg-n8n-darker border-n8n-border" />
+              Show trend line
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart Area -->
+      <div class="card">
+        <div id="corr-chart-container" class="relative" style="height: 450px;">
+          <canvas id="correlation-chart"></canvas>
+          <div id="corr-loading" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
+            <div class="flex items-center gap-3 text-gray-400">
+              <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Loading data...
+            </div>
+          </div>
+        </div>
+        <!-- Correlation Stats -->
+        <div id="corr-stats" class="flex flex-wrap items-center justify-center gap-6 mt-4 pt-4 border-t border-n8n-border">
+          <div class="text-center">
+            <div class="text-2xl font-bold" id="corr-coefficient">-</div>
+            <div class="text-xs text-gray-500">Correlation (r)</div>
+          </div>
+          <div class="text-center">
+            <div class="text-lg font-medium text-gray-300" id="corr-interpretation">-</div>
+            <div class="text-xs text-gray-500">Interpretation</div>
+          </div>
+          <div class="text-center">
+            <div class="text-lg font-medium text-white" id="corr-points">-</div>
+            <div class="text-xs text-gray-500">Data Points</div>
+          </div>
+        </div>
+        <div id="corr-updated" class="text-center text-xs text-gray-500 mt-3"></div>
+      </div>
+    </div> <!-- End mode-correlation -->
+
+    <!-- Info (shown for all modes) -->
     <p class="text-center text-sm text-gray-500 mt-6">
       Data updates daily. Some metrics have longer history than others.
     </p>
   </div>
 </BaseLayout>
 
-<script define:vars={{ metricsData, sourcesData }}>
+<script define:vars={{ metricsData, sourcesData, distributionSources, rankingSources, correlationSources }}>
   window.__playgroundMetrics = metricsData;
   window.__playgroundSources = sourcesData;
+  window.__distributionSources = distributionSources;
+  window.__rankingSources = rankingSources;
+  window.__correlationSources = correlationSources;
 </script>
 
 <script>
@@ -1119,4 +1430,818 @@ const sourcesData = DATA_SOURCES.map(s => ({
   #chart-container {
     position: relative;
   }
+
+  /* Mode tabs */
+  .mode-tab {
+    background-color: transparent;
+    color: #9ca3af;
+    border: 1px solid transparent;
+  }
+
+  .mode-tab:hover {
+    background-color: rgba(255, 109, 90, 0.1);
+    color: #d1d5db;
+  }
+
+  .mode-tab[aria-selected="true"] {
+    background-color: rgba(255, 109, 90, 0.15);
+    color: #ff6d5a;
+    border-color: rgba(255, 109, 90, 0.3);
+  }
+
+  .mode-tab:focus {
+    outline: 2px solid rgba(255, 109, 90, 0.5);
+    outline-offset: 2px;
+  }
+
+  /* Mode content transitions */
+  .mode-content {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .mode-content.hidden {
+    display: none;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Ranking table styles */
+  #rank-table-container th {
+    text-align: left;
+    padding: 0.5rem;
+    font-weight: 500;
+    color: #9ca3af;
+    white-space: nowrap;
+  }
+
+  #rank-table-container td {
+    padding: 0.5rem;
+    color: #d1d5db;
+  }
+
+  #rank-table-container tr:hover td {
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+
+  /* Correlation coefficient colors */
+  .corr-strong-positive { color: #22c55e; }
+  .corr-moderate-positive { color: #eab308; }
+  .corr-weak { color: #9ca3af; }
+  .corr-moderate-negative { color: #f97316; }
+  .corr-strong-negative { color: #ef4444; }
 </style>
+
+<!-- Mode switching and categorical mode handlers -->
+<script>
+  import { Chart } from '../../lib/utils/chartRegistry';
+  import { linearRegression, pearsonCorrelation } from '../../lib/utils/statistics';
+
+  type PlaygroundMode = 'timeseries' | 'distribution' | 'ranking' | 'correlation';
+
+  // Get categorical sources from server
+  const distributionSources = (window as any).__distributionSources || [];
+  const rankingSources = (window as any).__rankingSources || [];
+  const correlationSources = (window as any).__correlationSources || [];
+
+  // State
+  let currentMode: PlaygroundMode = 'timeseries';
+  let distChart: Chart | null = null;
+  let rankChart: Chart | null = null;
+  let corrChart: Chart | null = null;
+
+  // Data cache
+  const categoricalCache = new Map<string, any>();
+
+  // DOM elements
+  const modeTabs = document.querySelectorAll('.mode-tab') as NodeListOf<HTMLButtonElement>;
+  const modeContents = document.querySelectorAll('.mode-content') as NodeListOf<HTMLElement>;
+
+  // Distribution elements
+  const distSourceSelect = document.getElementById('dist-source-select') as HTMLSelectElement;
+  const distScaleSelect = document.getElementById('dist-scale-select') as HTMLSelectElement;
+  const distLoading = document.getElementById('dist-loading')!;
+  const distCanvas = document.getElementById('distribution-chart') as HTMLCanvasElement;
+  const distStatTotal = document.getElementById('dist-stat-total')!;
+  const distStatAvg = document.getElementById('dist-stat-avg')!;
+  const distStatMedian = document.getElementById('dist-stat-median')!;
+  const distStatMax = document.getElementById('dist-stat-max')!;
+  const distUpdated = document.getElementById('dist-updated')!;
+
+  // Ranking elements
+  const rankSourceSelect = document.getElementById('rank-source-select') as HTMLSelectElement;
+  const rankSortSelect = document.getElementById('rank-sort-select') as HTMLSelectElement;
+  const rankFilterSelect = document.getElementById('rank-filter-select') as HTMLSelectElement;
+  const rankLimitSelect = document.getElementById('rank-limit-select') as HTMLSelectElement;
+  const rankLoading = document.getElementById('rank-loading')!;
+  const rankCanvas = document.getElementById('ranking-chart') as HTMLCanvasElement;
+  const rankTableHead = document.getElementById('rank-table-head')!;
+  const rankTableBody = document.getElementById('rank-table-body')!;
+  const rankUpdated = document.getElementById('rank-updated')!;
+
+  // Correlation elements
+  const corrSourceSelect = document.getElementById('corr-source-select') as HTMLSelectElement;
+  const corrXSelect = document.getElementById('corr-x-select') as HTMLSelectElement;
+  const corrYSelect = document.getElementById('corr-y-select') as HTMLSelectElement;
+  const corrTrendCheck = document.getElementById('corr-trend-check') as HTMLInputElement;
+  const corrLoading = document.getElementById('corr-loading')!;
+  const corrCanvas = document.getElementById('correlation-chart') as HTMLCanvasElement;
+  const corrCoefficient = document.getElementById('corr-coefficient')!;
+  const corrInterpretation = document.getElementById('corr-interpretation')!;
+  const corrPoints = document.getElementById('corr-points')!;
+  const corrUpdated = document.getElementById('corr-updated')!;
+
+  // Parse mode from URL
+  function parseMode(): PlaygroundMode {
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get('mode');
+    if (mode && ['timeseries', 'distribution', 'ranking', 'correlation'].includes(mode)) {
+      return mode as PlaygroundMode;
+    }
+    return 'timeseries';
+  }
+
+  // Update URL with mode
+  function updateUrlMode(mode: PlaygroundMode): void {
+    const params = new URLSearchParams(window.location.search);
+    if (mode !== 'timeseries') {
+      params.set('mode', mode);
+    } else {
+      params.delete('mode');
+    }
+    const queryString = params.toString();
+    const url = queryString ? `?${queryString}` : window.location.pathname;
+    window.history.replaceState({}, '', url);
+  }
+
+  // Switch mode
+  function switchMode(mode: PlaygroundMode): void {
+    currentMode = mode;
+
+    // Update tabs
+    modeTabs.forEach(tab => {
+      const tabMode = tab.dataset.mode;
+      tab.setAttribute('aria-selected', tabMode === mode ? 'true' : 'false');
+    });
+
+    // Update content visibility
+    modeContents.forEach(content => {
+      const contentMode = content.id.replace('mode-', '');
+      content.classList.toggle('hidden', contentMode !== mode);
+    });
+
+    updateUrlMode(mode);
+
+    // Track mode switch
+    if (typeof umami !== 'undefined') {
+      umami.track('playground-mode-switch', { target: mode });
+    }
+
+    // Initialize mode if needed
+    switch (mode) {
+      case 'distribution':
+        initDistributionMode();
+        break;
+      case 'ranking':
+        initRankingMode();
+        break;
+      case 'correlation':
+        initCorrelationMode();
+        break;
+    }
+  }
+
+  // Fetch data file with caching
+  async function fetchCategoricalData(filePath: string): Promise<any> {
+    if (categoricalCache.has(filePath)) {
+      return categoricalCache.get(filePath);
+    }
+    const response = await fetch(filePath);
+    if (!response.ok) throw new Error(`Failed to fetch ${filePath}`);
+    const data = await response.json();
+    categoricalCache.set(filePath, data);
+    return data;
+  }
+
+  // Navigate nested path in object
+  function getNestedValue(obj: any, path: string): any {
+    if (!path) return obj;
+    const parts = path.split('.');
+    let current = obj;
+    for (const part of parts) {
+      current = current?.[part];
+    }
+    return current;
+  }
+
+  // ============================================================================
+  // DISTRIBUTION MODE
+  // ============================================================================
+  let distInitialized = false;
+
+  async function initDistributionMode(): Promise<void> {
+    if (distInitialized) return;
+    distInitialized = true;
+    await loadDistributionData();
+  }
+
+  async function loadDistributionData(): Promise<void> {
+    const sourceId = distSourceSelect.value;
+    const source = distributionSources.find((s: any) => s.id === sourceId);
+    if (!source) return;
+
+    distLoading.classList.remove('hidden');
+
+    try {
+      const rawData = await fetchCategoricalData(source.file);
+      const field = source.distributionFields?.[0];
+      if (!field) throw new Error('No distribution field defined');
+
+      const dataArray = getNestedValue(rawData, field.dataPath);
+      if (!Array.isArray(dataArray)) throw new Error('Data is not an array');
+
+      // Get pre-binned data
+      const bins = dataArray.map((item: any) => ({
+        label: String(item[field.labelKey || field.valueKey]),
+        value: Number(item[field.valueKey]),
+        count: Number(item[field.countKey || 0]),
+      }));
+
+      // Calculate stats
+      let total = 0, sum = 0, max = 0;
+      const values: number[] = [];
+      for (const bin of bins) {
+        total += bin.count;
+        sum += bin.value * bin.count;
+        max = Math.max(max, bin.value);
+        for (let i = 0; i < bin.count; i++) {
+          values.push(bin.value);
+        }
+      }
+      values.sort((a, b) => a - b);
+      const median = values.length > 0 ? values[Math.floor(values.length / 2)] : 0;
+      const avg = total > 0 ? Math.round(sum / total) : 0;
+
+      // Update stats display
+      distStatTotal.textContent = total.toLocaleString();
+      distStatAvg.textContent = avg.toLocaleString();
+      distStatMedian.textContent = median.toLocaleString();
+      distStatMax.textContent = max.toLocaleString();
+
+      // Update timestamp
+      const lastUpdated = source.lastUpdatedPath ? getNestedValue(rawData, source.lastUpdatedPath) : null;
+      distUpdated.textContent = lastUpdated ? `Last updated: ${new Date(lastUpdated).toLocaleDateString()}` : '';
+
+      // Render chart
+      renderDistributionChart(bins, field.label);
+
+    } catch (error) {
+      console.error('Failed to load distribution data:', error);
+    } finally {
+      distLoading.classList.add('hidden');
+    }
+  }
+
+  function renderDistributionChart(bins: { label: string; value: number; count: number }[], title: string): void {
+    const scale = distScaleSelect.value as 'linear' | 'log';
+
+    const chartData = {
+      labels: bins.map(b => b.label),
+      datasets: [{
+        label: 'Count',
+        data: bins.map(b => b.count),
+        backgroundColor: '#ff6d5a',
+        borderColor: '#ff6d5a',
+        borderWidth: 1,
+        borderRadius: 2,
+      }],
+    };
+
+    if (distChart) {
+      distChart.data = chartData;
+      if (distChart.options.scales?.y) {
+        (distChart.options.scales.y as any).type = scale;
+      }
+      distChart.update();
+    } else {
+      distChart = new Chart(distCanvas, {
+        type: 'bar',
+        data: chartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e1e1e',
+              titleColor: '#fff',
+              bodyColor: '#9ca3af',
+              borderColor: '#333',
+              borderWidth: 1,
+              callbacks: {
+                title: (items) => items[0]?.label || '',
+                label: (ctx) => `Templates: ${ctx.parsed.y.toLocaleString()}`,
+              },
+            },
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#6b7280' },
+              title: { display: true, text: title, color: '#9ca3af' },
+            },
+            y: {
+              type: scale,
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#6b7280' },
+              title: { display: true, text: 'Count', color: '#9ca3af' },
+            },
+          },
+        },
+      });
+    }
+  }
+
+  // ============================================================================
+  // RANKING MODE
+  // ============================================================================
+  let rankInitialized = false;
+  let rankingData: any = null;
+
+  async function initRankingMode(): Promise<void> {
+    if (rankInitialized) return;
+    rankInitialized = true;
+    await loadRankingData();
+  }
+
+  async function loadRankingData(): Promise<void> {
+    const sourceId = rankSourceSelect.value;
+    const source = rankingSources.find((s: any) => s.id === sourceId);
+    if (!source) return;
+
+    rankLoading.classList.remove('hidden');
+
+    try {
+      const rawData = await fetchCategoricalData(source.file);
+
+      // Populate sort options
+      rankSortSelect.innerHTML = '';
+      for (const field of source.rankingFields || []) {
+        const opt = document.createElement('option');
+        opt.value = field.id;
+        opt.textContent = field.label;
+        rankSortSelect.appendChild(opt);
+      }
+
+      // Handle different data structures
+      let items: any[] = [];
+      const groups = new Set<string>();
+
+      if (source.dataPath === 'nodes.byCategory') {
+        // Category aggregation
+        const byCategory = getNestedValue(rawData, source.dataPath);
+        if (byCategory && typeof byCategory === 'object') {
+          for (const [categoryName, nodes] of Object.entries(byCategory)) {
+            if (Array.isArray(nodes)) {
+              const nodeCount = nodes.length;
+              const totalUsage = nodes.reduce((sum, n: any) => sum + (n.count || 0), 0);
+              items.push({ label: categoryName, values: { nodeCount, totalUsage } });
+              groups.add(categoryName);
+            }
+          }
+        }
+      } else {
+        // Standard array data
+        const dataArray = source.dataPath ? getNestedValue(rawData, source.dataPath) : rawData;
+        if (Array.isArray(dataArray)) {
+          items = dataArray.map((item: any) => {
+            const label = item[source.labelField || 'name'] || 'Unknown';
+            const group = source.groupByField ? String(item[source.groupByField]) : undefined;
+            if (group) groups.add(group);
+
+            const values: Record<string, number> = {};
+            for (const field of source.rankingFields || []) {
+              values[field.id] = Number(item[field.id]) || 0;
+            }
+            return { label, values, group, metadata: item };
+          });
+        }
+      }
+
+      // Populate filter options
+      rankFilterSelect.innerHTML = '<option value="">All</option>';
+      for (const group of Array.from(groups).sort()) {
+        const opt = document.createElement('option');
+        opt.value = group;
+        opt.textContent = group;
+        rankFilterSelect.appendChild(opt);
+      }
+
+      // Store for later updates
+      rankingData = { items, fields: source.rankingFields || [], groups: Array.from(groups), lastUpdated: source.lastUpdatedPath ? getNestedValue(rawData, source.lastUpdatedPath) : null };
+
+      // Update timestamp
+      rankUpdated.textContent = rankingData.lastUpdated ? `Last updated: ${new Date(rankingData.lastUpdated).toLocaleDateString()}` : '';
+
+      // Render
+      renderRankingChart();
+      renderRankingTable();
+
+    } catch (error) {
+      console.error('Failed to load ranking data:', error);
+    } finally {
+      rankLoading.classList.add('hidden');
+    }
+  }
+
+  function getFilteredRankingItems(): any[] {
+    if (!rankingData) return [];
+
+    let items = [...rankingData.items];
+
+    // Filter by group
+    const filterValue = rankFilterSelect.value;
+    if (filterValue) {
+      items = items.filter((item: any) => item.group === filterValue || item.label === filterValue);
+    }
+
+    // Sort
+    const sortBy = rankSortSelect.value;
+    const sortDir = -1; // Descending by default
+    items.sort((a: any, b: any) => (b.values[sortBy] - a.values[sortBy]) * sortDir);
+
+    // Limit
+    const limit = parseInt(rankLimitSelect.value, 10);
+    return items.slice(0, limit);
+  }
+
+  function renderRankingChart(): void {
+    const items = getFilteredRankingItems();
+    const sortBy = rankSortSelect.value;
+    const field = rankingData?.fields.find((f: any) => f.id === sortBy);
+
+    const chartData = {
+      labels: items.map((item: any) => item.label.substring(0, 25)),
+      datasets: [{
+        label: field?.label || 'Value',
+        data: items.map((item: any) => item.values[sortBy]),
+        backgroundColor: '#ff6d5a',
+        borderColor: '#ff6d5a',
+        borderWidth: 1,
+        borderRadius: 3,
+      }],
+    };
+
+    if (rankChart) {
+      rankChart.data = chartData;
+      rankChart.update();
+    } else {
+      rankChart = new Chart(rankCanvas, {
+        type: 'bar',
+        data: chartData,
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e1e1e',
+              titleColor: '#fff',
+              bodyColor: '#9ca3af',
+              borderColor: '#333',
+              borderWidth: 1,
+            },
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#6b7280' },
+            },
+            y: {
+              grid: { display: false },
+              ticks: { color: '#9ca3af', font: { size: 11 } },
+            },
+          },
+        },
+      });
+    }
+  }
+
+  function renderRankingTable(): void {
+    const items = getFilteredRankingItems();
+    const fields = rankingData?.fields || [];
+
+    // Header
+    rankTableHead.innerHTML = `
+      <tr>
+        <th class="w-8">#</th>
+        <th>Name</th>
+        ${fields.map((f: any) => `<th class="text-right">${f.label}</th>`).join('')}
+      </tr>
+    `;
+
+    // Body
+    rankTableBody.innerHTML = items.map((item: any, index: number) => `
+      <tr>
+        <td class="text-gray-500">${index + 1}</td>
+        <td class="font-medium">${item.label}</td>
+        ${fields.map((f: any) => {
+          const val = item.values[f.id];
+          const formatted = f.type === 'percentage' ? `${val.toFixed(1)}%` : val.toLocaleString();
+          return `<td class="text-right text-gray-400">${formatted}</td>`;
+        }).join('')}
+      </tr>
+    `).join('');
+  }
+
+  // ============================================================================
+  // CORRELATION MODE
+  // ============================================================================
+  let corrInitialized = false;
+  let correlationData: any = null;
+
+  async function initCorrelationMode(): Promise<void> {
+    if (corrInitialized) return;
+    corrInitialized = true;
+    await loadCorrelationSource();
+  }
+
+  async function loadCorrelationSource(): Promise<void> {
+    const sourceId = corrSourceSelect.value;
+    const source = correlationSources.find((s: any) => s.id === sourceId);
+    if (!source) return;
+
+    corrLoading.classList.remove('hidden');
+
+    try {
+      const rawData = await fetchCategoricalData(source.file);
+      const fields = source.correlationFields || [];
+
+      // Populate axis selects
+      corrXSelect.innerHTML = '';
+      corrYSelect.innerHTML = '';
+      for (const field of fields) {
+        const xOpt = document.createElement('option');
+        xOpt.value = field.id;
+        xOpt.textContent = field.label;
+        corrXSelect.appendChild(xOpt);
+
+        const yOpt = document.createElement('option');
+        yOpt.value = field.id;
+        yOpt.textContent = field.label;
+        corrYSelect.appendChild(yOpt);
+      }
+
+      // Set defaults
+      if (fields.length >= 2) {
+        corrXSelect.value = fields[0].id;
+        corrYSelect.value = fields[1].id;
+      }
+
+      // Get data array
+      const dataArray = source.dataPath ? getNestedValue(rawData, source.dataPath) : rawData;
+
+      // Store for later
+      correlationData = {
+        source,
+        fields,
+        dataArray,
+        lastUpdated: source.lastUpdatedPath ? getNestedValue(rawData, source.lastUpdatedPath) : null,
+      };
+
+      corrUpdated.textContent = correlationData.lastUpdated ? `Last updated: ${new Date(correlationData.lastUpdated).toLocaleDateString()}` : '';
+
+      renderCorrelationChart();
+
+    } catch (error) {
+      console.error('Failed to load correlation data:', error);
+    } finally {
+      corrLoading.classList.add('hidden');
+    }
+  }
+
+  function renderCorrelationChart(): void {
+    if (!correlationData) return;
+
+    const xFieldId = corrXSelect.value;
+    const yFieldId = corrYSelect.value;
+    const xField = correlationData.fields.find((f: any) => f.id === xFieldId);
+    const yField = correlationData.fields.find((f: any) => f.id === yFieldId);
+    const showTrend = corrTrendCheck.checked;
+
+    if (!xField || !yField) return;
+
+    // Build scatter points
+    const points: { x: number; y: number; label: string }[] = [];
+    for (const item of correlationData.dataArray) {
+      const x = Number(getNestedValue(item, xField.path));
+      const y = Number(getNestedValue(item, yField.path));
+      const label = item[correlationData.source.labelField || 'name'] || 'Unknown';
+      if (!isNaN(x) && !isNaN(y) && x > 0 && y > 0) {
+        points.push({ x, y, label });
+      }
+    }
+
+    // Calculate correlation
+    const xValues = points.map(p => p.x);
+    const yValues = points.map(p => p.y);
+    const r = pearsonCorrelation(xValues, yValues);
+
+    // Update stats
+    corrCoefficient.textContent = isNaN(r) ? '-' : (r >= 0 ? '+' : '') + r.toFixed(3);
+    corrCoefficient.className = getCorrelationColorClass(r);
+    corrInterpretation.textContent = interpretCorrelationValue(r);
+    corrPoints.textContent = points.length.toLocaleString();
+
+    // Chart datasets
+    const datasets: any[] = [{
+      label: 'Data Points',
+      data: points,
+      backgroundColor: 'rgba(255, 109, 90, 0.6)',
+      borderColor: '#ff6d5a',
+      borderWidth: 1,
+      pointRadius: 5,
+      pointHoverRadius: 7,
+    }];
+
+    // Add trend line if enabled
+    if (showTrend && points.length >= 2) {
+      const regression = linearRegression(points);
+      if (regression) {
+        const minX = Math.min(...xValues);
+        const maxX = Math.max(...xValues);
+        const trendPoints = regression.trendLine(minX, maxX);
+        datasets.push({
+          label: `Trend (R² = ${regression.rSquared.toFixed(2)})`,
+          data: trendPoints,
+          type: 'line',
+          borderColor: '#4bc0c0',
+          borderWidth: 2,
+          borderDash: [5, 5],
+          pointRadius: 0,
+          fill: false,
+        });
+      }
+    }
+
+    const chartData = { datasets };
+
+    if (corrChart) {
+      corrChart.data = chartData;
+      corrChart.options.scales!.x!.title = { display: true, text: xField.label, color: '#9ca3af' };
+      corrChart.options.scales!.y!.title = { display: true, text: yField.label, color: '#9ca3af' };
+      corrChart.update();
+    } else {
+      corrChart = new Chart(corrCanvas, {
+        type: 'scatter',
+        data: chartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: showTrend, position: 'bottom', labels: { color: '#9ca3af' } },
+            tooltip: {
+              backgroundColor: '#1e1e1e',
+              titleColor: '#fff',
+              bodyColor: '#9ca3af',
+              borderColor: '#333',
+              borderWidth: 1,
+              callbacks: {
+                title: (items) => {
+                  const point = points[items[0]?.dataIndex];
+                  return point?.label || '';
+                },
+                label: (ctx) => {
+                  const point = points[ctx.dataIndex];
+                  if (!point) return '';
+                  return `${xField.label}: ${point.x.toLocaleString()}, ${yField.label}: ${point.y.toLocaleString()}`;
+                },
+              },
+            },
+          },
+          scales: {
+            x: {
+              type: 'linear',
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#6b7280' },
+              title: { display: true, text: xField.label, color: '#9ca3af' },
+            },
+            y: {
+              type: 'linear',
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#6b7280' },
+              title: { display: true, text: yField.label, color: '#9ca3af' },
+            },
+          },
+        },
+      });
+    }
+  }
+
+  function getCorrelationColorClass(r: number): string {
+    if (isNaN(r)) return 'text-gray-500';
+    const abs = Math.abs(r);
+    if (abs >= 0.7) return r >= 0 ? 'text-green-400 text-2xl font-bold' : 'text-red-400 text-2xl font-bold';
+    if (abs >= 0.5) return r >= 0 ? 'text-yellow-400 text-2xl font-bold' : 'text-orange-400 text-2xl font-bold';
+    return 'text-gray-400 text-2xl font-bold';
+  }
+
+  function interpretCorrelationValue(r: number): string {
+    if (isNaN(r)) return 'Insufficient data';
+    const abs = Math.abs(r);
+    const dir = r >= 0 ? 'positive' : 'negative';
+    if (abs >= 0.9) return `Very strong ${dir}`;
+    if (abs >= 0.7) return `Strong ${dir}`;
+    if (abs >= 0.5) return `Moderate ${dir}`;
+    if (abs >= 0.3) return `Weak ${dir}`;
+    return 'Very weak / none';
+  }
+
+  // ============================================================================
+  // EVENT HANDLERS
+  // ============================================================================
+
+  // Tab clicks
+  modeTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const mode = tab.dataset.mode as PlaygroundMode;
+      if (mode) switchMode(mode);
+    });
+  });
+
+  // Distribution controls
+  if (distSourceSelect) {
+    distSourceSelect.addEventListener('change', () => {
+      distInitialized = false;
+      loadDistributionData();
+    });
+  }
+  if (distScaleSelect) {
+    distScaleSelect.addEventListener('change', () => {
+      if (distChart && distChart.options.scales?.y) {
+        (distChart.options.scales.y as any).type = distScaleSelect.value;
+        distChart.update();
+      }
+    });
+  }
+
+  // Ranking controls
+  if (rankSourceSelect) {
+    rankSourceSelect.addEventListener('change', () => {
+      rankInitialized = false;
+      loadRankingData();
+    });
+  }
+  if (rankSortSelect) {
+    rankSortSelect.addEventListener('change', () => {
+      renderRankingChart();
+      renderRankingTable();
+    });
+  }
+  if (rankFilterSelect) {
+    rankFilterSelect.addEventListener('change', () => {
+      renderRankingChart();
+      renderRankingTable();
+    });
+  }
+  if (rankLimitSelect) {
+    rankLimitSelect.addEventListener('change', () => {
+      renderRankingChart();
+      renderRankingTable();
+    });
+  }
+
+  // Correlation controls
+  if (corrSourceSelect) {
+    corrSourceSelect.addEventListener('change', () => {
+      corrInitialized = false;
+      loadCorrelationSource();
+    });
+  }
+  if (corrXSelect) {
+    corrXSelect.addEventListener('change', renderCorrelationChart);
+  }
+  if (corrYSelect) {
+    corrYSelect.addEventListener('change', renderCorrelationChart);
+  }
+  if (corrTrendCheck) {
+    corrTrendCheck.addEventListener('change', renderCorrelationChart);
+  }
+
+  // ============================================================================
+  // INITIALIZATION
+  // ============================================================================
+  function initModes(): void {
+    const mode = parseMode();
+    switchMode(mode);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initModes);
+  } else {
+    initModes();
+  }
+</script>

@@ -2,8 +2,8 @@
  * Data Source Registry for Playground
  *
  * Defines all available data sources with metadata for the playground.
- * Phase 1: Time-series sources only
- * Phase 2: Will add categorical sources
+ * Phase 1: Time-series sources
+ * Phase 2: Categorical sources (distributions, rankings, correlations)
  */
 
 export interface MetricDefinition {
@@ -246,4 +246,180 @@ export function getMetricById(metricId: string): (MetricDefinition & { source: D
  */
 export function getSourceById(sourceId: string): DataSource | undefined {
   return DATA_SOURCES.find(s => s.id === sourceId);
+}
+
+// ============================================================================
+// Phase 2: Categorical Data Sources
+// ============================================================================
+
+export type CategoricalDataType = 'distribution' | 'ranking' | 'correlation';
+
+export interface DistributionField {
+  id: string;
+  label: string;
+  /** Path to array in data, e.g., 'complexity.distribution' */
+  dataPath: string;
+  /** Key for the value to count/bin */
+  valueKey: string;
+  /** Key for the label (optional) */
+  labelKey?: string;
+  /** Key for pre-computed count (optional, if data is already binned) */
+  countKey?: string;
+}
+
+export interface RankingField {
+  id: string;
+  label: string;
+  type: 'number' | 'percentage';
+}
+
+export interface CorrelationField {
+  id: string;
+  label: string;
+  /** Path to value in each item */
+  path: string;
+}
+
+export interface CategoricalSource {
+  id: string;
+  label: string;
+  shortLabel: string;
+  file: string;
+  /** Size hint for lazy loading decisions */
+  sizeHint: 'small' | 'medium' | 'large';
+  dataType: CategoricalDataType;
+  /** Path to the array of items (e.g., 'nodes.all' or root for arrays) */
+  dataPath?: string;
+  /** Last updated date path in the data */
+  lastUpdatedPath?: string;
+  /** Available fields for this data type */
+  distributionFields?: DistributionField[];
+  rankingFields?: RankingField[];
+  correlationFields?: CorrelationField[];
+  /** Field to use for grouping/filtering */
+  groupByField?: string;
+  /** Field to use for item labels */
+  labelField?: string;
+}
+
+// Colors for categorical charts
+const CATEGORICAL_COLORS = {
+  primary: '#ff6d5a',    // n8n coral
+  secondary: '#4bc0c0',  // Teal
+  tertiary: '#9966ff',   // Purple
+  quaternary: '#ff9f40', // Orange
+  highlight: '#22c55e',  // Green
+};
+
+export const CATEGORICAL_SOURCES: CategoricalSource[] = [
+  // Distribution sources
+  {
+    id: 'template-complexity',
+    label: 'Template Complexity',
+    shortLabel: 'Complexity',
+    file: '/data/all-templates-data.json',
+    sizeHint: 'small',
+    dataType: 'distribution',
+    lastUpdatedPath: 'lastUpdated',
+    distributionFields: [
+      {
+        id: 'nodes-per-template',
+        label: 'Nodes per Template',
+        dataPath: 'complexity.distribution',
+        valueKey: 'nodeCount',
+        labelKey: 'label',
+        countKey: 'count',
+      },
+    ],
+  },
+
+  // Ranking sources
+  {
+    id: 'node-usage',
+    label: 'Node Usage',
+    shortLabel: 'Nodes',
+    file: '/data/all-nodes-data.json',
+    sizeHint: 'small',
+    dataType: 'ranking',
+    dataPath: 'nodes.all',
+    lastUpdatedPath: 'lastUpdated',
+    labelField: 'displayName',
+    groupByField: 'category',
+    rankingFields: [
+      { id: 'count', label: 'Template Count', type: 'number' },
+      { id: 'percentage', label: 'Usage %', type: 'percentage' },
+    ],
+  },
+  {
+    id: 'creators',
+    label: 'Creator Rankings',
+    shortLabel: 'Creators',
+    file: '/data/external/n8narena-creators.json',
+    sizeHint: 'large', // 1.1MB - lazy load only when needed
+    dataType: 'ranking',
+    labelField: 'name',
+    groupByField: 'verified',
+    rankingFields: [
+      { id: 'templateCount', label: 'Templates', type: 'number' },
+      { id: 'totalViews', label: 'Total Views', type: 'number' },
+      { id: 'totalInserters', label: 'Total Inserters', type: 'number' },
+      { id: 'monthlyViews', label: 'Monthly Views', type: 'number' },
+      { id: 'weeklyViews', label: 'Weekly Views', type: 'number' },
+    ],
+  },
+  {
+    id: 'category-stats',
+    label: 'Category Statistics',
+    shortLabel: 'Categories',
+    file: '/data/all-nodes-data.json',
+    sizeHint: 'small',
+    dataType: 'ranking',
+    dataPath: 'nodes.byCategory',
+    lastUpdatedPath: 'lastUpdated',
+    labelField: '_categoryName', // Special: use object key as label
+    rankingFields: [
+      { id: 'nodeCount', label: 'Node Count', type: 'number' },
+      { id: 'totalUsage', label: 'Total Template Usage', type: 'number' },
+    ],
+  },
+
+  // Correlation sources (using template data)
+  {
+    id: 'template-correlations',
+    label: 'Template Analysis',
+    shortLabel: 'Templates',
+    file: '/data/all-templates-data.json',
+    sizeHint: 'small',
+    dataType: 'correlation',
+    dataPath: 'creators',
+    lastUpdatedPath: 'lastUpdated',
+    groupByField: 'verified',
+    labelField: 'name',
+    correlationFields: [
+      { id: 'templateCount', label: 'Templates Created', path: 'templateCount' },
+      { id: 'totalViews', label: 'Total Views', path: 'totalViews' },
+      { id: 'totalInserters', label: 'Total Inserters', path: 'totalInserters' },
+    ],
+  },
+];
+
+/**
+ * Get all categorical sources
+ */
+export function getCategoricalSources(): CategoricalSource[] {
+  return CATEGORICAL_SOURCES;
+}
+
+/**
+ * Get categorical source by ID
+ */
+export function getCategoricalSourceById(sourceId: string): CategoricalSource | undefined {
+  return CATEGORICAL_SOURCES.find(s => s.id === sourceId);
+}
+
+/**
+ * Get categorical sources by data type
+ */
+export function getCategoricalSourcesByType(dataType: CategoricalDataType): CategoricalSource[] {
+  return CATEGORICAL_SOURCES.filter(s => s.dataType === dataType);
 }
