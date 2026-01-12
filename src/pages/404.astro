@@ -1,0 +1,66 @@
+---
+/**
+ * 404 Not Found Page
+ *
+ * Custom error page with Umami tracking for monitoring broken links
+ * and missing pages.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Page Not Found" description="The page you're looking for doesn't exist.">
+  <div class="container-narrow py-16">
+    <div class="text-center">
+      <!-- Broken logo -->
+      <div class="flex justify-center mb-8">
+        <img src="/logo-broken.svg" alt="Broken pulse" class="w-32 h-32 opacity-60" />
+      </div>
+
+      <h1 class="text-6xl font-bold text-white mb-4">404</h1>
+      <p class="text-xl text-gray-400 mb-2">Page not found</p>
+      <p class="text-gray-500 mb-8">The page you're looking for doesn't exist or has been moved.</p>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a
+          href="/"
+          class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-n8n-primary text-white font-medium rounded-lg hover:bg-n8n-primary/90 transition-colors"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          Go to Dashboard
+        </a>
+        <a
+          href="/templates"
+          class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-n8n-card text-gray-300 font-medium rounded-lg border border-n8n-border hover:border-gray-600 hover:text-white transition-colors"
+        >
+          Browse Templates
+        </a>
+      </div>
+
+      <!-- Quick links -->
+      <div class="mt-12 pt-8 border-t border-n8n-border">
+        <p class="text-sm text-gray-500 mb-4">Popular pages:</p>
+        <div class="flex flex-wrap justify-center gap-4 text-sm">
+          <a href="/templates" class="text-gray-400 hover:text-white transition-colors">Templates</a>
+          <a href="/nodes" class="text-gray-400 hover:text-white transition-colors">Nodes</a>
+          <a href="/creators" class="text-gray-400 hover:text-white transition-colors">Creators</a>
+          <a href="/community" class="text-gray-400 hover:text-white transition-colors">Community</a>
+          <a href="/github" class="text-gray-400 hover:text-white transition-colors">GitHub</a>
+          <a href="/playground" class="text-gray-400 hover:text-white transition-colors">Playground</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Track 404 with Umami -->
+  <script>
+    if (typeof umami !== 'undefined') {
+      // Track the 404 with the attempted URL and referrer
+      umami.track('404-page', {
+        url: window.location.pathname,
+        referrer: document.referrer || 'direct',
+      });
+    }
+  </script>
+</BaseLayout>

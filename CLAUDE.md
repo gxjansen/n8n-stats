@@ -451,6 +451,38 @@ if (typeof umami !== 'undefined') {
 }
 ```
 
+### Error Tracking
+
+The site tracks errors via Umami for debugging without third-party services like Sentry.
+
+**Tracked error types:**
+| Event Name | Data | Description |
+|------------|------|-------------|
+| `js-error` | `message`, `file`, `line`, `col`, `url` | JavaScript runtime errors |
+| `promise-error` | `message`, `url` | Unhandled promise rejections |
+| `resource-error` | `type`, `src`, `url` | Failed image/script/stylesheet loads |
+| `404-page` | `url`, `referrer` | 404 page visits (tracked on 404.astro) |
+
+**Implementation (BaseLayout.astro):**
+```javascript
+// Error tracking snippet - add before </body>
+window.addEventListener('error', function(event) {
+  if (typeof umami !== 'undefined' && event.filename) {
+    umami.track('js-error', {
+      message: event.message.slice(0, 200),
+      file: event.filename.split('/').pop(),
+      line: event.lineno,
+      url: window.location.pathname,
+    });
+  }
+});
+```
+
+**Reusable pattern for other sites (gui.do, cro.cafe):**
+1. Add the error tracking script from `BaseLayout.astro` before `</body>`
+2. Create a `404.astro` page that tracks with `umami.track('404-page', { url, referrer })`
+3. Filter out browser extension errors (`event.filename.includes('extension://')`)
+
 ## Related Resources
 
 - [n8n Templates API](https://api.n8n.io/api/templates/search)

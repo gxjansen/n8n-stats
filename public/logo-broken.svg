@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" fill="none">
+  <defs>
+    <mask id="node-mask-broken">
+      <circle cx="60" cy="160" r="50" fill="white"/>
+      <circle cx="60" cy="160" r="25" fill="black"/>
+    </mask>
+  </defs>
+
+  <!-- Node circle - grayed out / disconnected -->
+  <circle cx="60" cy="160" r="50" fill="#4a5568" mask="url(#node-mask-broken)" opacity="0.6"/>
+
+  <!-- Flatlined pulse with a gap/break in the middle -->
+  <!-- Left segment -->
+  <polyline
+    points="110,160 150,160"
+    stroke="#4a5568"
+    stroke-width="20"
+    stroke-linecap="round"
+    fill="none"
+    opacity="0.6"
+  />
+
+  <!-- Broken/disconnected middle - showing where the heartbeat should be -->
+  <!-- Small failed pulse attempt -->
+  <polyline
+    points="170,160 180,150 190,170 200,160"
+    stroke="#FF6D5A"
+    stroke-width="12"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+    opacity="0.4"
+  />
+
+  <!-- Right segment - flatlined -->
+  <polyline
+    points="220,160 300,160"
+    stroke="#4a5568"
+    stroke-width="20"
+    stroke-linecap="round"
+    fill="none"
+    opacity="0.6"
+  />
+
+  <!-- Small "disconnected" indicator dots -->
+  <circle cx="160" cy="160" r="4" fill="#FF6D5A" opacity="0.3"/>
+  <circle cx="210" cy="160" r="4" fill="#FF6D5A" opacity="0.3"/>
+</svg>
