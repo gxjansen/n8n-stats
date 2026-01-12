@@ -85,11 +85,11 @@ const chartDataJson = JSON.stringify(weeklyData);
 </script>
 
 <script>
-  import Chart from 'chart.js/auto';
+  import { Chart } from '../../lib/utils/chartRegistry';
   import { axisTruncationPlugin } from '../../lib/utils/chartPlugins';
   import { initChartWhenVisible } from '../../lib/utils/lazyChart';
 
-  // Register the axis truncation plugin globally
+  // Register project-specific plugin
   Chart.register(axisTruncationPlugin);
 
   interface CreatorStats {

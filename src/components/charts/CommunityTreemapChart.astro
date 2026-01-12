@@ -48,11 +48,11 @@ const fallbackColors = FALLBACK_COLORS;
 </script>
 
 <script>
-  import Chart from 'chart.js/auto';
+  import { Chart } from '../../lib/utils/chartRegistry';
   import { TreemapController, TreemapElement } from 'chartjs-chart-treemap';
   import { initChartWhenVisible } from '../../lib/utils/lazyChart';
 
-  // Register the treemap plugin
+  // Register treemap plugin (not in shared registry as only treemap charts use it)
   Chart.register(TreemapController, TreemapElement);
 
   interface CategoryData {

@@ -214,11 +214,11 @@ const sourcesData = DATA_SOURCES.map(s => ({
 </script>
 
 <script>
-  import Chart from 'chart.js/auto';
-  import 'chartjs-adapter-date-fns';
+  import { Chart } from '../../lib/utils/chartRegistry';
+  import 'chartjs-adapter-date-fns';  // Required for TimeScale
   import { axisTruncationPlugin } from '../../lib/utils/chartPlugins';
 
-  // Register the axis truncation plugin globally
+  // Register project-specific plugin
   Chart.register(axisTruncationPlugin);
 
   // Normalize date strings to ISO format (YYYY-MM-DD)
