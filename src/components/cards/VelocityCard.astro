@@ -23,6 +23,7 @@ interface Props {
     needed: number;          // Days/weeks needed
     unit: string;            // "days" or "weeks"
   };
+  animationDelay?: number;   // Stagger sparkline animations (ms)
 }
 
 const {
@@ -34,6 +35,7 @@ const {
   href,
   to,
   collecting,
+  animationDelay = 0,
 } = Astro.props;
 
 const isClickable = href || to;
@@ -76,7 +78,7 @@ const displayValue = value ?? 'Collecting...';
       <div class="flex flex-col items-end gap-1">
         {hasEnoughData ? (
           <>
-            <MiniSparkline data={trend} color={color} width={64} height={28} />
+            <MiniSparkline data={trend} color={color} width={64} height={28} delay={animationDelay} />
             <span class={`text-xs ${isUpward ? 'text-green-400' : 'text-gray-500'}`}>
               {isUpward ? 'trending up' : 'stable'}
             </span>
@@ -113,7 +115,7 @@ const displayValue = value ?? 'Collecting...';
       <div class="flex flex-col items-end gap-1">
         {hasEnoughData ? (
           <>
-            <MiniSparkline data={trend} color={color} width={64} height={28} />
+            <MiniSparkline data={trend} color={color} width={64} height={28} delay={animationDelay} />
             <span class={`text-xs ${isUpward ? 'text-green-400' : 'text-gray-500'}`}>
               {isUpward ? 'trending up' : 'stable'}
             </span>

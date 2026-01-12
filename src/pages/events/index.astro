@@ -219,6 +219,13 @@ const byMonthFull = byMonth.map(m => ({
   onlineCount: m.onlineCount || 0,
   onlineRegistrations: m.onlineRegistrations || 0,
 }));
+
+// Get unique country codes for map highlighting (exclude "Online")
+const highlightedCountries = [...new Set(
+  byCountry
+    .map(c => countryToCode[c.country])
+    .filter((code): code is string => !!code && code !== '🌐')
+)];
 ---
 
 <BaseLayout title="Community Events" description="n8n community meetups, workshops, and events around the world">
@@ -275,7 +282,7 @@ const byMonthFull = byMonth.map(m => ({
         <p class="text-gray-400 mb-6">
           Where n8n community events are happening. Hover over markers for details.
         </p>
-        <EventsMapChart locations={locations} />
+        <EventsMapChart locations={locations} highlightedCountries={highlightedCountries} />
       </section>
     )}
 

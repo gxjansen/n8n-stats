@@ -1,16 +1,18 @@
 ---
 /**
  * Events Map Chart
- * Displays event locations on a world map using equirectangular projection
+ * Displays event locations on a world map using Robinson projection
+ * with country highlighting for countries that have events.
  *
- * Map source: NASA Blue Marble (public domain)
- * https://visibleearth.nasa.gov/collection/1484/blue-marble
+ * Map source: SVG-World-Map by Raphael Lepuschitz (MIT License)
+ * https://github.com/raphaellepuschitz/SVG-World-Map
  */
 
 interface Location {
   name: string;
   city: string;
   country: string;
+  countryCode?: string;
   lat: number;
   lng: number;
   eventCount: number;
@@ -19,27 +21,84 @@ interface Location {
 
 interface Props {
   locations: Location[];
+  highlightedCountries?: string[]; // ISO 2-letter country codes
 }
 
-const { locations } = Astro.props;
+const { locations, highlightedCountries = [] } = Astro.props;
 
-// Map dimensions (2:1 ratio for equirectangular projection)
-const mapWidth = 800;
-const mapHeight = 400;
+// Robinson projection parameters
+// Lookup table for Robinson projection (latitude in 5° increments)
+// PLEN = parallel length factor, PDFE = distance from equator factor
+const robinsonTable = [
+  { lat: 0, plen: 1.0000, pdfe: 0.0000 },
+  { lat: 5, plen: 0.9986, pdfe: 0.0620 },
+  { lat: 10, plen: 0.9954, pdfe: 0.1240 },
+  { lat: 15, plen: 0.9900, pdfe: 0.1860 },
+  { lat: 20, plen: 0.9822, pdfe: 0.2480 },
+  { lat: 25, plen: 0.9730, pdfe: 0.3100 },
+  { lat: 30, plen: 0.9600, pdfe: 0.3720 },
+  { lat: 35, plen: 0.9427, pdfe: 0.4340 },
+  { lat: 40, plen: 0.9216, pdfe: 0.4958 },
+  { lat: 45, plen: 0.8962, pdfe: 0.5571 },
+  { lat: 50, plen: 0.8679, pdfe: 0.6176 },
+  { lat: 55, plen: 0.8350, pdfe: 0.6769 },
+  { lat: 60, plen: 0.7986, pdfe: 0.7346 },
+  { lat: 65, plen: 0.7597, pdfe: 0.7903 },
+  { lat: 70, plen: 0.7186, pdfe: 0.8435 },
+  { lat: 75, plen: 0.6732, pdfe: 0.8936 },
+  { lat: 80, plen: 0.6213, pdfe: 0.9394 },
+  { lat: 85, plen: 0.5722, pdfe: 0.9761 },
+  { lat: 90, plen: 0.5322, pdfe: 1.0000 },
+];
 
-// Standard equirectangular projection formula
-// Maps longitude -180 to +180 across width, latitude +90 to -90 across height
+// Interpolate Robinson projection values for any latitude
+function interpolateRobinson(absLat: number): { plen: number; pdfe: number } {
+  const lat = Math.min(90, Math.abs(absLat));
+  const index = Math.floor(lat / 5);
+  const nextIndex = Math.min(index + 1, robinsonTable.length - 1);
+  const t = (lat - index * 5) / 5;
+
+  const plen = robinsonTable[index].plen + t * (robinsonTable[nextIndex].plen - robinsonTable[index].plen);
+  const pdfe = robinsonTable[index].pdfe + t * (robinsonTable[nextIndex].pdfe - robinsonTable[index].pdfe);
+
+  return { plen, pdfe };
+}
+
+// SVG dimensions for Robinson projection (matching world-robinson.svg)
+const mapWidth = 1000;
+const mapHeight = 507.209;
+const centerX = mapWidth / 2;
+const centerY = mapHeight / 2;
+
+// Scale factors calibrated empirically from the SVG's actual country positions
+// Rx: derived from Japan (Tokyo at lng=139.69) being at x≈810 in the SVG
+// Ry: derived from ocean boundary at lat≈85 having y≈7.8 in the SVG
+const Rx = 159.1;
+const Ry = 186.2;
+
+// Robinson projection conversion
+// Converts lat/lng to x/y coordinates on the SVG
 function latLngToXY(lat: number, lng: number): { x: number; y: number } {
-  const x = ((lng + 180) / 360) * mapWidth;
-  const y = ((90 - lat) / 180) * mapHeight;
+  const { plen, pdfe } = interpolateRobinson(lat);
+
+  // Normalize longitude to [-180, 180]
+  const normLng = ((lng + 180) % 360) - 180;
+
+  // X: scaled by Robinson constants, parallel length, and longitude in radians
+  const x = centerX + Rx * 0.8487 * (normLng * Math.PI / 180) * plen;
+
+  // Y: scaled by PDFE lookup, inverted (north is up)
+  const yOffset = Ry * 1.3523 * pdfe;
+  const y = lat >= 0 ? centerY - yOffset : centerY + yOffset;
+
   return { x, y };
 }
 
 // Process locations for display
 const markers = locations.map(loc => {
   const { x, y } = latLngToXY(loc.lat, loc.lng);
-  // Size based on event count (min 4, max 10)
-  const size = Math.min(10, Math.max(4, 2 + loc.eventCount * 1.2));
+  // Size based on event count (min 4, max 12)
+  const size = Math.min(12, Math.max(4, 2 + loc.eventCount * 1.5));
   return {
     ...loc,
     x,
@@ -48,81 +107,89 @@ const markers = locations.map(loc => {
   };
 });
 
+// Get unique country codes that have events
+const countriesWithEvents = new Set(highlightedCountries);
+
 const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
 ---
 
 <div id="events-map-container" class="card">
-  <div class="relative overflow-hidden rounded-lg">
-    <svg
-      viewBox={viewBox}
-      class="w-full h-auto"
-      style="max-height: 450px;"
-    >
-      <!-- World map background (NASA Blue Marble, equirectangular projection) -->
-      <image
-        href="/images/world-equirect.jpg"
-        x="0"
-        y="0"
-        width={mapWidth}
-        height={mapHeight}
-        preserveAspectRatio="none"
-        class="map-image"
-      />
+  <div class="relative overflow-hidden rounded-lg bg-[#1a1a2e]">
+    <!-- World map SVG container -->
+    <div class="map-wrapper relative">
+      <!-- Base world map (loaded via object for styling access) -->
+      <object
+        id="world-map-svg"
+        data="/images/world-robinson.svg"
+        type="image/svg+xml"
+        class="w-full h-auto"
+        style="max-height: 450px;"
+        aria-label="World map showing event locations"
+      >
+        Your browser does not support SVG
+      </object>
 
-      <!-- Event markers -->
-      <g class="markers">
-        {markers.map((marker, index) => (
-          <g
-            class="marker-group"
-            data-city={marker.city}
-            data-country={marker.country}
-            data-events={marker.eventCount}
-            data-registrations={marker.totalRegistrations}
-          >
-            <!-- Glow effect -->
-            <circle
-              cx={marker.x}
-              cy={marker.y}
-              r={marker.size + 5}
-              fill="url(#markerGlow)"
-              opacity="0.7"
-            />
-            <!-- Main marker -->
-            <circle
-              cx={marker.x}
-              cy={marker.y}
-              r={marker.size}
-              fill="#ff6d5a"
-              stroke="#fff"
-              stroke-width="1.5"
-              class="marker"
-              style={`animation-delay: ${index * 50}ms`}
-            />
-            <!-- Event count label for larger markers -->
-            {marker.eventCount > 1 && (
-              <text
-                x={marker.x}
-                y={marker.y + 3}
-                text-anchor="middle"
-                fill="#fff"
-                font-size="8"
-                font-weight="bold"
-              >
-                {marker.eventCount}
-              </text>
-            )}
-          </g>
-        ))}
-      </g>
+      <!-- Overlay SVG for markers (positioned absolutely on top) -->
+      <svg
+        viewBox={viewBox}
+        class="absolute inset-0 w-full h-full pointer-events-none"
+        style="max-height: 450px;"
+      >
+        <!-- Event markers -->
+        <g class="markers pointer-events-auto">
+          {markers.map((marker, index) => (
+            <g
+              class="marker-group"
+              data-city={marker.city}
+              data-country={marker.country}
+              data-events={marker.eventCount}
+              data-registrations={marker.totalRegistrations}
+            >
+              <!-- Glow effect -->
+              <circle
+                cx={marker.x}
+                cy={marker.y}
+                r={marker.size + 6}
+                fill="url(#markerGlow)"
+                opacity="0.8"
+              />
+              <!-- Main marker -->
+              <circle
+                cx={marker.x}
+                cy={marker.y}
+                r={marker.size}
+                fill="#ff6d5a"
+                stroke="#fff"
+                stroke-width="1.5"
+                class="marker"
+                style={`animation-delay: ${index * 50}ms`}
+              />
+              <!-- Event count label for larger markers -->
+              {marker.eventCount > 1 && (
+                <text
+                  x={marker.x}
+                  y={marker.y + 3}
+                  text-anchor="middle"
+                  fill="#fff"
+                  font-size="9"
+                  font-weight="bold"
+                >
+                  {marker.eventCount}
+                </text>
+              )}
+            </g>
+          ))}
+        </g>
 
-      <!-- Gradient definitions -->
-      <defs>
-        <radialGradient id="markerGlow">
-          <stop offset="0%" stop-color="#ff6d5a" stop-opacity="0.8" />
-          <stop offset="100%" stop-color="#ff6d5a" stop-opacity="0" />
-        </radialGradient>
-      </defs>
-    </svg>
+        <!-- Gradient definitions -->
+        <defs>
+          <radialGradient id="markerGlow">
+            <stop offset="0%" stop-color="#ff6d5a" stop-opacity="0.9" />
+            <stop offset="100%" stop-color="#ff6d5a" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+      </svg>
+    </div>
 
     <!-- Tooltip -->
     <div
@@ -136,7 +203,7 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
   </div>
 
   <!-- Legend -->
-  <div class="flex items-center justify-center gap-6 mt-4 text-sm text-gray-400">
+  <div class="flex flex-wrap items-center justify-center gap-4 md:gap-6 mt-4 text-sm text-gray-400">
     <div class="flex items-center gap-2">
       <span class="w-3 h-3 rounded-full bg-[#ff6d5a]"></span>
       <span>Event location</span>
@@ -145,23 +212,25 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
       <span class="w-5 h-5 rounded-full bg-[#ff6d5a] flex items-center justify-center text-xs text-white font-bold">3</span>
       <span>Multiple events</span>
     </div>
+    <div class="flex items-center gap-2">
+      <span class="w-4 h-3 rounded-sm" style="background: rgba(255, 109, 90, 0.3); border: 1px solid rgba(255, 109, 90, 0.5);"></span>
+      <span>Country with events</span>
+    </div>
   </div>
 </div>
 
+<!-- Pass highlighted countries to JavaScript -->
+<script define:vars={{ countriesWithEvents: Array.from(countriesWithEvents) }}>
+  window.__highlightedCountries = countriesWithEvents;
+</script>
+
 <style>
-  /* Dark theme filter for the map image */
-  .map-image {
-    filter: brightness(0.4) saturate(0.6) hue-rotate(180deg);
+  .map-wrapper {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16162a 100%);
   }
 
   .marker {
     cursor: pointer;
-    transition: transform 0.2s ease;
-    transform-origin: center;
-  }
-
-  .marker-group:hover .marker {
-    transform: scale(1.3);
   }
 
   .marker {
@@ -175,17 +244,66 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
 </style>
 
 <script>
-  function initMapTooltip() {
+  function initEventsMap() {
+    const mapObject = document.getElementById('world-map-svg') as HTMLObjectElement;
     const tooltip = document.getElementById('map-tooltip');
     const tooltipCity = document.getElementById('tooltip-city');
     const tooltipCountry = document.getElementById('tooltip-country');
     const tooltipEvents = document.getElementById('tooltip-events');
     const markers = document.querySelectorAll('.marker-group');
 
+    // Get highlighted countries from the window object
+    const highlightedCountries = (window as any).__highlightedCountries || [];
+
+    // Style the SVG map once it loads
+    if (mapObject) {
+      mapObject.addEventListener('load', () => {
+        const svgDoc = mapObject.contentDocument;
+        if (!svgDoc) return;
+
+        // Style the base map for dark theme
+        const worldRect = svgDoc.getElementById('World');
+        if (worldRect) {
+          worldRect.setAttribute('fill', '#1a1a2e');
+        }
+
+        const ocean = svgDoc.getElementById('Ocean');
+        if (ocean) {
+          ocean.setAttribute('fill', '#1a1a2e');
+          ocean.setAttribute('stroke', '#2a2a4e');
+        }
+
+        // Style all country paths
+        const paths = svgDoc.querySelectorAll('path');
+        paths.forEach((path: SVGPathElement) => {
+          const id = path.getAttribute('id');
+
+          // Skip ocean and world background
+          if (id === 'Ocean' || id === 'World') return;
+
+          // Check if this country has events
+          const hasEvents = highlightedCountries.includes(id);
+
+          if (hasEvents) {
+            // Highlighted country style
+            path.setAttribute('fill', 'rgba(255, 109, 90, 0.25)');
+            path.setAttribute('stroke', 'rgba(255, 109, 90, 0.5)');
+            path.setAttribute('stroke-width', '0.5');
+          } else {
+            // Default country style - subtle outline on dark background
+            path.setAttribute('fill', '#252540');
+            path.setAttribute('stroke', '#3a3a5e');
+            path.setAttribute('stroke-width', '0.3');
+          }
+        });
+      });
+    }
+
+    // Tooltip functionality for markers
     if (!tooltip || !tooltipCity || !tooltipCountry || !tooltipEvents) return;
 
     markers.forEach(marker => {
-      marker.addEventListener('mouseenter', (e) => {
+      marker.addEventListener('mouseenter', () => {
         const city = marker.getAttribute('data-city') || 'Unknown';
         const country = marker.getAttribute('data-country') || '';
         const events = marker.getAttribute('data-events') || '1';
@@ -227,8 +345,8 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initMapTooltip);
+    document.addEventListener('DOMContentLoaded', initEventsMap);
   } else {
-    initMapTooltip();
+    initEventsMap();
   }
 </script>

@@ -3,7 +3,7 @@
  * Mini Sparkline Component
  *
  * Lightweight SVG sparkline for inline trend visualization.
- * No dependencies - pure SVG path generation.
+ * No dependencies - pure SVG path generation with optional draw animation.
  */
 
 interface Props {
@@ -13,6 +13,8 @@ interface Props {
   color?: string;
   showArea?: boolean;
   className?: string;
+  animate?: boolean;
+  delay?: number; // Animation delay in ms for staggered effects
 }
 
 const {
@@ -22,6 +24,8 @@ const {
   color = '#ff6d5a',
   showArea = true,
   className = '',
+  animate = true,
+  delay = 0,
 } = Astro.props;
 
 // Normalize data to fit within the SVG viewBox
@@ -44,35 +48,174 @@ const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} 
 const areaPath = showArea
   ? `${linePath} L ${points[points.length - 1].x.toFixed(1)} ${height - padding} L ${padding} ${height - padding} Z`
   : '';
+
+// Calculate approximate path length for stroke animation
+const pathLength = points.reduce((acc, point, i) => {
+  if (i === 0) return 0;
+  const prev = points[i - 1];
+  return acc + Math.sqrt(Math.pow(point.x - prev.x, 2) + Math.pow(point.y - prev.y, 2));
+}, 0);
+
+// Generate unique ID for this sparkline instance
+const uniqueId = `sparkline-${Math.random().toString(36).substr(2, 9)}`;
 ---
 
 <svg
-  class={className}
+  class:list={[className, { 'sparkline-animated': animate }]}
   width={width}
   height={height}
   viewBox={`0 0 ${width} ${height}`}
   preserveAspectRatio="none"
+  data-sparkline-id={uniqueId}
+  data-animate={animate}
+  data-delay={delay}
 >
   {showArea && (
     <path
+      class="sparkline-area"
       d={areaPath}
       fill={color}
-      fill-opacity="0.15"
+      fill-opacity="0"
+      style={animate ? `--delay: ${delay}ms` : ''}
     />
   )}
   <path
+    class="sparkline-line"
     d={linePath}
     fill="none"
     stroke={color}
     stroke-width="1.5"
     stroke-linecap="round"
     stroke-linejoin="round"
+    style={animate ? `--path-length: ${pathLength}; --delay: ${delay}ms` : ''}
   />
   <!-- End dot -->
   <circle
+    class="sparkline-dot"
     cx={points[points.length - 1].x}
     cy={points[points.length - 1].y}
     r="2"
     fill={color}
+    style={animate ? `--delay: ${delay}ms` : ''}
   />
 </svg>
+
+<style>
+  /* Initial state for animated sparklines - hidden until triggered */
+  .sparkline-animated .sparkline-line {
+    stroke-dasharray: var(--path-length);
+    stroke-dashoffset: var(--path-length);
+  }
+
+  .sparkline-animated .sparkline-area {
+    fill-opacity: 0;
+  }
+
+  .sparkline-animated .sparkline-dot {
+    transform-origin: center;
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  /* Animated state - triggered by JS when in viewport */
+  .sparkline-animated.is-visible .sparkline-line {
+    animation: sparkline-draw 1s ease-out forwards;
+    animation-delay: var(--delay);
+  }
+
+  .sparkline-animated.is-visible .sparkline-area {
+    animation: sparkline-area-fade 0.6s ease-out forwards;
+    animation-delay: calc(var(--delay) + 400ms);
+  }
+
+  .sparkline-animated.is-visible .sparkline-dot {
+    animation: sparkline-dot-pop 0.3s ease-out forwards;
+    animation-delay: calc(var(--delay) + 800ms);
+  }
+
+  @keyframes sparkline-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes sparkline-area-fade {
+    to {
+      fill-opacity: 0.15;
+    }
+  }
+
+  @keyframes sparkline-dot-pop {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    70% {
+      transform: scale(1.3);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* Reduced motion: show immediately without animation */
+  @media (prefers-reduced-motion: reduce) {
+    .sparkline-animated .sparkline-line {
+      stroke-dasharray: none;
+      stroke-dashoffset: 0;
+    }
+
+    .sparkline-animated .sparkline-area {
+      fill-opacity: 0.15;
+    }
+
+    .sparkline-animated .sparkline-dot {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  // IntersectionObserver to trigger animations when sparklines come into view
+  function initSparklineAnimations() {
+    const sparklines = document.querySelectorAll('.sparkline-animated');
+
+    if (sparklines.length === 0) return;
+
+    // Check for reduced motion preference
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      // Just show them immediately
+      sparklines.forEach(el => el.classList.add('is-visible'));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            // Only animate once
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.3, // Trigger when 30% visible
+        rootMargin: '0px 0px -50px 0px', // Slight offset from bottom
+      }
+    );
+
+    sparklines.forEach((sparkline) => {
+      observer.observe(sparkline);
+    });
+  }
+
+  // Run on initial load
+  initSparklineAnimations();
+
+  // Re-run on Astro page transitions (View Transitions)
+  document.addEventListener('astro:page-load', initSparklineAnimations);
+</script>
