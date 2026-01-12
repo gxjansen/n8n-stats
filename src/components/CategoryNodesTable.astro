@@ -5,6 +5,7 @@
  * Compact table showing top nodes per category with clickable links.
  * More readable than grouped bar chart, shows all names visible.
  * Supports weighted scores when available.
+ * Includes viewport-triggered fill animations with staggered delays.
  */
 
 import { formatNumber, getNodePageUrl } from '@/lib/utils/formatters';
@@ -34,14 +35,16 @@ const categoriesWithData = categoryOrder.filter(cat => data[cat]?.length > 0);
 const getValue = (node: NodeData) => showWeighted && node.weightedScore ? node.weightedScore : node.count;
 ---
 
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-  {categoriesWithData.map((category) => {
+<div class="category-nodes-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+  {categoriesWithData.map((category, categoryIndex) => {
     const nodes = data[category].slice(0, nodesPerCategory);
     const color = categoryColors[category] || '#7c8798';
     const categoryMax = getValue(nodes[0]) || 1;
+    // Stagger delay: 100ms between each category card
+    const categoryDelay = categoryIndex * 100;
 
     return (
-      <div class="card p-4">
+      <div class="category-card card p-4" data-category-delay={categoryDelay}>
         <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={`background: ${color}`}></span>
           <span class="truncate">{category}</span>
@@ -52,6 +55,8 @@ const getValue = (node: NodeData) => showWeighted && node.weightedScore ? node.w
             const nodeValue = getValue(node);
             const barWidth = (nodeValue / categoryMax) * 100;
             const hasWeighted = showWeighted && node.weightedScore && node.weightedScore > 0;
+            // Stagger delay within category: 50ms between each bar
+            const barDelay = index * 50;
             return (
               <a
                 href={getNodePageUrl(node.displayName)}
@@ -74,8 +79,9 @@ const getValue = (node: NodeData) => showWeighted && node.weightedScore ? node.w
                 </div>
                 <div class="relative h-1 bg-gray-800 rounded-full overflow-hidden mt-1 ml-6">
                   <div
-                    class="absolute inset-y-0 left-0 rounded-full transition-all duration-300 group-hover:opacity-70"
-                    style={`width: ${barWidth}%; background: ${color};`}
+                    class="category-bar absolute inset-y-0 left-0 rounded-full group-hover:opacity-70"
+                    style={`--target-width: ${barWidth}%; --bar-color: ${color}; --bar-delay: ${barDelay}ms;`}
+                    data-target-width={barWidth}
                   />
                 </div>
               </a>
@@ -91,3 +97,76 @@ const getValue = (node: NodeData) => showWeighted && node.weightedScore ? node.w
     );
   })}
 </div>
+
+<style>
+  .category-bar {
+    width: 0;
+    background: var(--bar-color);
+    transition: opacity 0.3s;
+  }
+
+  .category-card.is-visible .category-bar {
+    animation: fillCategoryBar 0.6s ease-out forwards;
+    animation-delay: var(--bar-delay);
+  }
+
+  @keyframes fillCategoryBar {
+    from {
+      width: 0;
+    }
+    to {
+      width: var(--target-width);
+    }
+  }
+
+  /* Reduced motion: show immediately without animation */
+  @media (prefers-reduced-motion: reduce) {
+    .category-bar {
+      animation: none !important;
+      width: var(--target-width) !important;
+    }
+  }
+</style>
+
+<script>
+  function initCategoryNodesAnimations() {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const cards = document.querySelectorAll<HTMLElement>('.category-card:not(.animated)');
+
+    if (prefersReducedMotion) {
+      cards.forEach((card) => card.classList.add('animated', 'is-visible'));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const card = entry.target as HTMLElement;
+            const categoryDelay = parseInt(card.dataset.categoryDelay || '0', 10);
+
+            if (!card.classList.contains('animated')) {
+              card.classList.add('animated');
+              // Apply category-level delay before triggering animation
+              setTimeout(() => {
+                card.classList.add('is-visible');
+              }, categoryDelay);
+            }
+
+            observer.unobserve(card);
+          }
+        });
+      },
+      {
+        threshold: 0.2,
+        rootMargin: '0px 0px -30px 0px',
+      }
+    );
+
+    cards.forEach((card) => observer.observe(card));
+  }
+
+  // Run on initial load and after view transitions
+  initCategoryNodesAnimations();
+  document.addEventListener('astro:after-swap', initCategoryNodesAnimations);
+</script>
