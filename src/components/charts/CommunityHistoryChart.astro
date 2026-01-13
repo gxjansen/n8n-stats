@@ -62,7 +62,7 @@ const communityDataJson = JSON.stringify(communityHistoryData);
     </div>
 
     <!-- Metrics Toggle -->
-    <div class="flex items-center gap-3 ml-auto">
+    <div class="flex items-center gap-3 ml-auto flex-wrap">
       <label class="flex items-center gap-1.5 cursor-pointer">
         <input type="checkbox" id="community-toggle-users" checked class="accent-[#ff6384]" />
         <span class="text-sm text-gray-300">Users</span>
@@ -78,6 +78,11 @@ const communityDataJson = JSON.stringify(communityHistoryData);
       <label class="flex items-center gap-1.5 cursor-pointer">
         <input type="checkbox" id="community-toggle-likes" class="accent-[#4bc0c0]" />
         <span class="text-sm text-gray-300">Likes</span>
+      </label>
+      <span class="text-gray-600">|</span>
+      <label class="flex items-center gap-1.5 cursor-pointer">
+        <input type="checkbox" id="community-toggle-milestones" checked class="accent-n8n-primary" />
+        <span class="text-sm text-gray-300">Milestones</span>
       </label>
     </div>
   </div>
@@ -107,9 +112,11 @@ const communityDataJson = JSON.stringify(communityHistoryData);
   import { Chart } from '../../lib/utils/chartRegistry';
   import { axisTruncationPlugin } from '../../lib/utils/chartPlugins';
   import { initChartWhenVisible } from '../../lib/utils/lazyChart';
+  import annotationPlugin from 'chartjs-plugin-annotation';
 
-  // Register project-specific plugin
+  // Register plugins
   Chart.register(axisTruncationPlugin);
+  Chart.register(annotationPlugin);
 
   interface CommunityDataPoint {
     date: string;
@@ -137,6 +144,84 @@ const communityDataJson = JSON.stringify(communityHistoryData);
     posts: { border: '#ffce56', background: 'rgba(255, 206, 86, 0.1)' },
     likes: { border: '#4bc0c0', background: 'rgba(75, 192, 192, 0.1)' },
   };
+
+  // Milestones per metric (different scales)
+  const MILESTONES: Record<string, Array<{ value: number; label: string }>> = {
+    users: [
+      { value: 10000, label: '10K' },
+      { value: 25000, label: '25K' },
+      { value: 50000, label: '50K' },
+      { value: 75000, label: '75K' },
+      { value: 100000, label: '100K' },
+      { value: 150000, label: '150K' },
+    ],
+    topics: [
+      { value: 10000, label: '10K' },
+      { value: 25000, label: '25K' },
+      { value: 50000, label: '50K' },
+      { value: 75000, label: '75K' },
+    ],
+    posts: [
+      { value: 100000, label: '100K' },
+      { value: 250000, label: '250K' },
+      { value: 500000, label: '500K' },
+      { value: 750000, label: '750K' },
+      { value: 1000000, label: '1M' },
+    ],
+    likes: [
+      { value: 100000, label: '100K' },
+      { value: 250000, label: '250K' },
+      { value: 500000, label: '500K' },
+      { value: 750000, label: '750K' },
+      { value: 1000000, label: '1M' },
+    ],
+  };
+
+  function showMilestones(): boolean {
+    return (document.getElementById('community-toggle-milestones') as HTMLInputElement)?.checked ?? true;
+  }
+
+  function createMilestoneAnnotations(data: CommunityDataPoint[], visibleMetrics: string[]) {
+    if (!showMilestones()) return {};
+
+    const annotations: Record<string, any> = {};
+
+    visibleMetrics.forEach(metric => {
+      const milestones = MILESTONES[metric] || [];
+      const values = data.map(d => d[metric as keyof CommunityDataPoint] as number).filter(v => v != null);
+      const maxValue = Math.max(...values);
+      const color = COMMUNITY_COLORS[metric as keyof typeof COMMUNITY_COLORS]?.border || '#888';
+
+      milestones.forEach((milestone, idx) => {
+        if (milestone.value <= maxValue) {
+          // Check if we've crossed this milestone
+          const crossed = values.some(v => v >= milestone.value);
+          if (crossed) {
+            annotations[`${metric}-milestone-${idx}`] = {
+              type: 'line',
+              yMin: milestone.value,
+              yMax: milestone.value,
+              yScaleID: metric === 'posts' ? 'y1' : 'y',
+              borderColor: color.replace(')', ', 0.3)').replace('rgb', 'rgba'),
+              borderWidth: 1,
+              borderDash: [5, 5],
+              label: {
+                display: true,
+                content: `${milestone.label}`,
+                position: 'start',
+                backgroundColor: color.replace(')', ', 0.8)').replace('rgb', 'rgba'),
+                color: '#fff',
+                font: { size: 9 },
+                padding: 2,
+              },
+            };
+          }
+        }
+      });
+    });
+
+    return annotations;
+  }
 
   function getCommunityDataForRange(data: CommunityHistory, rangeDays: number | 'all'): CommunityDataPoint[] {
     // Use daily data only when we have enough entries and range is short
@@ -268,6 +353,7 @@ const communityDataJson = JSON.stringify(communityHistoryData);
 
     const labels = filteredData.map(d => d.date);
     const datasets = createCommunityDatasets(filteredData, metrics, chartType, isArea);
+    const annotations = createMilestoneAnnotations(filteredData, metrics);
 
     const hasPosts = metrics.includes('posts');
     const hasOtherMetrics = metrics.some(m => m !== 'posts');
@@ -286,6 +372,11 @@ const communityDataJson = JSON.stringify(communityHistoryData);
           ...communityChart.options.scales.y1,
           display: hasPosts,
         };
+      }
+
+      // Update annotations
+      if (communityChart.options.plugins?.annotation) {
+        communityChart.options.plugins.annotation.annotations = annotations;
       }
 
       communityChart.update();
@@ -314,6 +405,7 @@ const communityDataJson = JSON.stringify(communityHistoryData);
     const filteredData = filterCommunityByDateRange(rawData, range);
     const labels = filteredData.map(d => d.date);
     const datasets = createCommunityDatasets(filteredData, metrics, 'line', isArea);
+    const annotations = createMilestoneAnnotations(filteredData, metrics);
 
     communityChart = new Chart(canvas, {
       type: 'line',
@@ -326,6 +418,9 @@ const communityDataJson = JSON.stringify(communityHistoryData);
           intersect: false,
         },
         plugins: {
+          annotation: {
+            annotations,
+          },
           legend: {
             display: true,
             position: 'bottom',
@@ -402,6 +497,7 @@ const communityDataJson = JSON.stringify(communityHistoryData);
     document.getElementById('community-toggle-topics')?.addEventListener('change', updateCommunityChart);
     document.getElementById('community-toggle-posts')?.addEventListener('change', updateCommunityChart);
     document.getElementById('community-toggle-likes')?.addEventListener('change', updateCommunityChart);
+    document.getElementById('community-toggle-milestones')?.addEventListener('change', updateCommunityChart);
   }
 
   // Initialize when DOM is ready and chart is visible
