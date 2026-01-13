@@ -75,6 +75,12 @@ const chartDataJson = JSON.stringify(chartDataPoints);
       <input type="checkbox" id="templates-show-monthly" checked class="w-4 h-4 rounded border-gray-600 bg-n8n-darker text-n8n-primary focus:ring-n8n-primary focus:ring-offset-0">
       <span class="text-sm text-gray-400">Show monthly new</span>
     </label>
+
+    <!-- Show Milestones Toggle -->
+    <label class="flex items-center gap-1.5 cursor-pointer ml-auto">
+      <input type="checkbox" id="templates-toggle-milestones" checked class="accent-[#ff6b9d]" />
+      <span class="text-sm text-gray-300">Show milestones</span>
+    </label>
   </div>
 
   <!-- Chart Canvas -->
@@ -108,9 +114,11 @@ const chartDataJson = JSON.stringify(chartDataPoints);
   import { Chart } from '../../lib/utils/chartRegistry';
   import { axisTruncationPlugin } from '../../lib/utils/chartPlugins';
   import { initChartWhenVisible } from '../../lib/utils/lazyChart';
+  import annotationPlugin from 'chartjs-plugin-annotation';
 
-  // Register project-specific plugin
+  // Register plugins
   Chart.register(axisTruncationPlugin);
+  Chart.register(annotationPlugin);
 
   interface ChartDataPoint {
     date: string;
@@ -126,6 +134,18 @@ const chartDataJson = JSON.stringify(chartDataPoints);
     total: { border: '#ff6b9d', background: 'rgba(255, 107, 157, 0.1)' },
     newCount: { border: '#4bc0c0', background: 'rgba(75, 192, 192, 0.6)' },
   };
+
+  // Key milestones to annotate (template count)
+  const MILESTONES = [
+    { value: 500, label: '500' },
+    { value: 1000, label: '1K' },
+    { value: 2000, label: '2K' },
+    { value: 3000, label: '3K' },
+    { value: 4000, label: '4K' },
+    { value: 5000, label: '5K' },
+    { value: 7500, label: '7.5K' },
+    { value: 10000, label: '10K' },
+  ];
 
   function filterByMonths(points: ChartDataPoint[], months: number | 'all'): ChartDataPoint[] {
     if (months === 'all') return points;
@@ -144,6 +164,41 @@ const chartDataJson = JSON.stringify(chartDataPoints);
 
   function showMonthly(): boolean {
     return (document.getElementById('templates-show-monthly') as HTMLInputElement).checked;
+  }
+
+  function showMilestones(): boolean {
+    return (document.getElementById('templates-toggle-milestones') as HTMLInputElement)?.checked ?? true;
+  }
+
+  function createMilestoneAnnotations(data: ChartDataPoint[]) {
+    if (!showMilestones()) return {};
+
+    const annotations: Record<string, any> = {};
+    const maxValue = Math.max(...data.map(d => d.total));
+
+    MILESTONES.forEach((milestone, idx) => {
+      if (milestone.value <= maxValue) {
+        annotations[`milestone-${idx}`] = {
+          type: 'line',
+          yMin: milestone.value,
+          yMax: milestone.value,
+          borderColor: 'rgba(255, 107, 157, 0.3)',
+          borderWidth: 1,
+          borderDash: [5, 5],
+          label: {
+            display: true,
+            content: milestone.label,
+            position: 'start',
+            backgroundColor: 'rgba(255, 107, 157, 0.8)',
+            color: '#fff',
+            font: { size: 10 },
+            padding: 2,
+          },
+        };
+      }
+    });
+
+    return annotations;
   }
 
   function updateChart() {
@@ -204,6 +259,11 @@ const chartDataJson = JSON.stringify(chartDataPoints);
       if ((chart.options.scales as any)?.y1) {
         (chart.options.scales as any).y1.display = includeMonthly;
       }
+      // Update annotations
+      const annotations = createMilestoneAnnotations(filteredData);
+      if (chart.options.plugins?.annotation) {
+        (chart.options.plugins.annotation as any).annotations = annotations;
+      }
       chart.update();
     }
   }
@@ -249,6 +309,8 @@ const chartDataJson = JSON.stringify(chartDataPoints);
       });
     }
 
+    const annotations = createMilestoneAnnotations(filteredData);
+
     chart = new Chart(canvas, {
       type: 'line',
       data: { labels, datasets },
@@ -262,6 +324,9 @@ const chartDataJson = JSON.stringify(chartDataPoints);
         plugins: {
           legend: {
             display: false,
+          },
+          annotation: {
+            annotations,
           },
           tooltip: {
             backgroundColor: '#1e1e1e',
@@ -324,6 +389,7 @@ const chartDataJson = JSON.stringify(chartDataPoints);
     document.getElementById('templates-date-range')?.addEventListener('change', updateChart);
     document.getElementById('templates-chart-type')?.addEventListener('change', updateChart);
     document.getElementById('templates-show-monthly')?.addEventListener('change', updateChart);
+    document.getElementById('templates-toggle-milestones')?.addEventListener('change', updateChart);
   }
 
   // Initialize when DOM is ready and chart is visible
