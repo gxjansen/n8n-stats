@@ -135,6 +135,36 @@ try {
 
 const latestDiscord = discordData.daily?.[discordData.daily.length - 1] || { members: 0, online: 0 };
 
+// Load Reddit data
+interface RedditHistory {
+  daily: { date: string; subscribers: number }[];
+  current: { subscribers: number };
+}
+let redditData: RedditHistory = { daily: [], current: { subscribers: 0 } };
+let redditGrowthText = '';
+try {
+  const redditPath = join(process.cwd(), 'public', 'data', 'history', 'reddit.json');
+  redditData = JSON.parse(readFileSync(redditPath, 'utf-8'));
+
+  // Calculate growth for display
+  if (redditData.daily.length >= 2) {
+    const latest = redditData.daily[redditData.daily.length - 1];
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0];
+    const oldEntry = [...redditData.daily].reverse().find(d => d.date <= thirtyDaysAgoStr) || redditData.daily[0];
+
+    if (oldEntry && oldEntry.subscribers > 0) {
+      const growth = latest.subscribers - oldEntry.subscribers;
+      if (growth > 0) {
+        redditGrowthText = `+${formatNumber(growth)} recent`;
+      }
+    }
+  }
+} catch (e) { /* use defaults */ }
+
+const redditSubscribers = redditData.current?.subscribers || 0;
+
 // Load events monthly history for sparkline
 interface EventsMonthlyEntry {
   date: string;
@@ -358,6 +388,8 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
           discordOnline={latestDiscord.online}
           forumUsers={forumStats.usersCount}
           forumTopics={forumStats.topicsCount}
+          redditSubscribers={redditSubscribers}
+          redditGrowth={redditGrowthText}
         />
       </div>
     </section>
@@ -445,10 +477,10 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         <SubpageTeaserCard
           title="Discussions"
           href="/discussions"
-          mainStat={latestDiscord.members + forumStats.usersCount}
+          mainStat={latestDiscord.members + forumStats.usersCount + redditSubscribers}
           mainLabel="total members"
-          secondaryStat={latestDiscord.online}
-          secondaryLabel="online now"
+          secondaryStat={redditSubscribers}
+          secondaryLabel="on r/n8n"
           accentColor="#10b981"
           ctaText="View discussions"
           sparklineData={communityMonthlyHistory}
@@ -553,7 +585,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         />
         <StatCard
           label="Community Members"
-          value={latestDiscord.members + forumStats.usersCount}
+          value={latestDiscord.members + forumStats.usersCount + redditSubscribers}
           to="/discussions"
         />
         <StatCard
