@@ -5,6 +5,7 @@ import MilestonePrediction from '@/components/cards/MilestonePrediction.astro';
 import CommunityHistoryChart from '@/components/charts/CommunityHistoryChart.astro';
 import CommunityTreemapChart from '@/components/charts/CommunityTreemapChart.astro';
 import BlueskyHistoryChart from '@/components/charts/BlueskyHistoryChart.astro';
+import RedditHistoryChart from '@/components/charts/RedditHistoryChart.astro';
 import { fetchForumStats, fetchForumCategories } from '@/lib/api/discourse';
 import { fetchDiscordStats } from '@/lib/api/discord';
 import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
@@ -197,7 +198,9 @@ const topCategories = categories
           <StatCard label="Posts (24h)" value={redditStats.daily[redditStats.daily.length - 1]?.postsLast24h || 0} />
           <StatCard label="Comments (24h)" value={redditStats.daily[redditStats.daily.length - 1]?.commentsLast24h || 0} />
         </div>
-        <p class="text-sm text-gray-500">Historical subscriber data backfilled from Wayback Machine (Dec 2022 - present).</p>
+        <h3 class="text-lg font-semibold text-gray-300 mb-4 mt-8">Subscriber Growth</h3>
+        <RedditHistoryChart />
+        <p class="text-sm text-gray-500 mt-4">Historical subscriber data backfilled from Wayback Machine (Dec 2022 - present).</p>
       </section>
     )}
 

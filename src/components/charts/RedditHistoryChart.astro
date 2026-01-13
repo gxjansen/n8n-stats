@@ -1,0 +1,299 @@
+---
+/**
+ * Interactive Reddit History Chart
+ *
+ * Renders Chart.js line/area chart for r/n8n subscriber growth.
+ * Data is loaded at build time for instant rendering.
+ */
+
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+
+interface RedditDailyStats {
+  date: string;
+  subscribers: number;
+  activeUsers: number | null;
+  postsLast24h: number;
+  commentsLast24h: number;
+}
+
+interface RedditHistory {
+  lastUpdated: string;
+  subreddit: string;
+  description: string;
+  created: string;
+  daily: RedditDailyStats[];
+  current: {
+    subscribers: number;
+    activeUsers: number | null;
+  };
+}
+
+// Load data at build time
+let redditHistoryData: RedditHistory | null = null;
+try {
+  const dataPath = join(process.cwd(), 'public', 'data', 'history', 'reddit.json');
+  if (existsSync(dataPath)) {
+    redditHistoryData = JSON.parse(readFileSync(dataPath, 'utf-8'));
+  }
+} catch (e) { /* use null */ }
+
+const redditDataJson = JSON.stringify(redditHistoryData);
+---
+
+<div id="reddit-chart-container" class="card">
+  <!-- Controls -->
+  <div class="flex flex-wrap items-center gap-4 mb-6">
+    <!-- Chart Type -->
+    <div class="flex items-center gap-2">
+      <label class="text-sm text-gray-400">Type:</label>
+      <select id="reddit-chart-type" class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary">
+        <option value="line">Line</option>
+        <option value="area" selected>Area</option>
+        <option value="bar">Bar</option>
+      </select>
+    </div>
+
+    <!-- Show Annotations -->
+    <label class="flex items-center gap-1.5 cursor-pointer ml-auto">
+      <input type="checkbox" id="reddit-toggle-annotations" checked class="accent-[#ff4500]" />
+      <span class="text-sm text-gray-300">Show milestones</span>
+    </label>
+  </div>
+
+  <!-- Chart Canvas -->
+  <div class="relative" style="height: 400px;">
+    <canvas id="reddit-history-chart"></canvas>
+  </div>
+
+  <!-- No Data State -->
+  <div id="reddit-chart-no-data" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
+    <span class="text-gray-400">No Reddit data available.</span>
+  </div>
+</div>
+
+<script define:vars={{ redditDataJson }}>
+  window.__redditHistoryData = JSON.parse(redditDataJson);
+</script>
+
+<script>
+  import { Chart } from '../../lib/utils/chartRegistry';
+  import { initChartWhenVisible } from '../../lib/utils/lazyChart';
+  import annotationPlugin from 'chartjs-plugin-annotation';
+
+  // Register annotation plugin
+  Chart.register(annotationPlugin);
+
+  interface RedditDailyStats {
+    date: string;
+    subscribers: number;
+    activeUsers: number | null;
+    postsLast24h: number;
+    commentsLast24h: number;
+  }
+
+  interface RedditHistory {
+    lastUpdated: string;
+    subreddit: string;
+    daily: RedditDailyStats[];
+    current: { subscribers: number; activeUsers: number | null; };
+  }
+
+  let redditChart: Chart | null = null;
+  let redditHistoryData: RedditHistory | null = (window as any).__redditHistoryData || null;
+
+  // Reddit orange color
+  const REDDIT_COLORS = {
+    subscribers: { border: '#ff4500', background: 'rgba(255, 69, 0, 0.15)' },
+  };
+
+  // Key milestones to annotate
+  const MILESTONES = [
+    { value: 1000, label: '1K' },
+    { value: 5000, label: '5K' },
+    { value: 10000, label: '10K' },
+    { value: 25000, label: '25K' },
+    { value: 50000, label: '50K' },
+    { value: 100000, label: '100K' },
+    { value: 200000, label: '200K' },
+  ];
+
+  function getChartType(): 'line' | 'bar' {
+    return (document.getElementById('reddit-chart-type') as HTMLSelectElement).value as 'line' | 'bar';
+  }
+
+  function isAreaChart(): boolean {
+    return (document.getElementById('reddit-chart-type') as HTMLSelectElement).value === 'area';
+  }
+
+  function showAnnotations(): boolean {
+    return (document.getElementById('reddit-toggle-annotations') as HTMLInputElement)?.checked ?? true;
+  }
+
+  function createAnnotations(data: RedditDailyStats[]) {
+    if (!showAnnotations()) return {};
+
+    const annotations: Record<string, any> = {};
+    const maxValue = Math.max(...data.map(d => d.subscribers));
+
+    MILESTONES.forEach((milestone, idx) => {
+      if (milestone.value <= maxValue) {
+        // Find the first date where we crossed this milestone
+        const crossingPoint = data.find(d => d.subscribers >= milestone.value);
+        if (crossingPoint) {
+          annotations[`milestone-${idx}`] = {
+            type: 'line',
+            yMin: milestone.value,
+            yMax: milestone.value,
+            borderColor: 'rgba(255, 69, 0, 0.3)',
+            borderWidth: 1,
+            borderDash: [5, 5],
+            label: {
+              display: true,
+              content: milestone.label,
+              position: 'start',
+              backgroundColor: 'rgba(255, 69, 0, 0.8)',
+              color: '#fff',
+              font: { size: 10 },
+              padding: 2,
+            },
+          };
+        }
+      }
+    });
+
+    return annotations;
+  }
+
+  function updateRedditChart() {
+    if (!redditHistoryData || !redditChart) return;
+
+    const chartType = getChartType();
+    const isArea = isAreaChart();
+    const data = redditHistoryData.daily;
+
+    const annotations = createAnnotations(data);
+
+    redditChart.data.datasets[0].fill = isArea;
+    redditChart.data.datasets[0].backgroundColor = isArea
+      ? REDDIT_COLORS.subscribers.background
+      : REDDIT_COLORS.subscribers.border;
+    redditChart.config.type = chartType === 'bar' ? 'bar' : 'line';
+
+    // Update annotations
+    if (redditChart.options.plugins?.annotation) {
+      redditChart.options.plugins.annotation.annotations = annotations;
+    }
+
+    redditChart.update();
+  }
+
+  function initRedditChart() {
+    const canvas = document.getElementById('reddit-history-chart') as HTMLCanvasElement;
+    const noDataEl = document.getElementById('reddit-chart-no-data');
+
+    if (!redditHistoryData) {
+      noDataEl?.classList.remove('hidden');
+      return;
+    }
+
+    if (redditHistoryData.daily.length === 0) {
+      noDataEl?.classList.remove('hidden');
+      return;
+    }
+
+    const data = redditHistoryData.daily;
+    const isArea = isAreaChart();
+    const labels = data.map(d => d.date);
+    const annotations = createAnnotations(data);
+
+    redditChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Subscribers',
+          data: data.map(d => d.subscribers),
+          borderColor: REDDIT_COLORS.subscribers.border,
+          backgroundColor: isArea
+            ? REDDIT_COLORS.subscribers.background
+            : REDDIT_COLORS.subscribers.border,
+          fill: isArea,
+          tension: 0.3,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: REDDIT_COLORS.subscribers.border,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        plugins: {
+          legend: {
+            display: false,
+          },
+          annotation: {
+            annotations,
+          },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#fff',
+            bodyColor: '#9ca3af',
+            borderColor: '#333',
+            borderWidth: 1,
+            callbacks: {
+              label: (context) => {
+                const value = context.parsed.y;
+                return `Subscribers: ${value.toLocaleString()}`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: { color: '#6b7280', maxRotation: 45 },
+          },
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: '#6b7280',
+              callback: (value) => {
+                if (typeof value === 'number') {
+                  if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+                }
+                return value;
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Attach event listeners
+    document.getElementById('reddit-chart-type')?.addEventListener('change', updateRedditChart);
+    document.getElementById('reddit-toggle-annotations')?.addEventListener('change', updateRedditChart);
+  }
+
+  // Initialize when DOM is ready and chart is visible
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initChartWhenVisible('reddit-chart-container', initRedditChart);
+    });
+  } else {
+    initChartWhenVisible('reddit-chart-container', initRedditChart);
+  }
+</script>
+
+<style>
+  #reddit-chart-container {
+    position: relative;
+  }
+</style>
