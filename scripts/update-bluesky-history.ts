@@ -82,6 +82,7 @@ interface BlueskyHistory {
     posts: number;
     uniqueAuthors: number;
     totalLikes: number;
+    totalReposts: number;
     avgPostsPerDay: number;
   }>;
   monthly: Array<{
@@ -89,6 +90,7 @@ interface BlueskyHistory {
     posts: number;
     uniqueAuthors: number;
     totalLikes: number;
+    totalReposts: number;
     avgPostsPerDay: number;
   }>;
   totals: {
@@ -285,6 +287,7 @@ function generateHistory(dailyStats: DailyStats[], posts: BlueskyPost[]): Bluesk
     posts: days.reduce((sum, d) => sum + d.posts, 0),
     uniqueAuthors: days.reduce((sum, d) => sum + d.uniqueAuthors, 0),
     totalLikes: days.reduce((sum, d) => sum + d.totalLikes, 0),
+    totalReposts: days.reduce((sum, d) => sum + d.totalReposts, 0),
     avgPostsPerDay: Math.round(days.reduce((sum, d) => sum + d.posts, 0) / days.length * 10) / 10,
   })).sort((a, b) => a.date.localeCompare(b.date));
 
@@ -303,6 +306,7 @@ function generateHistory(dailyStats: DailyStats[], posts: BlueskyPost[]): Bluesk
     posts: days.reduce((sum, d) => sum + d.posts, 0),
     uniqueAuthors: days.reduce((sum, d) => sum + d.uniqueAuthors, 0),
     totalLikes: days.reduce((sum, d) => sum + d.totalLikes, 0),
+    totalReposts: days.reduce((sum, d) => sum + d.totalReposts, 0),
     avgPostsPerDay: Math.round(days.reduce((sum, d) => sum + d.posts, 0) / days.length * 10) / 10,
   })).sort((a, b) => a.date.localeCompare(b.date));
 
