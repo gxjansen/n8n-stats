@@ -251,8 +251,8 @@ export const DATA_SOURCES: DataSource[] = [
     type: 'timeseries',
     granularities: ['daily'],
     defaultGranularity: 'daily',
-    historyStart: '2026-01',
-    measuredSince: '2026-01', // Started tracking Jan 2026
+    historyStart: '2022-12',
+    measuredSince: '2022-12', // Backfilled from Wayback Machine, daily from Jan 2026
     metrics: [
       { id: 'reddit-subscribers', label: 'Subscribers', color: COLORS.redditSubscribers, path: 'subscribers' },
       { id: 'reddit-posts', label: 'Posts/24h', color: COLORS.redditPosts, path: 'postsLast24h' },
