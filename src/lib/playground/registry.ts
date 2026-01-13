@@ -82,6 +82,11 @@ const COLORS = {
   blueskyFollowing: '#36a2eb',  // Light blue
   blueskyPostsAccount: '#ff6384', // Pink
 
+  // Reddit
+  redditSubscribers: '#ff4500', // Reddit orange
+  redditPosts: '#ff5722',       // Deep orange
+  redditComments: '#ff7043',    // Light orange
+
   // Events
   eventsCount: '#ff6d5a',       // n8n coral/red
   eventsRegistrations: '#10b981', // Green
@@ -236,6 +241,22 @@ export const DATA_SOURCES: DataSource[] = [
       { id: 'bluesky-followers', label: 'Followers', color: COLORS.blueskyFollowers, path: 'followers' },
       { id: 'bluesky-following', label: 'Following', color: COLORS.blueskyFollowing, path: 'following' },
       { id: 'bluesky-account-posts', label: 'Posts', color: COLORS.blueskyPostsAccount, path: 'posts' },
+    ],
+  },
+  {
+    id: 'reddit',
+    label: 'Reddit r/n8n',
+    shortLabel: 'Reddit',
+    file: '/data/history/reddit.json',
+    type: 'timeseries',
+    granularities: ['daily'],
+    defaultGranularity: 'daily',
+    historyStart: '2026-01',
+    measuredSince: '2026-01', // Started tracking Jan 2026
+    metrics: [
+      { id: 'reddit-subscribers', label: 'Subscribers', color: COLORS.redditSubscribers, path: 'subscribers' },
+      { id: 'reddit-posts', label: 'Posts/24h', color: COLORS.redditPosts, path: 'postsLast24h' },
+      { id: 'reddit-comments', label: 'Comments/24h', color: COLORS.redditComments, path: 'commentsLast24h' },
     ],
   },
   {
