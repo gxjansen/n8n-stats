@@ -71,11 +71,16 @@ const COLORS = {
   discordMembers: '#5865f2',    // Discord blue
   discordOnline: '#57f287',     // Discord green
 
-  // Bluesky
+  // Bluesky mentions
   blueskyPosts: '#0085ff',      // Bluesky blue
   blueskyAuthors: '#36a2eb',    // Light blue
   blueskyLikes: '#ff6384',      // Pink/red
   blueskyReposts: '#4bc0c0',    // Teal
+
+  // Bluesky profile (n8n.io account)
+  blueskyFollowers: '#0085ff',  // Bluesky blue
+  blueskyFollowing: '#36a2eb',  // Light blue
+  blueskyPostsAccount: '#ff6384', // Pink
 
   // Events
   eventsCount: '#ff6d5a',       // n8n coral/red
@@ -215,6 +220,22 @@ export const DATA_SOURCES: DataSource[] = [
       { id: 'bluesky-authors', label: 'Unique Authors', color: COLORS.blueskyAuthors, path: 'uniqueAuthors' },
       { id: 'bluesky-likes', label: 'Total Likes', color: COLORS.blueskyLikes, path: 'totalLikes' },
       { id: 'bluesky-reposts', label: 'Total Reposts', color: COLORS.blueskyReposts, path: 'totalReposts' },
+    ],
+  },
+  {
+    id: 'bluesky-profile',
+    label: 'Bluesky @n8n.io',
+    shortLabel: 'BS Profile',
+    file: '/data/history/bluesky-profile.json',
+    type: 'timeseries',
+    granularities: ['daily'],
+    defaultGranularity: 'daily',
+    historyStart: '2026-01',
+    measuredSince: '2026-01', // Started tracking Jan 2026
+    metrics: [
+      { id: 'bluesky-followers', label: 'Followers', color: COLORS.blueskyFollowers, path: 'followers' },
+      { id: 'bluesky-following', label: 'Following', color: COLORS.blueskyFollowing, path: 'following' },
+      { id: 'bluesky-account-posts', label: 'Posts', color: COLORS.blueskyPostsAccount, path: 'posts' },
     ],
   },
   {
