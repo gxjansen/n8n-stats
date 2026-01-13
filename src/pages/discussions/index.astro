@@ -1,0 +1,236 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import StatCard from '@/components/cards/StatCard.astro';
+import MilestonePrediction from '@/components/cards/MilestonePrediction.astro';
+import CommunityHistoryChart from '@/components/charts/CommunityHistoryChart.astro';
+import CommunityTreemapChart from '@/components/charts/CommunityTreemapChart.astro';
+import BlueskyHistoryChart from '@/components/charts/BlueskyHistoryChart.astro';
+import { fetchForumStats, fetchForumCategories } from '@/lib/api/discourse';
+import { fetchDiscordStats } from '@/lib/api/discord';
+import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
+import { predictMilestone, getNextMilestones } from '@/lib/utils/predictions';
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+
+// Fetch forum and Discord data
+const [forumStats, categories, discordStats] = await Promise.all([
+  fetchForumStats(),
+  fetchForumCategories(),
+  fetchDiscordStats(),
+]);
+
+// Load Bluesky data
+interface BlueskyHistory {
+  lastUpdated: string;
+  totals: {
+    posts: number;
+    uniqueAuthors: number;
+    totalLikes: number;
+    totalReposts: number;
+  };
+  monthly: Array<{ month: string; posts: number; totalLikes: number }>;
+}
+
+let blueskyStats: BlueskyHistory | null = null;
+try {
+  const blueskyPath = join(process.cwd(), 'public', 'data', 'history', 'bluesky.json');
+  if (existsSync(blueskyPath)) {
+    blueskyStats = JSON.parse(readFileSync(blueskyPath, 'utf-8'));
+  }
+} catch (e) {
+  console.warn('Could not load Bluesky history');
+}
+
+// Calculate Bluesky stats for last 30 days
+let blueskyLast30Days = { posts: 0, likes: 0 };
+if (blueskyStats?.monthly) {
+  const recentMonths = blueskyStats.monthly.slice(-1);
+  blueskyLast30Days = {
+    posts: recentMonths.reduce((sum, m) => sum + m.posts, 0),
+    likes: recentMonths.reduce((sum, m) => sum + m.totalLikes, 0),
+  };
+}
+
+// Load historical data for predictions
+let userHistory: Array<{ date: string; value: number }> = [];
+try {
+  const historyPath = join(process.cwd(), 'public', 'data', 'community-history.json');
+  const historyData = JSON.parse(readFileSync(historyPath, 'utf-8'));
+  // Use monthly data for predictions
+  userHistory = historyData.monthly?.map((d: any) => ({
+    date: d.date,
+    value: d.users,
+  })) || [];
+} catch (e) {
+  console.warn('Could not load community history for predictions');
+}
+
+// Calculate milestone predictions for forum members
+const currentUsers = forumStats.usersCount;
+const userMilestones = getNextMilestones(currentUsers, 'users');
+const userPredictions = userMilestones.map(milestone =>
+  predictMilestone(userHistory, milestone, { lookbackMonths: 6 })
+);
+
+// Get top categories by topic count (more for treemap)
+const topCategories = categories
+  .filter(c => c.topicCount > 0)
+  .sort((a, b) => b.topicCount - a.topicCount)
+  .slice(0, 15);
+---
+
+<BaseLayout title="Discussions" description="n8n community forum and Discord activity">
+  <div class="container-narrow py-12">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-white mb-2">Discussions</h1>
+      <p class="text-gray-400">
+        Activity from the <a href={n8nUrls.community()} target="_blank" rel="noopener" class="text-n8n-primary hover:underline">n8n community forum</a>, <a href="https://discord.gg/n8n" target="_blank" rel="noopener" class="text-[#5865F2] hover:underline">Discord server</a>, and <a href="https://bsky.app/search?q=n8n" target="_blank" rel="noopener" class="text-[#0085ff] hover:underline">Bluesky</a>
+      </p>
+    </div>
+
+    <!-- Forum Stats -->
+    <section class="mb-12">
+      <div class="flex items-center gap-3 mb-6">
+        <svg class="w-6 h-6 text-n8n-primary" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12.103 0C18.666 0 24 5.485 24 11.997c0 6.51-5.33 11.99-11.9 11.99L0 24V11.79C0 5.28 5.532 0 12.103 0zm.116 4.563c-2.593-.003-4.996 1.352-6.337 3.57-1.33 2.208-1.387 4.957-.148 7.22L4.4 19.61l4.794-1.074c2.745 1.225 5.965.676 8.136-1.39 2.17-2.054 2.86-5.228 1.737-7.997-1.135-2.778-3.84-4.59-6.84-4.585h-.008z"/>
+        </svg>
+        <h2 class="text-2xl font-bold text-white">Forum (Discourse)</h2>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <StatCard label="Total Members" value={forumStats.usersCount} />
+        <StatCard label="Total Topics" value={forumStats.topicsCount} />
+        <StatCard label="Total Posts" value={forumStats.postsCount} />
+        <StatCard label="Total Likes" value={forumStats.likesCount} />
+      </div>
+      <h3 class="text-lg font-semibold text-gray-300 mb-4">Last 7 Days</h3>
+      <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
+        <StatCard label="Active Users" value={forumStats.activeUsers7Days} />
+        <StatCard label="New Posts" value={forumStats.postsLast7Days} />
+      </div>
+    </section>
+
+    <!-- Discord Stats -->
+    <section class="mb-12">
+      <div class="flex items-center gap-3 mb-6">
+        <svg class="w-6 h-6 text-[#5865F2]" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+        </svg>
+        <h2 class="text-2xl font-bold text-white">Discord</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
+        <StatCard label="Total Members" value={discordStats.memberCount} />
+      </div>
+      <p class="text-sm text-gray-500 mt-3">Discord historical data will be tracked going forward.</p>
+    </section>
+
+    <!-- Bluesky Stats -->
+    {blueskyStats && (
+      <section class="mb-12">
+        <div class="flex items-center gap-3 mb-6">
+          <svg class="w-6 h-6 text-[#0085ff]" fill="currentColor" viewBox="0 0 600 530">
+            <path d="m135.72 44.03c66.496 49.921 138.02 151.14 164.28 205.46 26.262-54.316 97.782-155.54 164.28-205.46 47.98-36.021 125.72-63.892 125.72 24.795 0 17.712-10.155 148.79-16.111 170.07-20.703 73.984-96.144 92.854-163.25 81.433 117.3 19.964 147.14 86.092 82.697 152.22-122.39 125.59-175.91-31.511-189.63-71.766-2.514-7.3797-3.6904-10.832-3.7077-7.8964-0.0174-2.9357-1.1937 0.51669-3.7077 7.8964-13.714 40.255-67.233 197.36-189.63 71.766-64.444-66.128-34.605-132.26 82.697-152.22-67.108 11.421-142.55-7.4491-163.25-81.433-5.9562-21.282-16.111-152.36-16.111-170.07 0-88.687 77.742-60.816 125.72-24.795z"/>
+          </svg>
+          <h2 class="text-2xl font-bold text-white">Bluesky</h2>
+        </div>
+        <p class="text-gray-400 mb-6">
+          Posts mentioning "n8n" across the Bluesky network. Tracking since Feb 2024.
+        </p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <StatCard label="Total Posts" value={blueskyStats.totals.posts} />
+          <StatCard label="Unique Authors" value={blueskyStats.totals.uniqueAuthors} />
+          <StatCard label="Total Likes" value={blueskyStats.totals.totalLikes} />
+          <StatCard label="Total Reposts" value={blueskyStats.totals.totalReposts} />
+        </div>
+        <h3 class="text-lg font-semibold text-gray-300 mb-4">Last 30 Days</h3>
+        <div class="grid grid-cols-2 md:grid-cols-2 gap-4 mb-8">
+          <StatCard label="Posts" value={blueskyLast30Days.posts} />
+          <StatCard label="Likes" value={blueskyLast30Days.likes} />
+        </div>
+        <h3 class="text-lg font-semibold text-gray-300 mb-4">Mention Trends</h3>
+        <BlueskyHistoryChart />
+      </section>
+    )}
+
+    <!-- Forum Member Milestones -->
+    {userPredictions.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold text-white mb-2">Forum Member Milestones</h2>
+        <p class="text-gray-400 mb-6">
+          Predicted dates based on recent growth trends (last 6 months)
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {userPredictions.map((pred) => (
+            <MilestonePrediction
+              label="Forum Members"
+              milestone={pred.milestone}
+              predictedDate={pred.predictedDate}
+              daysUntil={pred.daysUntil}
+              confidence={pred.confidence}
+              currentValue={pred.currentValue}
+              icon="👥"
+            />
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Historical Trends -->
+    <section class="mb-12">
+      <div class="flex items-center gap-3 mb-6">
+        <svg class="w-6 h-6 text-n8n-primary" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12.103 0C18.666 0 24 5.485 24 11.997c0 6.51-5.33 11.99-11.9 11.99L0 24V11.79C0 5.28 5.532 0 12.103 0zm.116 4.563c-2.593-.003-4.996 1.352-6.337 3.57-1.33 2.208-1.387 4.957-.148 7.22L4.4 19.61l4.794-1.074c2.745 1.225 5.965.676 8.136-1.39 2.17-2.054 2.86-5.228 1.737-7.997-1.135-2.778-3.84-4.59-6.84-4.585h-.008z"/>
+        </svg>
+        <h2 class="text-2xl font-bold text-white">Forum Historical Trends</h2>
+      </div>
+      <p class="text-gray-400 mb-6">
+        Forum growth from November 2019 to present. Toggle metrics, adjust date range, and switch chart types.
+      </p>
+      <CommunityHistoryChart />
+    </section>
+
+    <!-- Top Categories -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Popular Forum Categories</h2>
+      <p class="text-gray-400 mb-4">Categories sized by number of topics. Click to visit.</p>
+      <CommunityTreemapChart data={topCategories} />
+    </section>
+
+    <!-- Links to Community -->
+    <div class="flex flex-wrap justify-center gap-4">
+      <a
+        href={n8nUrls.community()}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-n8n-primary text-white rounded-lg font-medium hover:bg-n8n-primary/90 transition-colors"
+      >
+        Visit the Community Forum
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+      </a>
+      <a
+        href="https://discord.gg/n8n"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-[#5865F2] text-white rounded-lg font-medium hover:bg-[#4752C4] transition-colors"
+      >
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+        </svg>
+        Join the Discord
+      </a>
+      <a
+        href="https://bsky.app/search?q=n8n"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-[#0085ff] text-white rounded-lg font-medium hover:bg-[#0077e6] transition-colors"
+      >
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 600 530">
+          <path d="m135.72 44.03c66.496 49.921 138.02 151.14 164.28 205.46 26.262-54.316 97.782-155.54 164.28-205.46 47.98-36.021 125.72-63.892 125.72 24.795 0 17.712-10.155 148.79-16.111 170.07-20.703 73.984-96.144 92.854-163.25 81.433 117.3 19.964 147.14 86.092 82.697 152.22-122.39 125.59-175.91-31.511-189.63-71.766-2.514-7.3797-3.6904-10.832-3.7077-7.8964-0.0174-2.9357-1.1937 0.51669-3.7077 7.8964-13.714 40.255-67.233 197.36-189.63 71.766-64.444-66.128-34.605-132.26 82.697-152.22-67.108 11.421-142.55-7.4491-163.25-81.433-5.9562-21.282-16.111-152.36-16.111-170.07 0-88.687 77.742-60.816 125.72-24.795z"/>
+        </svg>
+        Search n8n on Bluesky
+      </a>
+    </div>
+  </div>
+</BaseLayout>

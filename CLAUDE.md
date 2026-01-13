@@ -114,14 +114,14 @@ See `docs/DATA-STRATEGY.md` for full ETL documentation.
 │   ├── layouts/
 │   │   └── BaseLayout.astro
 │   ├── pages/
-│   │   ├── index.astro           # Dashboard overview
-│   │   ├── community/index.astro # Forum stats
-│   │   ├── creators/index.astro  # Creator leaderboard
-│   │   ├── events/index.astro    # Community events
-│   │   ├── github/index.astro    # GitHub stats
+│   │   ├── index.astro            # Dashboard overview
+│   │   ├── creators/index.astro   # Creator leaderboard
+│   │   ├── discussions/index.astro # Forum & Discord stats
+│   │   ├── events/index.astro     # Community events
+│   │   ├── github/index.astro     # GitHub stats
 │   │   ├── nodes/
-│   │   │   ├── index.astro       # Node usage stats
-│   │   │   └── [slug].astro      # Individual node pages
+│   │   │   ├── index.astro        # Node usage stats
+│   │   │   └── [slug].astro       # Individual node pages
 │   │   ├── playground/index.astro # Data playground
 │   │   └── templates/index.astro  # Template explorer
 │   ├── lib/
@@ -414,7 +414,7 @@ Events follow the pattern: `{category}-{action}` with optional `data-umami-event
 **Navigation (BaseLayout.astro):**
 | Event Name | Target | Location |
 |------------|--------|----------|
-| `nav-click` | `home-logo`, `templates`, `nodes`, `creators`, `community`, `events`, `github`, `playground` | Header nav |
+| `nav-click` | `home-logo`, `templates`, `nodes`, `creators`, `discussions`, `events`, `github`, `playground` | Header nav |
 | `external-click` | `n8n-io`, `n8n-arena`, `gui-do`, `feedback-issues`, `gui-do-footer` | Footer links |
 
 **Cards:**

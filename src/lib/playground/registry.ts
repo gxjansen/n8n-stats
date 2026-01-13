@@ -71,6 +71,12 @@ const COLORS = {
   discordMembers: '#5865f2',    // Discord blue
   discordOnline: '#57f287',     // Discord green
 
+  // Bluesky
+  blueskyPosts: '#0085ff',      // Bluesky blue
+  blueskyAuthors: '#36a2eb',    // Light blue
+  blueskyLikes: '#ff6384',      // Pink/red
+  blueskyReposts: '#4bc0c0',    // Teal
+
   // Events
   eventsCount: '#ff6d5a',       // n8n coral/red
   eventsRegistrations: '#10b981', // Green
@@ -192,6 +198,23 @@ export const DATA_SOURCES: DataSource[] = [
     metrics: [
       { id: 'discord-members', label: 'Discord Members', color: COLORS.discordMembers, path: 'members', excludeZero: true },
       { id: 'discord-online', label: 'Discord Online', color: COLORS.discordOnline, path: 'online', excludeZero: true },
+    ],
+  },
+  {
+    id: 'bluesky',
+    label: 'Bluesky',
+    shortLabel: 'Bluesky',
+    file: '/data/history/bluesky.json',
+    type: 'timeseries',
+    granularities: ['daily', 'weekly', 'monthly'],
+    defaultGranularity: 'monthly',
+    historyStart: '2024-02',
+    measuredSince: '2024-02', // All data from Bluesky API search (measured)
+    metrics: [
+      { id: 'bluesky-posts', label: 'Bluesky Posts', color: COLORS.blueskyPosts, path: 'posts' },
+      { id: 'bluesky-authors', label: 'Unique Authors', color: COLORS.blueskyAuthors, path: 'uniqueAuthors' },
+      { id: 'bluesky-likes', label: 'Total Likes', color: COLORS.blueskyLikes, path: 'totalLikes' },
+      { id: 'bluesky-reposts', label: 'Total Reposts', color: COLORS.blueskyReposts, path: 'totalReposts' },
     ],
   },
   {

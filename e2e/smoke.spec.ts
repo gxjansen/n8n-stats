@@ -13,8 +13,8 @@ test.describe('Smoke Tests - All Pages Load', () => {
     await expect(page.locator('h1, h2').first()).toBeVisible();
   });
 
-  test('community page loads', async ({ page }) => {
-    await page.goto('/community');
+  test('discussions page loads', async ({ page }) => {
+    await page.goto('/discussions');
     await expect(page.locator('body')).toBeVisible();
   });
 
@@ -56,7 +56,7 @@ test.describe('Homepage Content', () => {
     await page.goto('/');
     // Check for nav links in the header navigation
     await expect(page.getByRole('link', { name: 'GitHub', exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Community', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Discussions', exact: true })).toBeVisible();
   });
 });
 
@@ -69,8 +69,8 @@ test.describe('Charts Render', () => {
     await expect(canvases.first()).toBeVisible();
   });
 
-  test('community page has charts', async ({ page }) => {
-    await page.goto('/community');
+  test('discussions page has charts', async ({ page }) => {
+    await page.goto('/discussions');
     await page.waitForSelector('canvas', { timeout: 10000 });
     const canvases = page.locator('canvas');
     await expect(canvases.first()).toBeVisible();
@@ -84,10 +84,10 @@ test.describe('Navigation', () => {
     await expect(page).toHaveURL(/\/github/);
   });
 
-  test('can navigate from homepage to community', async ({ page }) => {
+  test('can navigate from homepage to discussions', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('link', { name: /community/i }).first().click();
-    await expect(page).toHaveURL(/\/community/);
+    await page.getByRole('link', { name: /discussions/i }).first().click();
+    await expect(page).toHaveURL(/\/discussions/);
   });
 
   test('can navigate from homepage to nodes', async ({ page }) => {

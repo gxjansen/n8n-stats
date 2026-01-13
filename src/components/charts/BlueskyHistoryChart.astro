@@ -1,0 +1,371 @@
+---
+/**
+ * Interactive Bluesky History Chart
+ *
+ * Renders Chart.js line/area chart for Bluesky n8n mentions.
+ * Data is loaded at build time for instant rendering.
+ */
+
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+
+interface BlueskyDailyStats {
+  date: string;
+  posts: number;
+  uniqueAuthors: number;
+  totalLikes: number;
+  totalReposts: number;
+  totalReplies: number;
+}
+
+interface BlueskyHistory {
+  lastUpdated: string;
+  daily: BlueskyDailyStats[];
+  weekly: Array<{
+    week: string;
+    posts: number;
+    uniqueAuthors: number;
+    totalLikes: number;
+    avgPostsPerDay: number;
+  }>;
+  monthly: Array<{
+    month: string;
+    posts: number;
+    uniqueAuthors: number;
+    totalLikes: number;
+    avgPostsPerDay: number;
+  }>;
+  totals: {
+    posts: number;
+    uniqueAuthors: number;
+    totalLikes: number;
+    totalReposts: number;
+  };
+}
+
+// Load data at build time
+let blueskyHistoryData: BlueskyHistory | null = null;
+try {
+  const dataPath = join(process.cwd(), 'public', 'data', 'history', 'bluesky.json');
+  if (existsSync(dataPath)) {
+    blueskyHistoryData = JSON.parse(readFileSync(dataPath, 'utf-8'));
+  }
+} catch (e) { /* use null */ }
+
+const blueskyDataJson = JSON.stringify(blueskyHistoryData);
+---
+
+<div id="bluesky-chart-container" class="card">
+  <!-- Controls -->
+  <div class="flex flex-wrap items-center gap-4 mb-6">
+    <!-- Date Range -->
+    <div class="flex items-center gap-2">
+      <label class="text-sm text-gray-400">Range:</label>
+      <select id="bluesky-date-range" class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary">
+        <option value="90">Last 3 months</option>
+        <option value="180">Last 6 months</option>
+        <option value="365" selected>Last 12 months</option>
+        <option value="all">All time</option>
+      </select>
+    </div>
+
+    <!-- Chart Type -->
+    <div class="flex items-center gap-2">
+      <label class="text-sm text-gray-400">Type:</label>
+      <select id="bluesky-chart-type" class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary">
+        <option value="line">Line</option>
+        <option value="area" selected>Area</option>
+        <option value="bar">Bar</option>
+      </select>
+    </div>
+
+    <!-- Metrics Toggle -->
+    <div class="flex items-center gap-3 ml-auto">
+      <label class="flex items-center gap-1.5 cursor-pointer">
+        <input type="checkbox" id="bluesky-toggle-posts" checked class="accent-[#0085ff]" />
+        <span class="text-sm text-gray-300">Posts</span>
+      </label>
+      <label class="flex items-center gap-1.5 cursor-pointer">
+        <input type="checkbox" id="bluesky-toggle-authors" class="accent-[#36a2eb]" />
+        <span class="text-sm text-gray-300">Authors</span>
+      </label>
+      <label class="flex items-center gap-1.5 cursor-pointer">
+        <input type="checkbox" id="bluesky-toggle-likes" checked class="accent-[#ff6384]" />
+        <span class="text-sm text-gray-300">Likes</span>
+      </label>
+      <label class="flex items-center gap-1.5 cursor-pointer">
+        <input type="checkbox" id="bluesky-toggle-reposts" class="accent-[#4bc0c0]" />
+        <span class="text-sm text-gray-300">Reposts</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Chart Canvas -->
+  <div class="relative" style="height: 400px;">
+    <canvas id="bluesky-history-chart"></canvas>
+  </div>
+
+  <!-- No Data State -->
+  <div id="bluesky-chart-no-data" class="hidden absolute inset-0 flex items-center justify-center bg-n8n-card/80">
+    <span class="text-gray-400">No Bluesky data yet. Check back tomorrow!</span>
+  </div>
+</div>
+
+<script define:vars={{ blueskyDataJson }}>
+  window.__blueskyHistoryData = JSON.parse(blueskyDataJson);
+</script>
+
+<script>
+  import { Chart } from '../../lib/utils/chartRegistry';
+  import { initChartWhenVisible } from '../../lib/utils/lazyChart';
+
+  interface BlueskyDailyStats {
+    date: string;
+    posts: number;
+    uniqueAuthors: number;
+    totalLikes: number;
+    totalReposts: number;
+    totalReplies: number;
+  }
+
+  interface BlueskyMonthly {
+    date: string;
+    posts: number;
+    uniqueAuthors: number;
+    totalLikes: number;
+    avgPostsPerDay: number;
+  }
+
+  interface BlueskyHistory {
+    lastUpdated: string;
+    daily: BlueskyDailyStats[];
+    monthly: BlueskyMonthly[];
+    totals: any;
+  }
+
+  let blueskyChart: Chart | null = null;
+  let blueskyHistoryData: BlueskyHistory | null = (window as any).__blueskyHistoryData || null;
+
+  // Bluesky brand blue + complementary colors
+  const BLUESKY_COLORS = {
+    posts: { border: '#0085ff', background: 'rgba(0, 133, 255, 0.15)' },
+    authors: { border: '#36a2eb', background: 'rgba(54, 162, 235, 0.1)' },
+    likes: { border: '#ff6384', background: 'rgba(255, 99, 132, 0.1)' },
+    reposts: { border: '#4bc0c0', background: 'rgba(75, 192, 192, 0.1)' },
+  };
+
+  function getBlueskyDataForRange(data: BlueskyHistory, rangeDays: number | 'all'): (BlueskyDailyStats | BlueskyMonthly)[] {
+    if (rangeDays === 'all' || rangeDays > 180) {
+      // Use monthly for longer ranges
+      return data.monthly;
+    }
+    return data.daily;
+  }
+
+  function parseDateToTimestamp(dateStr: string): number {
+    if (dateStr.match(/^\d{4}-\d{2}$/)) {
+      // Monthly format: "2024-01"
+      const [year, month] = dateStr.split('-').map(Number);
+      return new Date(year, month - 1, 15).getTime();
+    }
+    return new Date(dateStr).getTime();
+  }
+
+  function filterByDateRange<T extends { date?: string; month?: string }>(
+    points: T[],
+    rangeDays: number | 'all'
+  ): T[] {
+    if (rangeDays === 'all') return points;
+
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - rangeDays);
+    const cutoffTimestamp = cutoff.getTime();
+
+    return points.filter(p => {
+      const dateStr = (p as any).date || (p as any).month;
+      return parseDateToTimestamp(dateStr) >= cutoffTimestamp;
+    });
+  }
+
+  function getVisibleMetrics(): string[] {
+    const metrics: string[] = [];
+    if ((document.getElementById('bluesky-toggle-posts') as HTMLInputElement)?.checked) metrics.push('posts');
+    if ((document.getElementById('bluesky-toggle-authors') as HTMLInputElement)?.checked) metrics.push('authors');
+    if ((document.getElementById('bluesky-toggle-likes') as HTMLInputElement)?.checked) metrics.push('likes');
+    if ((document.getElementById('bluesky-toggle-reposts') as HTMLInputElement)?.checked) metrics.push('reposts');
+    return metrics;
+  }
+
+  function getChartType(): 'line' | 'bar' {
+    return (document.getElementById('bluesky-chart-type') as HTMLSelectElement).value as 'line' | 'bar';
+  }
+
+  function isAreaChart(): boolean {
+    return (document.getElementById('bluesky-chart-type') as HTMLSelectElement).value === 'area';
+  }
+
+  function getDateRange(): number | 'all' {
+    const value = (document.getElementById('bluesky-date-range') as HTMLSelectElement).value;
+    return value === 'all' ? 'all' : parseInt(value, 10);
+  }
+
+  function createDatasets(data: any[], metrics: string[], isArea: boolean) {
+    const metricLabels: Record<string, string> = {
+      posts: 'Posts',
+      authors: 'Unique Authors',
+      likes: 'Likes',
+      reposts: 'Reposts',
+    };
+
+    const metricKeys: Record<string, string> = {
+      posts: 'posts',
+      authors: 'uniqueAuthors',
+      likes: 'totalLikes',
+      reposts: 'totalReposts',
+    };
+
+    return metrics.map(metric => ({
+      label: metricLabels[metric],
+      data: data.map(d => d[metricKeys[metric]] || 0),
+      borderColor: BLUESKY_COLORS[metric as keyof typeof BLUESKY_COLORS].border,
+      backgroundColor: isArea
+        ? BLUESKY_COLORS[metric as keyof typeof BLUESKY_COLORS].background
+        : BLUESKY_COLORS[metric as keyof typeof BLUESKY_COLORS].border,
+      fill: isArea,
+      tension: 0.1,
+      pointRadius: data.length > 60 ? 0 : 3,
+      pointHoverRadius: 5,
+    }));
+  }
+
+  function updateBlueskyChart() {
+    if (!blueskyHistoryData || !blueskyChart) return;
+
+    const range = getDateRange();
+    const metrics = getVisibleMetrics();
+    const chartType = getChartType();
+    const isArea = isAreaChart();
+
+    const rawData = getBlueskyDataForRange(blueskyHistoryData, range);
+    const filteredData = filterByDateRange(rawData, range);
+
+    if (filteredData.length === 0) {
+      document.getElementById('bluesky-chart-no-data')?.classList.remove('hidden');
+      return;
+    }
+    document.getElementById('bluesky-chart-no-data')?.classList.add('hidden');
+
+    const labels = filteredData.map(d => (d as any).date || (d as any).month);
+    const datasets = createDatasets(filteredData, metrics, isArea);
+
+    blueskyChart.data.labels = labels;
+    blueskyChart.data.datasets = datasets;
+    blueskyChart.config.type = chartType === 'bar' ? 'bar' : 'line';
+    blueskyChart.update();
+  }
+
+  function initBlueskyChart() {
+    const canvas = document.getElementById('bluesky-history-chart') as HTMLCanvasElement;
+    const noDataEl = document.getElementById('bluesky-chart-no-data');
+
+    if (!blueskyHistoryData) {
+      noDataEl?.classList.remove('hidden');
+      return;
+    }
+
+    if (blueskyHistoryData.daily.length === 0 && blueskyHistoryData.monthly.length === 0) {
+      noDataEl?.classList.remove('hidden');
+      return;
+    }
+
+    const range = getDateRange();
+    const metrics = getVisibleMetrics();
+    const isArea = isAreaChart();
+
+    const rawData = getBlueskyDataForRange(blueskyHistoryData, range);
+    const filteredData = filterByDateRange(rawData, range);
+    const labels = filteredData.map(d => (d as any).date || (d as any).month);
+    const datasets = createDatasets(filteredData, metrics, isArea);
+
+    blueskyChart = new Chart(canvas, {
+      type: 'line',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: {
+              color: '#9ca3af',
+              usePointStyle: true,
+              padding: 20,
+            },
+          },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#fff',
+            bodyColor: '#9ca3af',
+            borderColor: '#333',
+            borderWidth: 1,
+            callbacks: {
+              label: (context) => {
+                const value = context.parsed.y;
+                return `${context.dataset.label}: ${value.toLocaleString()}`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: { color: '#6b7280', maxRotation: 45 },
+          },
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: '#6b7280',
+              callback: (value) => {
+                if (typeof value === 'number') {
+                  if (value >= 1000) return (value / 1000).toFixed(1) + 'K';
+                }
+                return value;
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Attach event listeners
+    document.getElementById('bluesky-date-range')?.addEventListener('change', updateBlueskyChart);
+    document.getElementById('bluesky-chart-type')?.addEventListener('change', updateBlueskyChart);
+    document.getElementById('bluesky-toggle-posts')?.addEventListener('change', updateBlueskyChart);
+    document.getElementById('bluesky-toggle-authors')?.addEventListener('change', updateBlueskyChart);
+    document.getElementById('bluesky-toggle-likes')?.addEventListener('change', updateBlueskyChart);
+    document.getElementById('bluesky-toggle-reposts')?.addEventListener('change', updateBlueskyChart);
+  }
+
+  // Initialize when DOM is ready and chart is visible
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initChartWhenVisible('bluesky-chart-container', initBlueskyChart);
+    });
+  } else {
+    initChartWhenVisible('bluesky-chart-container', initBlueskyChart);
+  }
+</script>
+
+<style>
+  #bluesky-chart-container {
+    position: relative;
+  }
+</style>
