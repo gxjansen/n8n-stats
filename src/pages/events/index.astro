@@ -249,6 +249,13 @@ const getHostUrl = (host: HostStats) =>
   host.n8nUsername
     ? n8nUrls.creator(host.n8nUsername)
     : host.lumaUrl;
+
+// Helper to format cities with "+X more" for hosts with many locations
+const formatHostCities = (cities: string[]) => {
+  if (cities.length === 0) return 'Online';
+  if (cities.length <= 3) return cities.join(', ');
+  return `${cities.slice(0, 3).join(', ')} +${cities.length - 3} more`;
+};
 ---
 
 <BaseLayout title="Community Events" description="n8n community meetups, workshops, and events around the world">
@@ -375,7 +382,7 @@ const getHostUrl = (host: HostStats) =>
                     </svg>
                   )}
                 </div>
-                <div class="text-xs text-gray-500 truncate">{host.cities.slice(0, 2).join(', ') || 'Online'}</div>
+                <div class="text-xs text-gray-500 truncate">{formatHostCities(host.cities)}</div>
               </div>
               <div class="text-right flex-shrink-0">
                 <div class="text-sm font-medium text-green-400">{host.eventCount} event{host.eventCount !== 1 ? 's' : ''}</div>
