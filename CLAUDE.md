@@ -73,7 +73,13 @@ See `docs/DATA-STRATEGY.md` for full ETL documentation.
 - **Data**: Member count, online count
 - **Auth**: Bot token required (DISCORD_BOT_TOKEN)
 
-### 8. YouTube Data API (Future)
+### 8. Notion Ambassadors Directory
+- **URL**: `https://n8n.notion.site/9eefeb6356754725a1b2dd8ccecc4ffb` (scraped via Playwright)
+- **Data**: Ambassador names, join dates, locations, profile links
+- **Update**: Weekly (Sundays at 05:00 UTC)
+- **Script**: `scripts/fetch-ambassadors.ts`
+
+### 9. YouTube Data API (Future)
 - **Search**: Videos with "n8n" keyword
 - **Data**: View counts, channel stats
 - **Auth**: API key required
@@ -115,6 +121,7 @@ See `docs/DATA-STRATEGY.md` for full ETL documentation.
 │   │   └── BaseLayout.astro
 │   ├── pages/
 │   │   ├── index.astro            # Dashboard overview
+│   │   ├── ambassadors/index.astro # Ambassador directory
 │   │   ├── creators/index.astro   # Creator leaderboard
 │   │   ├── discussions/index.astro # Forum & Discord stats
 │   │   ├── events/index.astro     # Community events
@@ -160,6 +167,7 @@ See `docs/DATA-STRATEGY.md` for full ETL documentation.
 │       │   ├── n8narena-creators.json
 │       │   └── n8narena.meta.json
 │       ├── history/
+│       │   ├── ambassadors.json
 │       │   ├── community.json
 │       │   ├── creators.json
 │       │   ├── creators-stats.json
@@ -179,6 +187,7 @@ See `docs/DATA-STRATEGY.md` for full ETL documentation.
 │   ├── fetch-data.ts             # Combined fetch script
 │   ├── fetch-external.ts         # External source fetching (n8n Arena)
 │   ├── fetch-events.ts           # Luma events fetching
+│   ├── fetch-ambassadors.ts      # Notion ambassador scraping (Playwright)
 │   ├── fetch-all-nodes.ts        # Full node catalog fetch
 │   ├── fetch-all-templates.ts    # Full template catalog fetch
 │   ├── build-history.ts          # Transform snapshots → history
@@ -197,7 +206,8 @@ See `docs/DATA-STRATEGY.md` for full ETL documentation.
 ├── .github/
 │   └── workflows/
 │       ├── daily-build.yml       # Daily data fetch + deploy
-│       └── weekly-templates-fetch.yml # Weekly full template refresh
+│       ├── weekly-templates-fetch.yml # Weekly full template refresh
+│       └── weekly-ambassadors-fetch.yml # Weekly ambassador scraping
 ├── CLAUDE.md                     # This file
 ├── astro.config.mjs
 ├── tailwind.config.mjs

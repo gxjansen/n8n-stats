@@ -1,0 +1,335 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import StatCard from '@/components/cards/StatCard.astro';
+import EventsMapChart from '@/components/charts/EventsMapChart.astro';
+import { formatNumber } from '@/lib/utils/formatters';
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+
+// Define types for ambassador data
+interface Ambassador {
+  id: string;
+  name: string;
+  joinDate: string;
+  tenure?: string;
+  city?: string;
+  country?: string;
+  coordinates?: { lat: number; lng: number };
+  communityProfileUrl?: string;
+  linkedinUrl?: string;
+  bio?: string;
+}
+
+interface AmbassadorData {
+  lastUpdated: string;
+  current: Ambassador[];
+  departed: Ambassador[];
+  stats: {
+    total: number;
+    countries: number;
+    avgTenureMonths: number;
+    newestJoinDate: string;
+    oldestJoinDate: string;
+  };
+  byMonth: Array<{
+    month: string;
+    total: number;
+    joined: number;
+    departed: number;
+  }>;
+  byCountry: Array<{
+    country: string;
+    count: number;
+    coordinates?: { lat: number; lng: number };
+  }>;
+  byTenure: Array<{
+    bucket: string;
+    count: number;
+  }>;
+  locations: Array<{
+    city: string;
+    country: string;
+    lat: number;
+    lng: number;
+    count: number;
+  }>;
+}
+
+// Load ambassador data
+let ambassadorData: AmbassadorData | null = null;
+const dataPath = join(process.cwd(), 'public', 'data', 'history', 'ambassadors.json');
+
+if (existsSync(dataPath)) {
+  try {
+    ambassadorData = JSON.parse(readFileSync(dataPath, 'utf-8'));
+  } catch (e) {
+    console.warn('Could not load ambassador data:', e);
+  }
+}
+
+// Country name to ISO 2-letter code mapping
+const countryToCode: Record<string, string> = {
+  'United States': 'US',
+  'Germany': 'DE',
+  'Austria': 'AT',
+  'Netherlands': 'NL',
+  'Spain': 'ES',
+  'United Kingdom': 'GB',
+  'France': 'FR',
+  'Denmark': 'DK',
+  'Switzerland': 'CH',
+  'South Korea': 'KR',
+  'Poland': 'PL',
+  'Israel': 'IL',
+  'Hungary': 'HU',
+  'Canada': 'CA',
+  'Kenya': 'KE',
+  'Italy': 'IT',
+  'Turkey': 'TR',
+  'UAE': 'AE',
+  'Portugal': 'PT',
+  'Ghana': 'GH',
+  'Belgium': 'BE',
+  'Australia': 'AU',
+  'Brazil': 'BR',
+  'Japan': 'JP',
+  'India': 'IN',
+  'Mexico': 'MX',
+  'Argentina': 'AR',
+  'Sweden': 'SE',
+  'Norway': 'NO',
+  'Finland': 'FI',
+  'Ireland': 'IE',
+  'Czech Republic': 'CZ',
+  'Romania': 'RO',
+  'Greece': 'GR',
+  'Singapore': 'SG',
+  'New Zealand': 'NZ',
+  'South Africa': 'ZA',
+  'Nigeria': 'NG',
+  'Colombia': 'CO',
+  'Chile': 'CL',
+  'Peru': 'PE',
+  'Thailand': 'TH',
+  'Vietnam': 'VN',
+  'Philippines': 'PH',
+  'Indonesia': 'ID',
+  'Malaysia': 'MY',
+  'Taiwan': 'TW',
+  'Hong Kong': 'HK',
+  'China': 'CN',
+  'Russia': 'RU',
+  'Ukraine': 'UA',
+  'Croatia': 'HR',
+  'Slovakia': 'SK',
+  'Slovenia': 'SI',
+  'Bulgaria': 'BG',
+  'Serbia': 'RS',
+  'Lithuania': 'LT',
+  'Latvia': 'LV',
+  'Estonia': 'EE',
+  'Luxembourg': 'LU',
+  'Iceland': 'IS',
+  'Malta': 'MT',
+  'Cyprus': 'CY',
+};
+
+// Get data
+const ambassadors = ambassadorData?.current || [];
+const stats = ambassadorData?.stats || {
+  total: 0,
+  countries: 0,
+  avgTenureMonths: 0,
+  newestJoinDate: '',
+  oldestJoinDate: '',
+};
+const byCountry = ambassadorData?.byCountry || [];
+const locations = ambassadorData?.locations || [];
+
+// Get unique country codes for map highlighting
+const highlightedCountries = [...new Set(
+  byCountry
+    .map(c => countryToCode[c.country])
+    .filter((code): code is string => !!code)
+)];
+
+// Get initials for avatar placeholder
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map(n => n.charAt(0))
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+}
+
+// Format tenure for display
+function formatTenure(months: number): string {
+  if (months < 1) return 'New';
+  if (months < 12) return `${months} month${months !== 1 ? 's' : ''}`;
+  const years = Math.floor(months / 12);
+  const remainingMonths = months % 12;
+  if (remainingMonths === 0) return `${years} year${years !== 1 ? 's' : ''}`;
+  return `${years}y ${remainingMonths}m`;
+}
+
+// Get ambassador profile URL
+function getProfileUrl(ambassador: Ambassador): string | null {
+  return ambassador.communityProfileUrl || ambassador.linkedinUrl || null;
+}
+---
+
+<BaseLayout title="n8n Ambassadors" description="Meet the n8n community ambassadors around the world">
+  <div class="container-narrow py-12">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-white mb-2">n8n Ambassadors</h1>
+      <p class="text-gray-400">
+        Community leaders spreading n8n knowledge worldwide. Interested in becoming an ambassador?
+        <a href="https://n8n.notion.site/9eefeb6356754725a1b2dd8ccecc4ffb" target="_blank" rel="noopener" class="text-n8n-primary hover:underline">Learn more</a>
+      </p>
+    </div>
+
+    <!-- Stats Overview -->
+    <section class="mb-12">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard
+          label="Total Ambassadors"
+          value={stats.total}
+        />
+        <StatCard
+          label="Countries"
+          value={stats.countries}
+        />
+        <StatCard
+          label="Avg. Tenure"
+          value={stats.avgTenureMonths > 0 ? formatTenure(stats.avgTenureMonths) : 'N/A'}
+        />
+        <StatCard
+          label="Newest Member"
+          value={stats.newestJoinDate ? new Date(stats.newestJoinDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'N/A'}
+        />
+      </div>
+    </section>
+
+    <!-- World Map -->
+    {locations.length > 0 && (
+      <section class="mb-12">
+        <div class="flex items-center gap-3 mb-6">
+          <svg class="w-6 h-6 text-n8n-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h2 class="text-2xl font-bold text-white">Ambassador Locations</h2>
+        </div>
+        <p class="text-gray-400 mb-6">
+          Where n8n ambassadors are based around the world.
+        </p>
+        <EventsMapChart locations={locations} highlightedCountries={highlightedCountries} />
+      </section>
+    )}
+
+    <!-- Ambassadors by Country -->
+    {byCountry.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold text-white mb-6">Ambassadors by Country</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {byCountry.slice(0, 8).map((country) => {
+            const code = countryToCode[country.country]?.toLowerCase();
+            const flagUrl = code ? `https://flagcdn.com/w320/${code}.png` : null;
+            return (
+              <div
+                class="relative overflow-hidden rounded-lg border-2 border-[#0d1117]"
+                style={flagUrl ? `background-image: url('${flagUrl}'); background-size: cover; background-position: center;` : ''}
+              >
+                <div class="absolute inset-0 bg-black/80"></div>
+                <div class="relative z-10 p-4">
+                  <div class="text-lg font-semibold text-white">{country.country}</div>
+                  <div class="text-3xl font-bold text-white mt-2">{country.count}</div>
+                  <div class="text-sm text-gray-300">ambassador{country.count !== 1 ? 's' : ''}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    )}
+
+    <!-- All Ambassadors List -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-2">All Ambassadors</h2>
+      <p class="text-gray-400 mb-6">Meet our {ambassadors.length} community ambassadors</p>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {ambassadors.map((ambassador) => {
+          const profileUrl = getProfileUrl(ambassador);
+          const CardTag = profileUrl ? 'a' : 'div';
+          const cardProps = profileUrl ? {
+            href: profileUrl,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+          } : {};
+
+          return (
+            <CardTag
+              {...cardProps}
+              class={`card p-4 text-center ${profileUrl ? 'hover:border-n8n-primary/30 transition-colors cursor-pointer' : ''}`}
+              data-umami-event={profileUrl ? 'ambassador-click' : undefined}
+              data-umami-event-target={profileUrl ? ambassador.name : undefined}
+            >
+              {/* Avatar */}
+              <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-n8n-primary/20 to-n8n-primary/5 flex items-center justify-center text-xl font-bold text-n8n-primary">
+                {getInitials(ambassador.name)}
+              </div>
+
+              {/* Name */}
+              <h3 class="font-semibold text-white text-sm truncate">{ambassador.name}</h3>
+
+              {/* Location */}
+              {(ambassador.city || ambassador.country) && (
+                <p class="text-xs text-gray-500 mt-1 truncate">
+                  {[ambassador.city, ambassador.country].filter(Boolean).join(', ')}
+                </p>
+              )}
+
+              {/* Join date or tenure */}
+              {ambassador.joinDate && (
+                <p class="text-xs text-gray-600 mt-1">
+                  Joined {new Date(ambassador.joinDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                </p>
+              )}
+            </CardTag>
+          );
+        })}
+      </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="text-center">
+      <div class="card bg-gradient-to-r from-n8n-primary/10 to-transparent border-n8n-primary/30">
+        <h3 class="text-xl font-bold text-white mb-2">Become an Ambassador</h3>
+        <p class="text-gray-400 mb-4">
+          Are you passionate about n8n and automation? Join our ambassador program and help grow the community.
+        </p>
+        <a
+          href="https://n8n.notion.site/9eefeb6356754725a1b2dd8ccecc4ffb"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-n8n-primary text-white rounded-lg font-medium hover:bg-n8n-primary/90 transition-colors"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          Learn About the Program
+        </a>
+      </div>
+    </section>
+
+    <!-- Data Attribution -->
+    <p class="text-center text-xs text-gray-500 mt-8">
+      Ambassador data from the <a href="https://n8n.notion.site/9eefeb6356754725a1b2dd8ccecc4ffb" target="_blank" rel="noopener" class="hover:text-gray-400">n8n Ambassador Directory</a>.
+      {ambassadorData?.lastUpdated && (
+        <span> Last updated: {new Date(ambassadorData.lastUpdated).toLocaleDateString()}</span>
+      )}
+    </p>
+  </div>
+</BaseLayout>

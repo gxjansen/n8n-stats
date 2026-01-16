@@ -1,0 +1,632 @@
+---
+/**
+ * Automation Market Page
+ *
+ * Compares n8n with other automation platforms across:
+ * - GitHub stars (open-source tools)
+ * - LinkedIn followers (all platforms)
+ * - n8n community reach across platforms
+ */
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import StatCard from '@/components/cards/StatCard.astro';
+import { formatNumber } from '@/lib/utils/formatters';
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+
+// Load landscape data
+const landscapePath = join(process.cwd(), 'public', 'data', 'history', 'landscape.json');
+
+interface Platform {
+  name: string;
+  type: 'open-source' | 'closed-source';
+  website: string;
+  github: string | null;
+  linkedin: string | null;
+  focus: string;
+  selfHostable: boolean;
+  founded: number;
+}
+
+interface LandscapeData {
+  lastUpdated: string;
+  platforms: Record<string, Platform>;
+  github: {
+    description: string;
+    daily: Array<Record<string, any>>;
+  };
+  linkedin: {
+    description: string;
+    daily: Array<Record<string, any>>;
+  };
+  community: {
+    description: string;
+    current: {
+      discord: number;
+      forum: number;
+      reddit: number;
+      linkedin: number;
+      github: number;
+      lastUpdated: string;
+    };
+  };
+}
+
+let landscapeData: LandscapeData | null = null;
+try {
+  if (existsSync(landscapePath)) {
+    landscapeData = JSON.parse(readFileSync(landscapePath, 'utf-8'));
+  }
+} catch (e) {
+  console.warn('Could not load landscape data');
+}
+
+// Get latest GitHub stars
+const latestGithub = landscapeData?.github?.daily?.slice(-1)[0] || {};
+const githubPlatforms = ['n8n', 'huginn', 'nodered', 'activepieces', 'windmill', 'pipedream'];
+const githubData = githubPlatforms
+  .map((id) => ({
+    id,
+    name: landscapeData?.platforms[id]?.name || id,
+    stars: latestGithub[id] || 0,
+    website: landscapeData?.platforms[id]?.website || '',
+    focus: landscapeData?.platforms[id]?.focus || '',
+  }))
+  .filter((p) => p.stars > 0)
+  .sort((a, b) => b.stars - a.stars);
+
+// Get latest LinkedIn followers
+const latestLinkedin = landscapeData?.linkedin?.daily?.slice(-1)[0] || {};
+const linkedinPlatforms = ['n8n', 'zapier', 'workato', 'make', 'tray'];
+const linkedinData = linkedinPlatforms
+  .map((id) => ({
+    id,
+    name: landscapeData?.platforms[id]?.name || id,
+    followers: latestLinkedin[id] || 0,
+    website: landscapeData?.platforms[id]?.website || '',
+    type: landscapeData?.platforms[id]?.type || 'closed-source',
+  }))
+  .filter((p) => p.followers > 0)
+  .sort((a, b) => b.followers - a.followers);
+
+// n8n community stats
+const community = landscapeData?.community?.current || {
+  discord: 0,
+  forum: 0,
+  reddit: 0,
+  linkedin: 0,
+  github: 0,
+};
+const totalCommunity = community.discord + community.forum + community.reddit + community.linkedin;
+
+// All platforms for comparison table
+const allPlatforms = Object.entries(landscapeData?.platforms || {}).map(([id, platform]) => ({
+  id,
+  ...platform,
+  githubStars: latestGithub[id] || null,
+  linkedinFollowers: latestLinkedin[id] || null,
+}));
+
+// Format date
+const lastUpdated = landscapeData?.lastUpdated
+  ? new Date(landscapeData.lastUpdated).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
+  : 'Unknown';
+
+// Pass data to client-side charts
+const githubChartData = JSON.stringify(githubData);
+const linkedinChartData = JSON.stringify(linkedinData);
+const communityChartData = JSON.stringify(community);
+
+// Icons
+const icons = {
+  landscape: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+  github: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="20" height="20" fill="currentColor"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg>`,
+  linkedin: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>`,
+  community: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  star: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>`,
+  check: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/></svg>`,
+  x: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"/></svg>`,
+  external: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path fill-rule="evenodd" d="M4.25 5.5a.75.75 0 00-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 00.75-.75v-4a.75.75 0 011.5 0v4A2.25 2.25 0 0112.75 17h-8.5A2.25 2.25 0 012 14.75v-8.5A2.25 2.25 0 014.25 4h5a.75.75 0 010 1.5h-5z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M6.194 12.753a.75.75 0 001.06.053L16.5 4.44v2.81a.75.75 0 001.5 0v-4.5a.75.75 0 00-.75-.75h-4.5a.75.75 0 000 1.5h2.553l-9.056 8.194a.75.75 0 00-.053 1.06z" clip-rule="evenodd"/></svg>`,
+};
+---
+
+<BaseLayout title="Automation Market" description="Compare n8n with other workflow automation platforms - GitHub stars, LinkedIn followers, and community reach">
+  <div class="container-narrow py-12">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+        <span class="text-n8n-primary" set:html={icons.landscape} />
+        Automation Market
+      </h1>
+      <p class="text-gray-400">
+        How n8n compares to other workflow automation platforms. GitHub stars, LinkedIn presence, and community reach.
+      </p>
+      <p class="text-gray-500 text-sm mt-1">
+        Last updated: {lastUpdated}
+      </p>
+    </div>
+
+    <!-- Quick Stats -->
+    <section class="mb-12">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard
+          label="GitHub Stars"
+          value={latestGithub.n8n || 0}
+          icon={icons.star}
+          subtitle="n8n repository"
+          href="https://github.com/n8n-io/n8n"
+        />
+        <StatCard
+          label="LinkedIn Followers"
+          value={latestLinkedin.n8n || 0}
+          icon={icons.linkedin}
+          subtitle="n8n company page"
+          href="https://www.linkedin.com/company/n8n"
+        />
+        <StatCard
+          label="Community Reach"
+          value={totalCommunity}
+          icon={icons.community}
+          subtitle="Discord + Forum + Reddit + LinkedIn"
+        />
+        <StatCard
+          label="Open Source Rank"
+          value="#1"
+          icon={icons.github}
+          subtitle="In workflow automation"
+          valueClass="stat-value text-n8n-primary"
+          animate={false}
+        />
+      </div>
+    </section>
+
+    <!-- Open Source GitHub Stars -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+        <span class="text-gray-400" set:html={icons.github} />
+        Open Source Automation Tools
+      </h2>
+      <p class="text-gray-400 mb-6">
+        GitHub stars for self-hostable automation platforms. n8n leads the open-source automation space.
+      </p>
+
+      <div class="card">
+        <div class="relative h-[350px]">
+          <canvas id="github-stars-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- GitHub comparison table -->
+      <div class="mt-6 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-n8n-border">
+              <th class="text-left py-3 px-4 text-gray-400 font-medium">Platform</th>
+              <th class="text-right py-3 px-4 text-gray-400 font-medium">Stars</th>
+              <th class="text-left py-3 px-4 text-gray-400 font-medium">Focus</th>
+              <th class="text-center py-3 px-4 text-gray-400 font-medium">Self-Hostable</th>
+            </tr>
+          </thead>
+          <tbody>
+            {githubData.map((platform, index) => (
+              <tr class={`border-b border-n8n-border/50 ${platform.id === 'n8n' ? 'bg-n8n-primary/10' : ''}`}>
+                <td class="py-3 px-4">
+                  <a
+                    href={platform.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-white hover:text-n8n-primary flex items-center gap-2"
+                  >
+                    <span class={`w-5 text-center font-mono text-xs ${index === 0 ? 'text-n8n-primary' : 'text-gray-500'}`}>
+                      #{index + 1}
+                    </span>
+                    {platform.name}
+                    <span class="text-gray-500" set:html={icons.external} />
+                  </a>
+                </td>
+                <td class="py-3 px-4 text-right font-mono text-white">
+                  {formatNumber(platform.stars)}
+                </td>
+                <td class="py-3 px-4 text-gray-400">{platform.focus}</td>
+                <td class="py-3 px-4 text-center">
+                  <span class="text-green-400" set:html={icons.check} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- LinkedIn Industry Presence -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+        <span class="text-gray-400" set:html={icons.linkedin} />
+        Industry LinkedIn Presence
+      </h2>
+      <p class="text-gray-400 mb-6">
+        LinkedIn company page followers across automation platforms. n8n leads despite being open-source.
+      </p>
+
+      <div class="card">
+        <div class="relative h-[300px]">
+          <canvas id="linkedin-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- LinkedIn comparison table -->
+      <div class="mt-6 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-n8n-border">
+              <th class="text-left py-3 px-4 text-gray-400 font-medium">Platform</th>
+              <th class="text-right py-3 px-4 text-gray-400 font-medium">Followers</th>
+              <th class="text-center py-3 px-4 text-gray-400 font-medium">Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            {linkedinData.map((platform, index) => (
+              <tr class={`border-b border-n8n-border/50 ${platform.id === 'n8n' ? 'bg-n8n-primary/10' : ''}`}>
+                <td class="py-3 px-4">
+                  <a
+                    href={platform.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-white hover:text-n8n-primary flex items-center gap-2"
+                  >
+                    <span class={`w-5 text-center font-mono text-xs ${index === 0 ? 'text-n8n-primary' : 'text-gray-500'}`}>
+                      #{index + 1}
+                    </span>
+                    {platform.name}
+                    <span class="text-gray-500" set:html={icons.external} />
+                  </a>
+                </td>
+                <td class="py-3 px-4 text-right font-mono text-white">
+                  {formatNumber(platform.followers)}
+                </td>
+                <td class="py-3 px-4 text-center">
+                  <span class={`px-2 py-1 rounded text-xs ${platform.type === 'open-source' ? 'bg-green-900/50 text-green-400' : 'bg-gray-700 text-gray-300'}`}>
+                    {platform.type === 'open-source' ? 'Open Source' : 'Closed Source'}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- n8n Community Reach -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+        <span class="text-gray-400" set:html={icons.community} />
+        n8n Community Reach
+      </h2>
+      <p class="text-gray-400 mb-6">
+        n8n has built a thriving community across multiple platforms.
+      </p>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="card text-center p-6">
+          <div class="text-3xl font-bold text-[#5865F2] mb-1">{formatNumber(community.discord)}</div>
+          <div class="text-gray-400 text-sm">Discord Members</div>
+        </div>
+        <div class="card text-center p-6">
+          <div class="text-3xl font-bold text-[#ff6384] mb-1">{formatNumber(community.reddit)}</div>
+          <div class="text-gray-400 text-sm">Reddit Subscribers</div>
+        </div>
+        <div class="card text-center p-6">
+          <div class="text-3xl font-bold text-[#36a2eb] mb-1">{formatNumber(community.forum)}</div>
+          <div class="text-gray-400 text-sm">Forum Members</div>
+        </div>
+        <div class="card text-center p-6">
+          <div class="text-3xl font-bold text-[#0A66C2] mb-1">{formatNumber(community.linkedin)}</div>
+          <div class="text-gray-400 text-sm">LinkedIn Followers</div>
+        </div>
+      </div>
+
+      <div class="card mt-6">
+        <div class="relative h-[250px]">
+          <canvas id="community-chart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Full Platform Comparison -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-2">Platform Comparison</h2>
+      <p class="text-gray-400 mb-6">
+        Overview of workflow automation platforms in the market.
+      </p>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-n8n-border">
+              <th class="text-left py-3 px-4 text-gray-400 font-medium">Platform</th>
+              <th class="text-center py-3 px-4 text-gray-400 font-medium">Type</th>
+              <th class="text-center py-3 px-4 text-gray-400 font-medium">Self-Host</th>
+              <th class="text-right py-3 px-4 text-gray-400 font-medium">GitHub Stars</th>
+              <th class="text-right py-3 px-4 text-gray-400 font-medium">LinkedIn</th>
+              <th class="text-left py-3 px-4 text-gray-400 font-medium">Focus</th>
+              <th class="text-center py-3 px-4 text-gray-400 font-medium">Founded</th>
+            </tr>
+          </thead>
+          <tbody>
+            {allPlatforms
+              .sort((a, b) => (b.githubStars || 0) + (b.linkedinFollowers || 0) - (a.githubStars || 0) - (a.linkedinFollowers || 0))
+              .map((platform) => (
+              <tr class={`border-b border-n8n-border/50 ${platform.id === 'n8n' ? 'bg-n8n-primary/10' : ''}`}>
+                <td class="py-3 px-4">
+                  <a
+                    href={platform.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-white hover:text-n8n-primary flex items-center gap-1"
+                  >
+                    {platform.name}
+                    <span class="text-gray-500" set:html={icons.external} />
+                  </a>
+                </td>
+                <td class="py-3 px-4 text-center">
+                  <span class={`px-2 py-1 rounded text-xs ${platform.type === 'open-source' ? 'bg-green-900/50 text-green-400' : 'bg-gray-700 text-gray-300'}`}>
+                    {platform.type === 'open-source' ? 'Open' : 'Closed'}
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-center">
+                  {platform.selfHostable ? (
+                    <span class="text-green-400" set:html={icons.check} />
+                  ) : (
+                    <span class="text-gray-500" set:html={icons.x} />
+                  )}
+                </td>
+                <td class="py-3 px-4 text-right font-mono text-white">
+                  {platform.githubStars ? formatNumber(platform.githubStars) : '-'}
+                </td>
+                <td class="py-3 px-4 text-right font-mono text-white">
+                  {platform.linkedinFollowers ? formatNumber(platform.linkedinFollowers) : '-'}
+                </td>
+                <td class="py-3 px-4 text-gray-400 text-xs">{platform.focus}</td>
+                <td class="py-3 px-4 text-center text-gray-400">{platform.founded}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Data Sources Note -->
+    <section class="text-center text-gray-500 text-sm">
+      <p>
+        GitHub stars updated weekly via GitHub API. LinkedIn followers updated monthly (manual).
+        <br />
+        <a href="https://github.com/n8n-io/n8n" target="_blank" rel="noopener" class="text-n8n-primary hover:underline">
+          Star n8n on GitHub
+        </a>
+        {' | '}
+        <a href="https://www.linkedin.com/company/n8n" target="_blank" rel="noopener" class="text-n8n-primary hover:underline">
+          Follow n8n on LinkedIn
+        </a>
+      </p>
+    </section>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ githubChartData, linkedinChartData, communityChartData }}>
+  window.__landscapeGithubData = JSON.parse(githubChartData);
+  window.__landscapeLinkedinData = JSON.parse(linkedinChartData);
+  window.__landscapeCommunityData = JSON.parse(communityChartData);
+</script>
+
+<script>
+  import { Chart, registerables } from 'chart.js';
+  import { initChartWhenVisible } from '../../lib/utils/lazyChart';
+
+  Chart.register(...registerables);
+
+  // Colors
+  const COLORS = {
+    n8n: '#ff6d5a',
+    huginn: '#4bc0c0',
+    nodered: '#8f3e3e',
+    activepieces: '#6366f1',
+    windmill: '#22c55e',
+    pipedream: '#f59e0b',
+    zapier: '#ff4a00',
+    make: '#6d28d9',
+    workato: '#0ea5e9',
+    tray: '#ec4899',
+  };
+
+  const COMMUNITY_COLORS = {
+    discord: '#5865F2',
+    reddit: '#ff6384',
+    forum: '#36a2eb',
+    linkedin: '#0A66C2',
+  };
+
+  function initGithubChart() {
+    const canvas = document.getElementById('github-stars-chart') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const data = (window as any).__landscapeGithubData || [];
+
+    new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: data.map((d: any) => d.name),
+        datasets: [
+          {
+            label: 'GitHub Stars',
+            data: data.map((d: any) => d.stars),
+            backgroundColor: data.map((d: any) => COLORS[d.id as keyof typeof COLORS] || '#6b7280'),
+            borderRadius: 4,
+          },
+        ],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#fff',
+            bodyColor: '#9ca3af',
+            callbacks: {
+              label: (ctx) => `${ctx.parsed.x.toLocaleString()} stars`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: '#6b7280',
+              callback: (value) => {
+                if (typeof value === 'number') {
+                  if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+                }
+                return value;
+              },
+            },
+          },
+          y: {
+            grid: { display: false },
+            ticks: { color: '#e5e7eb', font: { weight: 'bold' } },
+          },
+        },
+      },
+    });
+  }
+
+  function initLinkedinChart() {
+    const canvas = document.getElementById('linkedin-chart') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const data = (window as any).__landscapeLinkedinData || [];
+
+    new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: data.map((d: any) => d.name),
+        datasets: [
+          {
+            label: 'LinkedIn Followers',
+            data: data.map((d: any) => d.followers),
+            backgroundColor: data.map((d: any) => COLORS[d.id as keyof typeof COLORS] || '#6b7280'),
+            borderRadius: 4,
+          },
+        ],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#fff',
+            bodyColor: '#9ca3af',
+            callbacks: {
+              label: (ctx) => `${ctx.parsed.x.toLocaleString()} followers`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: '#6b7280',
+              callback: (value) => {
+                if (typeof value === 'number') {
+                  if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+                }
+                return value;
+              },
+            },
+          },
+          y: {
+            grid: { display: false },
+            ticks: { color: '#e5e7eb', font: { weight: 'bold' } },
+          },
+        },
+      },
+    });
+  }
+
+  function initCommunityChart() {
+    const canvas = document.getElementById('community-chart') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const data = (window as any).__landscapeCommunityData || {};
+
+    const labels = ['Discord', 'Reddit', 'Forum', 'LinkedIn'];
+    const values = [data.discord, data.reddit, data.forum, data.linkedin];
+    const colors = [
+      COMMUNITY_COLORS.discord,
+      COMMUNITY_COLORS.reddit,
+      COMMUNITY_COLORS.forum,
+      COMMUNITY_COLORS.linkedin,
+    ];
+
+    new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [
+          {
+            data: values,
+            backgroundColor: colors,
+            borderWidth: 0,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              color: '#9ca3af',
+              padding: 20,
+              usePointStyle: true,
+            },
+          },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#fff',
+            bodyColor: '#9ca3af',
+            callbacks: {
+              label: (ctx) => {
+                const total = values.reduce((a, b) => a + b, 0);
+                const percent = ((ctx.parsed / total) * 100).toFixed(1);
+                return `${ctx.label}: ${ctx.parsed.toLocaleString()} (${percent}%)`;
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  // Initialize charts when visible
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initChartWhenVisible('github-stars-chart', initGithubChart);
+      initChartWhenVisible('linkedin-chart', initLinkedinChart);
+      initChartWhenVisible('community-chart', initCommunityChart);
+    });
+  } else {
+    initChartWhenVisible('github-stars-chart', initGithubChart);
+    initChartWhenVisible('linkedin-chart', initLinkedinChart);
+    initChartWhenVisible('community-chart', initCommunityChart);
+  }
+</script>

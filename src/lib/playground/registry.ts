@@ -94,6 +94,11 @@ const COLORS = {
   eventsInPersonReg: '#22c55e',   // Green (in-person registrations)
   eventsOnlineCount: '#8b5cf6',   // Violet (online events)
   eventsOnlineReg: '#06b6d4',     // Cyan (online registrations)
+
+  // Ambassadors
+  ambassadorsTotal: '#a855f7',    // Purple
+  ambassadorsJoined: '#22c55e',   // Green (new)
+  ambassadorsDeparted: '#ef4444', // Red (departed)
 };
 
 export const DATA_SOURCES: DataSource[] = [
@@ -276,6 +281,43 @@ export const DATA_SOURCES: DataSource[] = [
       { id: 'events-inperson-reg', label: 'In-Person Registrations/Month', color: COLORS.eventsInPersonReg, path: 'inPersonRegistrations' },
       { id: 'events-online-count', label: 'Online Events/Month', color: COLORS.eventsOnlineCount, path: 'onlineEvents' },
       { id: 'events-online-reg', label: 'Online Registrations/Month', color: COLORS.eventsOnlineReg, path: 'onlineRegistrations' },
+    ],
+  },
+  {
+    id: 'ambassadors',
+    label: 'Ambassadors',
+    shortLabel: 'Ambassadors',
+    file: '/data/history/ambassadors.json',
+    type: 'timeseries',
+    granularities: ['monthly'],
+    defaultGranularity: 'monthly',
+    historyStart: '2026-01',
+    measuredSince: '2026-01', // Data from Notion ambassador directory (scraped)
+    metrics: [
+      {
+        id: 'ambassadors-total',
+        label: 'Total Ambassadors',
+        color: COLORS.ambassadorsTotal,
+        path: 'byMonth',
+        valueKey: 'total',
+        dateKey: 'month',
+      },
+      {
+        id: 'ambassadors-joined',
+        label: 'New Ambassadors/Month',
+        color: COLORS.ambassadorsJoined,
+        path: 'byMonth',
+        valueKey: 'joined',
+        dateKey: 'month',
+      },
+      {
+        id: 'ambassadors-departed',
+        label: 'Departed/Month',
+        color: COLORS.ambassadorsDeparted,
+        path: 'byMonth',
+        valueKey: 'departed',
+        dateKey: 'month',
+      },
     ],
   },
 ];
