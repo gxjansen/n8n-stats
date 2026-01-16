@@ -96,6 +96,10 @@ interface EventsData {
     month: string;
     count: number;
     registrations: number;
+    inPersonCount: number;
+    inPersonRegistrations: number;
+    onlineCount: number;
+    onlineRegistrations: number;
   }>;
   byCountry: Array<{
     country: string;
@@ -293,21 +297,46 @@ async function fetchLumaEvents(period: 'upcoming' | 'past'): Promise<LumaEvent[]
 }
 
 /**
- * Group events by month
+ * Group events by month with in-person/online split
  */
 function groupByMonth(events: LumaEvent[]): EventsData['byMonth'] {
-  const byMonth = new Map<string, { count: number; registrations: number }>();
+  const byMonth = new Map<string, {
+    count: number;
+    registrations: number;
+    inPersonCount: number;
+    inPersonRegistrations: number;
+    onlineCount: number;
+    onlineRegistrations: number;
+  }>();
 
   for (const event of events) {
     const date = new Date(event.startDate);
     if (isNaN(date.getTime())) continue;
 
     const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-    const existing = byMonth.get(month) || { count: 0, registrations: 0 };
-    byMonth.set(month, {
-      count: existing.count + 1,
-      registrations: existing.registrations + event.registrations,
-    });
+    const existing = byMonth.get(month) || {
+      count: 0,
+      registrations: 0,
+      inPersonCount: 0,
+      inPersonRegistrations: 0,
+      onlineCount: 0,
+      onlineRegistrations: 0,
+    };
+
+    // Update totals
+    existing.count += 1;
+    existing.registrations += event.registrations;
+
+    // Update split counts
+    if (event.isOnline) {
+      existing.onlineCount += 1;
+      existing.onlineRegistrations += event.registrations;
+    } else {
+      existing.inPersonCount += 1;
+      existing.inPersonRegistrations += event.registrations;
+    }
+
+    byMonth.set(month, existing);
   }
 
   return Array.from(byMonth.entries())
