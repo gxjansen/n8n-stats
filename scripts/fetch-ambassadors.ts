@@ -200,8 +200,8 @@ interface AmbassadorData {
     newestJoinDate: string;
     oldestJoinDate: string;
   };
-  byMonth: Array<{
-    month: string;
+  monthly: Array<{
+    date: string;
     total: number;
     joined: number;
     departed: number;
@@ -370,7 +370,7 @@ function dateToISOMonth(dateStr: string): string | null {
 function generateMonthlyTimeSeries(
   ambassadors: Ambassador[],
   departed: Ambassador[] = []
-): AmbassadorData['byMonth'] {
+): AmbassadorData['monthly'] {
   const allAmbassadors = [...ambassadors, ...departed];
   if (allAmbassadors.length === 0) return [];
 
@@ -386,7 +386,7 @@ function generateMonthlyTimeSeries(
   const startDate = dates[0];
   const endDate = new Date();
 
-  const byMonth: AmbassadorData['byMonth'] = [];
+  const monthly: AmbassadorData['monthly'] = [];
   let current = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
 
   while (current <= endDate) {
@@ -410,8 +410,8 @@ function generateMonthlyTimeSeries(
       return joinMonth !== null && joinMonth <= monthStr;
     }).length;
 
-    byMonth.push({
-      month: monthStr,
+    monthly.push({
+      date: monthStr,
       total,
       joined,
       departed: departedThisMonth,
@@ -420,7 +420,7 @@ function generateMonthlyTimeSeries(
     current.setMonth(current.getMonth() + 1);
   }
 
-  return byMonth;
+  return monthly;
 }
 
 /**
@@ -1122,7 +1122,7 @@ async function main() {
       newestJoinDate: joinDates.length > 0 ? joinDates[joinDates.length - 1] : '',
       oldestJoinDate: joinDates.length > 0 ? joinDates[0] : '',
     },
-    byMonth: generateMonthlyTimeSeries(ambassadors, allDeparted),
+    monthly: generateMonthlyTimeSeries(ambassadors, allDeparted),
     byCountry: aggregateByCountry(ambassadors),
     byTenure: aggregateByTenure(ambassadors),
     locations: aggregateLocations(ambassadors),

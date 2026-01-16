@@ -291,33 +291,12 @@ export const DATA_SOURCES: DataSource[] = [
     type: 'timeseries',
     granularities: ['monthly'],
     defaultGranularity: 'monthly',
-    historyStart: '2026-01',
-    measuredSince: '2026-01', // Data from Notion ambassador directory (scraped)
+    historyStart: '2024-05',
+    measuredSince: '2024-05', // Data from Notion ambassador directory (scraped), backfilled from join dates
     metrics: [
-      {
-        id: 'ambassadors-total',
-        label: 'Total Ambassadors',
-        color: COLORS.ambassadorsTotal,
-        path: 'byMonth',
-        valueKey: 'total',
-        dateKey: 'month',
-      },
-      {
-        id: 'ambassadors-joined',
-        label: 'New Ambassadors/Month',
-        color: COLORS.ambassadorsJoined,
-        path: 'byMonth',
-        valueKey: 'joined',
-        dateKey: 'month',
-      },
-      {
-        id: 'ambassadors-departed',
-        label: 'Departed/Month',
-        color: COLORS.ambassadorsDeparted,
-        path: 'byMonth',
-        valueKey: 'departed',
-        dateKey: 'month',
-      },
+      { id: 'ambassadors-total', label: 'Total Ambassadors', color: COLORS.ambassadorsTotal, path: 'total' },
+      { id: 'ambassadors-joined', label: 'New Ambassadors/Month', color: COLORS.ambassadorsJoined, path: 'joined' },
+      { id: 'ambassadors-departed', label: 'Departed/Month', color: COLORS.ambassadorsDeparted, path: 'departed' },
     ],
   },
 ];
