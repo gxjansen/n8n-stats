@@ -62,7 +62,7 @@ const buildTime = new Date();
       <nav class="container-narrow py-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <a href="/" class="flex items-center gap-2 text-xl font-bold text-white" data-umami-event="nav-click" data-umami-event-target="home-logo">
+            <a href="/" class="flex items-center gap-2 text-xl font-bold text-white" data-astro-reload data-umami-event="nav-click" data-umami-event-target="home-logo">
               <img src="/logo.svg" alt="n8n Pulse logo" class="h-8 w-8" />
               n8n Pulse
             </a>
@@ -117,27 +117,29 @@ const buildTime = new Date();
         </div>
 
         <!-- Mobile: dropdown menu -->
+        <!-- data-astro-reload forces full page navigation instead of View Transitions -->
+        <!-- This fixes touch navigation issues on some mobile browsers (Android/iOS) -->
         <div id="mobile-menu" class="md:hidden hidden mt-4 pb-2 border-t border-n8n-border pt-4">
           <div class="flex flex-col gap-3">
-            <a href="/templates" class="text-gray-300 hover:text-white transition-colors py-2" data-umami-event="nav-click" data-umami-event-target="templates-mobile">
+            <a href="/templates" class="text-gray-300 hover:text-white transition-colors py-2" data-astro-reload data-umami-event="nav-click" data-umami-event-target="templates-mobile">
               Templates
             </a>
-            <a href="/nodes" class="text-gray-300 hover:text-white transition-colors py-2" data-umami-event="nav-click" data-umami-event-target="nodes-mobile">
+            <a href="/nodes" class="text-gray-300 hover:text-white transition-colors py-2" data-astro-reload data-umami-event="nav-click" data-umami-event-target="nodes-mobile">
               Nodes
             </a>
-            <a href="/creators" class="text-gray-300 hover:text-white transition-colors py-2" data-umami-event="nav-click" data-umami-event-target="creators-mobile">
+            <a href="/creators" class="text-gray-300 hover:text-white transition-colors py-2" data-astro-reload data-umami-event="nav-click" data-umami-event-target="creators-mobile">
               Creators
             </a>
-            <a href="/discussions" class="text-gray-300 hover:text-white transition-colors py-2" data-umami-event="nav-click" data-umami-event-target="discussions-mobile">
+            <a href="/discussions" class="text-gray-300 hover:text-white transition-colors py-2" data-astro-reload data-umami-event="nav-click" data-umami-event-target="discussions-mobile">
               Discussions
             </a>
-            <a href="/events" class="text-gray-300 hover:text-white transition-colors py-2" data-umami-event="nav-click" data-umami-event-target="events-mobile">
+            <a href="/events" class="text-gray-300 hover:text-white transition-colors py-2" data-astro-reload data-umami-event="nav-click" data-umami-event-target="events-mobile">
               Events
             </a>
-            <a href="/github" class="text-gray-300 hover:text-white transition-colors py-2" data-umami-event="nav-click" data-umami-event-target="github-mobile">
+            <a href="/github" class="text-gray-300 hover:text-white transition-colors py-2" data-astro-reload data-umami-event="nav-click" data-umami-event-target="github-mobile">
               GitHub
             </a>
-            <a href="/playground" class="text-n8n-primary hover:text-n8n-primary/80 font-medium transition-colors flex items-center gap-1 py-2" data-umami-event="nav-click" data-umami-event-target="playground-mobile">
+            <a href="/playground" class="text-n8n-primary hover:text-n8n-primary/80 font-medium transition-colors flex items-center gap-1 py-2" data-astro-reload data-umami-event="nav-click" data-umami-event-target="playground-mobile">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
