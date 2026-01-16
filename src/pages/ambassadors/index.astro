@@ -71,6 +71,8 @@ if (existsSync(dataPath)) {
 // Country name to ISO 2-letter code mapping
 const countryToCode: Record<string, string> = {
   'United States': 'US',
+  'USA': 'US',
+  'UK': 'GB',
   'Germany': 'DE',
   'Austria': 'AT',
   'Netherlands': 'NL',
@@ -234,7 +236,7 @@ const newestDate = newestAmbassadors[0]?.parsedDate;
 
     <!-- Stats Overview -->
     <section class="mb-12">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-3 gap-4">
         <StatCard
           label="Total Ambassadors"
           value={stats.total}
@@ -242,10 +244,6 @@ const newestDate = newestAmbassadors[0]?.parsedDate;
         <StatCard
           label="Countries"
           value={stats.countries}
-        />
-        <StatCard
-          label="Avg. Tenure"
-          value={stats.avgTenureMonths > 0 ? formatTenure(stats.avgTenureMonths) : 'N/A'}
         />
         <StatCard
           label="Newest Member"
@@ -266,7 +264,15 @@ const newestDate = newestAmbassadors[0]?.parsedDate;
         <p class="text-gray-400 mb-6">
           Where n8n ambassadors are based around the world.
         </p>
-        <EventsMapChart locations={locations} highlightedCountries={highlightedCountries} />
+        <EventsMapChart
+          locations={locations}
+          highlightedCountries={highlightedCountries}
+          legendLabels={{
+            location: 'Ambassador location',
+            multiple: 'Multiple ambassadors',
+            country: 'Country with ambassadors',
+          }}
+        />
       </section>
     )}
 

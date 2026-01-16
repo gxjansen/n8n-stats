@@ -751,10 +751,14 @@ const RATE_LIMIT_DELAY = 2000;
 
 /**
  * Scroll to bottom of page to load all lazy-loaded content
+ * Notion uses virtualized lists, so we need to scroll incrementally
  */
-async function scrollToLoadAll(page: any, maxScrolls = 20): Promise<void> {
+async function scrollToLoadAll(page: any, maxScrolls = 50, expectedMin = 60): Promise<void> {
   let previousCount = 0;
   let scrollAttempts = 0;
+  let noChangeCount = 0;
+
+  console.log(`  Expecting at least ${expectedMin} ambassadors...`);
 
   while (scrollAttempts < maxScrolls) {
     // Get current count of ambassador links
@@ -762,27 +766,60 @@ async function scrollToLoadAll(page: any, maxScrolls = 20): Promise<void> {
       return document.querySelectorAll('a[href*="?pvs="]').length;
     });
 
-    // If count hasn't changed after scrolling, we've loaded everything
-    if (currentCount === previousCount && scrollAttempts > 2) {
-      console.log(`  All content loaded (${currentCount} items after ${scrollAttempts} scrolls)`);
-      break;
+    // Check if we've stopped finding new items
+    if (currentCount === previousCount) {
+      noChangeCount++;
+      // Only stop if we've had 5 consecutive no-change scrolls AND we've hit expected minimum
+      if (noChangeCount >= 5 && currentCount >= expectedMin) {
+        console.log(`  All content loaded (${currentCount} items after ${scrollAttempts} scrolls)`);
+        break;
+      }
+      // If we haven't hit expected minimum, keep trying but warn after many attempts
+      if (noChangeCount >= 10) {
+        console.log(`  Warning: Only found ${currentCount} items after ${scrollAttempts} scrolls (expected ${expectedMin}+)`);
+        break;
+      }
+    } else {
+      noChangeCount = 0;
     }
 
     previousCount = currentCount;
     scrollAttempts++;
 
-    // Scroll to bottom
+    // Scroll incrementally - Notion may have virtualized content
     await page.evaluate(() => {
-      window.scrollTo(0, document.body.scrollHeight);
+      // Try scrolling the main scroller or window
+      const scroller = document.querySelector('.notion-scroller') ||
+                       document.querySelector('[class*="notion-frame"]') ||
+                       document.documentElement;
+      if (scroller && scroller !== document.documentElement) {
+        scroller.scrollTop = scroller.scrollTop + 1000;
+      } else {
+        window.scrollBy(0, 1000);
+      }
     });
 
-    // Wait for content to load
-    await page.waitForTimeout(1500);
+    // Wait for content to load - Notion needs time
+    await page.waitForTimeout(2000);
+
+    // Also scroll to absolute bottom periodically
+    if (scrollAttempts % 3 === 0) {
+      await page.evaluate(() => {
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+      await page.waitForTimeout(1500);
+    }
 
     if (scrollAttempts % 5 === 0) {
       console.log(`  Scrolled ${scrollAttempts} times, found ${currentCount} items so far...`);
     }
   }
+
+  // Final scroll to top and back to bottom to ensure all items loaded
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(1000);
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.waitForTimeout(2000);
 }
 
 /**
