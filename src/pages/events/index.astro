@@ -3,7 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import StatCard from '@/components/cards/StatCard.astro';
 import EventsMapChart from '@/components/charts/EventsMapChart.astro';
 import EventsHistoryChart from '@/components/charts/EventsHistoryChart.astro';
-import { formatNumber } from '@/lib/utils/formatters';
+import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
@@ -27,6 +27,18 @@ interface LumaEvent {
   };
   isOnline: boolean;
   registrations: number;
+}
+
+interface HostStats {
+  name: string;
+  lumaUsername: string;
+  lumaUrl: string;
+  n8nUsername?: string;
+  verified?: boolean;
+  eventCount: number;
+  totalRegistrations: number;
+  countries: string[];
+  cities: string[];
 }
 
 interface EventsData {
@@ -59,6 +71,7 @@ interface EventsData {
     eventCount: number;
     totalRegistrations: number;
   }>;
+  hosts?: HostStats[];
 }
 
 // Load events data
@@ -226,6 +239,15 @@ const highlightedCountries = [...new Set(
     .map(c => countryToCode[c.country])
     .filter((code): code is string => !!code && code !== '🌐')
 )];
+
+// Get hosts data
+const hosts = eventsData?.hosts || [];
+
+// Helper to get host profile URL (n8n.io if mapped, Luma fallback)
+const getHostUrl = (host: HostStats) =>
+  host.n8nUsername
+    ? n8nUrls.creator(host.n8nUsername)
+    : host.lumaUrl;
 ---
 
 <BaseLayout title="Community Events" description="n8n community meetups, workshops, and events around the world">
@@ -310,6 +332,47 @@ const highlightedCountries = [...new Set(
               </div>
             );
           })}
+        </div>
+      </section>
+    )}
+
+    <!-- Top Event Hosts -->
+    {hosts.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold text-white mb-2">Top Event Hosts</h2>
+        <p class="text-gray-400 mb-4">Community members organizing the most events</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {hosts.slice(0, 10).map((host, index) => (
+            <a
+              href={getHostUrl(host)}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="card flex items-center gap-3 hover:border-n8n-primary/30 transition-colors py-3"
+              data-umami-event="host-click"
+              data-umami-event-target={host.n8nUsername || host.lumaUsername}
+            >
+              <div class="text-lg font-bold text-n8n-primary w-6">#{index + 1}</div>
+              <div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                {host.name.charAt(0).toUpperCase()}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1">
+                  <span class="font-medium text-white text-sm truncate">{host.name}</span>
+                  {host.verified && (
+                    <svg class="w-3 h-3 text-n8n-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <div class="text-xs text-gray-500 truncate">{host.cities.slice(0, 2).join(', ') || 'Online'}</div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <div class="text-sm font-medium text-green-400">{host.eventCount} event{host.eventCount !== 1 ? 's' : ''}</div>
+                <div class="text-xs text-gray-500">{formatNumber(host.totalRegistrations)} reg.</div>
+              </div>
+            </a>
+          ))}
         </div>
       </section>
     )}

@@ -9,6 +9,37 @@ import { join } from 'path';
 
 const LUMA_CALENDAR_URL = 'https://luma.com/n8n-events';
 const EVENTS_PATH = join(process.cwd(), 'public', 'data', 'history', 'events.json');
+const LUMA_MAPPING_PATH = join(process.cwd(), 'public', 'data', 'external', 'luma-n8n-mapping.json');
+
+// Load Luma to n8n username mapping
+let lumaN8nMapping: Record<string, string> = {};
+try {
+  if (existsSync(LUMA_MAPPING_PATH)) {
+    const mappingData = JSON.parse(readFileSync(LUMA_MAPPING_PATH, 'utf-8'));
+    lumaN8nMapping = mappingData.mappings || {};
+  }
+} catch (e) {
+  console.warn('Could not load Luma mapping file:', e);
+}
+
+interface EventHost {
+  name: string;
+  lumaUsername: string;
+  lumaUrl: string;
+  n8nUsername?: string;
+}
+
+interface HostStats {
+  name: string;
+  lumaUsername: string;
+  lumaUrl: string;
+  n8nUsername?: string;
+  verified?: boolean;
+  eventCount: number;
+  totalRegistrations: number;
+  countries: string[];
+  cities: string[];
+}
 
 interface LumaEvent {
   id: string;
@@ -29,6 +60,7 @@ interface LumaEvent {
   };
   isOnline: boolean;
   registrations: number;
+  hosts: EventHost[];
 }
 
 interface EventsData {
@@ -65,6 +97,7 @@ interface EventsData {
     eventCount: number;
     totalRegistrations: number;
   }>;
+  hosts: HostStats[];
 }
 
 /**
@@ -137,6 +170,29 @@ function parseEventFromSchema(schema: any): LumaEvent | null {
   const urlParts = (schema.url || '').split('/');
   const id = urlParts[urlParts.length - 1] || schema.name?.replace(/\s+/g, '-').toLowerCase() || '';
 
+  // Extract hosts from organizer field
+  const hosts: EventHost[] = [];
+  const organizers = schema.organizer || [];
+  const organizerArray = Array.isArray(organizers) ? organizers : [organizers];
+
+  for (const org of organizerArray) {
+    if (org && org.name && org.url) {
+      // Extract username from Luma URL like "https://lu.ma/user/geckse"
+      const urlMatch = org.url.match(/\/user\/([^\/\?]+)/);
+      const lumaUsername = urlMatch ? urlMatch[1] : '';
+
+      // Skip the official n8n account - we want community hosts only
+      if (lumaUsername && lumaUsername.toLowerCase() !== 'n8n') {
+        hosts.push({
+          name: org.name,
+          lumaUsername,
+          lumaUrl: org.url,
+          n8nUsername: lumaN8nMapping[lumaUsername] || undefined,
+        });
+      }
+    }
+  }
+
   return {
     id,
     name: schema.name || 'Untitled Event',
@@ -153,6 +209,7 @@ function parseEventFromSchema(schema: any): LumaEvent | null {
     },
     isOnline,
     registrations: 0, // Will be extracted separately if available
+    hosts,
   };
 }
 
@@ -314,6 +371,52 @@ function aggregateLocations(events: LumaEvent[]): EventsData['locations'] {
     .sort((a, b) => b.eventCount - a.eventCount);
 }
 
+/**
+ * Aggregate host statistics across all events
+ */
+function aggregateHosts(events: LumaEvent[]): HostStats[] {
+  const hostMap = new Map<string, HostStats>();
+
+  for (const event of events) {
+    for (const host of event.hosts) {
+      const existing = hostMap.get(host.lumaUsername);
+
+      if (existing) {
+        existing.eventCount++;
+        existing.totalRegistrations += event.registrations;
+        // Add country if not already present
+        const country = event.location.country;
+        if (country && !event.isOnline && !existing.countries.includes(country)) {
+          existing.countries.push(country);
+        }
+        // Add city if not already present
+        const city = event.location.city;
+        if (city && !event.isOnline && !existing.cities.includes(city)) {
+          existing.cities.push(city);
+        }
+      } else {
+        const country = event.location.country;
+        const city = event.location.city;
+        hostMap.set(host.lumaUsername, {
+          name: host.name,
+          lumaUsername: host.lumaUsername,
+          lumaUrl: host.lumaUrl,
+          n8nUsername: host.n8nUsername,
+          verified: false, // Will be updated later if n8nUsername exists in creators data
+          eventCount: 1,
+          totalRegistrations: event.registrations,
+          countries: country && !event.isOnline ? [country] : [],
+          cities: city && !event.isOnline ? [city] : [],
+        });
+      }
+    }
+  }
+
+  // Sort by event count descending
+  return Array.from(hostMap.values())
+    .sort((a, b) => b.eventCount - a.eventCount || b.totalRegistrations - a.totalRegistrations);
+}
+
 async function main() {
   console.log('Fetching n8n community events from Luma...\n');
 
@@ -342,6 +445,9 @@ async function main() {
   const firstEventDate = dates.length > 0 ? dates[0].toISOString().split('T')[0] : '';
   const lastEventDate = dates.length > 0 ? dates[dates.length - 1].toISOString().split('T')[0] : '';
 
+  // Aggregate hosts
+  const hosts = aggregateHosts(allEvents);
+
   // Build data structure
   const eventsData: EventsData = {
     lastUpdated: new Date().toISOString(),
@@ -360,6 +466,7 @@ async function main() {
       lastEventDate,
     },
     locations: aggregateLocations(allEvents),
+    hosts,
   };
 
   // Save data
@@ -375,6 +482,10 @@ async function main() {
   console.log(`Countries: ${eventsData.stats.countriesCount}`);
   console.log(`Date range: ${firstEventDate} to ${lastEventDate}`);
   console.log(`Locations with coordinates: ${eventsData.locations.length}`);
+  console.log(`Community hosts: ${eventsData.hosts.length}`);
+  if (eventsData.hosts.length > 0) {
+    console.log(`  Top hosts: ${eventsData.hosts.slice(0, 5).map(h => `${h.name} (${h.eventCount})`).join(', ')}`);
+  }
 }
 
 main().catch(console.error);
