@@ -150,45 +150,59 @@ const buildTime = new Date();
 
     <!-- Mobile menu toggle script -->
     <script is:inline>
-      (function() {
+      // Mobile menu initialization function
+      function initMobileMenu() {
         const toggle = document.getElementById('mobile-menu-toggle');
         const menu = document.getElementById('mobile-menu');
         const hamburgerIcon = document.getElementById('hamburger-icon');
         const closeIcon = document.getElementById('close-icon');
 
-        if (toggle && menu && hamburgerIcon && closeIcon) {
-          toggle.addEventListener('click', function() {
-            const isOpen = !menu.classList.contains('hidden');
+        if (!toggle || !menu || !hamburgerIcon || !closeIcon) return;
 
-            if (isOpen) {
-              menu.classList.add('hidden');
-              hamburgerIcon.classList.remove('hidden');
-              closeIcon.classList.add('hidden');
-              toggle.setAttribute('aria-expanded', 'false');
-            } else {
-              menu.classList.remove('hidden');
-              hamburgerIcon.classList.add('hidden');
-              closeIcon.classList.remove('hidden');
-              toggle.setAttribute('aria-expanded', 'true');
-            }
+        // Reset menu state on page load (important for View Transitions)
+        menu.classList.add('hidden');
+        hamburgerIcon.classList.remove('hidden');
+        closeIcon.classList.add('hidden');
+        toggle.setAttribute('aria-expanded', 'false');
 
-            // Track menu toggle in Umami
-            if (typeof umami !== 'undefined') {
-              umami.track('nav-mobile-toggle', { action: isOpen ? 'close' : 'open' });
-            }
-          });
+        // Remove existing listeners to prevent duplicates
+        const newToggle = toggle.cloneNode(true);
+        toggle.parentNode.replaceChild(newToggle, toggle);
 
-          // Close menu when clicking a link
-          menu.querySelectorAll('a').forEach(function(link) {
-            link.addEventListener('click', function() {
-              menu.classList.add('hidden');
-              hamburgerIcon.classList.remove('hidden');
-              closeIcon.classList.add('hidden');
-              toggle.setAttribute('aria-expanded', 'false');
-            });
-          });
-        }
-      })();
+        // Re-get the cloned element
+        const freshToggle = document.getElementById('mobile-menu-toggle');
+
+        freshToggle.addEventListener('click', function(e) {
+          e.preventDefault();
+          const isOpen = !menu.classList.contains('hidden');
+
+          if (isOpen) {
+            menu.classList.add('hidden');
+            hamburgerIcon.classList.remove('hidden');
+            closeIcon.classList.add('hidden');
+            freshToggle.setAttribute('aria-expanded', 'false');
+          } else {
+            menu.classList.remove('hidden');
+            hamburgerIcon.classList.add('hidden');
+            closeIcon.classList.remove('hidden');
+            freshToggle.setAttribute('aria-expanded', 'true');
+          }
+
+          // Track menu toggle in Umami
+          if (typeof umami !== 'undefined') {
+            umami.track('nav-mobile-toggle', { action: isOpen ? 'close' : 'open' });
+          }
+        });
+
+        // Note: We don't add click handlers to menu links anymore
+        // The menu will reset automatically when the page loads via View Transitions
+      }
+
+      // Run on initial page load
+      initMobileMenu();
+
+      // Re-run after View Transitions navigation (Astro's page swap event)
+      document.addEventListener('astro:page-load', initMobileMenu);
     </script>
 
     <main>
