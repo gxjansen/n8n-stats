@@ -54,6 +54,12 @@ const EXCLUDED_HOST_USERNAMES = [
   'usr-K2qvsnAPznAIC8L',    // Dylan Watkins (n8n employee)
 ];
 
+// Merge duplicate host accounts (same person with multiple Luma accounts)
+// Maps secondary account usernames to primary account username
+const HOST_ACCOUNT_MERGES: Record<string, string> = {
+  'usr-MTbTXpTImNTRIYQ': 'usr-68RxDaDQTWqU3WU',  // Alison Granger (secondary → primary with avatar)
+};
+
 function isPlaceholderLocation(text: string): boolean {
   if (!text) return true;
   const lower = text.toLowerCase();
@@ -501,7 +507,9 @@ function aggregateHosts(events: LumaEvent[]): HostStats[] {
 
   for (const event of events) {
     for (const host of event.hosts) {
-      const existing = hostMap.get(host.lumaUsername);
+      // Check if this account should be merged into another
+      const effectiveUsername = HOST_ACCOUNT_MERGES[host.lumaUsername] || host.lumaUsername;
+      const existing = hostMap.get(effectiveUsername);
 
       if (existing) {
         existing.eventCount++;
@@ -523,10 +531,12 @@ function aggregateHosts(events: LumaEvent[]): HostStats[] {
       } else {
         const country = event.location.country;
         const city = event.location.city;
-        hostMap.set(host.lumaUsername, {
-          name: host.name,
-          lumaUsername: host.lumaUsername,
-          lumaUrl: host.lumaUrl,
+        // Use the effective (primary) username for merged accounts
+        const isPrimaryAccount = !HOST_ACCOUNT_MERGES[host.lumaUsername];
+        hostMap.set(effectiveUsername, {
+          name: host.name.trim(),  // Trim whitespace from name
+          lumaUsername: effectiveUsername,
+          lumaUrl: isPrimaryAccount ? host.lumaUrl : `https://luma.com/user/${effectiveUsername}`,
           avatarUrl: host.avatarUrl,
           n8nUsername: host.n8nUsername,
           verified: false,
