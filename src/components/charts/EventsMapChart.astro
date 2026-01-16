@@ -32,10 +32,11 @@ interface Props {
 const { locations, highlightedCountries = [], legendLabels = {} } = Astro.props;
 
 // Default legend labels (can be overridden for different contexts like ambassadors)
+// Set to null/undefined to hide specific legend items
 const legend = {
-  location: legendLabels.location || 'Event location',
-  multiple: legendLabels.multiple || 'Multiple events',
-  country: legendLabels.country || 'Country with events',
+  location: legendLabels.location === null ? null : (legendLabels.location || 'Event location'),
+  multiple: legendLabels.multiple === null ? null : (legendLabels.multiple || 'Multiple events'),
+  country: legendLabels.country === null ? null : (legendLabels.country || 'Country with events'),
 };
 
 // Robinson projection parameters
@@ -231,18 +232,24 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
 
   <!-- Legend -->
   <div class="flex flex-wrap items-center justify-center gap-4 md:gap-6 mt-4 text-sm text-gray-400">
-    <div class="flex items-center gap-2">
-      <span class="w-3 h-3 rounded-full bg-[#ff6d5a]"></span>
-      <span>{legend.location}</span>
-    </div>
-    <div class="flex items-center gap-2">
-      <span class="w-5 h-5 rounded-full bg-[#ff6d5a] flex items-center justify-center text-xs text-white font-bold">3</span>
-      <span>{legend.multiple}</span>
-    </div>
-    <div class="flex items-center gap-2">
-      <span class="w-4 h-3 rounded-sm" style="background: rgba(255, 109, 90, 0.3); border: 1px solid rgba(255, 109, 90, 0.5);"></span>
-      <span>{legend.country}</span>
-    </div>
+    {legend.location && (
+      <div class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-[#ff6d5a]"></span>
+        <span>{legend.location}</span>
+      </div>
+    )}
+    {legend.multiple && (
+      <div class="flex items-center gap-2">
+        <span class="w-5 h-5 rounded-full bg-[#ff6d5a] flex items-center justify-center text-xs text-white font-bold">3</span>
+        <span>{legend.multiple}</span>
+      </div>
+    )}
+    {legend.country && (
+      <div class="flex items-center gap-2">
+        <span class="w-4 h-3 rounded-sm" style="background: rgba(255, 109, 90, 0.3); border: 1px solid rgba(255, 109, 90, 0.5);"></span>
+        <span>{legend.country}</span>
+      </div>
+    )}
   </div>
 </div>
 
