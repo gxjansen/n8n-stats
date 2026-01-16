@@ -184,6 +184,7 @@ interface Ambassador {
   communityProfileUrl?: string;
   linkedinUrl?: string;
   bio?: string;
+  avatarUrl?: string;
 }
 
 interface AmbassadorData {
@@ -491,11 +492,11 @@ function aggregateLocations(ambassadors: Ambassador[]): AmbassadorData['location
 /**
  * Extract ambassador links from gallery page
  */
-async function extractAmbassadorLinks(page: any): Promise<Array<{ name: string; id: string; url: string }>> {
+async function extractAmbassadorLinks(page: any): Promise<Array<{ name: string; id: string; url: string; avatarUrl?: string; country?: string }>> {
   return page.evaluate(() => {
-    const results: Array<{ name: string; id: string; url: string }> = [];
+    const results: Array<{ name: string; id: string; url: string; avatarUrl?: string; country?: string }> = [];
 
-    // Find all collection item links
+    // Find all collection item links (gallery cards)
     // Pattern: href="/Name-Name-UUID?pvs=25"
     const links = document.querySelectorAll('a[href*="?pvs="]');
 
@@ -511,14 +512,48 @@ async function extractAmbassadorLinks(page: any): Promise<Array<{ name: string; 
         const id = match[2];
 
         // Convert dashes to spaces for the name
-        // Handle names like "Bram-Knuever" -> "Bram Knuever"
-        // But also handle "G-lsen-cal" -> "Gülsen Öcal" (special chars encoded)
         const name = namePart.replace(/-/g, ' ').trim();
+
+        // Extract avatar image from the gallery card
+        let avatarUrl: string | undefined;
+        const img = link.querySelector('img[src*="attachment"]');
+        if (img) {
+          const src = img.getAttribute('src');
+          if (src) {
+            // Convert relative URL to absolute
+            avatarUrl = src.startsWith('/') ? `https://n8n.notion.site${src}` : src;
+          }
+        }
+
+        // Extract country from gallery card tags
+        // Look for text that matches country names with flag emoji
+        let country: string | undefined;
+        const cardText = link.textContent || '';
+        // Common countries in ambassador program
+        const countryPatterns = [
+          'Netherlands', 'Germany', 'France', 'Spain', 'United Kingdom', 'UK',
+          'Italy', 'Belgium', 'Austria', 'Switzerland', 'Poland', 'Portugal',
+          'Denmark', 'Sweden', 'Norway', 'Finland', 'Ireland', 'Czech Republic',
+          'Hungary', 'Romania', 'Greece', 'Turkey', 'Israel', 'UAE',
+          'Kenya', 'Ghana', 'Nigeria', 'South Africa', 'Egypt',
+          'Japan', 'South Korea', 'Singapore', 'Taiwan', 'Thailand', 'India',
+          'Indonesia', 'Malaysia', 'Philippines', 'Vietnam', 'China', 'Pakistan',
+          'Brazil', 'Argentina', 'Chile', 'Peru', 'Colombia', 'Mexico',
+          'Australia', 'New Zealand', 'Canada', 'United States', 'USA',
+        ];
+        for (const countryName of countryPatterns) {
+          if (cardText.includes(countryName)) {
+            country = countryName;
+            break;
+          }
+        }
 
         results.push({
           name,
           id,
           url: `https://n8n.notion.site${href.split('?')[0]}`,
+          avatarUrl,
+          country,
         });
       }
     }
@@ -819,11 +854,21 @@ async function scrapeAmbassadors(): Promise<Ambassador[]> {
         id: link.id,
         name: link.name,
         joinDate: '',
+        // Use country and avatarUrl from gallery extraction
+        country: link.country,
+        avatarUrl: link.avatarUrl,
       };
 
-      // Fetch details from individual pages
+      // Fetch details from individual pages (for joinDate, city, links)
       const details = await extractAmbassadorDetails(page, link);
-      Object.assign(ambassador, details);
+      // Don't overwrite country if already extracted from gallery (more reliable)
+      const { country: _detailCountry, ...otherDetails } = details;
+      Object.assign(ambassador, otherDetails);
+
+      // Only use detail page country if gallery didn't have one
+      if (!ambassador.country && details.country) {
+        ambassador.country = details.country;
+      }
 
       // Add coordinates if we have location info
       ambassador.coordinates = getCoordinates(ambassador.city, ambassador.country);

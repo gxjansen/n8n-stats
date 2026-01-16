@@ -18,6 +18,7 @@ interface Ambassador {
   communityProfileUrl?: string;
   linkedinUrl?: string;
   bio?: string;
+  avatarUrl?: string;
 }
 
 interface AmbassadorData {
@@ -248,7 +249,7 @@ const newestDate = newestAmbassadors[0]?.parsedDate;
         />
         <StatCard
           label="Newest Member"
-          value={newestDate ? newestDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'N/A'}
+          value={newestDate ? newestDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
         />
       </div>
     </section>
@@ -319,9 +320,18 @@ const newestDate = newestAmbassadors[0]?.parsedDate;
                 data-umami-event-target={profileUrl ? ambassador.name : undefined}
               >
                 {/* Avatar */}
-                <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center text-lg font-bold text-green-400">
-                  {getInitials(ambassador.name)}
-                </div>
+                {ambassador.avatarUrl ? (
+                  <img
+                    src={ambassador.avatarUrl}
+                    alt={ambassador.name}
+                    class="w-14 h-14 mx-auto mb-3 rounded-full object-cover ring-2 ring-green-500/30"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center text-lg font-bold text-green-400">
+                    {getInitials(ambassador.name)}
+                  </div>
+                )}
 
                 {/* Name */}
                 <h3 class="font-semibold text-white text-sm truncate">{ambassador.name}</h3>
@@ -363,9 +373,18 @@ const newestDate = newestAmbassadors[0]?.parsedDate;
                 data-umami-event-target={profileUrl ? ambassador.name : undefined}
               >
                 {/* Avatar */}
-                <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-amber-500/20 to-amber-500/5 flex items-center justify-center text-lg font-bold text-amber-400">
-                  {getInitials(ambassador.name)}
-                </div>
+                {ambassador.avatarUrl ? (
+                  <img
+                    src={ambassador.avatarUrl}
+                    alt={ambassador.name}
+                    class="w-14 h-14 mx-auto mb-3 rounded-full object-cover ring-2 ring-amber-500/30"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-amber-500/20 to-amber-500/5 flex items-center justify-center text-lg font-bold text-amber-400">
+                    {getInitials(ambassador.name)}
+                  </div>
+                )}
 
                 {/* Name */}
                 <h3 class="font-semibold text-white text-sm truncate">{ambassador.name}</h3>
