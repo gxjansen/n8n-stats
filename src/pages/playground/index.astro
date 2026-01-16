@@ -913,12 +913,15 @@ const correlationSources = getCategoricalSourcesByType('correlation');
       return [];
     }
 
-    // Standard: use monthly data
+    // Standard: use monthly/weekly/daily data arrays
     const granularityData = data.monthly || data.weekly || data.daily;
     if (!Array.isArray(granularityData)) return [];
 
+    // Use metric.dateKey if specified (e.g., 'weekStart' for npm-landscape)
+    const dateKey = metric.dateKey || 'date';
+
     return granularityData.map((item: any) => ({
-      date: normalizeDate(item.date),
+      date: normalizeDate(item[dateKey]),
       value: item[metric.path],
     })).filter((p: TimeSeriesPoint) => isValidValue(p.value));
   }
