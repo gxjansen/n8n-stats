@@ -31,18 +31,50 @@ const LOCATION_PLACEHOLDERS = [
   'to be announced',
 ];
 
+// Keywords that indicate an online event (case-insensitive)
+const ONLINE_KEYWORDS = [
+  'virtual',
+  'online',
+  'webinar',
+  'remote',
+  'zoom',
+];
+
 // Hosts to exclude from rankings (n8n employees and companies)
 // These still appear as event hosts but are filtered from the "Top Event Hosts" leaderboard
 const EXCLUDED_HOST_USERNAMES = [
   'tino',                   // Tino Zwirs (n8n employee)
   'usr-x92jV43Ylj6xeEF',    // Avanai (company)
   'usr-OUlkJ8DjP43OCE0',    // Angel Menendez (n8n employee)
+  'usr-K2qvsnAPznAIC8L',    // Dylan Watkins (n8n employee)
 ];
 
 function isPlaceholderLocation(text: string): boolean {
   if (!text) return true;
   const lower = text.toLowerCase();
   return LOCATION_PLACEHOLDERS.some(p => lower.includes(p));
+}
+
+/**
+ * Detect if an event is online based on name, location, or API location_type
+ */
+function isOnlineEvent(
+  locationType: string,
+  eventName: string,
+  locationName: string
+): boolean {
+  // First check API location_type
+  if (locationType === 'online') return true;
+
+  // Check event name for online keywords
+  const nameLower = eventName.toLowerCase();
+  if (ONLINE_KEYWORDS.some(kw => nameLower.includes(kw))) return true;
+
+  // Check location name for online keywords
+  const locLower = locationName.toLowerCase();
+  if (ONLINE_KEYWORDS.some(kw => locLower.includes(kw))) return true;
+
+  return false;
 }
 
 interface EventHost {
@@ -114,6 +146,11 @@ interface EventsData {
     pastCount: number;
     countriesCount: number;
     onlineCount: number;
+    inPersonCount: number;
+    pastInPersonCount: number;
+    pastInPersonRegistrations: number;
+    pastOnlineCount: number;
+    pastOnlineRegistrations: number;
     firstEventDate: string;
     lastEventDate: string;
   };
@@ -177,8 +214,9 @@ function parseEventFromApi(entry: LumaApiEntry): LumaEvent {
   const event = entry.event;
   const geoInfo = event.geo_address_info || {};
 
-  // Check if online event
-  const isOnline = event.location_type === 'online';
+  // Check if online event (using API type, event name, and location name)
+  const locationName = geoInfo.address || '';
+  const isOnline = isOnlineEvent(event.location_type, event.name, locationName);
 
   // Extract city/country, filtering out placeholders
   let city = geoInfo.city || '';
@@ -509,6 +547,11 @@ async function main() {
       pastCount: past.length,
       countriesCount: countries.size,
       onlineCount: allEvents.filter(e => e.isOnline).length,
+      inPersonCount: allEvents.filter(e => !e.isOnline).length,
+      pastInPersonCount: past.filter(e => !e.isOnline).length,
+      pastInPersonRegistrations: past.filter(e => !e.isOnline).reduce((sum, e) => sum + e.registrations, 0),
+      pastOnlineCount: past.filter(e => e.isOnline).length,
+      pastOnlineRegistrations: past.filter(e => e.isOnline).reduce((sum, e) => sum + e.registrations, 0),
       firstEventDate,
       lastEventDate,
     },
