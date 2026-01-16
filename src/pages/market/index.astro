@@ -60,16 +60,36 @@ try {
 }
 
 // Get latest GitHub stars
-const latestGithub = landscapeData?.github?.daily?.slice(-1)[0] || {};
+const githubDaily = landscapeData?.github?.daily || [];
+const latestGithub = githubDaily.slice(-1)[0] || {};
+
+// Helper to find entry from X months ago
+function findEntryMonthsAgo(daily: Array<Record<string, any>>, months: number): Record<string, any> | null {
+  const targetDate = new Date();
+  targetDate.setMonth(targetDate.getMonth() - months);
+  const targetStr = targetDate.toISOString().split('T')[0];
+  const filtered = daily.filter(e => e.date <= targetStr);
+  return filtered.length > 0 ? filtered[filtered.length - 1] : null;
+}
+
+// Get historical data for growth calculations
+const github3MonthsAgo = findEntryMonthsAgo(githubDaily, 3);
+
 const githubPlatforms = ['n8n', 'huginn', 'nodered', 'activepieces', 'windmill', 'pipedream'];
 const githubData = githubPlatforms
-  .map((id) => ({
-    id,
-    name: landscapeData?.platforms[id]?.name || id,
-    stars: latestGithub[id] || 0,
-    website: landscapeData?.platforms[id]?.website || '',
-    focus: landscapeData?.platforms[id]?.focus || '',
-  }))
+  .map((id) => {
+    const current = latestGithub[id] || 0;
+    const previous = github3MonthsAgo?.[id] || 0;
+    const growth = previous > 0 ? ((current - previous) / previous) * 100 : null;
+    return {
+      id,
+      name: landscapeData?.platforms[id]?.name || id,
+      stars: current,
+      website: landscapeData?.platforms[id]?.website || '',
+      focus: landscapeData?.platforms[id]?.focus || '',
+      growth3m: growth,
+    };
+  })
   .filter((p) => p.stars > 0)
   .sort((a, b) => b.stars - a.stars);
 
@@ -144,13 +164,18 @@ const icons = {
         Open Source Automation Tools
       </h2>
       <p class="text-gray-400 mb-6">
-        GitHub stars for self-hostable automation platforms. n8n leads the open-source automation space.
+        GitHub stars for self-hostable automation platforms. Showing 3-month growth rates.
       </p>
 
       <div class="card">
         <div class="relative h-[350px]">
           <canvas id="github-stars-chart"></canvas>
         </div>
+        {github3MonthsAgo && (
+          <p class="text-gray-500 text-xs mt-3 text-center">
+            Growth calculated from {github3MonthsAgo.date} to {latestGithub.date}
+          </p>
+        )}
       </div>
     </section>
 
@@ -212,12 +237,14 @@ const icons = {
                     {platform.type === 'open-source' ? 'Open' : 'Closed'}
                   </span>
                 </td>
-                <td class="py-3 px-4 text-center">
-                  {platform.selfHostable ? (
-                    <span class="text-green-400" set:html={icons.check} />
-                  ) : (
-                    <span class="text-gray-500" set:html={icons.x} />
-                  )}
+                <td class="py-3 px-4">
+                  <div class="flex justify-center">
+                    {platform.selfHostable ? (
+                      <span class="text-green-400" set:html={icons.check} />
+                    ) : (
+                      <span class="text-gray-500" set:html={icons.x} />
+                    )}
+                  </div>
                 </td>
                 <td class="py-3 px-4 text-right font-mono text-white">
                   {platform.githubStars ? formatNumber(platform.githubStars) : '-'}
@@ -282,10 +309,19 @@ const icons = {
 
     const data = (window as any).__landscapeGithubData || [];
 
+    // Create labels with growth indicators
+    const labelsWithGrowth = data.map((d: any) => {
+      if (d.growth3m !== null && d.growth3m !== undefined) {
+        const sign = d.growth3m >= 0 ? '+' : '';
+        return `${d.name} (${sign}${d.growth3m.toFixed(1)}%)`;
+      }
+      return d.name;
+    });
+
     new Chart(canvas, {
       type: 'bar',
       data: {
-        labels: data.map((d: any) => d.name),
+        labels: labelsWithGrowth,
         datasets: [
           {
             label: 'GitHub Stars',
@@ -306,7 +342,16 @@ const icons = {
             titleColor: '#fff',
             bodyColor: '#9ca3af',
             callbacks: {
-              label: (ctx) => `${ctx.parsed.x.toLocaleString()} stars`,
+              title: (items) => data[items[0].dataIndex]?.name || '',
+              label: (ctx) => {
+                const item = data[ctx.dataIndex];
+                const lines = [`${ctx.parsed.x.toLocaleString()} stars`];
+                if (item?.growth3m !== null && item?.growth3m !== undefined) {
+                  const sign = item.growth3m >= 0 ? '+' : '';
+                  lines.push(`3-month growth: ${sign}${item.growth3m.toFixed(1)}%`);
+                }
+                return lines;
+              },
             },
           },
         },
