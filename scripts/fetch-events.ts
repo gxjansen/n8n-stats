@@ -52,6 +52,9 @@ const EXCLUDED_HOST_USERNAMES = [
   'usr-x92jV43Ylj6xeEF',    // Avanai (company)
   'usr-OUlkJ8DjP43OCE0',    // Angel Menendez (n8n employee)
   'usr-K2qvsnAPznAIC8L',    // Dylan Watkins (n8n employee)
+  'usr-LpUrafaznZGPrGz',    // Melinda Varga (n8n employee)
+  'softpyramid',            // SOFT PYRAMID LLC (company)
+  'AILA',                   // AI LA (company/org)
 ];
 
 // Merge duplicate host accounts (same person with multiple Luma accounts)
