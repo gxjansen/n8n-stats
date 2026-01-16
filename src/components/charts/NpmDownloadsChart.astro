@@ -1,0 +1,261 @@
+---
+/**
+ * npm Downloads History Chart
+ *
+ * Renders Chart.js area chart for weekly npm downloads.
+ * Data is loaded at build time for instant rendering.
+ */
+
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+
+interface WeeklyData {
+  weekStart: string;
+  downloads: number;
+}
+
+interface NpmHistory {
+  package: string;
+  lastUpdated: string;
+  weekly: WeeklyData[];
+}
+
+// Load data at build time
+let chartDataPoints: WeeklyData[] = [];
+let totalDownloads = 0;
+try {
+  const dataPath = join(process.cwd(), 'public', 'data', 'history', 'npm-downloads.json');
+  if (existsSync(dataPath)) {
+    const data: NpmHistory = JSON.parse(readFileSync(dataPath, 'utf-8'));
+    chartDataPoints = data.weekly || [];
+    totalDownloads = chartDataPoints.reduce((sum, w) => sum + w.downloads, 0);
+  }
+} catch (e) { /* use empty array */ }
+
+const chartDataJson = JSON.stringify(chartDataPoints);
+
+// Calculate stats
+const latestWeek = chartDataPoints[chartDataPoints.length - 1];
+const weekAgo = chartDataPoints[chartDataPoints.length - 5] || chartDataPoints[0];
+const monthAgo = chartDataPoints[chartDataPoints.length - 4] || chartDataPoints[0];
+const growthPct = monthAgo && monthAgo.downloads > 0
+  ? ((latestWeek?.downloads || 0) - monthAgo.downloads) / monthAgo.downloads * 100
+  : 0;
+---
+
+<div id="npm-chart-container" class="card">
+  <!-- Header Stats -->
+  <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <div>
+      <p class="text-gray-400 text-sm">Total All-Time Downloads</p>
+      <p class="text-2xl font-bold text-white">{totalDownloads.toLocaleString()}</p>
+    </div>
+    <div class="text-right">
+      <p class="text-gray-400 text-sm">Latest Week</p>
+      <p class="text-2xl font-bold text-n8n-primary">{latestWeek?.downloads.toLocaleString() || 0}</p>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="flex flex-wrap items-center gap-4 mb-4">
+    <div class="flex items-center gap-2">
+      <label class="text-sm text-gray-400">Range:</label>
+      <select id="npm-date-range" class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary">
+        <option value="26">Last 6 months</option>
+        <option value="52" selected>Last 12 months</option>
+        <option value="104">Last 2 years</option>
+        <option value="all">All time</option>
+      </select>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <label class="text-sm text-gray-400">Type:</label>
+      <select id="npm-chart-type" class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary">
+        <option value="area" selected>Area</option>
+        <option value="line">Line</option>
+        <option value="bar">Bar</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Chart Canvas -->
+  <div class="relative h-[300px] md:h-[350px]">
+    <canvas id="npm-downloads-chart"></canvas>
+  </div>
+
+  <!-- Legend -->
+  <div class="flex items-center justify-center gap-6 mt-4 text-sm">
+    <div class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#cb3837]"></span>
+      <span class="text-gray-400">Weekly Downloads</span>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ chartDataJson }}>
+  window.__npmChartData = JSON.parse(chartDataJson);
+</script>
+
+<script>
+  import { Chart } from '../../lib/utils/chartRegistry';
+  import { initChartWhenVisible } from '../../lib/utils/lazyChart';
+
+  interface WeeklyData {
+    weekStart: string;
+    downloads: number;
+  }
+
+  let chart: Chart | null = null;
+  let chartData: WeeklyData[] = (window as any).__npmChartData || [];
+
+  const COLORS = {
+    npm: { border: '#cb3837', background: 'rgba(203, 56, 55, 0.2)' },
+  };
+
+  function filterByWeeks(points: WeeklyData[], weeks: number | 'all'): WeeklyData[] {
+    if (weeks === 'all') return points;
+    return points.slice(-weeks);
+  }
+
+  function getChartType(): 'area' | 'line' | 'bar' {
+    return (document.getElementById('npm-chart-type') as HTMLSelectElement).value as any;
+  }
+
+  function getDateRange(): number | 'all' {
+    const value = (document.getElementById('npm-date-range') as HTMLSelectElement).value;
+    return value === 'all' ? 'all' : parseInt(value, 10);
+  }
+
+  function formatDate(dateStr: string): string {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+  }
+
+  function updateChart() {
+    if (chartData.length === 0 || !chart) return;
+
+    const range = getDateRange();
+    const chartType = getChartType();
+    const filteredData = filterByWeeks(chartData, range);
+
+    const isArea = chartType === 'area';
+    const isBar = chartType === 'bar';
+
+    chart.data.labels = filteredData.map(d => formatDate(d.weekStart));
+    chart.data.datasets = [{
+      label: 'Weekly Downloads',
+      data: filteredData.map(d => d.downloads),
+      borderColor: COLORS.npm.border,
+      backgroundColor: isArea ? COLORS.npm.background : (isBar ? COLORS.npm.border : COLORS.npm.border),
+      fill: isArea,
+      tension: 0.3,
+      pointRadius: filteredData.length > 100 ? 0 : 2,
+      pointHoverRadius: 5,
+      type: isBar ? 'bar' : 'line',
+      borderRadius: isBar ? 2 : 0,
+    }];
+
+    chart.update();
+  }
+
+  function initChart() {
+    const canvas = document.getElementById('npm-downloads-chart') as HTMLCanvasElement;
+
+    if (chartData.length === 0) {
+      return;
+    }
+
+    const range = getDateRange();
+    const chartType = getChartType();
+    const filteredData = filterByWeeks(chartData, range);
+
+    const isArea = chartType === 'area';
+    const isBar = chartType === 'bar';
+
+    chart = new Chart(canvas, {
+      type: isBar ? 'bar' : 'line',
+      data: {
+        labels: filteredData.map(d => formatDate(d.weekStart)),
+        datasets: [{
+          label: 'Weekly Downloads',
+          data: filteredData.map(d => d.downloads),
+          borderColor: COLORS.npm.border,
+          backgroundColor: isArea ? COLORS.npm.background : COLORS.npm.border,
+          fill: isArea,
+          tension: 0.3,
+          pointRadius: filteredData.length > 100 ? 0 : 2,
+          pointHoverRadius: 5,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#fff',
+            bodyColor: '#9ca3af',
+            borderColor: '#333',
+            borderWidth: 1,
+            callbacks: {
+              title: (items) => {
+                const idx = items[0].dataIndex;
+                return `Week of ${filteredData[idx]?.weekStart || ''}`;
+              },
+              label: (context) => {
+                return `Downloads: ${context.parsed.y.toLocaleString()}`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: '#6b7280',
+              maxRotation: 45,
+              maxTicksLimit: 12,
+            },
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: '#6b7280',
+              callback: (value) => {
+                if (typeof value === 'number') {
+                  if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                  if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+                }
+                return value;
+              },
+            },
+            title: {
+              display: true,
+              text: 'Downloads / Week',
+              color: '#6b7280',
+            },
+          },
+        },
+      },
+    });
+
+    // Attach event listeners
+    document.getElementById('npm-date-range')?.addEventListener('change', updateChart);
+    document.getElementById('npm-chart-type')?.addEventListener('change', updateChart);
+  }
+
+  // Initialize when DOM is ready and chart is visible
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initChartWhenVisible('npm-chart-container', initChart);
+    });
+  } else {
+    initChartWhenVisible('npm-chart-container', initChart);
+  }
+</script>

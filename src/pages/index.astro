@@ -329,7 +329,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
           subtitle="Repository growth rate"
           trend={githubTrendData}
           color="#ff6d5a"
-          to="/github"
+          to="/dev"
           animationDelay={0}
           collecting={!hasEnoughGithubData ? {
             current: dataStatus.github.daysCollected,
@@ -457,7 +457,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         <!-- GitHub - with sparkline -->
         <SubpageTeaserCard
           title="GitHub"
-          href="/github"
+          href="/dev"
           mainStat={githubStats.stars}
           mainLabel="stars on GitHub"
           secondaryStat={daysToMilestone !== null ? `${daysToMilestone} days` : undefined}
@@ -581,7 +581,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         <StatCard
           label="GitHub Stars"
           value={githubStats.stars}
-          to="/github"
+          to="/dev"
         />
         <StatCard
           label="Community Members"
