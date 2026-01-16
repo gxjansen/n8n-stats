@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-01-16T20:32:28.748Z",
+  "lastUpdated": "2026-01-16T20:59:34.419Z",
   "platforms": {
     "n8n": {
       "name": "n8n",
@@ -1267,12 +1267,12 @@
       },
       {
         "date": "2026-01-16",
-        "n8n": 169458,
-        "activepieces": 20375,
+        "n8n": 169473,
+        "activepieces": 20376,
         "windmill": 15522,
-        "pipedream": 11008,
-        "huginn": 48509,
-        "nodered": 22621,
+        "pipedream": 11007,
+        "huginn": 48510,
+        "nodered": 22622,
         "source": "api"
       }
     ]
@@ -1304,5 +1304,65 @@
       "github": 169400,
       "lastUpdated": "2026-01-16"
     }
+  },
+  "npm": {
+    "description": "npm weekly downloads for automation tools",
+    "daily": [
+      {
+        "date": "2026-01-16",
+        "n8n": 75248,
+        "activepieces": 1,
+        "windmill": 40537,
+        "pipedream": 45243,
+        "nodered": 25908,
+        "source": "api"
+      }
+    ]
+  },
+  "docker": {
+    "description": "Docker Hub pull counts for automation tools",
+    "daily": [
+      {
+        "date": "2026-01-16",
+        "n8n": 177627705,
+        "activepieces": 1823801,
+        "huginn": 20326847,
+        "nodered": 306873395,
+        "source": "api"
+      }
+    ]
+  },
+  "velocity": {
+    "description": "Development velocity: commits and releases (90-day window)",
+    "daily": [
+      {
+        "date": "2026-01-16",
+        "source": "api",
+        "n8n_commits90d": 1584,
+        "n8n_releases90d": 50,
+        "n8n_weeklyCommits": 184,
+        "n8n_latestRelease": "n8n@2.3.6",
+        "activepieces_commits90d": 3557,
+        "activepieces_releases90d": 24,
+        "activepieces_weeklyCommits": 106,
+        "activepieces_latestRelease": "0.77.3",
+        "windmill_commits90d": 981,
+        "windmill_releases90d": 50,
+        "windmill_weeklyCommits": 82,
+        "windmill_latestRelease": "v1.608.0",
+        "pipedream_commits90d": 636,
+        "pipedream_releases90d": 0,
+        "pipedream_weeklyCommits": 31,
+        "pipedream_latestRelease": null,
+        "huginn_commits90d": 0,
+        "huginn_releases90d": 0,
+        "huginn_weeklyCommits": 0,
+        "huginn_latestRelease": "v2022.08.18",
+        "nodered_commits90d": 78,
+        "nodered_releases90d": 4,
+        "nodered_weeklyCommits": 0,
+        "nodered_latestRelease": "4.1.3"
+      }
+    ]
   }
 }

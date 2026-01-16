@@ -33,6 +33,18 @@ interface LandscapeData {
     description: string;
     daily: Array<Record<string, any>>;
   };
+  npm: {
+    description: string;
+    daily: Array<Record<string, any>>;
+  };
+  docker: {
+    description: string;
+    daily: Array<Record<string, any>>;
+  };
+  velocity: {
+    description: string;
+    daily: Array<Record<string, any>>;
+  };
   linkedin: {
     description: string;
     daily: Array<Record<string, any>>;
@@ -110,12 +122,53 @@ const linkedinData = linkedinPlatforms
   .filter((p) => p.followers > 0)
   .sort((a, b) => b.followers - a.followers);
 
+// Get latest npm downloads
+const latestNpm = landscapeData?.npm?.daily?.slice(-1)[0] || {};
+const npmPlatforms = ['n8n', 'pipedream', 'windmill', 'nodered', 'activepieces'];
+const npmData = npmPlatforms
+  .map((id) => ({
+    id,
+    name: landscapeData?.platforms[id]?.name || id,
+    downloads: latestNpm[id] || 0,
+  }))
+  .filter((p) => p.downloads > 0)
+  .sort((a, b) => b.downloads - a.downloads);
+
+// Get latest Docker pulls
+const latestDocker = landscapeData?.docker?.daily?.slice(-1)[0] || {};
+const dockerPlatforms = ['nodered', 'n8n', 'huginn', 'activepieces'];
+const dockerData = dockerPlatforms
+  .map((id) => ({
+    id,
+    name: landscapeData?.platforms[id]?.name || id,
+    pulls: latestDocker[id] || 0,
+  }))
+  .filter((p) => p.pulls > 0)
+  .sort((a, b) => b.pulls - a.pulls);
+
+// Get latest velocity data
+const latestVelocity = landscapeData?.velocity?.daily?.slice(-1)[0] || {};
+const velocityPlatforms = ['n8n', 'activepieces', 'windmill', 'pipedream', 'nodered', 'huginn'];
+const velocityData = velocityPlatforms
+  .map((id) => ({
+    id,
+    name: landscapeData?.platforms[id]?.name || id,
+    commits90d: latestVelocity[`${id}_commits90d`] || 0,
+    releases90d: latestVelocity[`${id}_releases90d`] || 0,
+    weeklyCommits: latestVelocity[`${id}_weeklyCommits`] || 0,
+    latestRelease: latestVelocity[`${id}_latestRelease`] || null,
+  }))
+  .filter((p) => p.commits90d > 0 || p.releases90d > 0)
+  .sort((a, b) => b.commits90d - a.commits90d);
+
 // All platforms for comparison table
 const allPlatforms = Object.entries(landscapeData?.platforms || {}).map(([id, platform]) => ({
   id,
   ...platform,
   githubStars: latestGithub[id] || null,
   linkedinFollowers: latestLinkedin[id] || null,
+  npmDownloads: latestNpm[id] || null,
+  dockerPulls: latestDocker[id] || null,
 }));
 
 // Format date
@@ -130,6 +183,9 @@ const lastUpdated = landscapeData?.lastUpdated
 // Pass data to client-side charts
 const githubChartData = JSON.stringify(githubData);
 const linkedinChartData = JSON.stringify(linkedinData);
+const npmChartData = JSON.stringify(npmData);
+const dockerChartData = JSON.stringify(dockerData);
+const velocityChartData = JSON.stringify(velocityData);
 
 // Icons
 const icons = {
@@ -141,6 +197,9 @@ const icons = {
   check: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/></svg>`,
   x: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"/></svg>`,
   external: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path fill-rule="evenodd" d="M4.25 5.5a.75.75 0 00-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 00.75-.75v-4a.75.75 0 011.5 0v4A2.25 2.25 0 0112.75 17h-8.5A2.25 2.25 0 012 14.75v-8.5A2.25 2.25 0 014.25 4h5a.75.75 0 010 1.5h-5z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M6.194 12.753a.75.75 0 001.06.053L16.5 4.44v2.81a.75.75 0 001.5 0v-4.5a.75.75 0 00-.75-.75h-4.5a.75.75 0 000 1.5h2.553l-9.056 8.194a.75.75 0 00-.053 1.06z" clip-rule="evenodd"/></svg>`,
+  npm: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M0 0v24h24V0H0zm19.2 19.2H12v-9.6H7.2v9.6H4.8V4.8h14.4v14.4z"/></svg>`,
+  docker: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M13.983 11.078h2.119a.186.186 0 0 0 .186-.185V9.006a.186.186 0 0 0-.186-.186h-2.119a.185.185 0 0 0-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 0 0 .186-.186V3.574a.186.186 0 0 0-.186-.185h-2.118a.185.185 0 0 0-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 0 0 .186-.186V6.29a.186.186 0 0 0-.186-.185h-2.118a.185.185 0 0 0-.185.185v1.887c0 .102.082.186.185.186m-2.93 0h2.12a.186.186 0 0 0 .184-.186V6.29a.185.185 0 0 0-.185-.185H8.1a.185.185 0 0 0-.185.185v1.887c0 .102.083.186.185.186m-2.964 0h2.119a.186.186 0 0 0 .185-.186V6.29a.186.186 0 0 0-.185-.185H5.136a.186.186 0 0 0-.186.185v1.887c0 .102.084.186.186.186m5.893 2.715h2.118a.186.186 0 0 0 .186-.185V9.006a.186.186 0 0 0-.186-.186h-2.118a.185.185 0 0 0-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 0 0 .184-.185V9.006a.185.185 0 0 0-.184-.186h-2.12a.185.185 0 0 0-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 0 0 .185-.185V9.006a.185.185 0 0 0-.185-.186h-2.12a.186.186 0 0 0-.185.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 0 0 .184-.185V9.006a.185.185 0 0 0-.184-.186h-2.12a.185.185 0 0 0-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 0 0-.75.748 11.376 11.376 0 0 0 .692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 0 0 3.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z"/></svg>`,
+  velocity: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
 };
 ---
 
@@ -179,6 +238,72 @@ const icons = {
             Growth calculated from {github3MonthsAgo.date} to {latestGithub.date}
           </p>
         )}
+      </div>
+    </section>
+
+    <!-- npm Weekly Downloads -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+        <span class="text-gray-400" set:html={icons.npm} />
+        npm Weekly Downloads
+      </h2>
+      <p class="text-gray-400 mb-6">
+        Weekly npm package downloads for JavaScript-based automation platforms.
+      </p>
+
+      <div class="card">
+        <div class="relative h-[300px]">
+          <canvas id="npm-chart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Docker Hub Pulls -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+        <span class="text-gray-400" set:html={icons.docker} />
+        Docker Hub Pulls
+      </h2>
+      <p class="text-gray-400 mb-6">
+        Total Docker image pulls for self-hostable platforms. Higher numbers indicate broader deployment.
+      </p>
+
+      <div class="card">
+        <div class="relative h-[250px]">
+          <canvas id="docker-chart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Development Velocity -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+        <span class="text-gray-400" set:html={icons.velocity} />
+        Development Velocity (90 days)
+      </h2>
+      <p class="text-gray-400 mb-6">
+        Commits and releases over the last 90 days. Indicates active development and release cadence.
+      </p>
+
+      <div class="card">
+        <div class="relative h-[350px]">
+          <canvas id="velocity-chart"></canvas>
+        </div>
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          {velocityData.slice(0, 3).map((p) => (
+            <div class="bg-n8n-bg-secondary rounded-lg p-3">
+              <div class="font-semibold text-white">{p.name}</div>
+              <div class="text-gray-400 mt-1">
+                <span class="text-n8n-primary font-mono">{p.commits90d.toLocaleString()}</span> commits
+                {' | '}
+                <span class="text-green-400 font-mono">{p.releases90d}</span> releases
+              </div>
+              {p.latestRelease && (
+                <div class="text-gray-500 text-xs mt-1">Latest: {p.latestRelease}</div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </section>
 
@@ -281,9 +406,12 @@ const icons = {
   </div>
 </BaseLayout>
 
-<script define:vars={{ githubChartData, linkedinChartData }}>
+<script define:vars={{ githubChartData, linkedinChartData, npmChartData, dockerChartData, velocityChartData }}>
   window.__landscapeGithubData = JSON.parse(githubChartData);
   window.__landscapeLinkedinData = JSON.parse(linkedinChartData);
+  window.__landscapeNpmData = JSON.parse(npmChartData);
+  window.__landscapeDockerData = JSON.parse(dockerChartData);
+  window.__landscapeVelocityData = JSON.parse(velocityChartData);
 </script>
 
 <script>
@@ -424,6 +552,219 @@ const icons = {
     });
   }
 
+  function initNpmChart() {
+    const canvas = document.getElementById('npm-chart') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const data = (window as any).__landscapeNpmData || [];
+
+    new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: data.map((d: any) => d.name),
+        datasets: [
+          {
+            label: 'Weekly Downloads',
+            data: data.map((d: any) => d.downloads),
+            backgroundColor: data.map((d: any) => COLORS[d.id as keyof typeof COLORS] || '#6b7280'),
+            borderRadius: 4,
+          },
+        ],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#fff',
+            bodyColor: '#9ca3af',
+            callbacks: {
+              label: (ctx) => `${ctx.parsed.x.toLocaleString()} downloads/week`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: '#6b7280',
+              callback: (value) => {
+                if (typeof value === 'number') {
+                  if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+                }
+                return value;
+              },
+            },
+          },
+          y: {
+            grid: { display: false },
+            ticks: { color: '#e5e7eb', font: { weight: 'bold' } },
+          },
+        },
+      },
+    });
+  }
+
+  function initDockerChart() {
+    const canvas = document.getElementById('docker-chart') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const data = (window as any).__landscapeDockerData || [];
+
+    new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: data.map((d: any) => d.name),
+        datasets: [
+          {
+            label: 'Docker Pulls',
+            data: data.map((d: any) => d.pulls),
+            backgroundColor: data.map((d: any) => COLORS[d.id as keyof typeof COLORS] || '#6b7280'),
+            borderRadius: 4,
+          },
+        ],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#fff',
+            bodyColor: '#9ca3af',
+            callbacks: {
+              label: (ctx) => `${ctx.parsed.x.toLocaleString()} pulls`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: '#6b7280',
+              callback: (value) => {
+                if (typeof value === 'number') {
+                  if (value >= 1000000) return (value / 1000000).toFixed(0) + 'M';
+                  if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+                }
+                return value;
+              },
+            },
+          },
+          y: {
+            grid: { display: false },
+            ticks: { color: '#e5e7eb', font: { weight: 'bold' } },
+          },
+        },
+      },
+    });
+  }
+
+  function initVelocityChart() {
+    const canvas = document.getElementById('velocity-chart') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const data = (window as any).__landscapeVelocityData || [];
+
+    new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: data.map((d: any) => d.name),
+        datasets: [
+          {
+            label: 'Commits (90 days)',
+            data: data.map((d: any) => d.commits90d),
+            backgroundColor: data.map((d: any) => COLORS[d.id as keyof typeof COLORS] || '#6b7280'),
+            borderRadius: 4,
+            yAxisID: 'y',
+          },
+          {
+            label: 'Releases (90 days)',
+            data: data.map((d: any) => d.releases90d),
+            backgroundColor: 'rgba(34, 197, 94, 0.8)', // Green for releases
+            borderRadius: 4,
+            yAxisID: 'y1',
+          },
+        ],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            align: 'end',
+            labels: {
+              color: '#9ca3af',
+              boxWidth: 12,
+              padding: 15,
+            },
+          },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#fff',
+            bodyColor: '#9ca3af',
+            callbacks: {
+              afterBody: (items) => {
+                const item = data[items[0].dataIndex];
+                if (item?.latestRelease) {
+                  return [`Latest: ${item.latestRelease}`];
+                }
+                return [];
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            type: 'linear',
+            position: 'bottom',
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: '#6b7280',
+              callback: (value) => {
+                if (typeof value === 'number') {
+                  if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+                }
+                return value;
+              },
+            },
+            title: {
+              display: true,
+              text: 'Commits',
+              color: '#6b7280',
+            },
+          },
+          x1: {
+            type: 'linear',
+            position: 'top',
+            grid: { display: false },
+            ticks: { color: '#22c55e' },
+            title: {
+              display: true,
+              text: 'Releases',
+              color: '#22c55e',
+            },
+          },
+          y: {
+            grid: { display: false },
+            ticks: { color: '#e5e7eb', font: { weight: 'bold' } },
+          },
+          y1: {
+            display: false,
+          },
+        },
+      },
+    });
+  }
+
   function initLinkedinChart() {
     const canvas = document.getElementById('linkedin-chart') as HTMLCanvasElement;
     if (!canvas) return;
@@ -484,10 +825,16 @@ const icons = {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       initChartWhenVisible('github-stars-chart', initGithubChart);
+      initChartWhenVisible('npm-chart', initNpmChart);
+      initChartWhenVisible('docker-chart', initDockerChart);
+      initChartWhenVisible('velocity-chart', initVelocityChart);
       initChartWhenVisible('linkedin-chart', initLinkedinChart);
     });
   } else {
     initChartWhenVisible('github-stars-chart', initGithubChart);
+    initChartWhenVisible('npm-chart', initNpmChart);
+    initChartWhenVisible('docker-chart', initDockerChart);
+    initChartWhenVisible('velocity-chart', initVelocityChart);
     initChartWhenVisible('linkedin-chart', initLinkedinChart);
   }
 </script>

@@ -14,6 +14,7 @@ import { join } from 'path';
 // No API calls during build - all data comes from version-controlled JSON files
 const historyPath = join(process.cwd(), 'public', 'data', 'github-history.json');
 const releasesPath = join(process.cwd(), 'public', 'data', 'github-releases.json');
+const landscapePath = join(process.cwd(), 'public', 'data', 'history', 'landscape.json');
 
 let githubStats = { stars: 0, forks: 0, watchers: 0, openIssues: 0, subscribers: 0 };
 let releases: Array<{ tagName: string; name: string; publishedAt: string; htmlUrl: string; prerelease: boolean; body: string }> = [];
@@ -50,6 +51,28 @@ try {
   console.warn('Could not load GitHub releases');
 }
 
+// Load velocity data from landscape
+let velocityData = {
+  commits90d: 0,
+  releases90d: 0,
+  weeklyCommits: 0,
+  latestRelease: null as string | null,
+};
+try {
+  if (existsSync(landscapePath)) {
+    const landscapeData = JSON.parse(readFileSync(landscapePath, 'utf-8'));
+    const latestVelocity = landscapeData?.velocity?.daily?.slice(-1)[0] || {};
+    velocityData = {
+      commits90d: latestVelocity['n8n_commits90d'] || 0,
+      releases90d: latestVelocity['n8n_releases90d'] || 0,
+      weeklyCommits: latestVelocity['n8n_weeklyCommits'] || 0,
+      latestRelease: latestVelocity['n8n_latestRelease'] || null,
+    };
+  }
+} catch (e) {
+  console.warn('Could not load velocity data');
+}
+
 // Calculate milestone predictions
 const currentStars = githubStats.stars;
 const milestones = getNextMilestones(currentStars, 'stars');
@@ -76,6 +99,9 @@ const icons = {
   fork: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="24" height="24" fill="currentColor"><path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path></svg>`,
   eye: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="24" height="24" fill="currentColor"><path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.187 2.345 2.637 3.023a1.62 1.62 0 0 1 0 1.798c-.45.678-1.367 1.932-2.637 3.023C11.67 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83.88 9.576.43 8.898a1.62 1.62 0 0 1 0-1.798c.45-.677 1.367-1.931 2.637-3.022C4.33 2.992 6.019 2 8 2ZM1.679 7.932a.12.12 0 0 0 0 .136c.411.622 1.241 1.75 2.366 2.717C5.176 11.758 6.527 12.5 8 12.5c1.473 0 2.825-.742 3.955-1.715 1.124-.967 1.954-2.096 2.366-2.717a.12.12 0 0 0 0-.136c-.412-.621-1.242-1.75-2.366-2.717C10.824 4.242 9.473 3.5 8 3.5c-1.473 0-2.824.742-3.955 1.715-1.124.967-1.954 2.096-2.366 2.717ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z"></path></svg>`,
   issue: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="24" height="24" fill="currentColor"><path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"></path><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"></path></svg>`,
+  commit: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="24" height="24" fill="currentColor"><path d="M11.93 8.5a4.002 4.002 0 0 1-7.86 0H.75a.75.75 0 0 1 0-1.5h3.32a4.002 4.002 0 0 1 7.86 0h3.32a.75.75 0 0 1 0 1.5Zm-1.43-.75a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z"></path></svg>`,
+  tag: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="24" height="24" fill="currentColor"><path d="M1 7.775V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.752 1.752 0 0 1 1 7.775Zm1.5 0c0 .066.026.13.073.177l6.25 6.25a.25.25 0 0 0 .354 0l5.025-5.025a.25.25 0 0 0 0-.354l-6.25-6.25a.25.25 0 0 0-.177-.073H2.75a.25.25 0 0 0-.25.25ZM6 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"></path></svg>`,
+  pulse: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="24" height="24" fill="currentColor"><path d="M6 2c.306 0 .582.187.696.471L10 10.731l1.304-3.26A.751.751 0 0 1 12 7h3.25a.75.75 0 0 1 0 1.5h-2.742l-1.812 4.528a.751.751 0 0 1-1.392 0L6 4.77 4.696 8.03A.75.75 0 0 1 4 8.5H.75a.75.75 0 0 1 0-1.5h2.742l1.812-4.529A.751.751 0 0 1 6 2Z"></path></svg>`,
 };
 ---
 
@@ -102,6 +128,56 @@ const icons = {
         <StatCard label="Open Issues" value={githubStats.openIssues} icon={icons.issue} />
       </div>
     </section>
+
+    <!-- Development Velocity -->
+    {velocityData.commits90d > 0 && (
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+        <span class="text-n8n-primary" set:html={icons.pulse} />
+        Development Velocity
+      </h2>
+      <p class="text-gray-400 mb-6">
+        Commit and release activity over the last 90 days
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="card">
+          <div class="flex items-start gap-3">
+            <span class="text-n8n-primary mt-1" set:html={icons.commit} />
+            <div>
+              <p class="text-gray-400 text-sm">Commits (90 days)</p>
+              <p class="text-3xl font-bold text-white">{velocityData.commits90d.toLocaleString()}</p>
+              <p class="text-gray-500 text-xs mt-1">~{Math.round(velocityData.commits90d / 13)} per week</p>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="flex items-start gap-3">
+            <span class="text-green-400 mt-1" set:html={icons.tag} />
+            <div>
+              <p class="text-gray-400 text-sm">Releases (90 days)</p>
+              <p class="text-3xl font-bold text-white">{velocityData.releases90d}</p>
+              <p class="text-gray-500 text-xs mt-1">~{(velocityData.releases90d / 3).toFixed(1)} per month</p>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="flex items-start gap-3">
+            <span class="text-blue-400 mt-1" set:html={icons.commit} />
+            <div>
+              <p class="text-gray-400 text-sm">Weekly Commits</p>
+              <p class="text-3xl font-bold text-white">{velocityData.weeklyCommits}</p>
+              {velocityData.latestRelease && (
+                <p class="text-gray-500 text-xs mt-1">Latest: {velocityData.latestRelease}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="text-gray-500 text-xs mt-4 text-center">
+        Compare n8n development velocity with competitors on the <a href="/market" class="text-n8n-primary hover:underline">Market page</a>
+      </p>
+    </section>
+    )}
 
     <!-- Milestone Predictions -->
     {predictions.length > 0 && (
