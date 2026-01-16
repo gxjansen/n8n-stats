@@ -31,6 +31,14 @@ const LOCATION_PLACEHOLDERS = [
   'to be announced',
 ];
 
+// Hosts to exclude from rankings (n8n employees and companies)
+// These still appear as event hosts but are filtered from the "Top Event Hosts" leaderboard
+const EXCLUDED_HOST_USERNAMES = [
+  'tino',                   // Tino Zwirs (n8n employee)
+  'usr-x92jV43Ylj6xeEF',    // Avanai (company)
+  'usr-OUlkJ8DjP43OCE0',    // Angel Menendez (n8n employee)
+];
+
 function isPlaceholderLocation(text: string): boolean {
   if (!text) return true;
   const lower = text.toLowerCase();
@@ -417,8 +425,9 @@ function aggregateHosts(events: LumaEvent[]): HostStats[] {
     }
   }
 
-  // Sort by event count descending
+  // Sort by event count descending, excluding n8n employees and companies
   return Array.from(hostMap.values())
+    .filter(host => !EXCLUDED_HOST_USERNAMES.includes(host.lumaUsername))
     .sort((a, b) => b.eventCount - a.eventCount || b.totalRegistrations - a.totalRegistrations);
 }
 
