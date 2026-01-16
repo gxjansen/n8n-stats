@@ -112,6 +112,101 @@ public/data/
 
 ---
 
+## Time Series Data Format (Playground Standard)
+
+All time series data must follow this format to work with the playground:
+
+### Required Structure
+
+```typescript
+// history/{source}.json
+{
+  "lastUpdated": "2026-01-16T12:00:00Z",  // ISO timestamp
+
+  // Time series arrays - use granularity as key name
+  "daily": [
+    { "date": "2026-01-15", "metricA": 100, "metricB": 50 },
+    { "date": "2026-01-16", "metricA": 105, "metricB": 52 }
+  ],
+  "weekly": [...],  // Optional
+  "monthly": [
+    { "date": "2024-05", "metricA": 1000, "metricB": 500 }
+  ]
+}
+```
+
+### Key Rules
+
+| **Rule** | **Correct** | **Wrong** |
+|----------|-------------|-----------|
+| Array key = granularity | `"monthly": [...]` | `"byMonth": [...]` |
+| Date field name | `"date": "2024-05"` | `"month": "2024-05"` |
+| Date format (daily) | `"2026-01-15"` | `"January 15, 2026"` |
+| Date format (monthly) | `"2024-05"` | `"May 2024"` |
+| Metrics as flat fields | `{ "date": "...", "total": 69 }` | `{ "date": "...", "values": { "total": 69 }}` |
+
+### Registry Definition
+
+Each metric in `src/lib/playground/registry.ts`:
+
+```typescript
+{
+  id: 'source',
+  label: 'Source Name',
+  file: '/data/history/source.json',
+  granularities: ['daily', 'monthly'],  // Available granularities
+  defaultGranularity: 'monthly',
+  historyStart: '2024-05',              // First data point
+  metrics: [
+    // Simple path: reads data[granularity][i][path]
+    { id: 'source-total', label: 'Total', color: '#abc', path: 'total' },
+    { id: 'source-new', label: 'New/Period', color: '#def', path: 'joined' },
+  ]
+}
+```
+
+### Examples
+
+**Events** (`events-history.json`):
+```json
+{
+  "monthly": [
+    { "date": "2024-06", "events": 3, "registrations": 496 }
+  ]
+}
+```
+
+**Ambassadors** (`ambassadors.json`):
+```json
+{
+  "monthly": [
+    { "date": "2024-05", "total": 2, "joined": 2, "departed": 0 }
+  ]
+}
+```
+
+**GitHub** (`github.json`):
+```json
+{
+  "daily": [
+    { "date": "2026-01-15", "stars": 167500, "forks": 21000 }
+  ],
+  "monthly": [
+    { "date": "2024-01", "stars": 150000, "forks": 19000 }
+  ]
+}
+```
+
+### Adding a New Data Source
+
+1. Create fetch script in `scripts/fetch-{source}.ts`
+2. Output to `public/data/history/{source}.json` using standard format
+3. Add to registry in `src/lib/playground/registry.ts`
+4. Add colors to `COLORS` object in registry
+5. Test in playground before committing
+
+---
+
 ## Data Point Schema
 
 Every data point should indicate its source:

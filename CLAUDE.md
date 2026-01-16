@@ -27,7 +27,9 @@ Luma Events ───────────► data/history/events.json
 (scraped)
 ```
 
-See `docs/DATA-STRATEGY.md` for full ETL documentation.
+See `docs/DATA-STRATEGY.md` for full ETL documentation and **playground data format standards**.
+
+**Important**: When adding new data sources, follow the time series format documented in DATA-STRATEGY.md to ensure playground compatibility (use `monthly`/`daily` arrays with `date` field).
 
 ## Data Sources
 
