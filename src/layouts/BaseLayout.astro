@@ -66,12 +66,29 @@ const buildTime = new Date();
               <img src="/logo.svg" alt="n8n Pulse logo" class="h-8 w-8" />
               n8n Pulse
             </a>
-            <a href="https://gui.do" target="_blank" rel="noopener noreferrer" class="text-xs text-gray-500 hover:text-gray-300 transition-colors" data-umami-event="external-click" data-umami-event-target="gui-do-header">
+            <a href="https://gui.do" target="_blank" rel="noopener noreferrer" class="hidden sm:inline text-xs text-gray-500 hover:text-gray-300 transition-colors" data-umami-event="external-click" data-umami-event-target="gui-do-header">
               by gui.do
             </a>
           </div>
 
-          <div class="flex items-center gap-6">
+          <!-- Mobile: hamburger button -->
+          <button
+            id="mobile-menu-toggle"
+            class="md:hidden p-2 text-gray-300 hover:text-white transition-colors"
+            aria-label="Toggle navigation menu"
+            aria-expanded="false"
+            aria-controls="mobile-menu"
+          >
+            <svg id="hamburger-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          <!-- Desktop: horizontal nav -->
+          <div class="hidden md:flex items-center gap-6">
             <a href="/templates" class="text-gray-300 hover:text-white transition-colors" data-umami-event="nav-click" data-umami-event-target="templates">
               Templates
             </a>
@@ -98,8 +115,81 @@ const buildTime = new Date();
             </a>
           </div>
         </div>
+
+        <!-- Mobile: dropdown menu -->
+        <div id="mobile-menu" class="md:hidden hidden mt-4 pb-2 border-t border-n8n-border pt-4">
+          <div class="flex flex-col gap-3">
+            <a href="/templates" class="text-gray-300 hover:text-white transition-colors py-2" data-umami-event="nav-click" data-umami-event-target="templates-mobile">
+              Templates
+            </a>
+            <a href="/nodes" class="text-gray-300 hover:text-white transition-colors py-2" data-umami-event="nav-click" data-umami-event-target="nodes-mobile">
+              Nodes
+            </a>
+            <a href="/creators" class="text-gray-300 hover:text-white transition-colors py-2" data-umami-event="nav-click" data-umami-event-target="creators-mobile">
+              Creators
+            </a>
+            <a href="/discussions" class="text-gray-300 hover:text-white transition-colors py-2" data-umami-event="nav-click" data-umami-event-target="discussions-mobile">
+              Discussions
+            </a>
+            <a href="/events" class="text-gray-300 hover:text-white transition-colors py-2" data-umami-event="nav-click" data-umami-event-target="events-mobile">
+              Events
+            </a>
+            <a href="/github" class="text-gray-300 hover:text-white transition-colors py-2" data-umami-event="nav-click" data-umami-event-target="github-mobile">
+              GitHub
+            </a>
+            <a href="/playground" class="text-n8n-primary hover:text-n8n-primary/80 font-medium transition-colors flex items-center gap-1 py-2" data-umami-event="nav-click" data-umami-event-target="playground-mobile">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              Playground
+            </a>
+          </div>
+        </div>
       </nav>
     </header>
+
+    <!-- Mobile menu toggle script -->
+    <script is:inline>
+      (function() {
+        const toggle = document.getElementById('mobile-menu-toggle');
+        const menu = document.getElementById('mobile-menu');
+        const hamburgerIcon = document.getElementById('hamburger-icon');
+        const closeIcon = document.getElementById('close-icon');
+
+        if (toggle && menu && hamburgerIcon && closeIcon) {
+          toggle.addEventListener('click', function() {
+            const isOpen = !menu.classList.contains('hidden');
+
+            if (isOpen) {
+              menu.classList.add('hidden');
+              hamburgerIcon.classList.remove('hidden');
+              closeIcon.classList.add('hidden');
+              toggle.setAttribute('aria-expanded', 'false');
+            } else {
+              menu.classList.remove('hidden');
+              hamburgerIcon.classList.add('hidden');
+              closeIcon.classList.remove('hidden');
+              toggle.setAttribute('aria-expanded', 'true');
+            }
+
+            // Track menu toggle in Umami
+            if (typeof umami !== 'undefined') {
+              umami.track('nav-mobile-toggle', { action: isOpen ? 'close' : 'open' });
+            }
+          });
+
+          // Close menu when clicking a link
+          menu.querySelectorAll('a').forEach(function(link) {
+            link.addEventListener('click', function() {
+              menu.classList.add('hidden');
+              hamburgerIcon.classList.remove('hidden');
+              closeIcon.classList.add('hidden');
+              toggle.setAttribute('aria-expanded', 'false');
+            });
+          });
+        }
+      })();
+    </script>
 
     <main>
       <slot />

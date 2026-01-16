@@ -30,6 +30,53 @@ const correlationSources = getCategoricalSourcesByType('correlation');
       </p>
     </div>
 
+    <!-- Mobile Notice Banner -->
+    <div id="mobile-notice" class="md:hidden bg-n8n-card border border-n8n-border rounded-lg p-4 mb-6">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-n8n-primary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <p class="text-sm text-gray-300">
+            For the best experience with interactive charts and controls, use a desktop browser.
+          </p>
+        </div>
+        <button
+          id="dismiss-mobile-notice"
+          class="text-gray-400 hover:text-white transition-colors flex-shrink-0"
+          aria-label="Dismiss notice"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <script is:inline>
+      (function() {
+        const notice = document.getElementById('mobile-notice');
+        const dismissBtn = document.getElementById('dismiss-mobile-notice');
+
+        // Check if user has dismissed the notice before
+        if (localStorage.getItem('playground-mobile-notice-dismissed') === 'true') {
+          if (notice) notice.style.display = 'none';
+        }
+
+        if (dismissBtn && notice) {
+          dismissBtn.addEventListener('click', function() {
+            notice.style.display = 'none';
+            localStorage.setItem('playground-mobile-notice-dismissed', 'true');
+
+            // Track dismissal in Umami
+            if (typeof umami !== 'undefined') {
+              umami.track('playground-mobile-notice', { action: 'dismiss' });
+            }
+          });
+        }
+      })();
+    </script>
+
     <!-- Mode Tabs -->
     <div class="flex flex-wrap gap-2 mb-6" role="tablist">
       <button
