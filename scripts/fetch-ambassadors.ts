@@ -750,6 +750,42 @@ async function extractAmbassadorDetails(
 const RATE_LIMIT_DELAY = 2000;
 
 /**
+ * Extract avatar URL from n8n community profile
+ * Community profiles have avatars at predictable URLs
+ */
+async function fetchCommunityAvatar(communityProfileUrl: string): Promise<string | null> {
+  if (!communityProfileUrl) return null;
+
+  try {
+    // Extract username from URL like https://community.n8n.io/u/nate-haskins/summary
+    const match = communityProfileUrl.match(/\/u\/([^\/]+)/);
+    if (!match) return null;
+
+    const username = match[1];
+    // Discourse API endpoint for user info
+    const apiUrl = `https://community.n8n.io/u/${username}.json`;
+
+    const response = await fetch(apiUrl, {
+      headers: { 'Accept': 'application/json' },
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    if (data.user?.avatar_template) {
+      // Avatar template is like /user_avatar/community.n8n.io/{username}/{size}/{id}_2.png
+      // Replace {size} with actual size
+      const avatarUrl = data.user.avatar_template.replace('{size}', '240');
+      return avatarUrl.startsWith('http') ? avatarUrl : `https://community.n8n.io${avatarUrl}`;
+    }
+  } catch (e) {
+    // Silently fail - we'll use initials as fallback
+  }
+
+  return null;
+}
+
+/**
  * Scroll to bottom of page to load all lazy-loaded content
  * Notion uses virtualized lists, so we need to scroll incrementally
  */
@@ -815,9 +851,24 @@ async function scrollToLoadAll(page: any, maxScrolls = 50, expectedMin = 60): Pr
     }
   }
 
-  // Final scroll to top and back to bottom to ensure all items loaded
+  // Scroll through entire page to ensure all images are rendered
+  // Notion virtualizes the gallery, so we need to scroll slowly through everything
+  console.log('  Scrolling through page to render all images...');
   await page.evaluate(() => window.scrollTo(0, 0));
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(1500);
+
+  // Scroll down in increments to trigger image loading
+  const totalHeight = await page.evaluate(() => document.body.scrollHeight);
+  const viewportHeight = await page.evaluate(() => window.innerHeight);
+  let currentScroll = 0;
+
+  while (currentScroll < totalHeight) {
+    await page.evaluate((y: number) => window.scrollTo(0, y), currentScroll);
+    await page.waitForTimeout(500);
+    currentScroll += viewportHeight * 0.8;
+  }
+
+  // Final scroll to bottom and wait
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   await page.waitForTimeout(2000);
 }
@@ -905,6 +956,15 @@ async function scrapeAmbassadors(): Promise<Ambassador[]> {
       // Only use detail page country if gallery didn't have one
       if (!ambassador.country && details.country) {
         ambassador.country = details.country;
+      }
+
+      // If no avatar from Notion, try to get from community profile
+      if (!ambassador.avatarUrl && ambassador.communityProfileUrl) {
+        console.log(`    Fetching community avatar for ${ambassador.name}...`);
+        const communityAvatar = await fetchCommunityAvatar(ambassador.communityProfileUrl);
+        if (communityAvatar) {
+          ambassador.avatarUrl = communityAvatar;
+        }
       }
 
       // Add coordinates if we have location info
