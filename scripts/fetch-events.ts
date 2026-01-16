@@ -1,5 +1,5 @@
 /**
- * Fetch events from Luma calendar
+ * Fetch events from Luma calendar API
  * Stores event data in public/data/history/events.json
  * Run via: npx tsx scripts/fetch-events.ts
  */
@@ -7,7 +7,8 @@
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
-const LUMA_CALENDAR_URL = 'https://luma.com/n8n-events';
+const LUMA_CALENDAR_API_ID = 'cal-rKZGvZjZWgFjKWW'; // n8n-events calendar
+const LUMA_API_BASE = 'https://api.lu.ma/calendar/get-items';
 const EVENTS_PATH = join(process.cwd(), 'public', 'data', 'history', 'events.json');
 const LUMA_MAPPING_PATH = join(process.cwd(), 'public', 'data', 'external', 'luma-n8n-mapping.json');
 
@@ -22,10 +23,25 @@ try {
   console.warn('Could not load Luma mapping file:', e);
 }
 
+// Placeholder strings to filter out from location data
+const LOCATION_PLACEHOLDERS = [
+  'register to see address',
+  'specific location to be announced',
+  'tba',
+  'to be announced',
+];
+
+function isPlaceholderLocation(text: string): boolean {
+  if (!text) return true;
+  const lower = text.toLowerCase();
+  return LOCATION_PLACEHOLDERS.some(p => lower.includes(p));
+}
+
 interface EventHost {
   name: string;
   lumaUsername: string;
   lumaUrl: string;
+  avatarUrl?: string;
   n8nUsername?: string;
 }
 
@@ -33,6 +49,7 @@ interface HostStats {
   name: string;
   lumaUsername: string;
   lumaUrl: string;
+  avatarUrl?: string;
   n8nUsername?: string;
   verified?: boolean;
   eventCount: number;
@@ -100,181 +117,161 @@ interface EventsData {
   hosts: HostStats[];
 }
 
-/**
- * Parse JSON-LD from HTML content
- */
-function parseJsonLd(html: string): any[] {
-  const jsonLdRegex = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
-  const matches: any[] = [];
-  let match;
+interface LumaApiHost {
+  name: string;
+  api_id: string;
+  username: string | null;
+  avatar_url: string;
+  website?: string | null;
+  bio_short?: string | null;
+}
 
-  while ((match = jsonLdRegex.exec(html)) !== null) {
-    try {
-      const parsed = JSON.parse(match[1]);
-      if (Array.isArray(parsed)) {
-        matches.push(...parsed);
-      } else {
-        matches.push(parsed);
-      }
-    } catch (e) {
-      // Skip invalid JSON
-    }
-  }
+interface LumaApiEntry {
+  api_id: string;
+  event: {
+    api_id: string;
+    name: string;
+    start_at: string;
+    end_at: string;
+    url: string;
+    location_type: 'offline' | 'online';
+    geo_address_info?: {
+      city?: string;
+      country?: string;
+      address?: string;
+      full_address?: string;
+    };
+    geo_address_visibility?: string;
+    coordinate?: {
+      latitude: number;
+      longitude: number;
+    };
+  };
+  hosts: LumaApiHost[];
+  guest_count: number;
+  ticket_count: number;
+}
 
-  return matches;
+interface LumaApiResponse {
+  entries: LumaApiEntry[];
+  has_more: boolean;
+  next_cursor?: string;
 }
 
 /**
- * Parse event from JSON-LD schema
+ * Parse event from Luma API entry
  */
-function parseEventFromSchema(schema: any): LumaEvent | null {
-  if (schema['@type'] !== 'Event') return null;
-
-  const location = schema.location || {};
-  const address = location.address || {};
-
-  // Extract city/country from address
-  let city = '';
-  let country = '';
-
-  if (typeof address === 'string') {
-    const parts = address.split(',').map((p: string) => p.trim());
-    city = parts[0] || '';
-    country = parts[parts.length - 1] || '';
-  } else if (address.addressLocality || address.addressCountry) {
-    city = address.addressLocality || '';
-    // addressCountry can be a string or an object with name property
-    if (typeof address.addressCountry === 'string') {
-      country = address.addressCountry;
-    } else if (address.addressCountry?.name) {
-      country = address.addressCountry.name;
-    }
-  }
+function parseEventFromApi(entry: LumaApiEntry): LumaEvent {
+  const event = entry.event;
+  const geoInfo = event.geo_address_info || {};
 
   // Check if online event
-  const isOnline = location['@type'] === 'VirtualLocation' ||
-    schema.eventAttendanceMode === 'https://schema.org/OnlineEventAttendanceMode' ||
-    (location.name || '').toLowerCase().includes('online') ||
-    (location.name || '').toLowerCase().includes('virtual');
+  const isOnline = event.location_type === 'online';
+
+  // Extract city/country, filtering out placeholders
+  let city = geoInfo.city || '';
+  let country = geoInfo.country || '';
+
+  if (isPlaceholderLocation(city)) city = '';
+  if (isPlaceholderLocation(country)) country = '';
 
   // Extract coordinates
   let coordinates: { lat: number; lng: number } | undefined;
-  if (location.geo && location.geo.latitude && location.geo.longitude) {
+  if (event.coordinate && event.coordinate.latitude && event.coordinate.longitude) {
     coordinates = {
-      lat: parseFloat(location.geo.latitude),
-      lng: parseFloat(location.geo.longitude),
+      lat: event.coordinate.latitude,
+      lng: event.coordinate.longitude,
     };
   }
 
-  // Generate stable ID from URL
-  const urlParts = (schema.url || '').split('/');
-  const id = urlParts[urlParts.length - 1] || schema.name?.replace(/\s+/g, '-').toLowerCase() || '';
-
-  // Extract hosts from organizer field
+  // Extract hosts (skip official n8n account)
   const hosts: EventHost[] = [];
-  const organizers = schema.organizer || [];
-  const organizerArray = Array.isArray(organizers) ? organizers : [organizers];
-
-  for (const org of organizerArray) {
-    if (org && org.name && org.url) {
-      // Extract username from Luma URL like "https://lu.ma/user/geckse"
-      const urlMatch = org.url.match(/\/user\/([^\/\?]+)/);
-      const lumaUsername = urlMatch ? urlMatch[1] : '';
-
-      // Skip the official n8n account - we want community hosts only
-      if (lumaUsername && lumaUsername.toLowerCase() !== 'n8n') {
-        hosts.push({
-          name: org.name,
-          lumaUsername,
-          lumaUrl: org.url,
-          n8nUsername: lumaN8nMapping[lumaUsername] || undefined,
-        });
-      }
+  for (const host of entry.hosts || []) {
+    // Skip the official n8n account
+    if (host.username?.toLowerCase() === 'n8n' || host.api_id === 'usr-vfGku4UVUPr8Ig3') {
+      continue;
     }
+
+    const lumaUsername = host.username || host.api_id;
+    hosts.push({
+      name: host.name,
+      lumaUsername,
+      lumaUrl: `https://luma.com/user/${lumaUsername}`,
+      avatarUrl: host.avatar_url,
+      n8nUsername: lumaN8nMapping[lumaUsername] || undefined,
+    });
   }
 
   return {
-    id,
-    name: schema.name || 'Untitled Event',
-    description: schema.description,
-    startDate: schema.startDate,
-    endDate: schema.endDate,
-    url: schema.url || '',
+    id: event.url || event.api_id,
+    name: event.name,
+    startDate: event.start_at,
+    endDate: event.end_at,
+    url: `https://lu.ma/${event.url}`,
     location: {
-      name: location.name || (isOnline ? 'Online' : 'TBA'),
-      address: typeof address === 'string' ? address : address.streetAddress,
+      name: geoInfo.address || (isOnline ? 'Online' : 'TBA'),
+      address: geoInfo.full_address,
       city,
       country,
       coordinates,
     },
     isOnline,
-    registrations: 0, // Will be extracted separately if available
+    registrations: entry.guest_count || 0,
     hosts,
   };
 }
 
 /**
- * Fetch events from Luma
+ * Fetch all events from Luma API with pagination
  */
 async function fetchLumaEvents(period: 'upcoming' | 'past'): Promise<LumaEvent[]> {
-  const url = period === 'past'
-    ? `${LUMA_CALENDAR_URL}?k=c&period=past`
-    : `${LUMA_CALENDAR_URL}?k=c`;
-
-  console.log(`Fetching ${period} events from ${url}...`);
-
-  const response = await fetch(url, {
-    headers: {
-      'User-Agent': 'n8n-stats/1.0 (https://github.com/gxjansen/n8n-stats)',
-      'Accept': 'text/html,application/xhtml+xml',
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch Luma events: ${response.status}`);
-  }
-
-  const html = await response.text();
-  const jsonLdData = parseJsonLd(html);
-
   const events: LumaEvent[] = [];
+  let cursor: string | undefined;
+  let page = 1;
 
-  for (const schema of jsonLdData) {
-    // Handle direct Event type
-    if (schema['@type'] === 'Event') {
-      const event = parseEventFromSchema(schema);
-      if (event) {
-        events.push(event);
-      }
+  console.log(`Fetching ${period} events from Luma API...`);
+
+  do {
+    const params = new URLSearchParams({
+      calendar_api_id: LUMA_CALENDAR_API_ID,
+      period: period === 'upcoming' ? 'future' : 'past',
+      pagination_limit: '100',
+    });
+
+    if (cursor) {
+      params.set('pagination_cursor', cursor);
     }
-    // Handle Organization with events array (Luma's format)
-    else if (schema['@type'] === 'Organization' && Array.isArray(schema.events)) {
-      for (const eventSchema of schema.events) {
-        const event = parseEventFromSchema(eventSchema);
-        if (event) {
-          events.push(event);
-        }
-      }
+
+    const url = `${LUMA_API_BASE}?${params}`;
+
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'n8n-stats/1.0 (https://github.com/gxjansen/n8n-stats)',
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch Luma events: ${response.status}`);
     }
-    // Handle @graph wrapper
-    else if (schema['@graph']) {
-      for (const item of schema['@graph']) {
-        if (item['@type'] === 'Event') {
-          const event = parseEventFromSchema(item);
-          if (event) {
-            events.push(event);
-          }
-        } else if (item['@type'] === 'Organization' && Array.isArray(item.events)) {
-          for (const eventSchema of item.events) {
-            const event = parseEventFromSchema(eventSchema);
-            if (event) {
-              events.push(event);
-            }
-          }
-        }
-      }
+
+    const data: LumaApiResponse = await response.json();
+
+    for (const entry of data.entries) {
+      const event = parseEventFromApi(entry);
+      events.push(event);
     }
-  }
+
+    console.log(`  Page ${page}: ${data.entries.length} events (total: ${events.length})`);
+
+    cursor = data.has_more ? data.next_cursor : undefined;
+    page++;
+
+    // Small delay between requests to be respectful
+    if (cursor) {
+      await new Promise(resolve => setTimeout(resolve, 200));
+    }
+  } while (cursor);
 
   // Sort by date
   events.sort((a, b) => {
@@ -283,7 +280,7 @@ async function fetchLumaEvents(period: 'upcoming' | 'past'): Promise<LumaEvent[]
     return period === 'past' ? dateB - dateA : dateA - dateB;
   });
 
-  console.log(`  Found ${events.length} ${period} events`);
+  console.log(`  Total ${period}: ${events.length} events`);
   return events;
 }
 
@@ -320,6 +317,8 @@ function groupByCountry(events: LumaEvent[]): EventsData['byCountry'] {
     if (event.isOnline) continue;
 
     const country = event.location.country || 'Unknown';
+    if (isPlaceholderLocation(country) || country === 'Unknown') continue;
+
     const existing = byCountry.get(country) || {
       country,
       count: 0,
@@ -347,6 +346,7 @@ function aggregateLocations(events: LumaEvent[]): EventsData['locations'] {
 
   for (const event of events) {
     if (event.isOnline || !event.location.coordinates) continue;
+    if (isPlaceholderLocation(event.location.city || '') && isPlaceholderLocation(event.location.country || '')) continue;
 
     const key = `${event.location.coordinates.lat.toFixed(2)},${event.location.coordinates.lng.toFixed(2)}`;
     const existing = locationMap.get(key);
@@ -384,14 +384,18 @@ function aggregateHosts(events: LumaEvent[]): HostStats[] {
       if (existing) {
         existing.eventCount++;
         existing.totalRegistrations += event.registrations;
-        // Add country if not already present
+        // Update avatar if we have a better one (non-default)
+        if (host.avatarUrl && !host.avatarUrl.includes('avatars-default')) {
+          existing.avatarUrl = host.avatarUrl;
+        }
+        // Add country if not already present and not a placeholder
         const country = event.location.country;
-        if (country && !event.isOnline && !existing.countries.includes(country)) {
+        if (country && !event.isOnline && !isPlaceholderLocation(country) && !existing.countries.includes(country)) {
           existing.countries.push(country);
         }
-        // Add city if not already present
+        // Add city if not already present and not a placeholder
         const city = event.location.city;
-        if (city && !event.isOnline && !existing.cities.includes(city)) {
+        if (city && !event.isOnline && !isPlaceholderLocation(city) && !existing.cities.includes(city)) {
           existing.cities.push(city);
         }
       } else {
@@ -401,12 +405,13 @@ function aggregateHosts(events: LumaEvent[]): HostStats[] {
           name: host.name,
           lumaUsername: host.lumaUsername,
           lumaUrl: host.lumaUrl,
+          avatarUrl: host.avatarUrl,
           n8nUsername: host.n8nUsername,
-          verified: false, // Will be updated later if n8nUsername exists in creators data
+          verified: false,
           eventCount: 1,
           totalRegistrations: event.registrations,
-          countries: country && !event.isOnline ? [country] : [],
-          cities: city && !event.isOnline ? [city] : [],
+          countries: country && !event.isOnline && !isPlaceholderLocation(country) ? [country] : [],
+          cities: city && !event.isOnline && !isPlaceholderLocation(city) ? [city] : [],
         });
       }
     }
@@ -418,7 +423,7 @@ function aggregateHosts(events: LumaEvent[]): HostStats[] {
 }
 
 async function main() {
-  console.log('Fetching n8n community events from Luma...\n');
+  console.log('Fetching n8n community events from Luma API...\n');
 
   // Ensure directory exists
   const historyDir = join(process.cwd(), 'public', 'data', 'history');
@@ -426,7 +431,7 @@ async function main() {
     mkdirSync(historyDir, { recursive: true });
   }
 
-  // Fetch events
+  // Fetch events with pagination
   const [upcoming, past] = await Promise.all([
     fetchLumaEvents('upcoming'),
     fetchLumaEvents('past'),
@@ -434,7 +439,11 @@ async function main() {
 
   const allEvents = [...upcoming, ...past];
   const inPersonEvents = allEvents.filter(e => !e.isOnline);
-  const countries = new Set(inPersonEvents.map(e => e.location.country).filter(Boolean));
+  const countries = new Set(
+    inPersonEvents
+      .map(e => e.location.country)
+      .filter(c => c && !isPlaceholderLocation(c))
+  );
 
   // Find date range
   const dates = allEvents
@@ -479,12 +488,13 @@ async function main() {
   console.log(`  Upcoming: ${eventsData.stats.upcomingCount}`);
   console.log(`  Past: ${eventsData.stats.pastCount}`);
   console.log(`  Online: ${eventsData.stats.onlineCount}`);
+  console.log(`Total registrations: ${eventsData.stats.totalRegistrations}`);
   console.log(`Countries: ${eventsData.stats.countriesCount}`);
   console.log(`Date range: ${firstEventDate} to ${lastEventDate}`);
   console.log(`Locations with coordinates: ${eventsData.locations.length}`);
   console.log(`Community hosts: ${eventsData.hosts.length}`);
   if (eventsData.hosts.length > 0) {
-    console.log(`  Top hosts: ${eventsData.hosts.slice(0, 5).map(h => `${h.name} (${h.eventCount})`).join(', ')}`);
+    console.log(`  Top hosts: ${eventsData.hosts.slice(0, 5).map(h => `${h.name} (${h.eventCount} events, ${h.totalRegistrations} reg.)`).join(', ')}`);
   }
 }
 
