@@ -355,6 +355,16 @@ function getTenureBucket(months: number): string {
 }
 
 /**
+ * Convert text date like "January 13, 2026" to ISO month format "2026-01"
+ */
+function dateToISOMonth(dateStr: string): string | null {
+  if (!dateStr) return null;
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return null;
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+/**
  * Generate monthly time series from join dates
  */
 function generateMonthlyTimeSeries(
@@ -384,23 +394,20 @@ function generateMonthlyTimeSeries(
 
     // Count ambassadors who joined this month
     const joined = ambassadors.filter(a => {
-      if (!a.joinDate) return false;
-      const joinMonth = a.joinDate.substring(0, 7);
+      const joinMonth = dateToISOMonth(a.joinDate);
       return joinMonth === monthStr;
     }).length;
 
     // Count ambassadors who departed this month
     const departedThisMonth = departed.filter(a => {
-      if (!a.joinDate) return false;
       // We don't have departure dates, so this would need to be tracked separately
       return false;
     }).length;
 
     // Count total active at end of month
     const total = ambassadors.filter(a => {
-      if (!a.joinDate) return false;
-      const joinMonth = a.joinDate.substring(0, 7);
-      return joinMonth <= monthStr;
+      const joinMonth = dateToISOMonth(a.joinDate);
+      return joinMonth !== null && joinMonth <= monthStr;
     }).length;
 
     byMonth.push({
