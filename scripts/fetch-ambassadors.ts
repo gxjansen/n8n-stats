@@ -610,7 +610,8 @@ async function extractAmbassadorDetails(
     await page.waitForTimeout(3000);
 
     // Extract all text content and property values
-    const pageData = await page.evaluate(() => {
+    const ambassadorName = ambassador.name;
+    const pageData = await page.evaluate((name: string) => {
       const data: Record<string, string> = {};
 
       // Get all text content from the page
@@ -644,7 +645,8 @@ async function extractAmbassadorDetails(
       const lines = allText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
       // Skip common navigation/header text and find potential city
-      const skipWords = ['Activities', 'Meetups', 'Workshops', 'Events', 'Online', 'Joined', 'n8n', 'Ambassador', 'Profile', 'About', 'Bio', 'Location', 'City', 'Based'];
+      const skipWords = ['Activities', 'Meetups', 'Workshops', 'Events', 'Online', 'Joined', 'n8n', 'Ambassador', 'Profile', 'About', 'Bio', 'Location', 'City', 'Based', 'Skip', 'content', 'Navigation', 'Menu', 'Search', 'Home', 'Back', 'Share', 'Link', 'Copy', 'Page', 'Toggle', 'Notion', 'free', 'Get', 'Sign', 'Log', 'Create', 'Template', 'Duplicate', 'Comment', 'Comments', 'Add', 'New', 'Edit', 'Delete', 'Move', 'Turn', 'Drag', 'Type', 'Press', 'Click', 'Select', 'Open', 'Close', 'Expand', 'Collapse'];
+      const nameParts = name.toLowerCase().split(' ');
 
       for (let i = 0; i < Math.min(lines.length, 15); i++) {
         const line = lines[i];
@@ -655,7 +657,7 @@ async function extractAmbassadorDetails(
         // Skip if it starts with a number (likely a date or count)
         if (/^\d/.test(line)) continue;
         // Skip if it matches ambassador name
-        if (line.toLowerCase().includes(ambassador.name.toLowerCase().split(' ')[0])) continue;
+        if (nameParts.some(part => line.toLowerCase().includes(part))) continue;
 
         // Check if this looks like a city name (usually 1-3 words, proper capitalization)
         if (/^[A-Z][a-zA-Zäöüß\s-]+$/.test(line) && line.split(' ').length <= 4) {
@@ -682,7 +684,7 @@ async function extractAmbassadorDetails(
       }
 
       return data;
-    }, { name: ambassador.name });
+    }, ambassadorName);
 
     if (pageData.joinDate) details.joinDate = pageData.joinDate;
 
@@ -915,11 +917,37 @@ async function main() {
   // Merge departed lists
   const allDeparted = [...previousDeparted, ...newDeparted];
 
+  // Parse join dates to ISO format for proper sorting
+  const parseJoinDate = (dateStr: string): string | null => {
+    if (!dateStr) return null;
+    // Parse "Month Day, Year" format
+    const match = dateStr.match(/^([A-Za-z]+)\s+(\d{1,2}),?\s+(\d{4})$/);
+    if (match) {
+      const monthNames: Record<string, string> = {
+        'january': '01', 'february': '02', 'march': '03', 'april': '04',
+        'may': '05', 'june': '06', 'july': '07', 'august': '08',
+        'september': '09', 'october': '10', 'november': '11', 'december': '12',
+      };
+      const month = monthNames[match[1].toLowerCase()];
+      if (month) {
+        const day = match[2].padStart(2, '0');
+        return `${match[3]}-${month}-${day}`;
+      }
+    }
+    // Already ISO format?
+    if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
+      return dateStr.substring(0, 10);
+    }
+    return null;
+  };
+
   // Calculate statistics
   const joinDates = ambassadors
     .filter(a => a.joinDate)
-    .map(a => a.joinDate)
-    .sort();
+    .map(a => ({ original: a.joinDate, parsed: parseJoinDate(a.joinDate) }))
+    .filter(d => d.parsed !== null)
+    .sort((a, b) => a.parsed!.localeCompare(b.parsed!))
+    .map(d => d.original);
 
   const countries = new Set(ambassadors.map(a => a.country).filter(Boolean));
 

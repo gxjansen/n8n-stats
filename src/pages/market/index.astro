@@ -5,11 +5,9 @@
  * Compares n8n with other automation platforms across:
  * - GitHub stars (open-source tools)
  * - LinkedIn followers (all platforms)
- * - n8n community reach across platforms
  */
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import StatCard from '@/components/cards/StatCard.astro';
 import { formatNumber } from '@/lib/utils/formatters';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -89,16 +87,6 @@ const linkedinData = linkedinPlatforms
   .filter((p) => p.followers > 0)
   .sort((a, b) => b.followers - a.followers);
 
-// n8n community stats
-const community = landscapeData?.community?.current || {
-  discord: 0,
-  forum: 0,
-  reddit: 0,
-  linkedin: 0,
-  github: 0,
-};
-const totalCommunity = community.discord + community.forum + community.reddit + community.linkedin;
-
 // All platforms for comparison table
 const allPlatforms = Object.entries(landscapeData?.platforms || {}).map(([id, platform]) => ({
   id,
@@ -119,7 +107,6 @@ const lastUpdated = landscapeData?.lastUpdated
 // Pass data to client-side charts
 const githubChartData = JSON.stringify(githubData);
 const linkedinChartData = JSON.stringify(linkedinData);
-const communityChartData = JSON.stringify(community);
 
 // Icons
 const icons = {
@@ -150,40 +137,6 @@ const icons = {
       </p>
     </div>
 
-    <!-- Quick Stats -->
-    <section class="mb-12">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard
-          label="GitHub Stars"
-          value={latestGithub.n8n || 0}
-          icon={icons.star}
-          subtitle="n8n repository"
-          href="https://github.com/n8n-io/n8n"
-        />
-        <StatCard
-          label="LinkedIn Followers"
-          value={latestLinkedin.n8n || 0}
-          icon={icons.linkedin}
-          subtitle="n8n company page"
-          href="https://www.linkedin.com/company/n8n"
-        />
-        <StatCard
-          label="Community Reach"
-          value={totalCommunity}
-          icon={icons.community}
-          subtitle="Discord + Forum + Reddit + LinkedIn"
-        />
-        <StatCard
-          label="Open Source Rank"
-          value="#1"
-          icon={icons.github}
-          subtitle="In workflow automation"
-          valueClass="stat-value text-n8n-primary"
-          animate={false}
-        />
-      </div>
-    </section>
-
     <!-- Open Source GitHub Stars -->
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
@@ -199,47 +152,6 @@ const icons = {
           <canvas id="github-stars-chart"></canvas>
         </div>
       </div>
-
-      <!-- GitHub comparison table -->
-      <div class="mt-6 overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-n8n-border">
-              <th class="text-left py-3 px-4 text-gray-400 font-medium">Platform</th>
-              <th class="text-right py-3 px-4 text-gray-400 font-medium">Stars</th>
-              <th class="text-left py-3 px-4 text-gray-400 font-medium">Focus</th>
-              <th class="text-center py-3 px-4 text-gray-400 font-medium">Self-Hostable</th>
-            </tr>
-          </thead>
-          <tbody>
-            {githubData.map((platform, index) => (
-              <tr class={`border-b border-n8n-border/50 ${platform.id === 'n8n' ? 'bg-n8n-primary/10' : ''}`}>
-                <td class="py-3 px-4">
-                  <a
-                    href={platform.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-white hover:text-n8n-primary flex items-center gap-2"
-                  >
-                    <span class={`w-5 text-center font-mono text-xs ${index === 0 ? 'text-n8n-primary' : 'text-gray-500'}`}>
-                      #{index + 1}
-                    </span>
-                    {platform.name}
-                    <span class="text-gray-500" set:html={icons.external} />
-                  </a>
-                </td>
-                <td class="py-3 px-4 text-right font-mono text-white">
-                  {formatNumber(platform.stars)}
-                </td>
-                <td class="py-3 px-4 text-gray-400">{platform.focus}</td>
-                <td class="py-3 px-4 text-center">
-                  <span class="text-green-400" set:html={icons.check} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </section>
 
     <!-- LinkedIn Industry Presence -->
@@ -249,89 +161,12 @@ const icons = {
         Industry LinkedIn Presence
       </h2>
       <p class="text-gray-400 mb-6">
-        LinkedIn company page followers across automation platforms. n8n leads despite being open-source.
+        LinkedIn company page followers across automation platforms.
       </p>
 
       <div class="card">
         <div class="relative h-[300px]">
           <canvas id="linkedin-chart"></canvas>
-        </div>
-      </div>
-
-      <!-- LinkedIn comparison table -->
-      <div class="mt-6 overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-n8n-border">
-              <th class="text-left py-3 px-4 text-gray-400 font-medium">Platform</th>
-              <th class="text-right py-3 px-4 text-gray-400 font-medium">Followers</th>
-              <th class="text-center py-3 px-4 text-gray-400 font-medium">Type</th>
-            </tr>
-          </thead>
-          <tbody>
-            {linkedinData.map((platform, index) => (
-              <tr class={`border-b border-n8n-border/50 ${platform.id === 'n8n' ? 'bg-n8n-primary/10' : ''}`}>
-                <td class="py-3 px-4">
-                  <a
-                    href={platform.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-white hover:text-n8n-primary flex items-center gap-2"
-                  >
-                    <span class={`w-5 text-center font-mono text-xs ${index === 0 ? 'text-n8n-primary' : 'text-gray-500'}`}>
-                      #{index + 1}
-                    </span>
-                    {platform.name}
-                    <span class="text-gray-500" set:html={icons.external} />
-                  </a>
-                </td>
-                <td class="py-3 px-4 text-right font-mono text-white">
-                  {formatNumber(platform.followers)}
-                </td>
-                <td class="py-3 px-4 text-center">
-                  <span class={`px-2 py-1 rounded text-xs ${platform.type === 'open-source' ? 'bg-green-900/50 text-green-400' : 'bg-gray-700 text-gray-300'}`}>
-                    {platform.type === 'open-source' ? 'Open Source' : 'Closed Source'}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- n8n Community Reach -->
-    <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-        <span class="text-gray-400" set:html={icons.community} />
-        n8n Community Reach
-      </h2>
-      <p class="text-gray-400 mb-6">
-        n8n has built a thriving community across multiple platforms.
-      </p>
-
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="card text-center p-6">
-          <div class="text-3xl font-bold text-[#5865F2] mb-1">{formatNumber(community.discord)}</div>
-          <div class="text-gray-400 text-sm">Discord Members</div>
-        </div>
-        <div class="card text-center p-6">
-          <div class="text-3xl font-bold text-[#ff6384] mb-1">{formatNumber(community.reddit)}</div>
-          <div class="text-gray-400 text-sm">Reddit Subscribers</div>
-        </div>
-        <div class="card text-center p-6">
-          <div class="text-3xl font-bold text-[#36a2eb] mb-1">{formatNumber(community.forum)}</div>
-          <div class="text-gray-400 text-sm">Forum Members</div>
-        </div>
-        <div class="card text-center p-6">
-          <div class="text-3xl font-bold text-[#0A66C2] mb-1">{formatNumber(community.linkedin)}</div>
-          <div class="text-gray-400 text-sm">LinkedIn Followers</div>
-        </div>
-      </div>
-
-      <div class="card mt-6">
-        <div class="relative h-[250px]">
-          <canvas id="community-chart"></canvas>
         </div>
       </div>
     </section>
@@ -416,10 +251,9 @@ const icons = {
   </div>
 </BaseLayout>
 
-<script define:vars={{ githubChartData, linkedinChartData, communityChartData }}>
+<script define:vars={{ githubChartData, linkedinChartData }}>
   window.__landscapeGithubData = JSON.parse(githubChartData);
   window.__landscapeLinkedinData = JSON.parse(linkedinChartData);
-  window.__landscapeCommunityData = JSON.parse(communityChartData);
 </script>
 
 <script>
@@ -440,13 +274,6 @@ const icons = {
     make: '#6d28d9',
     workato: '#0ea5e9',
     tray: '#ec4899',
-  };
-
-  const COMMUNITY_COLORS = {
-    discord: '#5865F2',
-    reddit: '#ff6384',
-    forum: '#36a2eb',
-    linkedin: '#0A66C2',
   };
 
   function initGithubChart() {
@@ -561,72 +388,14 @@ const icons = {
     });
   }
 
-  function initCommunityChart() {
-    const canvas = document.getElementById('community-chart') as HTMLCanvasElement;
-    if (!canvas) return;
-
-    const data = (window as any).__landscapeCommunityData || {};
-
-    const labels = ['Discord', 'Reddit', 'Forum', 'LinkedIn'];
-    const values = [data.discord, data.reddit, data.forum, data.linkedin];
-    const colors = [
-      COMMUNITY_COLORS.discord,
-      COMMUNITY_COLORS.reddit,
-      COMMUNITY_COLORS.forum,
-      COMMUNITY_COLORS.linkedin,
-    ];
-
-    new Chart(canvas, {
-      type: 'doughnut',
-      data: {
-        labels,
-        datasets: [
-          {
-            data: values,
-            backgroundColor: colors,
-            borderWidth: 0,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'right',
-            labels: {
-              color: '#9ca3af',
-              padding: 20,
-              usePointStyle: true,
-            },
-          },
-          tooltip: {
-            backgroundColor: '#1e1e1e',
-            titleColor: '#fff',
-            bodyColor: '#9ca3af',
-            callbacks: {
-              label: (ctx) => {
-                const total = values.reduce((a, b) => a + b, 0);
-                const percent = ((ctx.parsed / total) * 100).toFixed(1);
-                return `${ctx.label}: ${ctx.parsed.toLocaleString()} (${percent}%)`;
-              },
-            },
-          },
-        },
-      },
-    });
-  }
-
   // Initialize charts when visible
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       initChartWhenVisible('github-stars-chart', initGithubChart);
       initChartWhenVisible('linkedin-chart', initLinkedinChart);
-      initChartWhenVisible('community-chart', initCommunityChart);
     });
   } else {
     initChartWhenVisible('github-stars-chart', initGithubChart);
     initChartWhenVisible('linkedin-chart', initLinkedinChart);
-    initChartWhenVisible('community-chart', initCommunityChart);
   }
 </script>
