@@ -14,6 +14,7 @@ import { join } from 'path';
 
 // Load landscape data
 const landscapePath = join(process.cwd(), 'public', 'data', 'history', 'landscape.json');
+const npmLandscapePath = join(process.cwd(), 'public', 'data', 'history', 'npm-landscape.json');
 
 interface Platform {
   name: string;
@@ -69,6 +70,21 @@ try {
   }
 } catch (e) {
   console.warn('Could not load landscape data');
+}
+
+// Load npm landscape time series data
+interface NpmLandscapeEntry {
+  weekStart: string;
+  [platform: string]: string | number;
+}
+let npmLandscapeData: NpmLandscapeEntry[] = [];
+try {
+  if (existsSync(npmLandscapePath)) {
+    const data = JSON.parse(readFileSync(npmLandscapePath, 'utf-8'));
+    npmLandscapeData = data.weekly || [];
+  }
+} catch (e) {
+  console.warn('Could not load npm landscape data');
 }
 
 // Get latest GitHub stars
@@ -184,6 +200,7 @@ const lastUpdated = landscapeData?.lastUpdated
 const githubChartData = JSON.stringify(githubData);
 const linkedinChartData = JSON.stringify(linkedinData);
 const npmChartData = JSON.stringify(npmData);
+const npmTimeSeriesData = JSON.stringify(npmLandscapeData);
 const dockerChartData = JSON.stringify(dockerData);
 const velocityChartData = JSON.stringify(velocityData);
 
@@ -248,12 +265,31 @@ const icons = {
         npm Weekly Downloads
       </h2>
       <p class="text-gray-400 mb-6">
-        Weekly npm package downloads for JavaScript-based automation platforms.
+        Weekly npm package downloads over time. Excludes Activepieces (Docker-only distribution).
       </p>
 
       <div class="card">
-        <div class="relative h-[300px]">
+        <!-- Controls -->
+        <div class="flex flex-wrap items-center gap-4 mb-4">
+          <div class="flex items-center gap-2">
+            <label class="text-sm text-gray-400">Range:</label>
+            <select id="npm-date-range" class="bg-n8n-darker border border-n8n-border rounded px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-n8n-primary">
+              <option value="26">6 months</option>
+              <option value="52" selected>1 year</option>
+              <option value="104">2 years</option>
+              <option value="all">All time</option>
+            </select>
+          </div>
+        </div>
+        <div class="relative h-[350px]">
           <canvas id="npm-chart"></canvas>
+        </div>
+        <!-- Legend -->
+        <div class="flex flex-wrap items-center justify-center gap-4 mt-4 text-xs">
+          <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#ff6d5a]"></span><span class="text-gray-400">n8n</span></div>
+          <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#f59e0b]"></span><span class="text-gray-400">Pipedream</span></div>
+          <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#22c55e]"></span><span class="text-gray-400">Windmill</span></div>
+          <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#8f3e3e]"></span><span class="text-gray-400">Node-RED</span></div>
         </div>
       </div>
     </section>
@@ -406,16 +442,18 @@ const icons = {
   </div>
 </BaseLayout>
 
-<script define:vars={{ githubChartData, linkedinChartData, npmChartData, dockerChartData, velocityChartData }}>
+<script define:vars={{ githubChartData, linkedinChartData, npmChartData, npmTimeSeriesData, dockerChartData, velocityChartData }}>
   window.__landscapeGithubData = JSON.parse(githubChartData);
   window.__landscapeLinkedinData = JSON.parse(linkedinChartData);
   window.__landscapeNpmData = JSON.parse(npmChartData);
+  window.__npmTimeSeriesData = JSON.parse(npmTimeSeriesData);
   window.__landscapeDockerData = JSON.parse(dockerChartData);
   window.__landscapeVelocityData = JSON.parse(velocityChartData);
 </script>
 
 <script>
   import { Chart, registerables } from 'chart.js';
+  import 'chartjs-adapter-date-fns';  // Required for TimeScale
   import { initChartWhenVisible } from '../../lib/utils/lazyChart';
 
   Chart.register(...registerables);
@@ -552,60 +590,119 @@ const icons = {
     });
   }
 
+  let npmChart: Chart | null = null;
+
   function initNpmChart() {
     const canvas = document.getElementById('npm-chart') as HTMLCanvasElement;
     if (!canvas) return;
 
-    const data = (window as any).__landscapeNpmData || [];
+    const timeSeriesData = (window as any).__npmTimeSeriesData || [];
+    if (timeSeriesData.length === 0) return;
 
-    new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: data.map((d: any) => d.name),
-        datasets: [
-          {
-            label: 'Weekly Downloads',
-            data: data.map((d: any) => d.downloads),
-            backgroundColor: data.map((d: any) => COLORS[d.id as keyof typeof COLORS] || '#6b7280'),
-            borderRadius: 4,
+    // Platforms to show (excluding activepieces - Docker-only)
+    const platforms = ['n8n', 'pipedream', 'windmill', 'nodered'];
+    const platformNames: Record<string, string> = {
+      n8n: 'n8n',
+      pipedream: 'Pipedream',
+      windmill: 'Windmill',
+      nodered: 'Node-RED',
+    };
+
+    function renderNpmChart(weeks: number | 'all') {
+      const data = weeks === 'all'
+        ? timeSeriesData
+        : timeSeriesData.slice(-weeks);
+
+      // Destroy existing chart
+      if (npmChart) {
+        npmChart.destroy();
+        npmChart = null;
+      }
+
+      // Build datasets
+      const datasets = platforms.map((platform) => ({
+        label: platformNames[platform] || platform,
+        data: data.map((d: any) => ({
+          x: d.weekStart,
+          y: d[platform] || 0,
+        })),
+        borderColor: COLORS[platform as keyof typeof COLORS],
+        backgroundColor: COLORS[platform as keyof typeof COLORS] + '20',
+        fill: false,
+        tension: 0.3,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        borderWidth: 2,
+      }));
+
+      npmChart = new Chart(canvas, {
+        type: 'line',
+        data: { datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false,
           },
-        ],
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#1e1e1e',
-            titleColor: '#fff',
-            bodyColor: '#9ca3af',
-            callbacks: {
-              label: (ctx) => `${ctx.parsed.x.toLocaleString()} downloads/week`,
-            },
-          },
-        },
-        scales: {
-          x: {
-            grid: { color: 'rgba(255,255,255,0.05)' },
-            ticks: {
-              color: '#6b7280',
-              callback: (value) => {
-                if (typeof value === 'number') {
-                  if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
-                }
-                return value;
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e1e1e',
+              titleColor: '#fff',
+              bodyColor: '#9ca3af',
+              callbacks: {
+                title: (items) => {
+                  const date = new Date(items[0].parsed.x);
+                  return `Week of ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+                },
+                label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}`,
               },
             },
           },
-          y: {
-            grid: { display: false },
-            ticks: { color: '#e5e7eb', font: { weight: 'bold' } },
+          scales: {
+            x: {
+              type: 'time',
+              time: {
+                unit: weeks === 'all' || weeks > 104 ? 'year' : weeks > 52 ? 'quarter' : 'month',
+                displayFormats: {
+                  month: 'MMM yyyy',
+                  quarter: 'MMM yyyy',
+                  year: 'yyyy',
+                },
+              },
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#6b7280' },
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: {
+                color: '#6b7280',
+                callback: (value) => {
+                  if (typeof value === 'number') {
+                    if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+                  }
+                  return value;
+                },
+              },
+            },
           },
         },
-      },
-    });
+      });
+    }
+
+    // Initial render with 1 year
+    renderNpmChart(52);
+
+    // Wire up date range control
+    const rangeSelect = document.getElementById('npm-date-range') as HTMLSelectElement;
+    if (rangeSelect) {
+      rangeSelect.addEventListener('change', () => {
+        const val = rangeSelect.value;
+        renderNpmChart(val === 'all' ? 'all' : parseInt(val));
+      });
+    }
   }
 
   function initDockerChart() {
