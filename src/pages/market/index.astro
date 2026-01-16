@@ -80,14 +80,17 @@ const githubData = githubPlatforms
   .map((id) => {
     const current = latestGithub[id] || 0;
     const previous = github3MonthsAgo?.[id] || 0;
-    const growth = previous > 0 ? ((current - previous) / previous) * 100 : null;
+    const growthAbs = current - previous; // Absolute growth (can be negative)
+    const growthPct = previous > 0 ? ((current - previous) / previous) * 100 : null;
     return {
       id,
       name: landscapeData?.platforms[id]?.name || id,
       stars: current,
+      base: previous > 0 ? previous : current, // Stars 3 months ago (or current if no history)
+      growth: previous > 0 ? growthAbs : 0, // Growth in last 3 months
       website: landscapeData?.platforms[id]?.website || '',
       focus: landscapeData?.platforms[id]?.focus || '',
-      growth3m: growth,
+      growth3m: growthPct,
     };
   })
   .filter((p) => p.stars > 0)
@@ -318,16 +321,35 @@ const icons = {
       return d.name;
     });
 
+    // For stacked chart: base = 3 months ago, growth = increase since then
+    // Handle negative growth by showing full bar as "base" with no growth segment
+    const baseData = data.map((d: any) => d.growth > 0 ? d.base : d.stars);
+    const growthData = data.map((d: any) => d.growth > 0 ? d.growth : 0);
+
+    // Colors: base is darker, growth is the platform's bright color
+    const baseColors = data.map((d: any) => {
+      const color = COLORS[d.id as keyof typeof COLORS] || '#6b7280';
+      // Darken the color for base
+      return color + '80'; // 50% opacity
+    });
+    const growthColors = data.map((d: any) => COLORS[d.id as keyof typeof COLORS] || '#6b7280');
+
     new Chart(canvas, {
       type: 'bar',
       data: {
         labels: labelsWithGrowth,
         datasets: [
           {
-            label: 'GitHub Stars',
-            data: data.map((d: any) => d.stars),
-            backgroundColor: data.map((d: any) => COLORS[d.id as keyof typeof COLORS] || '#6b7280'),
-            borderRadius: 4,
+            label: '3 months ago',
+            data: baseData,
+            backgroundColor: baseColors,
+            borderRadius: 0,
+          },
+          {
+            label: '3-month growth',
+            data: growthData,
+            backgroundColor: growthColors,
+            borderRadius: { topRight: 4, bottomRight: 4 },
           },
         ],
       },
@@ -336,7 +358,17 @@ const icons = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { display: false },
+          legend: {
+            display: true,
+            position: 'top',
+            align: 'end',
+            labels: {
+              color: '#9ca3af',
+              boxWidth: 12,
+              padding: 15,
+              usePointStyle: false,
+            },
+          },
           tooltip: {
             backgroundColor: '#1e1e1e',
             titleColor: '#fff',
@@ -345,10 +377,23 @@ const icons = {
               title: (items) => data[items[0].dataIndex]?.name || '',
               label: (ctx) => {
                 const item = data[ctx.dataIndex];
-                const lines = [`${ctx.parsed.x.toLocaleString()} stars`];
+                if (ctx.datasetIndex === 0) {
+                  // Base dataset
+                  return `3 months ago: ${ctx.parsed.x.toLocaleString()} stars`;
+                } else {
+                  // Growth dataset
+                  if (item?.growth > 0) {
+                    return `Growth: +${ctx.parsed.x.toLocaleString()} stars`;
+                  }
+                  return null; // Don't show for zero/negative growth
+                }
+              },
+              afterBody: (items) => {
+                const item = data[items[0].dataIndex];
+                const lines = [`Total: ${item.stars.toLocaleString()} stars`];
                 if (item?.growth3m !== null && item?.growth3m !== undefined) {
                   const sign = item.growth3m >= 0 ? '+' : '';
-                  lines.push(`3-month growth: ${sign}${item.growth3m.toFixed(1)}%`);
+                  lines.push(`Growth rate: ${sign}${item.growth3m.toFixed(1)}%`);
                 }
                 return lines;
               },
@@ -357,6 +402,7 @@ const icons = {
         },
         scales: {
           x: {
+            stacked: true,
             grid: { color: 'rgba(255,255,255,0.05)' },
             ticks: {
               color: '#6b7280',
@@ -369,6 +415,7 @@ const icons = {
             },
           },
           y: {
+            stacked: true,
             grid: { display: false },
             ticks: { color: '#e5e7eb', font: { weight: 'bold' } },
           },
