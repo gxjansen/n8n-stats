@@ -41,4 +41,18 @@
   .badge-primary {
     @apply bg-n8n-primary/20 text-n8n-primary;
   }
+
+  /* Ranking grid: fills columns top-to-bottom (1-5 left, 6-10 right) on desktop */
+  /* Use with inline style: style={`--ranking-rows: ${Math.ceil(items.length / 2)}`} */
+  .ranking-grid {
+    @apply grid grid-cols-1 gap-3;
+  }
+
+  @media (min-width: 768px) {
+    .ranking-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: repeat(var(--ranking-rows, 5), minmax(0, auto));
+      grid-auto-flow: column;
+    }
+  }
 }

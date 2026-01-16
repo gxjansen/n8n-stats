@@ -402,7 +402,7 @@ const completeDataStats = allTemplatesData ? {
             View n8n Arena &rarr;
           </a>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="ranking-grid" style={`--ranking-rows: ${Math.ceil(topCreatorsByInsertions.length / 2)}`}>
           {topCreatorsByInsertions.map((creator, index) => (
             <a
               href={n8nUrls.creator(creator.username)}
@@ -470,7 +470,7 @@ const completeDataStats = allTemplatesData ? {
           Browse all templates &rarr;
         </a>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="ranking-grid" style={`--ranking-rows: ${Math.ceil(Math.min(topTemplatesByViews.length, 10) / 2)}`}>
         {topTemplatesByViews.slice(0, 10).map((template, index) => (
           <a
             href={n8nUrls.workflow(template.id)}

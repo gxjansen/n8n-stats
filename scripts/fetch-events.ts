@@ -32,12 +32,17 @@ const LOCATION_PLACEHOLDERS = [
 ];
 
 // Keywords that indicate an online event (case-insensitive)
+// Check in event name AND location name
 const ONLINE_KEYWORDS = [
   'virtual',
   'online',
   'webinar',
   'remote',
   'zoom',
+  'youtube',
+  'livestream',
+  'live stream',
+  'google meet',
 ];
 
 // Hosts to exclude from rankings (n8n employees and companies)
@@ -55,26 +60,68 @@ function isPlaceholderLocation(text: string): boolean {
   return LOCATION_PLACEHOLDERS.some(p => lower.includes(p));
 }
 
+// Location types from Luma API that are definitely IN-PERSON
+// Any other location_type (youtube, zoom, meet, online, teams, etc.) is treated as online
+const IN_PERSON_LOCATION_TYPES = [
+  'offline',
+];
+
+// Location types that are ambiguous - log these for monitoring
+const AMBIGUOUS_LOCATION_TYPES = [
+  'unknown',
+  null,
+  undefined,
+  '',
+];
+
+// Track unknown location types encountered during fetch (for logging)
+const encounteredLocationTypes = new Set<string>();
+
 /**
  * Detect if an event is online based on name, location, or API location_type
+ *
+ * Strategy (future-proof):
+ * 1. If location_type is explicitly "offline" -> in-person
+ * 2. If location_type is a known platform (youtube, zoom, meet, etc.) -> online
+ * 3. If location_type is ambiguous (unknown, null) -> check keywords in name/location
+ * 4. Any other location_type -> assume online (catches future platforms)
  */
 function isOnlineEvent(
-  locationType: string,
+  locationType: string | null | undefined,
   eventName: string,
   locationName: string
 ): boolean {
-  // First check API location_type
-  if (locationType === 'online') return true;
+  // Track all location types for monitoring
+  encounteredLocationTypes.add(locationType || 'null');
 
-  // Check event name for online keywords
-  const nameLower = eventName.toLowerCase();
-  if (ONLINE_KEYWORDS.some(kw => nameLower.includes(kw))) return true;
+  // Normalize location type
+  const normalizedType = (locationType || '').toLowerCase().trim();
 
-  // Check location name for online keywords
-  const locLower = locationName.toLowerCase();
-  if (ONLINE_KEYWORDS.some(kw => locLower.includes(kw))) return true;
+  // Definitely in-person
+  if (IN_PERSON_LOCATION_TYPES.includes(normalizedType)) {
+    // Still check keywords - some "offline" events might be mislabeled
+    const nameLower = eventName.toLowerCase();
+    const locLower = locationName.toLowerCase();
+    if (ONLINE_KEYWORDS.some(kw => nameLower.includes(kw) || locLower.includes(kw))) {
+      return true;
+    }
+    return false;
+  }
 
-  return false;
+  // Ambiguous types - rely on keyword detection
+  if (!normalizedType || normalizedType === 'unknown') {
+    const nameLower = eventName.toLowerCase();
+    if (ONLINE_KEYWORDS.some(kw => nameLower.includes(kw))) return true;
+
+    const locLower = locationName.toLowerCase();
+    if (ONLINE_KEYWORDS.some(kw => locLower.includes(kw))) return true;
+
+    return false;
+  }
+
+  // Any other location_type (youtube, zoom, meet, teams, webex, discord, etc.)
+  // is assumed to be an online platform
+  return true;
 }
 
 interface EventHost {
@@ -577,6 +624,12 @@ async function main() {
   if (eventsData.hosts.length > 0) {
     console.log(`  Top hosts: ${eventsData.hosts.slice(0, 5).map(h => `${h.name} (${h.eventCount} events, ${h.totalRegistrations} reg.)`).join(', ')}`);
   }
+
+  // Log encountered location types for monitoring
+  // This helps detect new platforms Luma adds in the future
+  console.log(`\n--- Location Types Detected ---`);
+  console.log(`Types found: ${[...encounteredLocationTypes].sort().join(', ')}`);
+  console.log(`(offline = in-person, other types = online platforms)`);
 }
 
 main().catch(console.error);

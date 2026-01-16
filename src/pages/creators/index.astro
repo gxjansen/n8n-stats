@@ -144,7 +144,7 @@ const getProfileUrl = (username: string) => n8nUrls.creator(username);
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">Trending This Week</h2>
       <p class="text-gray-400 mb-4">Creators with the most workflow insertions in the past 7 days.</p>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="ranking-grid" style={`--ranking-rows: ${Math.ceil(trendingWeekly.length / 2)}`}>
         {trendingWeekly.map((creator, index) => (
           <a
             href={getProfileUrl(creator.username)}
@@ -180,7 +180,7 @@ const getProfileUrl = (username: string) => n8nUrls.creator(username);
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">Top by Total Inserters</h2>
       <p class="text-gray-400 mb-4">Creators whose workflows have been used the most (all time).</p>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="ranking-grid" style={`--ranking-rows: ${Math.ceil(topByInserters.length / 2)}`}>
         {topByInserters.map((creator, index) => (
           <a
             href={getProfileUrl(creator.username)}
@@ -216,7 +216,7 @@ const getProfileUrl = (username: string) => n8nUrls.creator(username);
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">Top by Views</h2>
       <p class="text-gray-400 mb-4">Creators with the most workflow views.</p>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="ranking-grid" style={`--ranking-rows: ${Math.ceil(topByViews.length / 2)}`}>
         {topByViews.map((creator, index) => (
           <a
             href={getProfileUrl(creator.username)}
@@ -252,7 +252,7 @@ const getProfileUrl = (username: string) => n8nUrls.creator(username);
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">Most Prolific</h2>
       <p class="text-gray-400 mb-4">Creators with the most published templates.</p>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="ranking-grid" style={`--ranking-rows: ${Math.ceil(topByTemplates.length / 2)}`}>
         {topByTemplates.map((creator, index) => (
           <a
             href={getProfileUrl(creator.username)}
