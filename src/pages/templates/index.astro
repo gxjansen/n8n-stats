@@ -119,7 +119,7 @@ const completeDataStats = allTemplatesData ? {
 
     <!-- Overview Stats -->
     <section class="mb-12">
-      <div class="grid grid-cols-3 gap-4">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
         <StatCard
           label="Total Templates"
           value={analytics.totalWorkflows}
@@ -377,7 +377,7 @@ const completeDataStats = allTemplatesData ? {
         </div>
       </div>
       <div class="card">
-        <div class="relative" style="height: 300px;">
+        <div class="relative h-[240px] md:h-[300px]">
           <canvas id="complexity-chart"></canvas>
         </div>
       </div>
@@ -518,7 +518,7 @@ const completeDataStats = allTemplatesData ? {
         <!-- Chart -->
         <div class="card">
           <h3 class="text-lg font-semibold text-white mb-4">Distribution Chart</h3>
-          <div class="relative" style="height: 280px;">
+          <div class="relative h-[220px] md:h-[280px]">
             <canvas id="views-chart"></canvas>
           </div>
           <p class="text-xs text-gray-500 text-center mt-2">

@@ -139,8 +139,7 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
         id="world-map-svg"
         data="/images/world-robinson.svg"
         type="image/svg+xml"
-        class="w-full h-auto"
-        style="max-height: 450px;"
+        class="w-full h-auto max-h-[350px] md:max-h-[450px]"
         aria-label="World map showing event locations"
       >
         Your browser does not support SVG
@@ -149,8 +148,7 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
       <!-- Overlay SVG for markers (positioned absolutely on top) -->
       <svg
         viewBox={viewBox}
-        class="absolute inset-0 w-full h-full pointer-events-none"
-        style="max-height: 450px;"
+        class="absolute inset-0 w-full h-full pointer-events-none max-h-[350px] md:max-h-[450px]"
       >
         <!-- Event markers -->
         <g class="markers pointer-events-auto">
