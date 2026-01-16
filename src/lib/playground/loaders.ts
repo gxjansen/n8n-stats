@@ -77,8 +77,11 @@ function extractTimeSeries(
     return [];
   }
 
+  // Support custom date key (e.g., 'weekStart' instead of 'date')
+  const dateKey = metric.dateKey || 'date';
+
   return granularityData.map((item: any) => ({
-    date: item.date,
+    date: item[dateKey],
     value: item[metric.path],
   }));
 }

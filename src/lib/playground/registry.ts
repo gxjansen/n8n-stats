@@ -99,6 +99,13 @@ const COLORS = {
   ambassadorsTotal: '#a855f7',    // Purple
   ambassadorsJoined: '#22c55e',   // Green (new)
   ambassadorsDeparted: '#ef4444', // Red (departed)
+
+  // npm Landscape (automation platforms)
+  npmN8n: '#ff6d5a',              // n8n coral
+  npmPipedream: '#f59e0b',        // Amber
+  npmWindmill: '#22c55e',         // Green
+  npmNodered: '#8f3e3e',          // Dark red
+  npmActivepieces: '#6366f1',     // Indigo
 };
 
 export const DATA_SOURCES: DataSource[] = [
@@ -297,6 +304,24 @@ export const DATA_SOURCES: DataSource[] = [
       { id: 'ambassadors-total', label: 'Total Ambassadors', color: COLORS.ambassadorsTotal, path: 'total' },
       { id: 'ambassadors-joined', label: 'New Ambassadors/Month', color: COLORS.ambassadorsJoined, path: 'joined' },
       { id: 'ambassadors-departed', label: 'Departed/Month', color: COLORS.ambassadorsDeparted, path: 'departed' },
+    ],
+  },
+  {
+    id: 'npm-landscape',
+    label: 'npm Downloads (Landscape)',
+    shortLabel: 'npm',
+    file: '/data/history/npm-landscape.json',
+    type: 'timeseries',
+    granularities: ['weekly'],
+    defaultGranularity: 'weekly',
+    historyStart: '2019-01',
+    measuredSince: '2019-01', // npm API historical data (all measured)
+    metrics: [
+      { id: 'npm-n8n', label: 'n8n Downloads/Week', color: COLORS.npmN8n, path: 'n8n', dateKey: 'weekStart' },
+      { id: 'npm-pipedream', label: 'Pipedream Downloads/Week', color: COLORS.npmPipedream, path: 'pipedream', dateKey: 'weekStart' },
+      { id: 'npm-windmill', label: 'Windmill Downloads/Week', color: COLORS.npmWindmill, path: 'windmill', dateKey: 'weekStart' },
+      { id: 'npm-nodered', label: 'Node-RED Downloads/Week', color: COLORS.npmNodered, path: 'nodered', dateKey: 'weekStart' },
+      { id: 'npm-activepieces', label: 'Activepieces Downloads/Week', color: COLORS.npmActivepieces, path: 'activepieces', dateKey: 'weekStart' },
     ],
   },
 ];
