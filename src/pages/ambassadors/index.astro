@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import StatCard from '@/components/cards/StatCard.astro';
 import EventsMapChart from '@/components/charts/EventsMapChart.astro';
+import AmbassadorsHistoryChart from '@/components/charts/AmbassadorsHistoryChart.astro';
 import { formatNumber } from '@/lib/utils/formatters';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -53,6 +54,12 @@ interface AmbassadorData {
     lat: number;
     lng: number;
     count: number;
+  }>;
+  monthly: Array<{
+    date: string;
+    total: number;
+    joined: number;
+    departed: number;
   }>;
 }
 
@@ -148,6 +155,7 @@ const stats = ambassadorData?.stats || {
 };
 const byCountry = ambassadorData?.byCountry || [];
 const locations = ambassadorData?.locations || [];
+const monthlyHistory = ambassadorData?.monthly || [];
 
 // Get unique country codes for map highlighting
 const highlightedCountries = [...new Set(
@@ -251,6 +259,22 @@ const newestDate = newestAmbassadors[0]?.parsedDate;
         />
       </div>
     </section>
+
+    <!-- Ambassador Growth Chart -->
+    {monthlyHistory.length > 0 && (
+      <section class="mb-12">
+        <div class="flex items-center gap-3 mb-6">
+          <svg class="w-6 h-6 text-n8n-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+          </svg>
+          <h2 class="text-2xl font-bold text-white">Ambassador Growth</h2>
+        </div>
+        <p class="text-gray-400 mb-6">
+          How the ambassador program has grown over time.
+        </p>
+        <AmbassadorsHistoryChart data={monthlyHistory} />
+      </section>
+    )}
 
     <!-- World Map -->
     {locations.length > 0 && (

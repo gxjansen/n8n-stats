@@ -1,0 +1,226 @@
+---
+/**
+ * Ambassadors History Chart
+ * Shows monthly ambassador count growth and new joins
+ */
+
+interface MonthlyData {
+  date: string;
+  total: number;
+  joined: number;
+  departed: number;
+}
+
+interface Props {
+  data: MonthlyData[];
+  /** Minimum month to show (YYYY-MM format), filters out earlier months */
+  startMonth?: string;
+}
+
+const { data, startMonth = '2024-05' } = Astro.props;
+
+// Filter data to only show months from startMonth onwards
+const chartData = data.filter(d => d.date >= startMonth);
+---
+
+<div id="ambassadors-history-container" class="card">
+  {chartData.length === 0 ? (
+    <div class="flex items-center justify-center h-64 text-gray-400">
+      <p>No historical ambassador data available yet.</p>
+    </div>
+  ) : (
+    <>
+      <div class="relative h-[280px] md:h-[350px]">
+        <canvas id="ambassadors-history-chart"></canvas>
+      </div>
+      <p class="text-xs text-gray-500 mt-2 text-center">
+        Ambassador count over time, based on join dates from the n8n Ambassador Directory.
+      </p>
+    </>
+  )}
+</div>
+
+<script define:vars={{ chartData }}>
+  // Make data available to the client-side script
+  window.ambassadorsChartData = chartData;
+</script>
+
+<script>
+  import { Chart } from '../../lib/utils/chartRegistry';
+  import { axisTruncationPlugin } from '../../lib/utils/chartPlugins';
+  import { initChartWhenVisible } from '../../lib/utils/lazyChart';
+
+  // Register project-specific plugin
+  Chart.register(axisTruncationPlugin);
+
+  interface MonthlyData {
+    date: string;
+    total: number;
+    joined: number;
+    departed: number;
+  }
+
+  declare global {
+    interface Window {
+      ambassadorsChartData: MonthlyData[];
+    }
+  }
+
+  function initAmbassadorsChart() {
+    const canvas = document.getElementById('ambassadors-history-chart') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const data = window.ambassadorsChartData || [];
+    if (data.length === 0) return;
+
+    // Format month labels (e.g., "2024-05" -> "May 2024")
+    const formatMonth = (monthStr: string) => {
+      const [year, month] = monthStr.split('-');
+      const date = new Date(parseInt(year), parseInt(month) - 1);
+      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    };
+
+    const labels = data.map(d => formatMonth(d.date));
+    const totals = data.map(d => d.total);
+    const joined = data.map(d => d.joined);
+
+    new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          // New ambassadors joined (bars)
+          {
+            label: 'New Ambassadors',
+            data: joined,
+            backgroundColor: '#22c55e',
+            borderColor: '#22c55e',
+            borderWidth: 1,
+            borderRadius: 4,
+            hoverBackgroundColor: '#4ade80',
+            yAxisID: 'y1',
+            order: 2,
+          },
+          // Total ambassadors (line)
+          {
+            label: 'Total Ambassadors',
+            data: totals,
+            type: 'line',
+            borderColor: '#ec4899',
+            backgroundColor: 'rgba(236, 72, 153, 0.1)',
+            borderWidth: 3,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ec4899',
+            fill: true,
+            tension: 0.3,
+            yAxisID: 'y',
+            order: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              color: '#9ca3af',
+              usePointStyle: true,
+              padding: 15,
+              font: { size: 11 },
+            },
+          },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#fff',
+            bodyColor: '#9ca3af',
+            borderColor: '#333',
+            borderWidth: 1,
+            callbacks: {
+              label: (context) => {
+                const value = context.parsed.y;
+                const label = context.dataset.label || '';
+
+                if (label.includes('New')) {
+                  return `${label}: +${value} joined`;
+                }
+                return `${label}: ${value}`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: '#9ca3af',
+              maxRotation: 45,
+            },
+          },
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: '#ec4899',
+              stepSize: 10,
+              callback: (value) => {
+                if (Number.isInteger(value)) {
+                  return value;
+                }
+                return null;
+              },
+            },
+            title: {
+              display: true,
+              text: 'Total Ambassadors',
+              color: '#ec4899',
+            },
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            beginAtZero: true,
+            grid: {
+              drawOnChartArea: false,
+            },
+            ticks: {
+              color: '#22c55e',
+              stepSize: 5,
+              callback: (value) => {
+                if (Number.isInteger(value)) {
+                  return value;
+                }
+                return null;
+              },
+            },
+            title: {
+              display: true,
+              text: 'New Joins',
+              color: '#22c55e',
+            },
+          },
+        },
+      },
+    });
+  }
+
+  // Initialize when DOM is ready and chart is visible
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initChartWhenVisible('ambassadors-history-container', initAmbassadorsChart);
+    });
+  } else {
+    initChartWhenVisible('ambassadors-history-container', initAmbassadorsChart);
+  }
+</script>

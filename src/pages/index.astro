@@ -192,13 +192,16 @@ try {
   }
 } catch (e) { /* use defaults */ }
 
-// Load ambassador stats for homepage teaser
+// Load ambassador stats and monthly history for homepage teaser
 let ambassadorStats = { total: 0, countries: 0 };
+let ambassadorMonthlyHistory: number[] = [];
 try {
   const ambassadorPath = join(process.cwd(), 'public', 'data', 'history', 'ambassadors.json');
   if (existsSync(ambassadorPath)) {
     const data = JSON.parse(readFileSync(ambassadorPath, 'utf-8'));
     ambassadorStats = { total: data.stats?.total || 0, countries: data.stats?.countries || 0 };
+    // Get last 12 months for sparkline
+    ambassadorMonthlyHistory = data.monthly?.slice(-12).map((d: { total: number }) => d.total) || [];
   }
 } catch (e) { /* use defaults */ }
 
@@ -547,7 +550,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
           </svg>
         </SubpageTeaserCard>
 
-        <!-- Ambassadors -->
+        <!-- Ambassadors - with sparkline -->
         <SubpageTeaserCard
           title="Ambassadors"
           href="/ambassadors"
@@ -557,6 +560,8 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
           secondaryLabel="countries"
           accentColor="#ec4899"
           ctaText="Meet ambassadors"
+          sparklineData={ambassadorMonthlyHistory.length > 1 ? ambassadorMonthlyHistory : undefined}
+          sparklineColor="#ec4899"
           animationDelay={1000}
         >
           <svg slot="icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
