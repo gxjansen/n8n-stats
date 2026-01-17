@@ -256,7 +256,7 @@ const redditDataJson = JSON.stringify(redditHistoryData);
         scales: {
           x: {
             grid: { color: 'rgba(255,255,255,0.05)' },
-            ticks: { color: '#6b7280', maxRotation: 45 },
+            ticks: { color: '#9ca3af', maxRotation: 45 },
           },
           y: {
             type: 'linear',
@@ -264,7 +264,7 @@ const redditDataJson = JSON.stringify(redditHistoryData);
             position: 'left',
             grid: { color: 'rgba(255,255,255,0.05)' },
             ticks: {
-              color: '#6b7280',
+              color: '#9ca3af',
               callback: (value) => {
                 if (typeof value === 'number') {
                   if (value >= 1000) return (value / 1000).toFixed(0) + 'K';

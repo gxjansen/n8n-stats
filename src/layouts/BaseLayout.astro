@@ -30,6 +30,9 @@ const buildTime = new Date();
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title} | n8n Pulse</title>
 
+    <!-- Canonical URL -->
+    <link rel="canonical" href={`https://n8n-pulse.gui.do${Astro.url.pathname}`} />
+
     <!-- Open Graph / Social Sharing -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={`https://n8n-pulse.gui.do${Astro.url.pathname}`} />
@@ -45,9 +48,10 @@ const buildTime = new Date();
     <meta name="twitter:image" content="https://n8n-pulse.gui.do/og-image.png" />
     <meta name="twitter:creator" content="@gxjansen" />
 
-    <!-- Fonts -->
+    <!-- Fonts - preload for faster FCP -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     <!-- Umami Analytics -->

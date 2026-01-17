@@ -281,7 +281,7 @@ const chartDataJson = JSON.stringify(chartDataPoints);
         scales: {
           x: {
             grid: { color: 'rgba(255,255,255,0.05)' },
-            ticks: { color: '#6b7280', maxRotation: 45 },
+            ticks: { color: '#9ca3af', maxRotation: 45 },
           },
           y: {
             type: 'linear',
@@ -290,7 +290,7 @@ const chartDataJson = JSON.stringify(chartDataPoints);
             beginAtZero: false,
             grid: { color: 'rgba(255,255,255,0.05)' },
             ticks: {
-              color: '#6b7280',
+              color: '#9ca3af',
               callback: (value) => {
                 if (typeof value === 'number') {
                   if (value >= 1000) return (value / 1000).toFixed(1) + 'K';
@@ -301,7 +301,7 @@ const chartDataJson = JSON.stringify(chartDataPoints);
             title: {
               display: true,
               text: 'Total Creators',
-              color: '#6b7280',
+              color: '#9ca3af',
             },
           },
           y1: {
