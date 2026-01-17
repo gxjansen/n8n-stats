@@ -48,11 +48,8 @@ const buildTime = new Date();
     <meta name="twitter:image" content="https://n8n-pulse.gui.do/og-image.png" />
     <meta name="twitter:creator" content="@guido" />
 
-    <!-- Fonts - preload for faster FCP -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Fonts - self-hosted Inter, preloaded for faster FCP -->
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
 
     <!-- Umami Analytics -->
     <script defer src="https://u.a11y.nl/script.js" data-website-id="c1686c78-37c4-4773-a663-a9bc7f9a6fbb"></script>
