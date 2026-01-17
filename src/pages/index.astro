@@ -228,30 +228,45 @@ const MIN_DAYS_FOR_GITHUB_TREND = 7;
 const hasEnoughGithubData = realGithubData.length >= MIN_DAYS_FOR_GITHUB_TREND;
 const githubTrendData = realGithubData.slice(-12).map(d => d.stars);
 
-// Calculate stars per day from real data only
+// Calculate stars per day from last 7 days of real data (current week velocity)
 let starsPerDay: number | null = null;
 if (realGithubData.length >= 2) {
-  const first = realGithubData[0];
   const last = realGithubData[realGithubData.length - 1];
+  // Find entry from ~7 days ago
+  const sevenDaysAgo = new Date(last.date);
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
+  const weekAgoEntry = [...realGithubData].reverse().find(d => d.date <= sevenDaysAgoStr) || realGithubData[0];
+
   const daysDiff = Math.max(1, Math.round(
-    (new Date(last.date).getTime() - new Date(first.date).getTime()) / (1000 * 60 * 60 * 24)
+    (new Date(last.date).getTime() - new Date(weekAgoEntry.date).getTime()) / (1000 * 60 * 60 * 24)
   ));
-  starsPerDay = Math.round((last.stars - first.stars) / daysDiff);
+  starsPerDay = Math.round((last.stars - weekAgoEntry.stars) / daysDiff);
 }
 
-// Creators per week (n8n Arena data is all real)
+// Weekly growth metrics (n8n Arena data is all real)
 const creatorsPerWeek = latestCreators && prevCreators
   ? latestCreators.total - prevCreators.total
+  : null;
+
+const insertersPerWeek = latestCreators && prevCreators
+  ? latestCreators.totalInserters - prevCreators.totalInserters
+  : null;
+
+// Calculate conversion rates for current and previous week
+const currentConversionRate = latestCreators && latestCreators.totalViews > 0
+  ? (latestCreators.totalInserters / latestCreators.totalViews) * 100
+  : null;
+const prevConversionRate = prevCreators && prevCreators.totalViews > 0
+  ? (prevCreators.totalInserters / prevCreators.totalViews) * 100
+  : null;
+const conversionRateChange = currentConversionRate !== null && prevConversionRate !== null
+  ? currentConversionRate - prevConversionRate
   : null;
 
 // Get weekly data for sparklines (all real from n8n Arena)
 const creatorTotals = recentCreatorData.map(d => d.total);
 const inserterTotals = recentCreatorData.map(d => d.totalInserters);
-
-// Calculate views → inserters conversion rate (real data)
-const conversionRate = latestCreators && latestCreators.totalViews > 0
-  ? ((latestCreators.totalInserters / latestCreators.totalViews) * 100).toFixed(1)
-  : null;
 
 // Conversion rate trend (real data)
 const conversionTrend = recentCreatorData
@@ -341,13 +356,13 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
     <!-- Growth Velocity Section - UNIQUE VALUE -->
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-2">Growth Velocity</h2>
-      <p class="text-gray-400 mb-6">Daily and weekly growth metrics, updated every day.</p>
+      <p class="text-gray-400 mb-6">Weekly growth metrics, updated every day.</p>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <VelocityCard
           label="GitHub Stars"
-          value={hasEnoughGithubData && starsPerDay !== null ? `~${starsPerDay}/day` : null}
-          subtitle="Repository growth rate"
+          value={hasEnoughGithubData && starsPerDay !== null ? `+${starsPerDay}/day` : null}
+          subtitle="Average daily growth"
           trend={githubTrendData}
           color="#ff6d5a"
           to="/dev"
@@ -361,25 +376,25 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         <VelocityCard
           label="New Creators"
           value={creatorsPerWeek !== null ? `+${creatorsPerWeek}/week` : null}
-          subtitle="Template authors joining"
+          subtitle="Template authors joined"
           trend={creatorTotals}
           color="#36a2eb"
           to="/creators"
           animationDelay={200}
         />
         <VelocityCard
-          label="Workflow Inserters"
-          value={latestCreators ? formatNumber(latestCreators.totalInserters) : null}
-          subtitle="Templates imported by users"
+          label="Template Imports"
+          value={insertersPerWeek !== null ? `+${formatNumber(insertersPerWeek)}/week` : null}
+          subtitle="Workflows imported"
           trend={inserterTotals}
           color="#9966ff"
           to="/templates"
           animationDelay={400}
         />
         <VelocityCard
-          label="Template Conversion"
-          value={conversionRate !== null ? `${conversionRate}%` : null}
-          subtitle="Template views → usage"
+          label="Conversion Rate"
+          value={conversionRateChange !== null ? `${conversionRateChange >= 0 ? '+' : ''}${conversionRateChange.toFixed(2)}%` : null}
+          subtitle="Views → imports change"
           trend={conversionTrend}
           color="#4bc0c0"
           to="/creators"
