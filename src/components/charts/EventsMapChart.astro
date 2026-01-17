@@ -261,6 +261,8 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
 <style>
   .map-wrapper {
     background: transparent;
+    /* Aspect ratio matches the SVG (1000 x 507.209) to prevent layout collapse */
+    aspect-ratio: 1000 / 507;
   }
 
   .marker {
