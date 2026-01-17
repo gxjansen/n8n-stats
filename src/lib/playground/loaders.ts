@@ -48,8 +48,9 @@ async function fetchDataFile(filePath: string): Promise<any> {
 
 /**
  * Extract time-series data from a loaded file based on metric definition
+ * Exported for use by playground and other consumers
  */
-function extractTimeSeries(
+export function extractTimeSeries(
   data: any,
   metric: MetricDefinition,
   granularity: 'daily' | 'weekly' | 'monthly'

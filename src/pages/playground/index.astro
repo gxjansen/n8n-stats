@@ -575,6 +575,7 @@ const correlationSources = getCategoricalSourcesByType('correlation');
   import { Chart } from '../../lib/utils/chartRegistry';
   import 'chartjs-adapter-date-fns';  // Required for TimeScale
   import { axisTruncationPlugin } from '../../lib/utils/chartPlugins';
+  import { extractTimeSeries as extractTimeSeriesCore, type TimeSeriesPoint as CoreTimeSeriesPoint } from '../../lib/playground/loaders';
 
   // Register project-specific plugin
   Chart.register(axisTruncationPlugin);
@@ -886,8 +887,16 @@ const correlationSources = getCategoricalSourcesByType('correlation');
     return source?.file || '';
   }
 
-  // Extract time series from data
+  // Extract time series from data using shared core function
+  // This wrapper adds playground-specific processing (normalizeDate, excludeZero)
   function extractTimeSeries(data: any, metric: MetricInfo): TimeSeriesPoint[] {
+    // Determine granularity from available data
+    const granularity: 'daily' | 'weekly' | 'monthly' =
+      data.monthly ? 'monthly' : data.weekly ? 'weekly' : 'daily';
+
+    // Use the shared core extraction function (single source of truth for date key handling)
+    const coreResult = extractTimeSeriesCore(data, metric as any, granularity);
+
     // Filter function: exclude undefined, null, and optionally 0
     const isValidValue = (value: any): boolean => {
       if (value === undefined || value === null) return false;
@@ -895,35 +904,13 @@ const correlationSources = getCategoricalSourcesByType('correlation');
       return true;
     };
 
-    // Handle templates special case
-    if (metric.path.includes('.')) {
-      const parts = metric.path.split('.');
-      let current = data;
-      for (const part of parts) {
-        current = current?.[part];
-      }
-      if (Array.isArray(current)) {
-        return current
-          .map(item => ({
-            date: normalizeDate(item[metric.dateKey || 'date']),
-            value: item[metric.valueKey || 'value'],
-          }))
-          .filter((p: TimeSeriesPoint) => isValidValue(p.value));
-      }
-      return [];
-    }
-
-    // Standard: use monthly/weekly/daily data arrays
-    const granularityData = data.monthly || data.weekly || data.daily;
-    if (!Array.isArray(granularityData)) return [];
-
-    // Use metric.dateKey if specified (e.g., 'weekStart' for npm-landscape)
-    const dateKey = metric.dateKey || 'date';
-
-    return granularityData.map((item: any) => ({
-      date: normalizeDate(item[dateKey]),
-      value: item[metric.path],
-    })).filter((p: TimeSeriesPoint) => isValidValue(p.value));
+    // Apply playground-specific transformations: normalize dates and filter
+    return coreResult
+      .map(p => ({
+        date: normalizeDate(p.date),
+        value: p.value,
+      }))
+      .filter((p: TimeSeriesPoint) => isValidValue(p.value));
   }
 
   // Load all selected series
