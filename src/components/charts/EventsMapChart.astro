@@ -147,16 +147,16 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
   <div class="relative overflow-hidden rounded-lg">
     <!-- World map SVG container -->
     <div class="map-wrapper relative">
-      <!-- Base world map (loaded via object for styling access) -->
-      <object
-        id="world-map-svg"
-        data="/images/world-robinson.svg"
-        type="image/svg+xml"
+      <!-- Base world map (fetched and injected inline for cross-browser compatibility) -->
+      <div
+        id="world-map-container"
         class="w-full h-auto max-h-[350px] md:max-h-[450px]"
         aria-label="World map showing event locations"
       >
-        Your browser does not support SVG
-      </object>
+        <div class="flex items-center justify-center h-full text-gray-500">
+          Loading map...
+        </div>
+      </div>
 
       <!-- Overlay SVG for markers (positioned absolutely on top) -->
       <svg
@@ -281,7 +281,7 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
 
 <script>
   function initEventsMap() {
-    const mapObject = document.getElementById('world-map-svg') as HTMLObjectElement;
+    const mapContainer = document.getElementById('world-map-container');
     const tooltip = document.getElementById('map-tooltip');
     const tooltipCity = document.getElementById('tooltip-city');
     const tooltipCountry = document.getElementById('tooltip-country');
@@ -292,22 +292,22 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
     const highlightedCountries = (window as any).__highlightedCountries || [];
 
     // Function to style the SVG map for dark theme
-    function styleSvgMap(svgDoc: Document) {
+    function styleSvgMap(svgElement: SVGElement) {
       // Style the base map background - make transparent
-      const worldRect = svgDoc.getElementById('World');
+      const worldRect = svgElement.getElementById('World');
       if (worldRect) {
         worldRect.setAttribute('fill', 'transparent');
       }
 
       // Make ocean/water transparent to blend with card background
-      const ocean = svgDoc.getElementById('Ocean');
+      const ocean = svgElement.getElementById('Ocean');
       if (ocean) {
         ocean.setAttribute('fill', 'transparent');
         ocean.setAttribute('stroke', 'none');
       }
 
       // Style country groups - countries are <g> elements with ISO code IDs containing child paths
-      const allGroups = svgDoc.querySelectorAll('g[id]');
+      const allGroups = svgElement.querySelectorAll('g[id]');
       allGroups.forEach((group: Element) => {
         const countryCode = group.getAttribute('id');
         if (!countryCode || countryCode.length !== 2) return; // Country codes are 2 letters
@@ -331,7 +331,7 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
       });
 
       // Also style any standalone paths (Ocean, borders, etc.)
-      const standalonePaths = svgDoc.querySelectorAll('svg > path, svg > g:not([id]) path');
+      const standalonePaths = svgElement.querySelectorAll(':scope > path, :scope > g:not([id]) path');
       standalonePaths.forEach((path: Element) => {
         const id = path.getAttribute('id');
         if (id === 'Ocean' || id === 'World') return; // Already handled
@@ -342,19 +342,44 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
       });
     }
 
-    // Apply styling to SVG map
-    if (mapObject) {
-      // Check if SVG is already loaded
-      if (mapObject.contentDocument && mapObject.contentDocument.querySelector('svg')) {
-        styleSvgMap(mapObject.contentDocument);
-      }
-      // Also listen for load event in case it hasn't loaded yet
-      mapObject.addEventListener('load', () => {
-        if (mapObject.contentDocument) {
-          styleSvgMap(mapObject.contentDocument);
+    // Fetch and inject SVG inline for cross-browser compatibility
+    // This avoids Firefox's strict contentDocument access restrictions
+    async function loadMapSvg() {
+      if (!mapContainer) return;
+
+      try {
+        const response = await fetch('/images/world-robinson.svg');
+        if (!response.ok) throw new Error('Failed to load map');
+
+        const svgText = await response.text();
+
+        // Parse SVG and inject into container
+        const parser = new DOMParser();
+        const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+        const svgElement = svgDoc.querySelector('svg');
+
+        if (svgElement) {
+          // Add classes for styling
+          svgElement.classList.add('w-full', 'h-auto', 'max-h-[350px]', 'md:max-h-[450px]');
+          svgElement.style.maxHeight = '450px';
+
+          // Clear loading message and insert SVG
+          mapContainer.innerHTML = '';
+          mapContainer.appendChild(svgElement);
+
+          // Apply dark theme styling
+          styleSvgMap(svgElement);
         }
-      });
+      } catch (error) {
+        console.error('Error loading map SVG:', error);
+        if (mapContainer) {
+          mapContainer.innerHTML = '<div class="flex items-center justify-center h-full text-red-400">Failed to load map</div>';
+        }
+      }
     }
+
+    // Load the SVG map
+    loadMapSvg();
 
     // Tooltip functionality for markers
     if (!tooltip || !tooltipCity || !tooltipCountry || !tooltipEvents) return;
