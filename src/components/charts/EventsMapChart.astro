@@ -150,10 +150,10 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
       <!-- Base world map (fetched and injected inline for cross-browser compatibility) -->
       <div
         id="world-map-container"
-        class="w-full h-auto max-h-[350px] md:max-h-[450px]"
+        class="w-full h-auto"
         aria-label="World map showing event locations"
       >
-        <div class="flex items-center justify-center h-full text-gray-500">
+        <div class="flex items-center justify-center h-32 text-gray-500">
           Loading map...
         </div>
       </div>
@@ -161,7 +161,7 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
       <!-- Overlay SVG for markers (positioned absolutely on top) -->
       <svg
         viewBox={viewBox}
-        class="absolute inset-0 w-full h-full pointer-events-none max-h-[350px] md:max-h-[450px]"
+        class="absolute inset-0 w-full h-full pointer-events-none"
       >
         <!-- Event markers -->
         <g class="markers pointer-events-auto">
@@ -231,7 +231,7 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
   </div>
 
   <!-- Legend -->
-  <div class="flex flex-wrap items-center justify-center gap-4 md:gap-6 mt-4 text-sm text-gray-400">
+  <div class="flex flex-wrap items-center justify-center gap-4 md:gap-6 mt-2 text-sm text-gray-400">
     {legend.location && (
       <div class="flex items-center gap-2">
         <span class="w-3 h-3 rounded-full bg-[#ff6d5a]"></span>
@@ -359,9 +359,8 @@ const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
         const svgElement = svgDoc.querySelector('svg');
 
         if (svgElement) {
-          // Add classes for styling
-          svgElement.classList.add('w-full', 'h-auto', 'max-h-[350px]', 'md:max-h-[450px]');
-          svgElement.style.maxHeight = '450px';
+          // Add classes for styling - let it fill the container naturally
+          svgElement.classList.add('w-full', 'h-auto');
 
           // Clear loading message and insert SVG
           mapContainer.innerHTML = '';

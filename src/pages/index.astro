@@ -108,8 +108,9 @@ try {
 interface EventData {
   id: string;
   name: string;
+  url?: string;
   startDate: string;
-  location: { city: string; country: string };
+  location: { name?: string; city?: string; country?: string };
   isOnline: boolean;
   registrations?: number;
 }
