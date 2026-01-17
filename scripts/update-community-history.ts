@@ -214,10 +214,10 @@ async function main() {
   // Fetch current stats
   console.log('Fetching current community stats...');
   const todayStats = await fetchCommunityStats();
-  console.log(`  Users: ${todayStats.users.toLocaleString()}`);
-  console.log(`  Topics: ${todayStats.topics.toLocaleString()}`);
-  console.log(`  Posts: ${todayStats.posts.toLocaleString()}`);
-  console.log(`  Likes: ${todayStats.likes.toLocaleString()}`);
+  console.log(`  Users: ${todayStats.users?.toLocaleString() ?? 'N/A'}`);
+  console.log(`  Topics: ${todayStats.topics?.toLocaleString() ?? 'N/A'}`);
+  console.log(`  Posts: ${todayStats.posts?.toLocaleString() ?? 'N/A'}`);
+  console.log(`  Likes: ${todayStats.likes?.toLocaleString() ?? 'N/A'}`);
 
   // Check if we already have an entry for today
   const existingToday = rawLog.entries.find(e => e.date === todayStats.date);

@@ -5,7 +5,24 @@
  * visually misleading viewers.
  */
 
-import type { Chart, Plugin } from 'chart.js';
+import type { Chart, Plugin, PluginOptionsByType } from 'chart.js';
+
+// Extend Chart.js types to include watermark plugin options
+declare module 'chart.js' {
+  interface PluginOptionsByType<TType extends keyof import('chart.js').ChartTypeRegistry> {
+    watermark?: WatermarkOptions;
+  }
+}
+
+interface WatermarkOptions {
+  image?: string;
+  x?: 'left' | 'right' | number;
+  y?: 'top' | 'bottom' | number;
+  width?: number;
+  height?: number;
+  opacity?: number;
+  padding?: number;
+}
 
 /**
  * Axis Break Plugin
@@ -255,16 +272,6 @@ function drawZigzagBreak(
  *   }
  * }
  */
-
-interface WatermarkOptions {
-  image?: string;
-  x?: 'left' | 'right' | number;
-  y?: 'top' | 'bottom' | number;
-  width?: number;
-  height?: number;
-  opacity?: number;
-  padding?: number;
-}
 
 // Cache for loaded images
 const imageCache: Map<string, HTMLImageElement> = new Map();

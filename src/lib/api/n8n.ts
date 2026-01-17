@@ -367,7 +367,7 @@ export async function fetchTemplateAnalytics(): Promise<TemplateAnalytics> {
   // Top templates by views across all tiers
   const topTemplatesByViews = workflows
     .map(toSummary)
-    .sort((a, b) => b.totalViews - a.totalViews)
+    .sort((a: TemplateSummary, b: TemplateSummary) => b.totalViews - a.totalViews)
     .slice(0, 20);
 
   // Calculate complexity distribution
