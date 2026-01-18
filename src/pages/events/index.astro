@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import StatCard from '@/components/cards/StatCard.astro';
 import EventsMapChart from '@/components/charts/EventsMapChart.astro';
 import EventsHistoryChart from '@/components/charts/EventsHistoryChart.astro';
+import PlaygroundCTA from '@/components/PlaygroundCTA.astro';
 import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -244,6 +245,10 @@ const highlightedCountries = [...new Set(
 // Get hosts data
 const hosts = eventsData?.hosts || [];
 
+// Extract sparkline data (last 12 months of events)
+const eventsSparklineData = byMonthFull.slice(-12).map(m => m.count);
+const registrationsSparklineData = byMonthFull.slice(-12).map(m => m.registrations);
+
 // Helper to get host profile URL (n8n.io if mapped, Luma fallback)
 const getHostUrl = (host: HostStats) =>
   host.n8nUsername
@@ -275,10 +280,12 @@ const formatHostCities = (cities: string[]) => {
         <StatCard
           label="Past Events"
           value={stats.pastCount}
+          sparklineData={eventsSparklineData}
         />
         <StatCard
           label="Total Registrations"
           value={formatNumber(stats.totalRegistrations)}
+          sparklineData={registrationsSparklineData}
         />
         <StatCard
           label="Avg/In-Person Event"
@@ -299,6 +306,22 @@ const formatHostCities = (cities: string[]) => {
         />
       </div>
     </section>
+
+    <!-- Events Over Time (Main Chart - Block 2) -->
+    {byMonthFull.length > 1 && (
+      <section class="mb-12">
+        <div class="flex items-center gap-3 mb-6">
+          <svg class="w-6 h-6 text-n8n-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          <h2 class="text-2xl font-bold text-white">Events Over Time</h2>
+        </div>
+        <p class="text-gray-400 mb-6">
+          Monthly breakdown of n8n community events. Bars show event counts (stacked: in-person + online), lines show participant registrations.
+        </p>
+        <EventsHistoryChart data={byMonthFull} startMonth="2024-06" />
+      </section>
+    )}
 
     <!-- World Map -->
     {locations.length > 0 && (
@@ -394,22 +417,6 @@ const formatHostCities = (cities: string[]) => {
         <p class="text-xs text-gray-500 mt-4 text-center">
           This list features community organizers only. n8n employees and partner companies are excluded.
         </p>
-      </section>
-    )}
-
-    <!-- Monthly Trend Chart -->
-    {byMonthFull.length > 1 && (
-      <section class="mb-12">
-        <div class="flex items-center gap-3 mb-6">
-          <svg class="w-6 h-6 text-n8n-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-          <h2 class="text-2xl font-bold text-white">Events Over Time</h2>
-        </div>
-        <p class="text-gray-400 mb-6">
-          Monthly breakdown of n8n community events. Bars show event counts (stacked: in-person + online), lines show participant registrations.
-        </p>
-        <EventsHistoryChart data={byMonthFull} startMonth="2024-06" />
       </section>
     )}
 
@@ -531,6 +538,9 @@ const formatHostCities = (cities: string[]) => {
         </div>
       </div>
     </section>
+
+    <!-- Playground CTA -->
+    <PlaygroundCTA />
 
     <!-- Data Attribution -->
     <p class="text-center text-xs text-gray-500 mt-8">

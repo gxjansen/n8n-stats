@@ -6,6 +6,7 @@ import GitHubHistoryChart from '@/components/charts/GitHubHistoryChart.astro';
 import GitHubIssuesChart from '@/components/charts/GitHubIssuesChart.astro';
 import ReleaseTimelineChart from '@/components/charts/ReleaseTimelineChart.astro';
 import NpmDownloadsChart from '@/components/charts/NpmDownloadsChart.astro';
+import PlaygroundCTA from '@/components/PlaygroundCTA.astro';
 import { formatNumber } from '@/lib/utils/formatters';
 import { predictMilestone, getNextMilestones } from '@/lib/utils/predictions';
 import { readFileSync, existsSync } from 'fs';
@@ -42,6 +43,9 @@ try {
 } catch (e) {
   console.warn('Could not load GitHub history');
 }
+
+// Extract sparkline data (last 12 months)
+const starsSparklineData = starHistory.slice(-12).map(d => d.value);
 
 // Load releases if available
 try {
@@ -119,15 +123,38 @@ const icons = {
       </p>
     </div>
 
-    <!-- Repository Stats -->
+    <!-- Repository Stats + Milestones (Hero Block) -->
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">Repository Overview</h2>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Stars" value={githubStats.stars} icon={icons.star} />
+        <StatCard label="Stars" value={githubStats.stars} sparklineData={starsSparklineData} />
         <StatCard label="Forks" value={githubStats.forks} icon={icons.fork} />
         <StatCard label="Watchers" value={githubStats.subscribers} icon={icons.eye} />
         <StatCard label="Open Issues" value={githubStats.openIssues} icon={icons.issue} />
       </div>
+
+      {/* Star Milestones - within hero block */}
+      {predictions.length > 0 && (
+        <div class="mt-8">
+          <h3 class="text-xl font-bold text-white mb-2">Star Milestones</h3>
+          <p class="text-gray-400 mb-4">
+            Predicted dates based on recent growth trends (last 6 months)
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {predictions.map((pred) => (
+              <MilestonePrediction
+                label="GitHub Stars"
+                milestone={pred.milestone}
+                predictedDate={pred.predictedDate}
+                daysUntil={pred.daysUntil}
+                confidence={pred.confidence}
+                currentValue={pred.currentValue}
+                icon="⭐"
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </section>
 
     <!-- Development Velocity -->
@@ -178,29 +205,6 @@ const icons = {
         Compare n8n development velocity with competitors on the <a href="/market" class="text-n8n-primary hover:underline">Market page</a>
       </p>
     </section>
-    )}
-
-    <!-- Milestone Predictions -->
-    {predictions.length > 0 && (
-      <section class="mb-12">
-        <h2 class="text-2xl font-bold text-white mb-2">Star Milestones</h2>
-        <p class="text-gray-400 mb-6">
-          Predicted dates based on recent growth trends (last 6 months)
-        </p>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {predictions.map((pred) => (
-            <MilestonePrediction
-              label="GitHub Stars"
-              milestone={pred.milestone}
-              predictedDate={pred.predictedDate}
-              daysUntil={pred.daysUntil}
-              confidence={pred.confidence}
-              currentValue={pred.currentValue}
-              icon="⭐"
-            />
-          ))}
-        </div>
-      </section>
     )}
 
     <!-- Star History Chart -->
@@ -288,5 +292,14 @@ const icons = {
         View on GitHub
       </a>
     </div>
+
+    <!-- Playground CTA -->
+    <PlaygroundCTA />
+
+    <!-- Attribution -->
+    <p class="text-center text-sm text-gray-500 mt-8">
+      Data from <a href="https://github.com/n8n-io/n8n" target="_blank" rel="noopener" class="text-gray-400 hover:text-gray-300">GitHub</a> and <a href="https://www.npmjs.com/package/n8n" target="_blank" rel="noopener" class="text-gray-400 hover:text-gray-300">npm</a>.
+      Updated daily.
+    </p>
   </div>
 </BaseLayout>

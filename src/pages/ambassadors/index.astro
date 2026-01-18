@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import StatCard from '@/components/cards/StatCard.astro';
 import EventsMapChart from '@/components/charts/EventsMapChart.astro';
 import AmbassadorsHistoryChart from '@/components/charts/AmbassadorsHistoryChart.astro';
+import PlaygroundCTA from '@/components/PlaygroundCTA.astro';
 import { formatNumber } from '@/lib/utils/formatters';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -229,6 +230,9 @@ const foundingAmbassadors = sortedByOldest.slice(0, 10);
 
 // Get newest join date for display
 const newestDate = newestAmbassadors[0]?.parsedDate;
+
+// Prepare sparkline data from monthly history (last 12 months or all available)
+const ambassadorSparklineData = monthlyHistory.slice(-12).map(m => m.total);
 ---
 
 <BaseLayout title="n8n Ambassadors" description="Meet the n8n community ambassadors around the world">
@@ -248,6 +252,7 @@ const newestDate = newestAmbassadors[0]?.parsedDate;
         <StatCard
           label="Total Ambassadors"
           value={stats.total}
+          sparklineData={ambassadorSparklineData}
         />
         <StatCard
           label="Countries"
@@ -452,6 +457,9 @@ const newestDate = newestAmbassadors[0]?.parsedDate;
         </a>
       </div>
     </section>
+
+    <!-- Playground CTA -->
+    <PlaygroundCTA />
 
     <!-- Data Attribution -->
     <p class="text-center text-xs text-gray-500 mt-8">

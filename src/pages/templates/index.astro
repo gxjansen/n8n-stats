@@ -4,6 +4,7 @@ import TemplatesHistoryChart from '@/components/charts/TemplatesHistoryChart.ast
 import CategoryTreemapChart from '@/components/charts/CategoryTreemapChart.astro';
 import MilestonePrediction from '@/components/cards/MilestonePrediction.astro';
 import StatCard from '@/components/cards/StatCard.astro';
+import PlaygroundCTA from '@/components/PlaygroundCTA.astro';
 import { fetchTemplateAnalytics } from '@/lib/api/n8n';
 import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
 import { predictMilestone, getNextMilestones } from '@/lib/utils/predictions';
@@ -81,6 +82,9 @@ const templateHistory = creationTimeline.map((d: { month: string; cumulative: nu
   value: d.cumulative,
 }));
 
+// Extract sparkline data (last 12 months)
+const templatesSparklineData = templateHistory.slice(-12).map((d: { date: string; value: number }) => d.value);
+
 // Calculate milestone predictions for templates
 const currentTemplates = templateHistory.length > 0 ? templateHistory[templateHistory.length - 1].value : 0;
 const templateMilestones = getNextMilestones(currentTemplates, 'generic');
@@ -117,12 +121,13 @@ const completeDataStats = allTemplatesData ? {
       </p>
     </div>
 
-    <!-- Overview Stats -->
+    <!-- Overview Stats + Milestones (Hero Block) -->
     <section class="mb-12">
       <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
         <StatCard
           label="Total Templates"
           value={analytics.totalWorkflows}
+          sparklineData={templatesSparklineData}
         />
         <StatCard
           label="Unique Nodes Used"
@@ -133,6 +138,29 @@ const completeDataStats = allTemplatesData ? {
           value={completeDataStats?.totalCreators || 0}
         />
       </div>
+
+      {/* Template Milestones - within hero block */}
+      {templatePredictions.length > 0 && templatePredictions.some(p => p.predictedDate) && (
+        <div class="mt-8">
+          <h3 class="text-xl font-bold text-white mb-2">Template Milestones</h3>
+          <p class="text-gray-400 mb-4">
+            Predicted dates based on recent growth trends (last 6 months)
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {templatePredictions.map((pred) => (
+              <MilestonePrediction
+                label="Total Templates"
+                milestone={pred.milestone}
+                predictedDate={pred.predictedDate}
+                daysUntil={pred.daysUntil}
+                confidence={pred.confidence}
+                currentValue={pred.currentValue}
+                icon="📋"
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </section>
 
     <!-- Growth Chart -->
@@ -143,29 +171,6 @@ const completeDataStats = allTemplatesData ? {
       </p>
       <TemplatesHistoryChart />
     </section>
-
-    <!-- Template Milestones -->
-    {templatePredictions.length > 0 && templatePredictions.some(p => p.predictedDate) && (
-      <section class="mb-12">
-        <h2 class="text-2xl font-bold text-white mb-2">Template Milestones</h2>
-        <p class="text-gray-400 mb-6">
-          Predicted dates based on recent growth trends (last 6 months)
-        </p>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {templatePredictions.map((pred) => (
-            <MilestonePrediction
-              label="Total Templates"
-              milestone={pred.milestone}
-              predictedDate={pred.predictedDate}
-              daysUntil={pred.daysUntil}
-              confidence={pred.confidence}
-              currentValue={pred.currentValue}
-              icon="📋"
-            />
-          ))}
-        </div>
-      </section>
-    )}
 
     <!-- AI Dominance - uses complete API data -->
     <section class="mb-12 ai-templates-section">
@@ -621,6 +626,9 @@ const completeDataStats = allTemplatesData ? {
         Browse Templates on n8n.io
       </a>
     </div>
+
+    <!-- Playground CTA -->
+    <PlaygroundCTA />
 
     <!-- Note -->
     <p class="text-sm text-gray-500 text-center mt-8">

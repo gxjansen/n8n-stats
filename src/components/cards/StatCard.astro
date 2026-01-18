@@ -1,5 +1,6 @@
 ---
 import { formatNumber, formatChange } from '@/lib/utils/formatters';
+import MiniSparkline from '@/components/charts/MiniSparkline.astro';
 
 interface Props {
   label: string;
@@ -12,6 +13,8 @@ interface Props {
   subtitle?: string;    // Optional subtitle below the value
   valueClass?: string;  // Custom class for value styling
   animate?: boolean;    // Enable count-up animation (default: true for numbers)
+  sparklineData?: number[];  // Optional time-series data for sparkline
+  sparklineColor?: string;   // Optional custom color for sparkline
 }
 
 const {
@@ -24,7 +27,9 @@ const {
   to,
   subtitle,
   valueClass = 'stat-value',
-  animate = true
+  animate = true,
+  sparklineData,
+  sparklineColor = '#ff6d5a',
 } = Astro.props;
 
 const isPositive = change !== undefined && change >= 0;
@@ -68,7 +73,10 @@ const shouldAnimate = animate && isNumeric;
         )}
       </div>
       <div class="flex flex-col items-end gap-2">
-        {icon && (
+        {sparklineData && sparklineData.length > 1 && (
+          <MiniSparkline data={sparklineData} color={sparklineColor} width={64} height={20} />
+        )}
+        {icon && !sparklineData && (
           <div class="text-n8n-primary text-2xl">
             <Fragment set:html={icon} />
           </div>
@@ -104,11 +112,16 @@ const shouldAnimate = animate && isNumeric;
           </p>
         )}
       </div>
-      {icon && (
-        <div class="text-n8n-primary text-2xl">
-          <Fragment set:html={icon} />
-        </div>
-      )}
+      <div class="flex flex-col items-end gap-2">
+        {sparklineData && sparklineData.length > 1 && (
+          <MiniSparkline data={sparklineData} color={sparklineColor} width={64} height={20} />
+        )}
+        {icon && !sparklineData && (
+          <div class="text-n8n-primary text-2xl">
+            <Fragment set:html={icon} />
+          </div>
+        )}
+      </div>
     </div>
   </div>
 )}
