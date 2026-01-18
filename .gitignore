@@ -30,8 +30,14 @@ yarn-error.log*
 # Cache
 .cache/
 
+# Temporary data exports (BigQuery, etc.)
+data/
+
 # Test artifacts
 test-results/
 playwright-report/
 coverage/
-logs/
+*.log
+
+# Netlify
+.netlify/
