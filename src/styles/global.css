@@ -51,6 +51,12 @@
     @apply bg-n8n-primary/20 text-n8n-primary;
   }
 
+  /* Immediate click feedback for navigation links */
+  nav a:active {
+    @apply opacity-50 scale-95;
+    transition: none;
+  }
+
   /* Ranking grid: fills columns top-to-bottom (1-5 left, 6-10 right) on desktop */
   /* Use with inline style: style={`--ranking-rows: ${Math.ceil(items.length / 2)}`} */
   .ranking-grid {

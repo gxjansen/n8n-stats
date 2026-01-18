@@ -1,7 +1,6 @@
 ---
 import '@/styles/global.css';
-import { ClientRouter } from 'astro:transitions';
-import LoadingIndicator from 'astro-loading-indicator/component';
+import { ClientRouter, fade } from 'astro:transitions';
 import { n8nUrls } from '@/lib/utils/formatters';
 import PlaygroundCTA from '@/components/PlaygroundCTA.astro';
 
@@ -21,7 +20,7 @@ const buildTime = new Date();
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" transition:name="root" transition:animate="none">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -54,11 +53,73 @@ const buildTime = new Date();
     <!-- Umami Analytics -->
     <script defer src="https://u.a11y.nl/script.js" data-website-id="c1686c78-37c4-4773-a663-a9bc7f9a6fbb"></script>
 
-    <!-- View Transitions + Loading Indicator -->
+    <!-- View Transitions -->
     <ClientRouter />
-    <LoadingIndicator color="#ff6d5a" threshold={0} />
+
+    <!-- Custom loading indicator - shows immediately on navigation -->
+    <style>
+      #nav-loading-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: #ff6d5a;
+        z-index: 9999;
+        transform: scaleX(0);
+        transform-origin: left;
+        opacity: 0;
+        pointer-events: none;
+      }
+      #nav-loading-bar.loading {
+        opacity: 1;
+        animation: loading-progress 2s ease-out forwards;
+      }
+      #nav-loading-bar.done {
+        transform: scaleX(1);
+        opacity: 0;
+        transition: opacity 0.2s ease-out;
+      }
+      @keyframes loading-progress {
+        0% { transform: scaleX(0); }
+        20% { transform: scaleX(0.3); }
+        50% { transform: scaleX(0.6); }
+        100% { transform: scaleX(0.9); }
+      }
+    </style>
   </head>
   <body class="min-h-screen bg-n8n-darker">
+    <!-- Loading indicator bar -->
+    <div id="nav-loading-bar"></div>
+
+    <script is:inline>
+      (function() {
+        var bar = document.getElementById('nav-loading-bar');
+        if (!bar) return;
+
+        // Show loading bar immediately when navigation starts
+        document.addEventListener('astro:before-preparation', function() {
+          bar.classList.remove('done');
+          bar.classList.add('loading');
+        });
+
+        // Complete the loading bar when page swap happens
+        document.addEventListener('astro:after-swap', function() {
+          bar.classList.remove('loading');
+          bar.classList.add('done');
+          // Reset after animation completes
+          setTimeout(function() {
+            bar.classList.remove('done');
+          }, 300);
+        });
+
+        // Re-attach to new bar element after page swap (View Transitions)
+        document.addEventListener('astro:page-load', function() {
+          bar = document.getElementById('nav-loading-bar');
+        });
+      })();
+    </script>
+
     <header class="border-b border-n8n-border">
       <nav class="container-narrow py-4">
         <div class="flex items-center justify-between">
@@ -249,7 +310,7 @@ const buildTime = new Date();
       document.addEventListener('astro:page-load', initMobileMenu);
     </script>
 
-    <main>
+    <main transition:animate={fade({ duration: '0.15s' })}>
       <slot />
     </main>
 
