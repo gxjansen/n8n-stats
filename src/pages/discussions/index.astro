@@ -10,7 +10,6 @@ import { fetchForumStats, fetchForumCategories } from '@/lib/api/discourse';
 import { fetchDiscordStats } from '@/lib/api/discord';
 import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
 import { predictMilestone, getNextMilestones } from '@/lib/utils/predictions';
-import PlaygroundCTA from '@/components/PlaygroundCTA.astro';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
@@ -351,9 +350,6 @@ const forumSparklineData = userHistory.slice(-12).map(d => d.value);
         Search n8n on Bluesky
       </a>
     </div>
-
-    <!-- Playground CTA -->
-    <PlaygroundCTA />
 
     <!-- Data Attribution -->
     <p class="text-center text-xs text-gray-500 mt-8">

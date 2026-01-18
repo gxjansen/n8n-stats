@@ -3,7 +3,6 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import StatCard from '@/components/cards/StatCard.astro';
 import MilestonePrediction from '@/components/cards/MilestonePrediction.astro';
 import CreatorsHistoryChart from '@/components/charts/CreatorsHistoryChart.astro';
-import PlaygroundCTA from '@/components/PlaygroundCTA.astro';
 import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
 import { predictMilestone, getNextMilestones } from '@/lib/utils/predictions';
 import { readFileSync } from 'fs';
@@ -313,9 +312,6 @@ const getProfileUrl = (username: string) => n8nUrls.creator(username);
         </svg>
       </a>
     </div>
-
-    <!-- Playground CTA -->
-    <PlaygroundCTA />
 
     <!-- Attribution note -->
     <p class="text-center text-sm text-gray-500 mt-8">

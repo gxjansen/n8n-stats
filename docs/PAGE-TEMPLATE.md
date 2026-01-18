@@ -126,12 +126,7 @@ BLOCK 9: ATTRIBUTION FOOTER (Required)
 
 ### Playground CTA (Block 8)
 
-```astro
-import PlaygroundCTA from '@/components/PlaygroundCTA.astro';
-
-<!-- Before attribution footer -->
-<PlaygroundCTA />
-```
+**Note:** The PlaygroundCTA is automatically rendered by `BaseLayout.astro` for all pages except `/playground`. Do NOT add it manually to individual pages - this will cause duplicate CTAs.
 
 ### Attribution Footer (Block 9)
 

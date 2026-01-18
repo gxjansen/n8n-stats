@@ -6,7 +6,6 @@ import GitHubHistoryChart from '@/components/charts/GitHubHistoryChart.astro';
 import GitHubIssuesChart from '@/components/charts/GitHubIssuesChart.astro';
 import ReleaseTimelineChart from '@/components/charts/ReleaseTimelineChart.astro';
 import NpmDownloadsChart from '@/components/charts/NpmDownloadsChart.astro';
-import PlaygroundCTA from '@/components/PlaygroundCTA.astro';
 import { formatNumber } from '@/lib/utils/formatters';
 import { predictMilestone, getNextMilestones } from '@/lib/utils/predictions';
 import { readFileSync, existsSync } from 'fs';
@@ -292,9 +291,6 @@ const icons = {
         View on GitHub
       </a>
     </div>
-
-    <!-- Playground CTA -->
-    <PlaygroundCTA />
 
     <!-- Attribution -->
     <p class="text-center text-sm text-gray-500 mt-8">

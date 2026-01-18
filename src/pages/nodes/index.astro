@@ -3,7 +3,6 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import NodeTreemapChart from '@/components/charts/NodeTreemapChart.astro';
 import CategoryNodesTable from '@/components/CategoryNodesTable.astro';
 import StatCard from '@/components/cards/StatCard.astro';
-import PlaygroundCTA from '@/components/PlaygroundCTA.astro';
 import { fetchTemplates, aggregateNodeUsage } from '@/lib/api/n8n';
 import { formatNumber, getNodeIntegrationUrl, getNodePageUrl } from '@/lib/utils/formatters';
 import { NODE_CATEGORY_COLORS, NODE_CATEGORY_ORDER } from '@/lib/utils/colors';
@@ -663,9 +662,6 @@ const lastUpdated = allNodesData?.lastUpdated
         </a>
       </div>
     </section>
-
-    <!-- Playground CTA -->
-    <PlaygroundCTA />
 
     <!-- Note -->
     <p class="text-sm text-gray-500 text-center mt-8">

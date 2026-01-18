@@ -3,7 +3,6 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import StatCard from '@/components/cards/StatCard.astro';
 import EventsMapChart from '@/components/charts/EventsMapChart.astro';
 import EventsHistoryChart from '@/components/charts/EventsHistoryChart.astro';
-import PlaygroundCTA from '@/components/PlaygroundCTA.astro';
 import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -538,9 +537,6 @@ const formatHostCities = (cities: string[]) => {
         </div>
       </div>
     </section>
-
-    <!-- Playground CTA -->
-    <PlaygroundCTA />
 
     <!-- Data Attribution -->
     <p class="text-center text-xs text-gray-500 mt-8">

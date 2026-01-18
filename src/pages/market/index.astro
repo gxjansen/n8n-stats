@@ -8,7 +8,6 @@
  */
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import PlaygroundCTA from '@/components/PlaygroundCTA.astro';
 import { formatNumber } from '@/lib/utils/formatters';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -425,9 +424,6 @@ const icons = {
         </table>
       </div>
     </section>
-
-    <!-- Playground CTA -->
-    <PlaygroundCTA />
 
     <!-- Data Sources Note -->
     <section class="text-center text-gray-500 text-sm">

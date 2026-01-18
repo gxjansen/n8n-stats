@@ -4,7 +4,6 @@ import TemplatesHistoryChart from '@/components/charts/TemplatesHistoryChart.ast
 import CategoryTreemapChart from '@/components/charts/CategoryTreemapChart.astro';
 import MilestonePrediction from '@/components/cards/MilestonePrediction.astro';
 import StatCard from '@/components/cards/StatCard.astro';
-import PlaygroundCTA from '@/components/PlaygroundCTA.astro';
 import { fetchTemplateAnalytics } from '@/lib/api/n8n';
 import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
 import { predictMilestone, getNextMilestones } from '@/lib/utils/predictions';
@@ -626,9 +625,6 @@ const completeDataStats = allTemplatesData ? {
         Browse Templates on n8n.io
       </a>
     </div>
-
-    <!-- Playground CTA -->
-    <PlaygroundCTA />
 
     <!-- Note -->
     <p class="text-sm text-gray-500 text-center mt-8">
