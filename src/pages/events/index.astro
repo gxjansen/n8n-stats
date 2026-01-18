@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import StatCard from '@/components/cards/StatCard.astro';
 import EventsMapChart from '@/components/charts/EventsMapChart.astro';
 import EventsHistoryChart from '@/components/charts/EventsHistoryChart.astro';
+import SecondaryCTA from '@/components/cards/SecondaryCTA.astro';
 import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -507,36 +508,27 @@ const formatHostCities = (cities: string[]) => {
     )}
 
     <!-- Call to Action -->
-    <section class="text-center">
-      <div class="card bg-gradient-to-r from-n8n-primary/10 to-transparent border-n8n-primary/30">
-        <h3 class="text-xl font-bold text-white mb-2">Want to attend or host an event?</h3>
-        <p class="text-gray-400 mb-4">
-          Join the n8n community and connect with automation enthusiasts worldwide.
-        </p>
-        <div class="flex flex-wrap justify-center gap-4">
-          <a
-            href="https://luma.com/n8n-events"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center gap-2 px-6 py-3 bg-n8n-primary text-white rounded-lg font-medium hover:bg-n8n-primary/90 transition-colors"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            Browse Events on Luma
-          </a>
-          <a
-            href="mailto:community@n8n.io"
-            class="inline-flex items-center gap-2 px-6 py-3 bg-gray-700 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            Contact community@n8n.io
-          </a>
-        </div>
-      </div>
-    </section>
+    <SecondaryCTA
+      title="Want to attend or host an event?"
+      description="Join the n8n community and connect with automation enthusiasts worldwide."
+      actions={[
+        {
+          label: "Browse Events on Luma",
+          href: "https://luma.com/n8n-events",
+          variant: "primary",
+          external: true,
+        },
+        {
+          label: "Contact community@n8n.io",
+          href: "mailto:community@n8n.io",
+          variant: "secondary",
+        }
+      ]}
+    >
+      <svg slot="icon" class="w-12 h-12 mx-auto mb-4 text-n8n-primary/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    </SecondaryCTA>
 
     <!-- Data Attribution -->
     <p class="text-center text-xs text-gray-500 mt-8">
