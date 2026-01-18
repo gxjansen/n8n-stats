@@ -267,8 +267,8 @@ export const DATA_SOURCES: DataSource[] = [
     measuredSince: '2022-12', // Backfilled from Wayback Machine, daily from Jan 2026
     metrics: [
       { id: 'reddit-subscribers', label: 'Subscribers', color: COLORS.redditSubscribers, path: 'subscribers' },
-      { id: 'reddit-posts', label: 'Posts/24h', color: COLORS.redditPosts, path: 'postsLast24h' },
-      { id: 'reddit-comments', label: 'Comments/24h', color: COLORS.redditComments, path: 'commentsLast24h' },
+      { id: 'reddit-posts', label: 'Posts/24h', color: COLORS.redditPosts, path: 'postsLast24h', excludeZero: true, measuredSince: '2026-01' },
+      { id: 'reddit-comments', label: 'Comments/24h', color: COLORS.redditComments, path: 'commentsLast24h', excludeZero: true, measuredSince: '2026-01' },
     ],
   },
   {
@@ -317,11 +317,11 @@ export const DATA_SOURCES: DataSource[] = [
     historyStart: '2019-01',
     measuredSince: '2019-01', // npm API historical data (all measured)
     metrics: [
-      { id: 'npm-n8n', label: 'n8n Downloads/Week', color: COLORS.npmN8n, path: 'n8n', dateKey: 'weekStart' },
-      { id: 'npm-pipedream', label: 'Pipedream Downloads/Week', color: COLORS.npmPipedream, path: 'pipedream', dateKey: 'weekStart' },
-      { id: 'npm-windmill', label: 'Windmill Downloads/Week', color: COLORS.npmWindmill, path: 'windmill', dateKey: 'weekStart' },
-      { id: 'npm-nodered', label: 'Node-RED Downloads/Week', color: COLORS.npmNodered, path: 'nodered', dateKey: 'weekStart' },
-      { id: 'npm-activepieces', label: 'Activepieces Downloads/Week', color: COLORS.npmActivepieces, path: 'activepieces', dateKey: 'weekStart' },
+      { id: 'npm-n8n', label: 'n8n Downloads/Week', color: COLORS.npmN8n, path: 'n8n', dateKey: 'weekStart', excludeZero: true, measuredSince: '2019-05' },
+      { id: 'npm-pipedream', label: 'Pipedream Downloads/Week', color: COLORS.npmPipedream, path: 'pipedream', dateKey: 'weekStart', excludeZero: true },
+      { id: 'npm-windmill', label: 'Windmill Downloads/Week', color: COLORS.npmWindmill, path: 'windmill', dateKey: 'weekStart', excludeZero: true },
+      { id: 'npm-nodered', label: 'Node-RED Downloads/Week', color: COLORS.npmNodered, path: 'nodered', dateKey: 'weekStart', excludeZero: true },
+      { id: 'npm-activepieces', label: 'Activepieces Downloads/Week', color: COLORS.npmActivepieces, path: 'activepieces', dateKey: 'weekStart', excludeZero: true },
     ],
   },
 ];

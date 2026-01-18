@@ -109,14 +109,23 @@ export async function loadMetricData(
   }
 
   try {
-    const rawData = await fetchDataFile(source.file);
+    // Use metric-specific file override if provided, otherwise use source file
+    const filePath = metric.file || source.file;
+    const rawData = await fetchDataFile(filePath);
     const timeSeries = extractTimeSeries(rawData, metric, effectiveGranularity);
+
+    // Filter out undefined/null values, and optionally zeros
+    const filteredData = timeSeries.filter(p => {
+      if (p.value === undefined || p.value === null) return false;
+      if (metric.excludeZero && p.value === 0) return false;
+      return true;
+    });
 
     return {
       metricId: metric.id,
       label: metric.label,
       color: metric.color,
-      data: timeSeries.filter(p => p.value !== undefined && p.value !== null),
+      data: filteredData,
     };
   } catch (error) {
     console.error(`Failed to load metric ${metricId}:`, error);
