@@ -32,11 +32,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Only fetch fresh data on schedule or manual trigger, not on every push
       - name: Fetch external data (n8n Arena)
+        if: github.event_name != 'push'
         run: npm run fetch-external
         continue-on-error: true  # Don't fail build if external source unavailable
 
       - name: Update all history data
+        if: github.event_name != 'push'
         run: npm run update-all-history
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -44,6 +47,7 @@ jobs:
           BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
 
       - name: Commit data updates
+        if: github.event_name != 'push'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
