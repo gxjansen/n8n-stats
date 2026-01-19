@@ -297,47 +297,118 @@ const lastUpdated = allNodesData?.lastUpdated
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-white mb-2">Node Statistics</h1>
       <p class="text-gray-400">
-        Usage statistics for {totalNodes} n8n nodes across {formatNumber(totalTemplates)} workflow templates
+        Explore {formatNumber(totalNodes + (communityNodesData?.totalPackages || 0))} nodes and integrations in the n8n ecosystem
       </p>
     </div>
 
+    <!-- Quick Navigation -->
+    <div class="flex flex-wrap gap-3 mb-8">
+      <a href="#official-nodes" class="px-4 py-2 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-lg hover:bg-cyan-500/20 transition-colors text-sm font-medium">
+        Official Nodes ({formatNumber(totalNodes)})
+      </a>
+      {communityNodesData && (
+        <a href="#community-nodes" class="px-4 py-2 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-lg hover:bg-purple-500/20 transition-colors text-sm font-medium">
+          Community Packages ({formatNumber(communityNodesData.totalPackages)})
+        </a>
+      )}
+      <a href="#llm-models" class="px-4 py-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors text-sm font-medium">
+        LLM Providers
+      </a>
+    </div>
+
+    <!-- Official vs Community Explainer -->
+    {communityNodesData && (
+      <div class="card p-6 border-gray-700 mb-8">
+        <div class="flex items-start gap-3">
+          <div class="text-gray-400 mt-0.5">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-white font-semibold mb-2">Official vs Community Nodes</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">
+              <span class="inline-flex items-center gap-1"><span class="px-1.5 py-0.5 bg-cyan-500/10 text-cyan-400 text-xs font-medium rounded">Official</span> nodes ({formatNumber(totalNodes)})</span> are maintained by n8n and available on both cloud and self-hosted instances.
+              <span class="inline-flex items-center gap-1"><span class="px-1.5 py-0.5 bg-purple-500/10 text-purple-400 text-xs font-medium rounded">Community</span> packages ({formatNumber(communityNodesData.totalPackages)})</span> are built by the community and available for self-hosted installations.
+              Some popular community nodes are verified and available on n8n Cloud through the
+              <a href="https://docs.n8n.io/integrations/community-nodes/" target="_blank" rel="noopener" class="text-cyan-400 hover:underline">verified community nodes program</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    )}
+
     <!-- Overview Stats -->
     <section class="mb-12">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <h2 class="text-xl font-semibold text-white mb-4">Ecosystem Overview</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <div class="card text-center">
+          <div class="text-3xl font-bold text-white mb-1">
+            {formatNumber(totalNodes + (communityNodesData?.totalPackages || 0))}
+          </div>
+          <div class="text-sm text-gray-400">Total Ecosystem</div>
+        </div>
         <StatCard
           label="Templates Analyzed"
           value={totalTemplates}
           source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "weekly full scan" }}
         />
-        <StatCard
-          label="Nodes With Usage"
-          value={uniqueNodes}
-          source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "weekly full scan" }}
-        />
         {hasWeightedData ? (
           <StatCard
-            label="Total Template Insertions"
+            label="Template Insertions"
             value={totalInserters}
             source={{ source: "n8n Arena", url: "https://n8narena.com", note: "community project" }}
           />
         ) : (
           <StatCard
-            label="Total Node Usages"
+            label="Node Usages"
             value={totalNodeUsages}
             source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "weekly full scan" }}
           />
         )}
-        <StatCard
-          label="Categories"
-          value={Object.keys(nodesByCategory).length}
-          source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "weekly full scan" }}
-        />
+        {communityNodesData && (
+          <StatCard
+            label="Weekly npm Downloads"
+            value={communityNodesData.totalDownloadsWeekly}
+            source={{ source: "npm Registry", url: "https://www.npmjs.com", note: "community packages" }}
+          />
+        )}
+      </div>
+      <!-- Official vs Community breakdown -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="card text-center border-cyan-500/20">
+          <div class="text-xs text-cyan-400 mb-1 font-medium">Official</div>
+          <div class="text-2xl font-bold text-cyan-400 mb-1">{formatNumber(totalNodes)}</div>
+          <div class="text-sm text-gray-400">Nodes</div>
+        </div>
+        <div class="card text-center border-cyan-500/20">
+          <div class="text-xs text-cyan-400 mb-1 font-medium">Official</div>
+          <div class="text-2xl font-bold text-cyan-400 mb-1">{Object.keys(nodesByCategory).length}</div>
+          <div class="text-sm text-gray-400">Categories</div>
+        </div>
+        {communityNodesData && (
+          <>
+            <div class="card text-center border-purple-500/20">
+              <div class="text-xs text-purple-400 mb-1 font-medium">Community</div>
+              <div class="text-2xl font-bold text-purple-400 mb-1">{formatNumber(communityNodesData.totalPackages)}</div>
+              <div class="text-sm text-gray-400">Packages</div>
+            </div>
+            <div class="card text-center border-purple-500/20">
+              <div class="text-xs text-purple-400 mb-1 font-medium">Community</div>
+              <div class="text-2xl font-bold text-purple-400 mb-1">{Object.keys(communityNodesData.byCategory).length}</div>
+              <div class="text-sm text-gray-400">Categories</div>
+            </div>
+          </>
+        )}
       </div>
     </section>
 
-    <!-- Node Usage Treemap -->
-    <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-4">Node Usage Overview</h2>
+    <!-- Node Usage Treemap (Official) -->
+    <section id="official-nodes" class="mb-12 scroll-mt-20">
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-2xl font-bold text-white">Node Usage Overview</h2>
+        <span class="px-2 py-0.5 bg-cyan-500/10 text-cyan-400 text-xs font-medium rounded">Official</span>
+      </div>
       <p class="text-gray-400 mb-6">
         {hasWeightedData
           ? 'Rectangle size represents estimated deployments (weighted by template insertions). Colors indicate category.'
@@ -354,17 +425,20 @@ const lastUpdated = allNodesData?.lastUpdated
       </div>
     </section>
 
-    <!-- Top 10 Overall -->
+    <!-- Top 10 Overall (Official) -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-        Top 10 Most Used Nodes
-        <SourceInfo
-          source={hasWeightedData ? "n8n Arena" : "n8n Templates API"}
-          url={hasWeightedData ? "https://n8narena.com" : "https://api.n8n.io"}
-          note={hasWeightedData ? "weighted by insertions" : "weekly full scan"}
-          position="inline"
-        />
-      </h2>
+      <div class="flex items-center gap-3 mb-2">
+        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+          Top 10 Most Used Nodes
+          <SourceInfo
+            source={hasWeightedData ? "n8n Arena" : "n8n Templates API"}
+            url={hasWeightedData ? "https://n8narena.com" : "https://api.n8n.io"}
+            note={hasWeightedData ? "weighted by insertions" : "weekly full scan"}
+            position="inline"
+          />
+        </h2>
+        <span class="px-2 py-0.5 bg-cyan-500/10 text-cyan-400 text-xs font-medium rounded">Official</span>
+      </div>
       <p class="text-gray-400 mb-6">
         {hasWeightedData
           ? 'Ranked by estimated deployments (node usage weighted by template insertions).'
@@ -573,13 +647,16 @@ const lastUpdated = allNodesData?.lastUpdated
       </section>
     )}
 
-    <!-- Trending Boost Section -->
+    <!-- Trending Boost Section (Official) -->
     {trendingBoostNodes.length > 0 && (
       <section class="mb-12">
-        <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-          Hot in Trending Templates
-          <SourceInfo source="n8n Templates API" url="https://api.n8n.io" note="top 100 trending" position="inline" />
-        </h2>
+        <div class="flex items-center gap-3 mb-2">
+          <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+            Hot in Trending Templates
+            <SourceInfo source="n8n Templates API" url="https://api.n8n.io" note="top 100 trending" position="inline" />
+          </h2>
+          <span class="px-2 py-0.5 bg-cyan-500/10 text-cyan-400 text-xs font-medium rounded">Official</span>
+        </div>
         <p class="text-gray-400 mb-6">
           Nodes that appear more often in the top 100 trending templates compared to all {formatNumber(totalTemplates)} templates.
         </p>
@@ -604,8 +681,12 @@ const lastUpdated = allNodesData?.lastUpdated
     )}
 
     <!-- By Category - Compact Table Grid -->
+    <!-- Top Nodes by Category (Official) -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-2">Top Nodes by Category</h2>
+      <div class="flex items-center gap-3 mb-2">
+        <h2 class="text-2xl font-bold text-white">Top Nodes by Category</h2>
+        <span class="px-2 py-0.5 bg-cyan-500/10 text-cyan-400 text-xs font-medium rounded">Official</span>
+      </div>
       <p class="text-gray-400 mb-6">
         {hasWeightedData
           ? 'Top 5 nodes in each category, ranked by estimated deployments. Hover over values to see template counts.'
@@ -621,13 +702,16 @@ const lastUpdated = allNodesData?.lastUpdated
       />
     </section>
 
-    <!-- Unused Nodes Section -->
+    <!-- Unused Nodes Section (Official) -->
     {unusedNodes.length > 0 && (
       <section class="mb-12">
-        <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-          Nodes With Zero Usage
-          <SourceInfo source="n8n Templates API" url="https://api.n8n.io" note="weekly full scan" position="inline" />
-        </h2>
+        <div class="flex items-center gap-3 mb-2">
+          <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+            Nodes With Zero Usage
+            <SourceInfo source="n8n Templates API" url="https://api.n8n.io" note="weekly full scan" position="inline" />
+          </h2>
+          <span class="px-2 py-0.5 bg-cyan-500/10 text-cyan-400 text-xs font-medium rounded">Official</span>
+        </div>
         <p class="text-gray-400 mb-6">
           These {unusedNodes.length} nodes don't appear in any of the {formatNumber(totalTemplates)} public templates.
         </p>
@@ -710,27 +794,21 @@ const lastUpdated = allNodesData?.lastUpdated
         </p>
 
         <!-- Community Stats Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <StatCard
-            label="Community Packages"
-            value={communityNodesData.totalPackages}
-            source={{ source: "npm Registry", url: "https://www.npmjs.com/search?q=keywords:n8n-community-node-package", note: "weekly scan" }}
-          />
-          <StatCard
-            label="Weekly Downloads"
-            value={communityNodesData.totalDownloadsWeekly}
-            source={{ source: "npm Registry", url: "https://www.npmjs.com", note: "top 500 packages" }}
-          />
-          <StatCard
-            label="Categories"
-            value={Object.keys(communityNodesData.byCategory).length}
-            source={{ source: "npm Registry", url: "https://www.npmjs.com", note: "inferred from keywords" }}
-          />
-          <div class="card text-center">
-            <div class="text-3xl font-bold text-purple-400 mb-1">
-              {formatNumber(totalNodes + communityNodesData.totalPackages)}
-            </div>
-            <div class="text-sm text-gray-400">Total Ecosystem</div>
+        <div class="grid grid-cols-3 gap-4 mb-8">
+          <div class="card text-center border-purple-500/20">
+            <div class="text-xs text-purple-400 mb-1 font-medium">Community</div>
+            <div class="text-2xl font-bold text-purple-400 mb-1">{formatNumber(communityNodesData.totalPackages)}</div>
+            <div class="text-sm text-gray-400">Packages</div>
+          </div>
+          <div class="card text-center border-purple-500/20">
+            <div class="text-xs text-purple-400 mb-1 font-medium">Community</div>
+            <div class="text-2xl font-bold text-purple-400 mb-1">{formatNumber(communityNodesData.totalDownloadsWeekly)}</div>
+            <div class="text-sm text-gray-400">Weekly Downloads</div>
+          </div>
+          <div class="card text-center border-purple-500/20">
+            <div class="text-xs text-purple-400 mb-1 font-medium">Community</div>
+            <div class="text-2xl font-bold text-purple-400 mb-1">{Object.keys(communityNodesData.byCategory).length}</div>
+            <div class="text-sm text-gray-400">Categories</div>
           </div>
         </div>
 
@@ -815,26 +893,6 @@ const lastUpdated = allNodesData?.lastUpdated
                   </div>
                 );
               })}
-          </div>
-        </div>
-
-        <!-- Community vs Official Comparison -->
-        <div class="card p-6 border-purple-500/20">
-          <div class="flex items-start gap-3">
-            <div class="text-purple-400 mt-0.5">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <h3 class="text-white font-semibold mb-2">Official vs Community Nodes</h3>
-              <p class="text-gray-400 text-sm leading-relaxed">
-                <strong>Official nodes</strong> ({formatNumber(totalNodes)}) are maintained by n8n and available on both cloud and self-hosted instances.
-                <strong>Community nodes</strong> ({formatNumber(communityNodesData.totalPackages)}) are built by the community and available for self-hosted installations.
-                Some popular community nodes are verified and available on n8n Cloud through the
-                <a href="https://docs.n8n.io/integrations/community-nodes/" target="_blank" rel="noopener" class="text-purple-400 hover:underline">verified community nodes program</a>.
-              </p>
-            </div>
           </div>
         </div>
       </section>
