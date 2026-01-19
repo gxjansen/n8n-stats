@@ -8,6 +8,13 @@
  * - Click opens the category on community.n8n.io
  */
 import { COMMUNITY_CATEGORY_COLORS, FALLBACK_COLORS } from '@/lib/utils/colors';
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
 
 interface CategoryData {
   name: string;
@@ -20,16 +27,20 @@ interface CategoryData {
 
 interface Props {
   data: CategoryData[];
+  source?: SourceAttribution;
 }
 
-const { data } = Astro.props;
+const { data, source } = Astro.props;
 
 // Pass colors to client-side script
 const categoryColors = COMMUNITY_CATEGORY_COLORS;
 const fallbackColors = FALLBACK_COLORS;
 ---
 
-<div id="community-treemap-container" class="card">
+<div id="community-treemap-container" class="card relative">
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   <div class="relative h-[280px] md:h-[350px]">
     <canvas id="community-treemap-chart"></canvas>
   </div>

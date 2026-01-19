@@ -4,6 +4,14 @@
  * Shows monthly ambassador count growth and new joins
  */
 
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
+
 interface MonthlyData {
   date: string;
   total: number;
@@ -15,15 +23,19 @@ interface Props {
   data: MonthlyData[];
   /** Minimum month to show (YYYY-MM format), filters out earlier months */
   startMonth?: string;
+  source?: SourceAttribution;
 }
 
-const { data, startMonth = '2024-05' } = Astro.props;
+const { data, startMonth = '2024-05', source } = Astro.props;
 
 // Filter data to only show months from startMonth onwards
 const chartData = data.filter(d => d.date >= startMonth);
 ---
 
-<div id="ambassadors-history-container" class="card">
+<div id="ambassadors-history-container" class="card relative">
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   {chartData.length === 0 ? (
     <div class="flex items-center justify-center h-64 text-gray-400">
       <p>No historical ambassador data available yet.</p>

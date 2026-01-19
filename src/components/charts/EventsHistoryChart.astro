@@ -5,6 +5,14 @@
  * Split by in-person vs online events
  */
 
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
+
 interface MonthlyData {
   month: string;
   count: number;
@@ -19,9 +27,10 @@ interface Props {
   data: MonthlyData[];
   /** Minimum month to show (YYYY-MM format), filters out earlier months */
   startMonth?: string;
+  source?: SourceAttribution;
 }
 
-const { data, startMonth = '2024-06' } = Astro.props;
+const { data, startMonth = '2024-06', source } = Astro.props;
 
 // Filter data to only show months from startMonth onwards
 // and only months that have at least one event with registration data
@@ -36,7 +45,10 @@ const chartData = data
   });
 ---
 
-<div id="events-history-container" class="card">
+<div id="events-history-container" class="card relative">
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   {chartData.length === 0 ? (
     <div class="flex items-center justify-center h-64 text-gray-400">
       <p>No historical event data available yet. Check back after more events are tracked.</p>

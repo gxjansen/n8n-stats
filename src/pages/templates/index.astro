@@ -129,14 +129,17 @@ const completeDataStats = allTemplatesData ? {
           label="Total Templates"
           value={analytics.totalWorkflows}
           sparklineData={templatesSparklineData}
+          source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "updated daily" }}
         />
         <StatCard
           label="Unique Nodes Used"
           value={completeDataStats?.uniqueNodes || analytics.topNodes.length}
+          source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "updated daily" }}
         />
         <StatCard
           label="Template Creators"
           value={completeDataStats?.totalCreators || 0}
+          source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "updated daily" }}
         />
       </div>
 
@@ -157,6 +160,7 @@ const completeDataStats = allTemplatesData ? {
                 confidence={pred.confidence}
                 currentValue={pred.currentValue}
                 icon="📋"
+                source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "updated daily" }}
               />
             ))}
           </div>
@@ -170,7 +174,7 @@ const completeDataStats = allTemplatesData ? {
       <p class="text-gray-400 mb-6">
         Track how the template library grows. Historical data builds daily.
       </p>
-      <TemplatesHistoryChart />
+      <TemplatesHistoryChart source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "updated daily" }} />
     </section>
 
     <!-- AI Dominance - uses complete API data -->
@@ -261,7 +265,7 @@ const completeDataStats = allTemplatesData ? {
         Rectangle size represents the number of templates in each category.
         <span class="text-n8n-primary">Click any category to browse templates on n8n.io.</span>
       </p>
-      <CategoryTreemapChart data={sortedCategories.map(c => ({ name: c.value, count: c.count }))} />
+      <CategoryTreemapChart data={sortedCategories.map(c => ({ name: c.value, count: c.count }))} source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "updated daily" }} />
     </section>
 
     <!-- Trending Creators -->

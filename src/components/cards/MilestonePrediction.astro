@@ -8,6 +8,13 @@
 
 import { formatNumber } from '@/lib/utils/formatters';
 import { formatPredictedDate, formatDaysUntil } from '@/lib/utils/predictions';
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
 
 interface Props {
   label: string;
@@ -17,6 +24,7 @@ interface Props {
   confidence: 'high' | 'medium' | 'low';
   currentValue: number;
   icon?: string;
+  source?: SourceAttribution;
 }
 
 const {
@@ -26,7 +34,8 @@ const {
   daysUntil,
   confidence,
   currentValue,
-  icon = '🎯'
+  icon = '🎯',
+  source,
 } = Astro.props;
 
 // Calculate progress percentage
@@ -50,7 +59,10 @@ const confidenceLabels = {
 const uniqueId = `milestone-${Math.random().toString(36).slice(2, 9)}`;
 ---
 
-<div class="card milestone-card p-4" id={uniqueId}>
+<div class="card milestone-card p-4 relative" id={uniqueId}>
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   <div class="flex items-start justify-between mb-3">
     <div>
       <span class="text-2xl">{icon}</span>

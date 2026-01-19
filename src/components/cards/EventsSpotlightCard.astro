@@ -1,5 +1,12 @@
 ---
 import { formatNumber } from '@/lib/utils/formatters';
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
 
 interface Event {
   id: string;
@@ -20,15 +27,19 @@ interface Props {
   totalUpcoming: number;
   countriesCount: number;
   maxEvents?: number;
+  source?: SourceAttribution;
 }
 
-const { upcomingEvents, totalUpcoming, countriesCount, maxEvents = 3 } = Astro.props;
+const { upcomingEvents, totalUpcoming, countriesCount, maxEvents = 3, source } = Astro.props;
 
 // Get next events (default 3 for homepage, can be customized)
 const nextEvents = upcomingEvents.slice(0, maxEvents);
 ---
 
-<div>
+<div class="relative">
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   <!-- Header matching /events page style -->
   <div class="flex items-center justify-between mb-6">
     <div class="flex items-center gap-3">

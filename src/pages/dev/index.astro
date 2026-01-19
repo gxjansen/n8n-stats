@@ -127,10 +127,10 @@ const icons = {
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">Repository Overview</h2>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Stars" value={githubStats.stars} sparklineData={starsSparklineData} />
-        <StatCard label="Forks" value={githubStats.forks} icon={icons.fork} />
-        <StatCard label="Watchers" value={githubStats.subscribers} icon={icons.eye} />
-        <StatCard label="Open Issues" value={githubStats.openIssues} icon={icons.issue} />
+        <StatCard label="Stars" value={githubStats.stars} sparklineData={starsSparklineData} source={{ source: "GitHub API + ossinsight.io", url: "https://api.github.com", note: "historical from ossinsight" }} />
+        <StatCard label="Forks" value={githubStats.forks} icon={icons.fork} source={{ source: "GitHub API", url: "https://api.github.com", note: "updated daily" }} />
+        <StatCard label="Watchers" value={githubStats.subscribers} icon={icons.eye} source={{ source: "GitHub API", url: "https://api.github.com", note: "updated daily" }} />
+        <StatCard label="Open Issues" value={githubStats.openIssues} icon={icons.issue} source={{ source: "GitHub API", url: "https://api.github.com", note: "updated daily" }} />
       </div>
 
       {/* Star Milestones - within hero block */}
@@ -150,6 +150,7 @@ const icons = {
                 confidence={pred.confidence}
                 currentValue={pred.currentValue}
                 icon="⭐"
+                source={{ source: "GitHub API + ossinsight.io", note: "historical from ossinsight" }}
               />
             ))}
           </div>
@@ -210,7 +211,7 @@ const icons = {
     <!-- Star History Chart -->
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">Star History</h2>
-      <GitHubHistoryChart />
+      <GitHubHistoryChart source={{ source: "GitHub API + ossinsight.io", url: "https://api.github.com", note: "historical from ossinsight" }} />
     </section>
 
     <!-- npm Downloads History -->
@@ -222,21 +223,21 @@ const icons = {
       <p class="text-gray-400 mb-6">
         Weekly download counts for the <a href="https://www.npmjs.com/package/n8n" target="_blank" rel="noopener" class="text-n8n-primary hover:underline">n8n</a> npm package since 2019.
       </p>
-      <NpmDownloadsChart />
+      <NpmDownloadsChart source={{ source: "npm API", url: "https://npmjs.com/package/n8n", note: "updated daily" }} />
     </section>
 
     <!-- Issues Chart -->
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">Issue Activity</h2>
       <p class="text-gray-400 mb-4">Monthly issues opened and closed, with cumulative open issues over time.</p>
-      <GitHubIssuesChart />
+      <GitHubIssuesChart source={{ source: "GitHub API", url: "https://api.github.com", note: "updated daily" }} />
     </section>
 
     <!-- Release Timeline -->
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">Release Timeline</h2>
       <p class="text-gray-400 mb-4">Official releases since 1.0 (July 2023). Click a release to view details.</p>
-      <ReleaseTimelineChart />
+      <ReleaseTimelineChart source={{ source: "GitHub API", url: "https://api.github.com", note: "updated daily" }} />
     </section>
 
     <!-- Recent Releases -->

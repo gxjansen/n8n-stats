@@ -282,28 +282,34 @@ const formatHostCities = (cities: string[]) => {
           label="Past Events"
           value={stats.pastCount}
           sparklineData={eventsSparklineData}
+          source={{ source: "Luma", url: "https://lu.ma/n8n-events", note: "scraped daily" }}
         />
         <StatCard
           label="Total Registrations"
           value={formatNumber(stats.totalRegistrations)}
           sparklineData={registrationsSparklineData}
+          source={{ source: "Luma", url: "https://lu.ma/n8n-events", note: "scraped daily" }}
         />
         <StatCard
           label="Avg/In-Person Event"
           value={avgInPersonParticipants}
+          source={{ source: "Luma", url: "https://lu.ma/n8n-events", note: "scraped daily" }}
         />
         <StatCard
           label="Avg/Online Event"
           value={avgOnlineParticipants}
+          source={{ source: "Luma", url: "https://lu.ma/n8n-events", note: "scraped daily" }}
         />
         <StatCard
           label="Upcoming Events"
           value={stats.upcomingCount}
           href="https://luma.com/n8n-events"
+          source={{ source: "Luma", url: "https://lu.ma/n8n-events", note: "scraped daily" }}
         />
         <StatCard
           label="Countries"
           value={stats.countriesCount}
+          source={{ source: "Luma", url: "https://lu.ma/n8n-events", note: "scraped daily" }}
         />
       </div>
     </section>
@@ -320,7 +326,7 @@ const formatHostCities = (cities: string[]) => {
         <p class="text-gray-400 mb-6">
           Monthly breakdown of n8n community events. Bars show event counts (stacked: in-person + online), lines show participant registrations.
         </p>
-        <EventsHistoryChart data={byMonthFull} startMonth="2024-06" />
+        <EventsHistoryChart data={byMonthFull} startMonth="2024-06" source={{ source: "Luma", url: "https://lu.ma/n8n-events", note: "scraped daily" }} />
       </section>
     )}
 
@@ -336,7 +342,7 @@ const formatHostCities = (cities: string[]) => {
         <p class="text-gray-400 mb-6">
           Where n8n community events are happening. Hover over markers for details.
         </p>
-        <EventsMapChart locations={locations} highlightedCountries={highlightedCountries} />
+        <EventsMapChart locations={locations} highlightedCountries={highlightedCountries} source={{ source: "Luma", url: "https://lu.ma/n8n-events", note: "scraped daily" }} />
       </section>
     )}
 

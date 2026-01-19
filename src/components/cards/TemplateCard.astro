@@ -1,19 +1,30 @@
 ---
 import { formatNumber, truncate } from '@/lib/utils/formatters';
 import type { Template } from '@/lib/types';
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
 
 interface Props {
   template: Template;
   href?: string; // Override link destination (defaults to /templates)
+  source?: SourceAttribution;
 }
 
-const { template, href = '/templates' } = Astro.props;
+const { template, href = '/templates', source } = Astro.props;
 
 const displayNodes = template.nodes.slice(0, 3);
 const remainingCount = Math.max(0, template.nodes.length - 3);
 ---
 
-<a href={href} class="card block hover:border-n8n-primary/30 transition-colors group cursor-pointer" data-umami-event="template-click" data-umami-event-target={template.name.slice(0, 50)}>
+<a href={href} class="card block hover:border-n8n-primary/30 transition-colors group cursor-pointer relative" data-umami-event="template-click" data-umami-event-target={template.name.slice(0, 50)}>
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   <!-- Node icons -->
   <div class="flex items-center gap-2 mb-4">
     {displayNodes.map((node) => (

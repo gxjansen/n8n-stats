@@ -7,22 +7,33 @@
  * - Color = distinct color per category (colorblind-friendly)
  */
 import { TEMPLATE_CATEGORY_COLORS, FALLBACK_COLORS } from '@/lib/utils/colors';
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
 
 interface Props {
   data: Array<{
     name: string;
     count: number;
   }>;
+  source?: SourceAttribution;
 }
 
-const { data } = Astro.props;
+const { data, source } = Astro.props;
 
 // Pass colors to client-side script
 const categoryColors = TEMPLATE_CATEGORY_COLORS;
 const fallbackColors = FALLBACK_COLORS;
 ---
 
-<div id="category-treemap-container" class="card">
+<div id="category-treemap-container" class="card relative">
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   <div class="relative h-[280px] md:h-[350px]">
     <canvas id="category-treemap-chart"></canvas>
   </div>

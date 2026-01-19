@@ -6,6 +6,13 @@
  * Shows top 5 with a simple horizontal bar chart.
  */
 import { formatNumber } from '@/lib/utils/formatters';
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
 
 interface LLMModel {
   name: string;
@@ -15,9 +22,10 @@ interface LLMModel {
 interface Props {
   llmModels: LLMModel[];
   href?: string;
+  source?: SourceAttribution;
 }
 
-const { llmModels, href = '/nodes' } = Astro.props;
+const { llmModels, href = '/nodes', source } = Astro.props;
 
 // Get top 5 models
 const topModels = llmModels.slice(0, 5);
@@ -60,6 +68,9 @@ const uniqueId = `llm-summary-${Math.random().toString(36).slice(2, 9)}`;
   id={uniqueId}
   class="card llm-summary-card block hover:border-emerald-500/50 hover:bg-gray-800/30 transition-all group relative overflow-hidden"
 >
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   <!-- Green accent bar -->
   <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-80 group-hover:opacity-100 transition-opacity"></div>
 

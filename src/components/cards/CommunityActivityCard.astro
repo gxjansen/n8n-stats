@@ -1,5 +1,12 @@
 ---
 import { formatNumber } from '@/lib/utils/formatters';
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
 
 interface Props {
   discordMembers: number;
@@ -8,9 +15,10 @@ interface Props {
   forumTopics: number;
   redditSubscribers?: number;
   redditGrowth?: string;
+  source?: SourceAttribution;
 }
 
-const { discordMembers, discordOnline, forumUsers, forumTopics, redditSubscribers, redditGrowth } = Astro.props;
+const { discordMembers, discordOnline, forumUsers, forumTopics, redditSubscribers, redditGrowth, source } = Astro.props;
 
 // Calculate total community (include Reddit if available)
 const totalCommunity = discordMembers + forumUsers + (redditSubscribers || 0);
@@ -18,8 +26,11 @@ const totalCommunity = discordMembers + forumUsers + (redditSubscribers || 0);
 
 <a
   href="/discussions"
-  class="card block hover:border-n8n-primary/50 hover:bg-gray-800/30 transition-all group"
+  class="card block hover:border-n8n-primary/50 hover:bg-gray-800/30 transition-all group relative"
 >
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   <!-- Header -->
   <div class="flex items-center gap-3 mb-4">
     <div class="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">

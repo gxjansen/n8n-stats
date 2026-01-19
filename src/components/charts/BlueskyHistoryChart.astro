@@ -8,6 +8,13 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
 
 interface BlueskyDailyStats {
   date: string;
@@ -53,9 +60,18 @@ try {
 } catch (e) { /* use null */ }
 
 const blueskyDataJson = JSON.stringify(blueskyHistoryData);
+
+interface Props {
+  source?: SourceAttribution;
+}
+
+const { source } = Astro.props;
 ---
 
-<div id="bluesky-chart-container" class="card">
+<div id="bluesky-chart-container" class="card relative">
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   <!-- Controls -->
   <div class="flex flex-wrap items-center gap-4 mb-6">
     <!-- Date Range -->

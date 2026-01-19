@@ -254,14 +254,17 @@ const ambassadorSparklineData = monthlyHistory.slice(-12).map(m => m.total);
           label="Total Ambassadors"
           value={stats.total}
           sparklineData={ambassadorSparklineData}
+          source={{ source: "n8n Notion Directory", url: "https://n8n.notion.site/9eefeb6356754725a1b2dd8ccecc4ffb", note: "scraped weekly" }}
         />
         <StatCard
           label="Countries"
           value={stats.countries}
+          source={{ source: "n8n Notion Directory", url: "https://n8n.notion.site/9eefeb6356754725a1b2dd8ccecc4ffb", note: "scraped weekly" }}
         />
         <StatCard
           label="Newest Member"
           value={newestDate ? newestDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
+          source={{ source: "n8n Notion Directory", url: "https://n8n.notion.site/9eefeb6356754725a1b2dd8ccecc4ffb", note: "scraped weekly" }}
         />
       </div>
     </section>
@@ -278,7 +281,7 @@ const ambassadorSparklineData = monthlyHistory.slice(-12).map(m => m.total);
         <p class="text-gray-400 mb-6">
           How the ambassador program has grown over time.
         </p>
-        <AmbassadorsHistoryChart data={monthlyHistory} />
+        <AmbassadorsHistoryChart data={monthlyHistory} source={{ source: "n8n Notion Directory", url: "https://n8n.notion.site/9eefeb6356754725a1b2dd8ccecc4ffb", note: "scraped weekly" }} />
       </section>
     )}
 
@@ -302,6 +305,7 @@ const ambassadorSparklineData = monthlyHistory.slice(-12).map(m => m.total);
             multiple: null,
             country: 'Country with ambassadors',
           }}
+          source={{ source: "n8n Notion Directory", url: "https://n8n.notion.site/9eefeb6356754725a1b2dd8ccecc4ffb", note: "scraped weekly" }}
         />
       </section>
     )}

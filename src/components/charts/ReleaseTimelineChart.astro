@@ -10,6 +10,19 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
+
+interface Props {
+  source?: SourceAttribution;
+}
+
+const { source } = Astro.props;
 
 // Load releases from stored data (no API calls during build)
 let allReleases: Array<{ tagName: string; publishedAt: string; htmlUrl: string; prerelease: boolean }> = [];
@@ -41,7 +54,10 @@ const releases = allReleases
 const releaseData = JSON.stringify(releases);
 ---
 
-<div id="release-timeline-container" class="card">
+<div id="release-timeline-container" class="card relative">
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-2">

@@ -9,6 +9,13 @@
  */
 
 import { formatNumber, getNodePageUrl } from '@/lib/utils/formatters';
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
 
 interface NodeData {
   displayName: string;
@@ -24,9 +31,10 @@ interface Props {
   categoryColors: Record<string, string>;
   nodesPerCategory?: number;
   showWeighted?: boolean;
+  source?: SourceAttribution;
 }
 
-const { data, categoryOrder, categoryColors, nodesPerCategory = 5, showWeighted = false } = Astro.props;
+const { data, categoryOrder, categoryColors, nodesPerCategory = 5, showWeighted = false, source } = Astro.props;
 
 // Filter to categories with data
 const categoriesWithData = categoryOrder.filter(cat => data[cat]?.length > 0);
@@ -35,7 +43,10 @@ const categoriesWithData = categoryOrder.filter(cat => data[cat]?.length > 0);
 const getValue = (node: NodeData) => showWeighted && node.weightedScore ? node.weightedScore : node.count;
 ---
 
-<div class="category-nodes-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+<div class="category-nodes-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 relative">
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   {categoriesWithData.map((category, categoryIndex) => {
     const nodes = data[category].slice(0, nodesPerCategory);
     const color = categoryColors[category] || '#7c8798';

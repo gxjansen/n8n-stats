@@ -6,6 +6,13 @@
  * and breakdown of top AI nodes used in templates.
  */
 import { formatNumber } from '@/lib/utils/formatters';
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
 
 interface AINode {
   name: string;
@@ -20,6 +27,7 @@ interface Props {
   totalTemplates: number;
   topAINodes: AINode[];
   href?: string;
+  source?: SourceAttribution;
 }
 
 const {
@@ -27,7 +35,8 @@ const {
   aiTemplates,
   totalTemplates,
   topAINodes,
-  href = '/templates'
+  href = '/templates',
+  source,
 } = Astro.props;
 
 // Take top 4 AI nodes
@@ -38,6 +47,9 @@ const displayNodes = topAINodes.slice(0, 4);
   href={href}
   class="card block hover:border-purple-500/50 hover:bg-gray-800/30 transition-all group relative overflow-hidden"
 >
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   <!-- Purple gradient accent -->
   <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500 opacity-80 group-hover:opacity-100 transition-opacity"></div>
 

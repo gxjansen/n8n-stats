@@ -12,12 +12,20 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
 
 interface Props {
   height?: number;
+  source?: SourceAttribution;
 }
 
-const { height = 200 } = Astro.props;
+const { height = 200, source } = Astro.props;
 
 interface CreatorStats {
   date: string;
@@ -51,7 +59,10 @@ try {
 const chartDataJson = JSON.stringify(weeklyData);
 ---
 
-<div id="ecosystem-chart-container" class="card">
+<div id="ecosystem-chart-container" class="card relative">
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   <div class="flex items-center justify-between mb-3">
     <div>
       <h3 class="text-lg font-semibold text-white">Ecosystem Growth</h3>

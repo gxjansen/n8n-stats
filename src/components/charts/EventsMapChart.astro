@@ -8,6 +8,14 @@
  * https://github.com/raphaellepuschitz/SVG-World-Map
  */
 
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
+
 interface Location {
   name: string;
   city: string;
@@ -27,9 +35,10 @@ interface Props {
     multiple?: string;
     country?: string;
   };
+  source?: SourceAttribution;
 }
 
-const { locations, highlightedCountries = [], legendLabels = {} } = Astro.props;
+const { locations, highlightedCountries = [], legendLabels = {}, source } = Astro.props;
 
 // Default legend labels (can be overridden for different contexts like ambassadors)
 // Set to null/undefined to hide specific legend items
@@ -143,7 +152,10 @@ const countriesWithEvents = new Set(highlightedCountries);
 const viewBox = `0 0 ${mapWidth} ${mapHeight}`;
 ---
 
-<div id="events-map-container" class="card">
+<div id="events-map-container" class="card relative">
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   <div class="relative overflow-hidden rounded-lg">
     <!-- World map SVG container -->
     <div class="map-wrapper relative">

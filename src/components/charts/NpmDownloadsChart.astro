@@ -8,6 +8,13 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
 
 interface WeeklyData {
   weekStart: string;
@@ -41,9 +48,18 @@ const monthAgo = chartDataPoints[chartDataPoints.length - 4] || chartDataPoints[
 const growthPct = monthAgo && monthAgo.downloads > 0
   ? ((latestWeek?.downloads || 0) - monthAgo.downloads) / monthAgo.downloads * 100
   : 0;
+
+interface Props {
+  source?: SourceAttribution;
+}
+
+const { source } = Astro.props;
 ---
 
-<div id="npm-chart-container" class="card">
+<div id="npm-chart-container" class="card relative">
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   <!-- Header Stats -->
   <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
     <div>

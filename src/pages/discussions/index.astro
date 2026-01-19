@@ -158,9 +158,9 @@ const forumSparklineData = userHistory.slice(-12).map(d => d.value);
     <section class="mb-12">
       <h2 class="text-2xl font-bold text-white mb-6">Overview</h2>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Total Members" value={aggregateStats.totalMembers} sparklineData={forumSparklineData} />
-        <StatCard label="Forum Topics" value={aggregateStats.totalTopics} />
-        <StatCard label="Total Posts" value={aggregateStats.totalPosts} />
+        <StatCard label="Total Members" value={aggregateStats.totalMembers} sparklineData={forumSparklineData} source={{ source: "Combined APIs", note: "Forum + Discord + Reddit" }} />
+        <StatCard label="Forum Topics" value={aggregateStats.totalTopics} source={{ source: "Discourse API", url: "https://community.n8n.io", note: "updated daily" }} />
+        <StatCard label="Total Posts" value={aggregateStats.totalPosts} source={{ source: "Combined APIs", note: "Forum + Bluesky" }} />
         <StatCard label="Platforms Tracked" value={aggregateStats.platforms} />
       </div>
 
@@ -181,6 +181,7 @@ const forumSparklineData = userHistory.slice(-12).map(d => d.value);
                 confidence={pred.confidence}
                 currentValue={pred.currentValue}
                 icon="👥"
+                source={{ source: "Discourse API", url: "https://community.n8n.io", note: "updated daily" }}
               />
             ))}
           </div>
@@ -199,7 +200,7 @@ const forumSparklineData = userHistory.slice(-12).map(d => d.value);
       <p class="text-gray-400 mb-6">
         Forum growth from November 2019 to present. Toggle metrics, adjust date range, and switch chart types.
       </p>
-      <CommunityHistoryChart />
+      <CommunityHistoryChart source={{ source: "Discourse API", url: "https://community.n8n.io", note: "updated daily" }} />
     </section>
 
     <!-- Forum Stats (Platform Section) -->
@@ -211,15 +212,15 @@ const forumSparklineData = userHistory.slice(-12).map(d => d.value);
         <h2 class="text-2xl font-bold text-white">Forum (Discourse)</h2>
       </div>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <StatCard label="Total Members" value={forumStats.usersCount} />
-        <StatCard label="Total Topics" value={forumStats.topicsCount} />
-        <StatCard label="Total Posts" value={forumStats.postsCount} />
-        <StatCard label="Total Likes" value={forumStats.likesCount} />
+        <StatCard label="Total Members" value={forumStats.usersCount} source={{ source: "Discourse API", url: "https://community.n8n.io", note: "updated daily" }} />
+        <StatCard label="Total Topics" value={forumStats.topicsCount} source={{ source: "Discourse API", url: "https://community.n8n.io", note: "updated daily" }} />
+        <StatCard label="Total Posts" value={forumStats.postsCount} source={{ source: "Discourse API", url: "https://community.n8n.io", note: "updated daily" }} />
+        <StatCard label="Total Likes" value={forumStats.likesCount} source={{ source: "Discourse API", url: "https://community.n8n.io", note: "updated daily" }} />
       </div>
       <h3 class="text-lg font-semibold text-gray-300 mb-4">Last 7 Days</h3>
       <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
-        <StatCard label="Active Users" value={forumStats.activeUsers7Days} />
-        <StatCard label="New Posts" value={forumStats.postsLast7Days} />
+        <StatCard label="Active Users" value={forumStats.activeUsers7Days} source={{ source: "Discourse API", url: "https://community.n8n.io", note: "updated daily" }} />
+        <StatCard label="New Posts" value={forumStats.postsLast7Days} source={{ source: "Discourse API", url: "https://community.n8n.io", note: "updated daily" }} />
       </div>
     </section>
 
@@ -232,7 +233,7 @@ const forumSparklineData = userHistory.slice(-12).map(d => d.value);
         <h2 class="text-2xl font-bold text-white">Discord</h2>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
-        <StatCard label="Total Members" value={discordStats.memberCount} />
+        <StatCard label="Total Members" value={discordStats.memberCount} source={{ source: "Discord API", note: "updated daily" }} />
       </div>
       <p class="text-sm text-gray-500 mt-3">Discord historical data will be tracked going forward.</p>
     </section>
@@ -250,17 +251,18 @@ const forumSparklineData = userHistory.slice(-12).map(d => d.value);
           The <a href="https://reddit.com/r/n8n" target="_blank" rel="noopener" class="text-[#ff4500] hover:underline">r/n8n</a> subreddit. Created September 2020.
         </p>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <StatCard label="Subscribers" value={redditStats.current.subscribers} />
+          <StatCard label="Subscribers" value={redditStats.current.subscribers} source={{ source: "Reddit API", url: "https://reddit.com/r/n8n", note: "updated daily" }} />
           <StatCard
             label={`Growth (${redditGrowth.period})`}
             value={redditGrowth.absolute}
             prefix="+"
+            source={{ source: "Reddit API", url: "https://reddit.com/r/n8n", note: "updated daily" }}
           />
-          <StatCard label="Posts (24h)" value={redditStats.daily[redditStats.daily.length - 1]?.postsLast24h || 0} />
-          <StatCard label="Comments (24h)" value={redditStats.daily[redditStats.daily.length - 1]?.commentsLast24h || 0} />
+          <StatCard label="Posts (24h)" value={redditStats.daily[redditStats.daily.length - 1]?.postsLast24h || 0} source={{ source: "Reddit API", url: "https://reddit.com/r/n8n", note: "updated daily" }} />
+          <StatCard label="Comments (24h)" value={redditStats.daily[redditStats.daily.length - 1]?.commentsLast24h || 0} source={{ source: "Reddit API", url: "https://reddit.com/r/n8n", note: "updated daily" }} />
         </div>
         <h3 class="text-lg font-semibold text-gray-300 mb-4 mt-8">Subscriber Growth</h3>
-        <RedditHistoryChart />
+        <RedditHistoryChart source={{ source: "Reddit API + Wayback Machine", url: "https://reddit.com/r/n8n", note: "current via API, historical via Wayback" }} />
         <p class="text-sm text-gray-500 mt-4">Historical subscriber data backfilled from Wayback Machine (Dec 2022 - present).</p>
       </section>
     )}
@@ -278,18 +280,18 @@ const forumSparklineData = userHistory.slice(-12).map(d => d.value);
           Posts mentioning "n8n" across the Bluesky network. Tracking since Feb 2024.
         </p>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <StatCard label="Total Posts" value={blueskyStats.totals.posts} />
-          <StatCard label="Unique Authors" value={blueskyStats.totals.uniqueAuthors} />
-          <StatCard label="Total Likes" value={blueskyStats.totals.totalLikes} />
-          <StatCard label="Total Reposts" value={blueskyStats.totals.totalReposts} />
+          <StatCard label="Total Posts" value={blueskyStats.totals.posts} source={{ source: "Bluesky API", note: "keyword search, updated daily" }} />
+          <StatCard label="Unique Authors" value={blueskyStats.totals.uniqueAuthors} source={{ source: "Bluesky API", note: "keyword search, updated daily" }} />
+          <StatCard label="Total Likes" value={blueskyStats.totals.totalLikes} source={{ source: "Bluesky API", note: "keyword search, updated daily" }} />
+          <StatCard label="Total Reposts" value={blueskyStats.totals.totalReposts} source={{ source: "Bluesky API", note: "keyword search, updated daily" }} />
         </div>
         <h3 class="text-lg font-semibold text-gray-300 mb-4">Last 30 Days</h3>
         <div class="grid grid-cols-2 md:grid-cols-2 gap-4 mb-8">
-          <StatCard label="Posts" value={blueskyLast30Days.posts} />
-          <StatCard label="Likes" value={blueskyLast30Days.likes} />
+          <StatCard label="Posts" value={blueskyLast30Days.posts} source={{ source: "Bluesky API", note: "keyword search, updated daily" }} />
+          <StatCard label="Likes" value={blueskyLast30Days.likes} source={{ source: "Bluesky API", note: "keyword search, updated daily" }} />
         </div>
         <h3 class="text-lg font-semibold text-gray-300 mb-4">Mention Trends</h3>
-        <BlueskyHistoryChart />
+        <BlueskyHistoryChart source={{ source: "Bluesky API", note: "keyword search, updated daily" }} />
       </section>
     )}
 
@@ -302,7 +304,7 @@ const forumSparklineData = userHistory.slice(-12).map(d => d.value);
         <h2 class="text-2xl font-bold text-white">Popular Forum Categories</h2>
       </div>
       <p class="text-gray-400 mb-4">Categories sized by number of topics. Click to visit.</p>
-      <CommunityTreemapChart data={topCategories} />
+      <CommunityTreemapChart data={topCategories} source={{ source: "Discourse API", url: "https://community.n8n.io", note: "updated daily" }} />
     </section>
 
     <!-- Links to Community -->

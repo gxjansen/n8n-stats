@@ -272,25 +272,30 @@ const lastUpdated = allNodesData?.lastUpdated
         <StatCard
           label="Templates Analyzed"
           value={totalTemplates}
+          source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "weekly full scan" }}
         />
         <StatCard
           label="Nodes With Usage"
           value={uniqueNodes}
+          source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "weekly full scan" }}
         />
         {hasWeightedData ? (
           <StatCard
             label="Total Template Insertions"
             value={totalInserters}
+            source={{ source: "n8n Arena", url: "https://n8narena.com", note: "community project" }}
           />
         ) : (
           <StatCard
             label="Total Node Usages"
             value={totalNodeUsages}
+            source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "weekly full scan" }}
           />
         )}
         <StatCard
           label="Categories"
           value={Object.keys(nodesByCategory).length}
+          source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "weekly full scan" }}
         />
       </div>
     </section>
@@ -303,7 +308,7 @@ const lastUpdated = allNodesData?.lastUpdated
           ? 'Rectangle size represents estimated deployments (weighted by template insertions). Colors indicate category.'
           : 'Rectangle size represents usage frequency across all templates. Colors indicate category.'}
       </p>
-      <NodeTreemapChart data={treemapData} />
+      <NodeTreemapChart data={treemapData} source={{ source: hasWeightedData ? "n8n Arena" : "n8n Templates API", url: hasWeightedData ? "https://n8narena.com" : "https://api.n8n.io", note: hasWeightedData ? "community project" : "weekly full scan" }} />
       <div class="flex flex-wrap gap-4 mt-4 text-sm">
         {categoryOrder.filter(cat => nodesByCategory[cat]?.length > 0).map((category) => (
           <span class="flex items-center gap-2">
@@ -563,6 +568,7 @@ const lastUpdated = allNodesData?.lastUpdated
         categoryColors={categoryColors}
         nodesPerCategory={5}
         showWeighted={hasWeightedData}
+        source={{ source: hasWeightedData ? "n8n Arena" : "n8n Templates API", url: hasWeightedData ? "https://n8narena.com" : "https://api.n8n.io", note: hasWeightedData ? "community project" : "weekly full scan" }}
       />
     </section>
 

@@ -7,6 +7,13 @@
  * - Color = category (using colorblind-friendly palette)
  */
 import { NODE_CATEGORY_COLORS } from '@/lib/utils/colors';
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
 
 interface Props {
   data: Array<{
@@ -14,15 +21,19 @@ interface Props {
     count: number;
     category: string;
   }>;
+  source?: SourceAttribution;
 }
 
-const { data } = Astro.props;
+const { data, source } = Astro.props;
 
 // Pass colors to client-side script
 const categoryColors = NODE_CATEGORY_COLORS;
 ---
 
-<div id="node-treemap-container" class="card">
+<div id="node-treemap-container" class="card relative">
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   <div class="relative h-[300px] md:h-[400px]">
     <canvas id="node-treemap-chart"></canvas>
   </div>
