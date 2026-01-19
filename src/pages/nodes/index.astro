@@ -341,16 +341,11 @@ const lastUpdated = allNodesData?.lastUpdated
     <!-- Overview Stats -->
     <section class="mb-12">
       <h2 class="text-xl font-semibold text-white mb-4">Ecosystem Overview</h2>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
         <StatCard
           label="Total Ecosystem"
           value={totalNodes + (communityNodesData?.totalPackages || 0)}
           subtitle="Official + Community"
-        />
-        <StatCard
-          label="Templates Analyzed"
-          value={totalTemplates}
-          source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "weekly full scan" }}
         />
         {hasWeightedData ? (
           <StatCard
@@ -375,7 +370,7 @@ const lastUpdated = allNodesData?.lastUpdated
         )}
       </div>
       <!-- Official vs Community breakdown -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-3 gap-4">
         <StatCard
           label="Official Nodes"
           value={totalNodes}
@@ -389,20 +384,12 @@ const lastUpdated = allNodesData?.lastUpdated
           source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "weekly full scan" }}
         />
         {communityNodesData && (
-          <>
-            <StatCard
-              label="Community Packages"
-              value={communityNodesData.totalPackages}
-              subtitle="Self-hosted"
-              source={{ source: "npm Registry", url: "https://www.npmjs.com/search?q=keywords:n8n-community-node-package", note: "weekly scan" }}
-            />
-            <StatCard
-              label="Community Categories"
-              value={Object.keys(communityNodesData.byCategory).length}
-              subtitle="Inferred from keywords"
-              source={{ source: "npm Registry", url: "https://www.npmjs.com", note: "weekly scan" }}
-            />
-          </>
+          <StatCard
+            label="Community Packages"
+            value={communityNodesData.totalPackages}
+            subtitle="Self-hosted"
+            source={{ source: "npm Registry", url: "https://www.npmjs.com/search?q=keywords:n8n-community-node-package", note: "weekly scan" }}
+          />
         )}
       </div>
     </section>
