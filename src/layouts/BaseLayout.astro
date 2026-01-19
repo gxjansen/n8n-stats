@@ -338,7 +338,7 @@ const buildTime = new Date();
             </a>
           </div>
         </div>
-        <!-- Row 2: Data update + Privacy -->
+        <!-- Row 2: Data update + Privacy + Data Sources -->
         <div class="flex flex-col md:flex-row items-center justify-between gap-2 text-xs text-gray-500 mt-4">
           <p>
             Last data update: {buildTime.toLocaleDateString('en-US', {
@@ -350,9 +350,15 @@ const buildTime = new Date();
               timeZoneName: 'short'
             })}
           </p>
-          <p>
-            Privacy-friendly analytics by <a href="https://umami.is" target="_blank" rel="noopener noreferrer" class="hover:text-gray-400 transition-colors">Umami</a> (self-hosted, no cookies, GDPR-compliant)
-          </p>
+          <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <a href="/data-sources" class="hover:text-gray-400 transition-colors" data-umami-event="nav-click" data-umami-event-target="data-sources">
+              Data Sources
+            </a>
+            <span class="text-gray-600 hidden md:inline">|</span>
+            <span>
+              Privacy-friendly analytics by <a href="https://umami.is" target="_blank" rel="noopener noreferrer" class="hover:text-gray-400 transition-colors">Umami</a> (self-hosted, no cookies, GDPR-compliant)
+            </span>
+          </div>
         </div>
       </div>
     </footer>
@@ -404,12 +410,9 @@ const buildTime = new Date();
         window.addEventListener('error', function(event) {
           var target = event.target;
           if (target && (target.tagName === 'IMG' || target.tagName === 'SCRIPT' || target.tagName === 'LINK')) {
-            var src = target.src || target.href || '';
-            // Skip analytics script failures (expected with ad blockers)
-            if (src.includes('u.a11y.nl')) return;
             trackError('resource-error', {
               type: target.tagName.toLowerCase(),
-              src: src.slice(0, 200),
+              src: (target.src || target.href || '').slice(0, 200),
               url: window.location.pathname,
             });
           }

@@ -1,0 +1,323 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import DataSourcesSection from '@/components/DataSourcesSection.astro';
+---
+
+<BaseLayout title="Data Sources" description="How n8n Pulse collects, processes, and makes data available for the n8n community dashboard">
+  <div class="container-narrow py-12">
+    <!-- Hero/Introduction -->
+    <section class="mb-12">
+      <h1 class="text-3xl font-bold text-white mb-4">Data Sources</h1>
+      <p class="text-gray-300 text-lg leading-relaxed mb-6">
+        n8n Pulse collects data from multiple sources to provide comprehensive insights into the n8n ecosystem.
+        All data is fetched automatically via daily scripts and stored as version-controlled JSON files.
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="card p-4">
+          <div class="text-n8n-primary text-2xl mb-2">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </div>
+          <h3 class="text-white font-semibold mb-1">Daily Updates</h3>
+          <p class="text-gray-400 text-sm">Automated collection runs every day at 06:00 UTC via GitHub Actions</p>
+        </div>
+        <div class="card p-4">
+          <div class="text-n8n-primary text-2xl mb-2">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <h3 class="text-white font-semibold mb-1">Transparent</h3>
+          <p class="text-gray-400 text-sm">All data is version-controlled and sources are clearly attributed</p>
+        </div>
+        <div class="card p-4">
+          <div class="text-n8n-primary text-2xl mb-2">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h3 class="text-white font-semibold mb-1">Open Data</h3>
+          <p class="text-gray-400 text-sm">JSON files are publicly accessible for your own analysis</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Primary Data Sources -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-2">Primary Data Sources</h2>
+      <p class="text-gray-400 mb-6">These are the official APIs we query directly for up-to-date metrics.</p>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-n8n-border text-left">
+              <th class="py-3 pr-4 text-gray-300 font-semibold">Source</th>
+              <th class="py-3 pr-4 text-gray-300 font-semibold">Data Collected</th>
+              <th class="py-3 pr-4 text-gray-300 font-semibold">Frequency</th>
+              <th class="py-3 text-gray-300 font-semibold">Notes</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-400">
+            <tr class="border-b border-n8n-border/50">
+              <td class="py-3 pr-4">
+                <a href="https://api.n8n.io" target="_blank" rel="noopener noreferrer" class="text-n8n-primary hover:underline">
+                  n8n Templates API
+                </a>
+              </td>
+              <td class="py-3 pr-4">Templates, views, nodes, categories, creator info</td>
+              <td class="py-3 pr-4">Daily</td>
+              <td class="py-3">Official API, complete data</td>
+            </tr>
+            <tr class="border-b border-n8n-border/50">
+              <td class="py-3 pr-4">
+                <a href="https://api.github.com" target="_blank" rel="noopener noreferrer" class="text-n8n-primary hover:underline">
+                  GitHub API
+                </a>
+              </td>
+              <td class="py-3 pr-4">Stars, forks, releases, issues, contributors</td>
+              <td class="py-3 pr-4">Daily</td>
+              <td class="py-3">Uses token for higher rate limits</td>
+            </tr>
+            <tr class="border-b border-n8n-border/50">
+              <td class="py-3 pr-4">
+                <a href="https://community.n8n.io/about.json" target="_blank" rel="noopener noreferrer" class="text-n8n-primary hover:underline">
+                  Discourse Forum API
+                </a>
+              </td>
+              <td class="py-3 pr-4">Users, topics, posts, likes, contributors</td>
+              <td class="py-3 pr-4">Daily</td>
+              <td class="py-3">Public endpoints, no auth needed</td>
+            </tr>
+            <tr class="border-b border-n8n-border/50">
+              <td class="py-3 pr-4">
+                <span class="text-gray-300">Discord API</span>
+              </td>
+              <td class="py-3 pr-4">Member count, online count</td>
+              <td class="py-3 pr-4">Daily</td>
+              <td class="py-3">Requires bot token</td>
+            </tr>
+            <tr class="border-b border-n8n-border/50">
+              <td class="py-3 pr-4">
+                <a href="https://api.npmjs.org" target="_blank" rel="noopener noreferrer" class="text-n8n-primary hover:underline">
+                  npm API
+                </a>
+              </td>
+              <td class="py-3 pr-4">Package download counts</td>
+              <td class="py-3 pr-4">Daily</td>
+              <td class="py-3">Public API</td>
+            </tr>
+            <tr class="border-b border-n8n-border/50">
+              <td class="py-3 pr-4">
+                <a href="https://lu.ma" target="_blank" rel="noopener noreferrer" class="text-n8n-primary hover:underline">
+                  Luma Events
+                </a>
+              </td>
+              <td class="py-3 pr-4">Community events, locations, registrations</td>
+              <td class="py-3 pr-4">Daily</td>
+              <td class="py-3">Scraped from n8n community calendar</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4">
+                <a href="https://n8n.notion.site" target="_blank" rel="noopener noreferrer" class="text-n8n-primary hover:underline">
+                  Notion Directory
+                </a>
+              </td>
+              <td class="py-3 pr-4">Ambassador profiles, join dates, locations</td>
+              <td class="py-3 pr-4">Weekly</td>
+              <td class="py-3">Scraped via Playwright (Sundays 05:00 UTC)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- External Data Sources -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-2">External Data Sources</h2>
+      <p class="text-gray-400 mb-6">
+        Some metrics aren't available from official APIs. We integrate data from trusted community projects with proper attribution.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+              <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-white font-semibold">n8n Arena</h3>
+              <a href="https://n8narena.com" target="_blank" rel="noopener noreferrer" class="text-n8n-primary text-sm hover:underline">
+                n8narena.com
+              </a>
+            </div>
+          </div>
+          <p class="text-gray-400 text-sm mb-3">
+            Creator metrics including template inserters (imports), rich creator profiles, and engagement data. The n8n API doesn't expose inserter metrics, making this an essential community data source.
+          </p>
+          <div class="text-xs text-gray-500">
+            Attribution: "Creator metrics powered by n8n Arena"
+          </div>
+        </div>
+
+        <div class="card p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center">
+              <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-white font-semibold">Historical Backfill</h3>
+              <span class="text-gray-400 text-sm">star-history.com, ossinsight.io</span>
+            </div>
+          </div>
+          <p class="text-gray-400 text-sm mb-3">
+            Historical GitHub star data from before we started tracking. Used to provide longer-term trends. These data points are marked as "estimated" in our visualizations.
+          </p>
+          <div class="text-xs text-gray-500">
+            Note: Pre-2026 star data is scaled estimates
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Data Quality -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-2">Data Quality & Resolution</h2>
+      <p class="text-gray-400 mb-6">
+        Understanding how data is collected and what limitations exist helps you interpret the metrics correctly.
+      </p>
+
+      <div class="space-y-4">
+        <div class="card p-5">
+          <h3 class="text-white font-semibold mb-2">Granularity</h3>
+          <ul class="text-gray-400 text-sm space-y-2">
+            <li class="flex items-start gap-2">
+              <span class="text-n8n-primary">Daily:</span>
+              <span>GitHub stars, forum stats, Discord members - collected every day at 06:00 UTC</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-n8n-primary">Weekly:</span>
+              <span>Full template catalog, ambassador profiles - refreshed on Sundays</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-n8n-primary">Monthly:</span>
+              <span>Aggregated time series for historical trends and milestone predictions</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card p-5">
+          <h3 class="text-white font-semibold mb-2">Data Provenance</h3>
+          <p class="text-gray-400 text-sm mb-3">
+            Each data point includes a <code class="bg-n8n-darker px-1.5 py-0.5 rounded text-gray-300">source</code> field indicating its origin:
+          </p>
+          <ul class="text-gray-400 text-sm space-y-2">
+            <li class="flex items-start gap-2">
+              <code class="bg-n8n-darker px-1.5 py-0.5 rounded text-green-400 text-xs">api</code>
+              <span>Direct from official API - highest reliability</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <code class="bg-n8n-darker px-1.5 py-0.5 rounded text-blue-400 text-xs">external</code>
+              <span>From attributed third-party source (e.g., n8n Arena)</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <code class="bg-n8n-darker px-1.5 py-0.5 rounded text-yellow-400 text-xs">estimated</code>
+              <span>Historical backfill or interpolated data - shown differently in charts</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card p-5">
+          <h3 class="text-white font-semibold mb-2">Data Gaps</h3>
+          <p class="text-gray-400 text-sm">
+            When a source is temporarily unavailable, we use the last known value and mark the gap.
+            The <code class="bg-n8n-darker px-1.5 py-0.5 rounded text-gray-300">measuredSince</code> field
+            on each dataset shows when we started tracking that metric. Historical data before that date
+            comes from backfill sources and is marked accordingly.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Using This Data -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-2">Using This Data</h2>
+      <p class="text-gray-400 mb-6">
+        All data files are publicly accessible and you're welcome to use them for your own analysis.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card p-5">
+          <h3 class="text-white font-semibold mb-3">Access the Data</h3>
+          <ul class="text-gray-400 text-sm space-y-2">
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-n8n-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+              <span>JSON files in <code class="bg-n8n-darker px-1 rounded">/data/</code> directory</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-n8n-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+              <span>Version controlled in <a href="https://github.com/gxjansen/n8n-stats" target="_blank" rel="noopener noreferrer" class="text-n8n-primary hover:underline">GitHub repository</a></span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-n8n-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+              <span>Licensed under MIT - use freely with attribution</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card p-5">
+          <h3 class="text-white font-semibold mb-3">Explore Visually</h3>
+          <p class="text-gray-400 text-sm mb-4">
+            Use the Data Playground to visualize and compare any metrics without writing code.
+          </p>
+          <a
+            href="/playground"
+            class="inline-flex items-center gap-2 text-n8n-primary hover:text-n8n-primary/80 text-sm font-medium transition-colors"
+            data-umami-event="nav-click"
+            data-umami-event-target="playground-from-data-sources"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Open Playground
+          </a>
+        </div>
+      </div>
+
+      <div class="card p-5 mt-4">
+        <h3 class="text-white font-semibold mb-3">Technical Documentation</h3>
+        <p class="text-gray-400 text-sm mb-3">
+          For developers wanting to understand the ETL pipeline, data format specifications, or contribute to data collection:
+        </p>
+        <a
+          href="https://github.com/gxjansen/n8n-stats/blob/main/docs/DATA-STRATEGY.md"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 text-n8n-primary hover:text-n8n-primary/80 text-sm font-medium transition-colors"
+          data-umami-event="external-click"
+          data-umami-event-target="data-strategy-docs"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+          View DATA-STRATEGY.md on GitHub
+        </a>
+      </div>
+    </section>
+
+    <!-- Data Sources Attribution (meta) -->
+    <DataSourcesSection sources={[
+      { label: "This page", source: "n8n Pulse", note: "documenting our methodology" },
+    ]} />
+  </div>
+</BaseLayout>
