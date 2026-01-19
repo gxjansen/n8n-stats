@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import DataSourcesSection from '@/components/DataSourcesSection.astro';
 ---
 
 <BaseLayout title="Data Sources" description="How n8n Pulse collects, processes, and makes data available for the n8n community dashboard">
@@ -394,9 +393,5 @@ import DataSourcesSection from '@/components/DataSourcesSection.astro';
       </div>
     </section>
 
-    <!-- Data Sources Attribution (meta) -->
-    <DataSourcesSection sources={[
-      { label: "This page", source: "n8n Pulse", note: "documenting our methodology" },
-    ]} />
   </div>
 </BaseLayout>
