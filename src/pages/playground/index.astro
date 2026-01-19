@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import DataSourcesSection from '@/components/DataSourcesSection.astro';
 import { DATA_SOURCES, getAllMetrics, CATEGORICAL_SOURCES, getCategoricalSourcesByType } from '@/lib/playground/registry';
 import { MODE_LABELS } from '@/lib/playground/state';
 
@@ -556,10 +557,15 @@ const correlationSources = getCategoricalSourcesByType('correlation');
       </div>
     </div> <!-- End mode-correlation -->
 
-    <!-- Info (shown for all modes) -->
-    <p class="text-center text-sm text-gray-500 mt-6">
-      Data updates daily. Some metrics have longer history than others.
-    </p>
+    <!-- Data Sources -->
+    <DataSourcesSection sources={[
+      { label: "GitHub stats", source: "GitHub API", url: "https://api.github.com", note: "updated daily" },
+      { label: "Historical stars", source: "ossinsight.io", note: "scaled estimates" },
+      { label: "Templates & Nodes", source: "n8n Templates API", url: "https://api.n8n.io", note: "updated daily" },
+      { label: "Creator metrics", source: "n8n Arena", url: "https://n8narena.com", note: "community project" },
+      { label: "Forum stats", source: "Discourse API", url: "https://community.n8n.io", note: "updated daily" },
+      { label: "Discord stats", source: "Discord API", note: "updated daily" },
+    ]} />
   </div>
 </BaseLayout>
 
