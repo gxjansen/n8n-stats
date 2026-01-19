@@ -763,7 +763,7 @@ const lastUpdated = allNodesData?.lastUpdated
         </p>
 
         <!-- Community Stats Grid -->
-        <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="grid grid-cols-2 gap-4 mb-8">
           <StatCard
             label="Packages"
             value={communityNodesData.totalPackages}
@@ -775,12 +775,6 @@ const lastUpdated = allNodesData?.lastUpdated
             value={communityNodesData.totalDownloadsWeekly}
             subtitle="Top 500 packages"
             source={{ source: "npm Registry", url: "https://www.npmjs.com", note: "downloads API" }}
-          />
-          <StatCard
-            label="Categories"
-            value={Object.keys(communityNodesData.byCategory).length}
-            subtitle="Inferred from keywords"
-            source={{ source: "npm Registry", url: "https://www.npmjs.com", note: "weekly scan" }}
           />
         </div>
 
