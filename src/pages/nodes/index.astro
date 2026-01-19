@@ -12,6 +12,40 @@ import { NODE_CATEGORY_COLORS, NODE_CATEGORY_ORDER } from '@/lib/utils/colors';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
+// Load community nodes data (fetched weekly via fetch-community-nodes.ts)
+interface CommunityPackage {
+  name: string;
+  description: string;
+  version: string;
+  author: string;
+  downloadsWeekly: number;
+  downloadsMonthly: number;
+  score: number;
+  lastUpdated: string;
+  repository?: string;
+  category: string;
+  keywords: string[];
+}
+
+interface CommunityNodesData {
+  lastUpdated: string;
+  totalPackages: number;
+  totalDownloadsWeekly: number;
+  totalDownloadsMonthly: number;
+  byCategory: Record<string, number>;
+  packages: CommunityPackage[];
+}
+
+let communityNodesData: CommunityNodesData | null = null;
+try {
+  const communityPath = join(process.cwd(), 'public', 'data', 'community-nodes.json');
+  if (existsSync(communityPath)) {
+    communityNodesData = JSON.parse(readFileSync(communityPath, 'utf-8'));
+  }
+} catch (e) {
+  console.warn('community-nodes.json not found, community section unavailable');
+}
+
 // Load complete node data (fetched weekly via fetch-all-nodes.ts)
 interface NodeData {
   type: string;
@@ -661,6 +695,151 @@ const lastUpdated = allNodesData?.lastUpdated
       </section>
     )}
 
+    <!-- Community Nodes Section -->
+    {communityNodesData && (
+      <section id="community-nodes" class="mb-12 scroll-mt-20 pt-8 border-t border-gray-800">
+        <div class="flex items-center gap-3 mb-2">
+          <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+            Community Nodes
+            <SourceInfo source="npm Registry" url="https://www.npmjs.com/search?q=keywords:n8n-community-node-package" note="weekly scan" position="inline" />
+          </h2>
+          <span class="px-2 py-0.5 bg-purple-500/10 text-purple-400 text-xs font-medium rounded">Self-Hosted</span>
+        </div>
+        <p class="text-gray-400 mb-6">
+          Community-built node packages from npm. These extend n8n's capabilities for self-hosted installations.
+        </p>
+
+        <!-- Community Stats Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <StatCard
+            label="Community Packages"
+            value={communityNodesData.totalPackages}
+            source={{ source: "npm Registry", url: "https://www.npmjs.com/search?q=keywords:n8n-community-node-package", note: "weekly scan" }}
+          />
+          <StatCard
+            label="Weekly Downloads"
+            value={communityNodesData.totalDownloadsWeekly}
+            source={{ source: "npm Registry", url: "https://www.npmjs.com", note: "top 500 packages" }}
+          />
+          <StatCard
+            label="Categories"
+            value={Object.keys(communityNodesData.byCategory).length}
+            source={{ source: "npm Registry", url: "https://www.npmjs.com", note: "inferred from keywords" }}
+          />
+          <div class="card text-center">
+            <div class="text-3xl font-bold text-purple-400 mb-1">
+              {formatNumber(totalNodes + communityNodesData.totalPackages)}
+            </div>
+            <div class="text-sm text-gray-400">Total Ecosystem</div>
+          </div>
+        </div>
+
+        <!-- Top Community Packages -->
+        <div class="card p-6 mb-8">
+          <h3 class="text-lg font-semibold text-white mb-4">Top 20 Community Packages by Downloads</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-gray-700">
+                  <th class="text-left text-gray-400 font-medium py-2 pr-4">#</th>
+                  <th class="text-left text-gray-400 font-medium py-2 pr-4">Package</th>
+                  <th class="text-left text-gray-400 font-medium py-2 pr-4 hidden md:table-cell">Author</th>
+                  <th class="text-left text-gray-400 font-medium py-2 pr-4 hidden lg:table-cell">Category</th>
+                  <th class="text-right text-gray-400 font-medium py-2">Weekly Downloads</th>
+                </tr>
+              </thead>
+              <tbody>
+                {communityNodesData.packages.slice(0, 20).map((pkg, i) => (
+                  <tr class="border-b border-gray-800 hover:bg-gray-800/50">
+                    <td class="py-2 pr-4 text-gray-500">#{i + 1}</td>
+                    <td class="py-2 pr-4">
+                      <a
+                        href={`https://www.npmjs.com/package/${pkg.name}`}
+                        target="_blank"
+                        rel="noopener"
+                        class="text-white hover:text-n8n-primary transition-colors"
+                      >
+                        {pkg.name.replace('n8n-nodes-', '')}
+                      </a>
+                      <div class="text-xs text-gray-500 truncate max-w-[200px] md:max-w-[300px]">
+                        {pkg.description?.slice(0, 60)}{pkg.description && pkg.description.length > 60 ? '...' : ''}
+                      </div>
+                    </td>
+                    <td class="py-2 pr-4 text-gray-400 hidden md:table-cell">{pkg.author}</td>
+                    <td class="py-2 pr-4 hidden lg:table-cell">
+                      <span class="px-2 py-0.5 bg-gray-800 text-gray-300 text-xs rounded">
+                        {pkg.category}
+                      </span>
+                    </td>
+                    <td class="py-2 text-right text-purple-400 font-medium">
+                      {formatNumber(pkg.downloadsWeekly)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-4 text-center">
+            <a
+              href="https://www.npmjs.com/search?q=keywords:n8n-community-node-package"
+              target="_blank"
+              rel="noopener"
+              class="text-sm text-purple-400 hover:text-purple-300 transition-colors"
+            >
+              View all {formatNumber(communityNodesData.totalPackages)} packages on npm &rarr;
+            </a>
+          </div>
+        </div>
+
+        <!-- Category Distribution -->
+        <div class="card p-6 mb-8">
+          <h3 class="text-lg font-semibold text-white mb-4">Packages by Category</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {Object.entries(communityNodesData.byCategory)
+              .sort((a, b) => b[1] - a[1])
+              .map(([category, count]) => {
+                const pct = (count / communityNodesData!.totalPackages) * 100;
+                return (
+                  <div class="p-3 bg-gray-800/50 rounded-lg">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-white font-medium text-sm">{category}</span>
+                      <span class="text-gray-400 text-xs">{pct.toFixed(0)}%</span>
+                    </div>
+                    <div class="text-purple-400 font-bold">{formatNumber(count)}</div>
+                    <div class="mt-2 h-1 bg-gray-700 rounded-full overflow-hidden">
+                      <div
+                        class="h-full bg-purple-500 rounded-full"
+                        style={`width: ${pct}%`}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+
+        <!-- Community vs Official Comparison -->
+        <div class="card p-6 border-purple-500/20">
+          <div class="flex items-start gap-3">
+            <div class="text-purple-400 mt-0.5">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-white font-semibold mb-2">Official vs Community Nodes</h3>
+              <p class="text-gray-400 text-sm leading-relaxed">
+                <strong>Official nodes</strong> ({formatNumber(totalNodes)}) are maintained by n8n and available on both cloud and self-hosted instances.
+                <strong>Community nodes</strong> ({formatNumber(communityNodesData.totalPackages)}) are built by the community and available for self-hosted installations.
+                Some popular community nodes are verified and available on n8n Cloud through the
+                <a href="https://docs.n8n.io/integrations/community-nodes/" target="_blank" rel="noopener" class="text-purple-400 hover:underline">verified community nodes program</a>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    )}
+
     <!-- Link to integrations -->
     <SecondaryCTA
       title="Explore Integrations"
@@ -686,6 +865,7 @@ const lastUpdated = allNodesData?.lastUpdated
     <DataSourcesSection sources={[
       { label: "Node usage", source: "n8n Templates API", url: "https://api.n8n.io", note: "weekly full scan" },
       { label: "Insertion metrics", source: "n8n Arena", url: "https://n8narena.com", note: "community project" },
+      { label: "Community packages", source: "npm Registry", url: "https://www.npmjs.com", note: "weekly scan" },
     ]} />
   </div>
 </BaseLayout>

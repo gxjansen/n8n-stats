@@ -270,27 +270,31 @@ if (latestCreators && prevCreators) {
   insertersPerWeek = Math.round(insertersGrowth / weeksBetween);
 }
 
-// Calculate conversion rates for current and previous snapshots
-// Note: These are CUMULATIVE all-time conversion rates (total inserters / total views)
-// Not weekly conversion rates - we're tracking how the overall historical rate changes over time
-const currentConversionRate = latestCreators && latestCreators.totalViews > 0
-  ? (latestCreators.totalInserters / latestCreators.totalViews) * 100
-  : null;
-const prevConversionRate = prevCreators && prevCreators.totalViews > 0
-  ? (prevCreators.totalInserters / prevCreators.totalViews) * 100
-  : null;
+// Calculate RECENT conversion rate (actual period activity, not cumulative all-time)
+// This shows how well NEW templates are converting views to imports
+let recentConversionRate = null;
+let recentConversionChange = null;
 
-// Normalize conversion rate change to weekly basis
-// Shows how many percentage points the overall conversion rate improves per week
-let conversionRateChange = null;
-if (currentConversionRate !== null && prevConversionRate !== null && latestCreators && prevCreators) {
-  const daysBetween = Math.max(1, Math.round(
-    (new Date(latestCreators.date).getTime() - new Date(prevCreators.date).getTime()) / (1000 * 60 * 60 * 24)
-  ));
-  const weeksBetween = daysBetween / 7;
+if (latestCreators && prevCreators) {
+  // Recent period growth (e.g., last 21 days)
+  const recentInserters = latestCreators.totalInserters - prevCreators.totalInserters;
+  const recentViews = latestCreators.totalViews - prevCreators.totalViews;
   
-  const absoluteChange = currentConversionRate - prevConversionRate;
-  conversionRateChange = absoluteChange / weeksBetween;
+  if (recentViews > 0) {
+    recentConversionRate = (recentInserters / recentViews) * 100;
+    
+    // Compare to previous period if we have enough data
+    if (recentCreatorData.length >= 3) {
+      const prevPeriod = recentCreatorData[recentCreatorData.length - 3];
+      const prevPeriodInserters = prevCreators.totalInserters - prevPeriod.totalInserters;
+      const prevPeriodViews = prevCreators.totalViews - prevPeriod.totalViews;
+      
+      if (prevPeriodViews > 0) {
+        const prevPeriodRate = (prevPeriodInserters / prevPeriodViews) * 100;
+        recentConversionChange = recentConversionRate - prevPeriodRate;
+      }
+    }
+  }
 }
 
 // Get weekly data for sparklines (all real from n8n Arena)
@@ -425,8 +429,8 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         />
         <VelocityCard
           label="Conversion Rate"
-          value={conversionRateChange !== null ? `${conversionRateChange >= 0 ? '+' : ''}${conversionRateChange.toFixed(2)}%` : null}
-          subtitle="Weekly improvement"
+          value={recentConversionRate !== null ? `${recentConversionRate.toFixed(1)}%` : null}
+          subtitle={recentConversionChange !== null ? `${recentConversionChange >= 0 ? '+' : ''}${recentConversionChange.toFixed(1)}% from last period` : 'Views → imports'}
           trend={conversionTrend}
           color="#4bc0c0"
           to="/creators"

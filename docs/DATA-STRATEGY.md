@@ -30,7 +30,8 @@ For a static dashboard with predictable query patterns, flat JSON files are the 
 | n8n Templates | `api.n8n.io/api/templates/search` | Daily | Templates, views, nodes, basic creator info |
 | GitHub | `api.github.com/repos/n8n-io/n8n` | Daily | Stars, forks, releases, issues |
 | Discourse | `community.n8n.io/about.json` | Daily | Users, topics, posts, likes |
-| npm | `api.npmjs.org/downloads/...` | Daily | Download counts |
+| npm | `api.npmjs.org/downloads/...` | Daily | Download counts (n8n core) |
+| npm Registry | `registry.npmjs.org/-/v1/search` | Weekly | Community node packages, downloads, authors |
 
 ### External Sources (With attribution)
 
@@ -103,7 +104,10 @@ public/data/
 │   ├── github.json              # { daily: [], weekly: [], monthly: [] }
 │   ├── community.json
 │   ├── templates.json
-│   └── creators.json            # Merged from API + n8n Arena
+│   ├── creators.json            # Merged from API + n8n Arena
+│   └── community-nodes.json     # { weekly: [] } from npm Registry
+│
+├── community-nodes.json           # Full community packages snapshot (5,000+)
 │
 └── seed/                         # Historical backfill (one-time import)
     ├── github-stars-history.json # From star-history.com
@@ -244,7 +248,9 @@ Frontend can then:
 | Daily 06:00 UTC | Fetch all primary + external sources | `fetch-daily.ts` |
 | Daily 06:05 UTC | Rebuild history files | `build-history.ts` |
 | Daily 06:10 UTC | Trigger Netlify build | GitHub Action |
-| Weekly Sunday | Full template catalog (all pages) | `fetch-weekly.ts` |
+| Weekly Sunday 04:00 UTC | Full template catalog (all pages) | `fetch-all-templates.ts` |
+| Weekly Sunday 04:00 UTC | Full node catalog | `fetch-all-nodes.ts` |
+| Weekly Sunday 04:00 UTC | Community node packages from npm | `fetch-community-nodes.ts` |
 | Manual | Historical backfill | `seed-history.ts` |
 
 ---

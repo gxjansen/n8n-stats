@@ -24,6 +24,8 @@
     "update-bluesky-profile-history": "tsx scripts/update-bluesky-profile-history.ts",
     "update-reddit-history": "tsx scripts/update-reddit-history.ts",
     "update-events": "tsx scripts/fetch-events.ts",
+    "fetch-community-nodes": "tsx scripts/fetch-community-nodes.ts",
+    "update-community-nodes-history": "tsx scripts/update-community-nodes-history.ts",
     "fetch-landscape": "tsx scripts/fetch-landscape.ts",
     "backfill-landscape": "tsx scripts/backfill-landscape-github.ts",
     "update-all-history": "npm run update-github-history && npm run update-community-history && npm run update-templates-history && npm run update-discord-history && npm run update-bluesky-history && npm run update-bluesky-profile-history && npm run update-reddit-history && npm run update-events",

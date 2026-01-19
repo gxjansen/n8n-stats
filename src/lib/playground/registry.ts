@@ -106,6 +106,10 @@ const COLORS = {
   npmWindmill: '#22c55e',         // Green
   npmNodered: '#8f3e3e',          // Dark red
   npmActivepieces: '#6366f1',     // Indigo
+
+  // Community Nodes (npm packages)
+  communityPackages: '#a855f7',   // Purple
+  communityDownloads: '#8b5cf6',  // Violet
 };
 
 export const DATA_SOURCES: DataSource[] = [
@@ -324,6 +328,21 @@ export const DATA_SOURCES: DataSource[] = [
       { id: 'npm-activepieces', label: 'Activepieces Downloads/Week', color: COLORS.npmActivepieces, path: 'activepieces', dateKey: 'weekStart', excludeZero: true },
     ],
   },
+  {
+    id: 'community-nodes',
+    label: 'Community Nodes',
+    shortLabel: 'Community',
+    file: '/data/history/community-nodes.json',
+    type: 'timeseries',
+    granularities: ['weekly'],
+    defaultGranularity: 'weekly',
+    historyStart: '2026-01',
+    measuredSince: '2026-01', // npm Registry API (all measured)
+    metrics: [
+      { id: 'community-packages', label: 'Community Packages', color: COLORS.communityPackages, path: 'totalPackages', excludeZero: true },
+      { id: 'community-downloads', label: 'Weekly Downloads', color: COLORS.communityDownloads, path: 'totalDownloadsWeekly', excludeZero: true },
+    ],
+  },
 ];
 
 /**
@@ -528,6 +547,25 @@ export const CATEGORICAL_SOURCES: CategoricalSource[] = [
       { id: 'totalInserters', label: 'Total Inserters', path: 'totalInserters' },
       { id: 'monthlyViews', label: 'Monthly Views', path: 'monthlyViews' },
       { id: 'weeklyViews', label: 'Weekly Views', path: 'weeklyViews' },
+    ],
+  },
+
+  // Community Nodes ranking
+  {
+    id: 'community-nodes-ranking',
+    label: 'Community Node Packages',
+    shortLabel: 'Packages',
+    file: '/data/community-nodes.json',
+    sizeHint: 'large', // 5,000+ packages
+    dataType: 'ranking',
+    dataPath: 'packages',
+    lastUpdatedPath: 'lastUpdated',
+    labelField: 'name',
+    groupByField: 'category',
+    rankingFields: [
+      { id: 'downloadsWeekly', label: 'Weekly Downloads', type: 'number' },
+      { id: 'downloadsMonthly', label: 'Monthly Downloads', type: 'number' },
+      { id: 'score', label: 'npm Score', type: 'number' },
     ],
   },
 ];

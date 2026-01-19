@@ -1,4 +1,4 @@
-name: Weekly Full Templates Fetch
+name: Weekly Full Templates & Nodes Fetch
 
 on:
   schedule:
@@ -9,7 +9,7 @@ on:
 jobs:
   fetch-all-templates:
     runs-on: ubuntu-latest
-    timeout-minutes: 45  # Templates ~16 min, nodes ~2 min, add buffer
+    timeout-minutes: 60  # Templates ~16 min, nodes ~2 min, community ~5 min, add buffer
 
     steps:
       - name: Checkout repository
@@ -35,12 +35,18 @@ jobs:
       - name: Update nodes history
         run: npx tsx scripts/update-nodes-history.ts
 
+      - name: Fetch community nodes from npm Registry
+        run: npm run fetch-community-nodes
+
+      - name: Update community nodes history
+        run: npm run update-community-nodes-history
+
       - name: Commit updated data
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add public/data/all-templates-data.json public/data/all-nodes-data.json public/data/nodes-history.json
-          git diff --staged --quiet || git commit -m "Update full templates, nodes data, and history (weekly) [skip ci]"
+          git add public/data/all-templates-data.json public/data/all-nodes-data.json public/data/nodes-history.json public/data/community-nodes.json public/data/history/community-nodes.json
+          git diff --staged --quiet || git commit -m "Update full templates, nodes data, community nodes, and history (weekly) [skip ci]"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
