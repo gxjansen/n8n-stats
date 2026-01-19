@@ -342,12 +342,11 @@ const lastUpdated = allNodesData?.lastUpdated
     <section class="mb-12">
       <h2 class="text-xl font-semibold text-white mb-4">Ecosystem Overview</h2>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-        <div class="card text-center">
-          <div class="text-3xl font-bold text-white mb-1">
-            {formatNumber(totalNodes + (communityNodesData?.totalPackages || 0))}
-          </div>
-          <div class="text-sm text-gray-400">Total Ecosystem</div>
-        </div>
+        <StatCard
+          label="Total Ecosystem"
+          value={totalNodes + (communityNodesData?.totalPackages || 0)}
+          subtitle="Official + Community"
+        />
         <StatCard
           label="Templates Analyzed"
           value={totalTemplates}
@@ -370,34 +369,39 @@ const lastUpdated = allNodesData?.lastUpdated
           <StatCard
             label="Weekly npm Downloads"
             value={communityNodesData.totalDownloadsWeekly}
-            source={{ source: "npm Registry", url: "https://www.npmjs.com", note: "community packages" }}
+            subtitle="Community packages"
+            source={{ source: "npm Registry", url: "https://www.npmjs.com", note: "top 500 packages" }}
           />
         )}
       </div>
       <!-- Official vs Community breakdown -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="card text-center border-cyan-500/20">
-          <div class="text-xs text-cyan-400 mb-1 font-medium">Official</div>
-          <div class="text-2xl font-bold text-cyan-400 mb-1">{formatNumber(totalNodes)}</div>
-          <div class="text-sm text-gray-400">Nodes</div>
-        </div>
-        <div class="card text-center border-cyan-500/20">
-          <div class="text-xs text-cyan-400 mb-1 font-medium">Official</div>
-          <div class="text-2xl font-bold text-cyan-400 mb-1">{Object.keys(nodesByCategory).length}</div>
-          <div class="text-sm text-gray-400">Categories</div>
-        </div>
+        <StatCard
+          label="Official Nodes"
+          value={totalNodes}
+          subtitle="n8n maintained"
+          source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "weekly full scan" }}
+        />
+        <StatCard
+          label="Official Categories"
+          value={Object.keys(nodesByCategory).length}
+          subtitle="n8n maintained"
+          source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "weekly full scan" }}
+        />
         {communityNodesData && (
           <>
-            <div class="card text-center border-purple-500/20">
-              <div class="text-xs text-purple-400 mb-1 font-medium">Community</div>
-              <div class="text-2xl font-bold text-purple-400 mb-1">{formatNumber(communityNodesData.totalPackages)}</div>
-              <div class="text-sm text-gray-400">Packages</div>
-            </div>
-            <div class="card text-center border-purple-500/20">
-              <div class="text-xs text-purple-400 mb-1 font-medium">Community</div>
-              <div class="text-2xl font-bold text-purple-400 mb-1">{Object.keys(communityNodesData.byCategory).length}</div>
-              <div class="text-sm text-gray-400">Categories</div>
-            </div>
+            <StatCard
+              label="Community Packages"
+              value={communityNodesData.totalPackages}
+              subtitle="Self-hosted"
+              source={{ source: "npm Registry", url: "https://www.npmjs.com/search?q=keywords:n8n-community-node-package", note: "weekly scan" }}
+            />
+            <StatCard
+              label="Community Categories"
+              value={Object.keys(communityNodesData.byCategory).length}
+              subtitle="Inferred from keywords"
+              source={{ source: "npm Registry", url: "https://www.npmjs.com", note: "weekly scan" }}
+            />
           </>
         )}
       </div>
@@ -795,21 +799,24 @@ const lastUpdated = allNodesData?.lastUpdated
 
         <!-- Community Stats Grid -->
         <div class="grid grid-cols-3 gap-4 mb-8">
-          <div class="card text-center border-purple-500/20">
-            <div class="text-xs text-purple-400 mb-1 font-medium">Community</div>
-            <div class="text-2xl font-bold text-purple-400 mb-1">{formatNumber(communityNodesData.totalPackages)}</div>
-            <div class="text-sm text-gray-400">Packages</div>
-          </div>
-          <div class="card text-center border-purple-500/20">
-            <div class="text-xs text-purple-400 mb-1 font-medium">Community</div>
-            <div class="text-2xl font-bold text-purple-400 mb-1">{formatNumber(communityNodesData.totalDownloadsWeekly)}</div>
-            <div class="text-sm text-gray-400">Weekly Downloads</div>
-          </div>
-          <div class="card text-center border-purple-500/20">
-            <div class="text-xs text-purple-400 mb-1 font-medium">Community</div>
-            <div class="text-2xl font-bold text-purple-400 mb-1">{Object.keys(communityNodesData.byCategory).length}</div>
-            <div class="text-sm text-gray-400">Categories</div>
-          </div>
+          <StatCard
+            label="Packages"
+            value={communityNodesData.totalPackages}
+            subtitle="npm packages"
+            source={{ source: "npm Registry", url: "https://www.npmjs.com/search?q=keywords:n8n-community-node-package", note: "weekly scan" }}
+          />
+          <StatCard
+            label="Weekly Downloads"
+            value={communityNodesData.totalDownloadsWeekly}
+            subtitle="Top 500 packages"
+            source={{ source: "npm Registry", url: "https://www.npmjs.com", note: "downloads API" }}
+          />
+          <StatCard
+            label="Categories"
+            value={Object.keys(communityNodesData.byCategory).length}
+            subtitle="Inferred from keywords"
+            source={{ source: "npm Registry", url: "https://www.npmjs.com", note: "weekly scan" }}
+          />
         </div>
 
         <!-- Top Community Packages -->
