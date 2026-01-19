@@ -404,9 +404,12 @@ const buildTime = new Date();
         window.addEventListener('error', function(event) {
           var target = event.target;
           if (target && (target.tagName === 'IMG' || target.tagName === 'SCRIPT' || target.tagName === 'LINK')) {
+            var src = target.src || target.href || '';
+            // Skip analytics script failures (expected with ad blockers)
+            if (src.includes('u.a11y.nl')) return;
             trackError('resource-error', {
               type: target.tagName.toLowerCase(),
-              src: (target.src || target.href || '').slice(0, 200),
+              src: src.slice(0, 200),
               url: window.location.pathname,
             });
           }

@@ -41,6 +41,7 @@ import {
   // Scales
   CategoryScale,
   LinearScale,
+  LogarithmicScale,
   TimeScale,
   // Plugins
   Tooltip,
@@ -66,6 +67,7 @@ Chart.register(
   // Scales
   CategoryScale,
   LinearScale,
+  LogarithmicScale,
   TimeScale,
   // Plugins
   Tooltip,
