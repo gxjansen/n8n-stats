@@ -430,7 +430,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         <VelocityCard
           label="Conversion Rate"
           value={recentConversionRate !== null ? `${recentConversionRate.toFixed(1)}%` : null}
-          subtitle={recentConversionChange !== null ? `${recentConversionChange >= 0 ? '+' : ''}${recentConversionChange.toFixed(1)}% from last period` : 'Views → imports'}
+          subtitle={recentConversionChange !== null ? `${recentConversionChange >= 0 ? '+' : ''}${recentConversionChange.toFixed(1)}pp from last period` : 'Views → imports'}
           trend={conversionTrend}
           color="#4bc0c0"
           to="/creators"
