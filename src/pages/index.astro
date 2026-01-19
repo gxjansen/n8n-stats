@@ -271,6 +271,8 @@ if (latestCreators && prevCreators) {
 }
 
 // Calculate conversion rates for current and previous snapshots
+// Note: These are CUMULATIVE all-time conversion rates (total inserters / total views)
+// Not weekly conversion rates - we're tracking how the overall historical rate changes over time
 const currentConversionRate = latestCreators && latestCreators.totalViews > 0
   ? (latestCreators.totalInserters / latestCreators.totalViews) * 100
   : null;
@@ -278,7 +280,8 @@ const prevConversionRate = prevCreators && prevCreators.totalViews > 0
   ? (prevCreators.totalInserters / prevCreators.totalViews) * 100
   : null;
 
-// Normalize conversion rate change to weekly basis (same as other velocity metrics)
+// Normalize conversion rate change to weekly basis
+// Shows how many percentage points the overall conversion rate improves per week
 let conversionRateChange = null;
 if (currentConversionRate !== null && prevConversionRate !== null && latestCreators && prevCreators) {
   const daysBetween = Math.max(1, Math.round(
@@ -422,8 +425,8 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         />
         <VelocityCard
           label="Conversion Rate"
-          value={conversionRateChange !== null ? `${conversionRateChange >= 0 ? '+' : ''}${conversionRateChange.toFixed(2)}%/week` : null}
-          subtitle="Views → imports weekly change"
+          value={conversionRateChange !== null ? `${conversionRateChange >= 0 ? '+' : ''}${conversionRateChange.toFixed(2)}%` : null}
+          subtitle="Weekly improvement"
           trend={conversionTrend}
           color="#4bc0c0"
           to="/creators"
