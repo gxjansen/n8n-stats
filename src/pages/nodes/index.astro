@@ -281,6 +281,14 @@ const unusedNodes = hasCompleteData
       }))
   : [];
 
+// Count AI nodes (official)
+const aiNodesCount = hasCompleteData && allNodesData?.nodes?.byCategory?.AI
+  ? allNodesData.nodes.byCategory.AI.length
+  : 0;
+
+// Count AI community packages
+const aiCommunityPackages = communityNodesData?.byCategory?.AI || 0;
+
 // Format last updated date
 const lastUpdated = allNodesData?.lastUpdated
   ? new Date(allNodesData.lastUpdated).toLocaleDateString('en-US', {
@@ -368,6 +376,22 @@ const lastUpdated = allNodesData?.lastUpdated
             subtitle="Community packages"
             source={{ source: "npm Registry", url: "https://www.npmjs.com", note: "top 500 packages" }}
           />
+        )}
+        <StatCard
+          label="AI Nodes"
+          value={aiNodesCount + aiCommunityPackages}
+          subtitle={`${aiNodesCount} official + ${formatNumber(aiCommunityPackages)} community`}
+          source={{ source: "n8n API + npm", url: "https://api.n8n.io", note: "AI category" }}
+        />
+        {unusedNodes.length > 0 && (
+          <a href="#unused-nodes" class="block">
+            <StatCard
+              label="Unused Nodes"
+              value={unusedNodes.length}
+              subtitle="Zero template usage"
+              source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "weekly scan" }}
+            />
+          </a>
         )}
       </div>
     </section>
@@ -673,7 +697,7 @@ const lastUpdated = allNodesData?.lastUpdated
 
     <!-- Unused Nodes Section (Official) -->
     {unusedNodes.length > 0 && (
-      <section class="mb-12">
+      <section id="unused-nodes" class="mb-12 scroll-mt-20">
         <div class="flex items-center gap-3 mb-2">
           <h2 class="text-2xl font-bold text-white flex items-center gap-2">
             Nodes With Zero Usage
