@@ -8,6 +8,7 @@ import EventsSpotlightCard from '@/components/cards/EventsSpotlightCard.astro';
 import CommunityActivityCard from '@/components/cards/CommunityActivityCard.astro';
 import AIInsightCard from '@/components/cards/AIInsightCard.astro';
 import LLMSummaryCard from '@/components/cards/LLMSummaryCard.astro';
+import DataSourcesSection from '@/components/DataSourcesSection.astro';
 import { fetchTemplates } from '@/lib/api/n8n';
 import { fetchForumStats } from '@/lib/api/discourse';
 import { formatNumber } from '@/lib/utils/formatters';
@@ -671,5 +672,16 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         />
       </div>
     </section>
+
+    <!-- Data Sources Attribution -->
+    <DataSourcesSection sources={[
+      { label: "Templates & Nodes", source: "n8n Templates API", url: "https://api.n8n.io", note: "updated daily" },
+      { label: "GitHub stats", source: "GitHub API", url: "https://api.github.com", note: "updated daily" },
+      { label: "Creator metrics", source: "n8n Arena", url: "https://n8narena.com", note: "community project" },
+      { label: "Forum stats", source: "Discourse API", url: "https://community.n8n.io", note: "updated daily" },
+      { label: "Discord stats", source: "Discord API", note: "updated daily" },
+      { label: "Reddit stats", source: "Reddit API", note: "updated daily" },
+      { label: "Events", source: "Luma", url: "https://lu.ma", note: "scraped daily" },
+    ]} />
   </div>
 </BaseLayout>

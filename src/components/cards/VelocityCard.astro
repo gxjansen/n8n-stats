@@ -9,6 +9,13 @@
  */
 
 import MiniSparkline from '@/components/charts/MiniSparkline.astro';
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
 
 interface Props {
   label: string;
@@ -24,6 +31,7 @@ interface Props {
     unit: string;            // "days" or "weeks"
   };
   animationDelay?: number;   // Stagger sparkline animations (ms)
+  source?: SourceAttribution; // Optional data source attribution
 }
 
 const {
@@ -36,6 +44,7 @@ const {
   to,
   collecting,
   animationDelay = 0,
+  source,
 } = Astro.props;
 
 const isClickable = href || to;
@@ -83,10 +92,13 @@ const shouldAnimate = parsedValue !== null && parsedValue.num > 0;
 {isClickable ? (
   <a
     {...linkProps}
-    class={`card velocity-card block transition-all cursor-pointer group ${isCollecting ? 'opacity-75' : 'hover:border-n8n-primary/50 hover:bg-gray-800/50'}`}
+    class={`card velocity-card block transition-all cursor-pointer group relative ${isCollecting ? 'opacity-75' : 'hover:border-n8n-primary/50 hover:bg-gray-800/50'}`}
     data-umami-event="card-click"
     data-umami-event-target={`velocity-${label.toLowerCase().replace(/\s+/g, '-')}`}
   >
+    {source && (
+      <SourceInfo source={source.source} url={source.url} note={source.note} />
+    )}
     <div class="flex items-start justify-between gap-4">
       <div class="flex-1 min-w-0">
         <p class="text-sm text-gray-400 group-hover:text-gray-300 transition-colors truncate">{label}</p>
@@ -128,7 +140,10 @@ const shouldAnimate = parsedValue !== null && parsedValue.num > 0;
     </div>
   </a>
 ) : (
-  <div class={`card velocity-card ${isCollecting ? 'opacity-75' : ''}`}>
+  <div class={`card velocity-card relative ${isCollecting ? 'opacity-75' : ''}`}>
+    {source && (
+      <SourceInfo source={source.source} url={source.url} note={source.note} />
+    )}
     <div class="flex items-start justify-between gap-4">
       <div class="flex-1 min-w-0">
         <p class="text-sm text-gray-400 truncate">{label}</p>

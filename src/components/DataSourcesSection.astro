@@ -1,0 +1,94 @@
+---
+/**
+ * DataSourcesSection Component
+ *
+ * A collapsible section at the bottom of pages that lists all
+ * data sources used on that page. Provides comprehensive
+ * transparency without cluttering the main content.
+ *
+ * Uses native HTML <details> for built-in accessibility.
+ */
+
+interface DataSource {
+  /** Identifier for the data type (e.g., "GitHub stats", "Creator metrics") */
+  label: string;
+  /** Name of the source (e.g., "GitHub API", "n8n Arena") */
+  source: string;
+  /** Optional URL to the source */
+  url?: string;
+  /** Optional note about update frequency or methodology */
+  note?: string;
+}
+
+interface Props {
+  /** Array of data sources used on this page */
+  sources: DataSource[];
+  /** Whether the section is open by default */
+  open?: boolean;
+}
+
+const { sources, open = false } = Astro.props;
+---
+
+{sources.length > 0 && (
+  <details class="data-sources-section mt-12 border-t border-n8n-border pt-6" open={open}>
+    <summary class="cursor-pointer text-sm text-gray-400 hover:text-gray-300 transition-colors select-none list-none flex items-center gap-2">
+      <svg
+        class="w-4 h-4 transition-transform details-arrow"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+      <span>Data Sources</span>
+      <span class="text-gray-600">({sources.length})</span>
+    </summary>
+
+    <div class="mt-4 pl-6">
+      <ul class="space-y-2 text-sm">
+        {sources.map((ds) => (
+          <li class="flex flex-wrap items-baseline gap-x-2 text-gray-400">
+            <span class="text-gray-300 font-medium">{ds.label}:</span>
+            <span>{ds.source}</span>
+            {ds.note && (
+              <span class="text-gray-500">({ds.note})</span>
+            )}
+            {ds.url && (
+              <a
+                href={ds.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-n8n-primary/70 hover:text-n8n-primary text-xs"
+              >
+                {new URL(ds.url).hostname}
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      <p class="mt-4 text-xs text-gray-600">
+        Data is collected daily via automated scripts and stored as JSON files.
+        Historical data may include estimates from third-party sources (indicated where applicable).
+      </p>
+    </div>
+  </details>
+)}
+
+<style>
+  /* Rotate arrow when details is open */
+  details[open] .details-arrow {
+    transform: rotate(90deg);
+  }
+
+  /* Remove default marker in browsers that support ::marker */
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary::marker {
+    display: none;
+  }
+</style>

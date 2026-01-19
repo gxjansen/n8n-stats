@@ -8,6 +8,7 @@
  */
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import DataSourcesSection from '@/components/DataSourcesSection.astro';
 import { formatNumber } from '@/lib/utils/formatters';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -425,20 +426,13 @@ const icons = {
       </div>
     </section>
 
-    <!-- Data Sources Note -->
-    <section class="text-center text-gray-500 text-sm">
-      <p>
-        GitHub stars updated weekly via GitHub API. LinkedIn followers updated monthly.
-        <br />
-        <a href="https://github.com/n8n-io/n8n" target="_blank" rel="noopener" class="text-n8n-primary hover:underline">
-          Star n8n on GitHub
-        </a>
-        {' | '}
-        <a href="https://www.linkedin.com/company/n8n" target="_blank" rel="noopener" class="text-n8n-primary hover:underline">
-          Follow n8n on LinkedIn
-        </a>
-      </p>
-    </section>
+    <!-- Data Sources -->
+    <DataSourcesSection sources={[
+      { label: "GitHub stars", source: "GitHub API", url: "https://api.github.com", note: "updated weekly" },
+      { label: "LinkedIn followers", source: "LinkedIn", url: "https://www.linkedin.com/company/n8n", note: "updated monthly" },
+      { label: "npm downloads", source: "npm API", url: "https://npmjs.com", note: "updated weekly" },
+      { label: "Docker pulls", source: "Docker Hub API", url: "https://hub.docker.com", note: "updated weekly" },
+    ]} />
   </div>
 </BaseLayout>
 

@@ -7,6 +7,7 @@ import CommunityTreemapChart from '@/components/charts/CommunityTreemapChart.ast
 import BlueskyHistoryChart from '@/components/charts/BlueskyHistoryChart.astro';
 import RedditHistoryChart from '@/components/charts/RedditHistoryChart.astro';
 import SecondaryCTA from '@/components/cards/SecondaryCTA.astro';
+import DataSourcesSection from '@/components/DataSourcesSection.astro';
 import { fetchForumStats, fetchForumCategories } from '@/lib/api/discourse';
 import { fetchDiscordStats } from '@/lib/api/discord';
 import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
@@ -336,9 +337,12 @@ const forumSparklineData = userHistory.slice(-12).map(d => d.value);
       ]}
     />
 
-    <!-- Data Attribution -->
-    <p class="text-center text-xs text-gray-500 mt-8">
-      Data from the n8n Community Forum, Discord, Reddit, and Bluesky. Updated daily.
-    </p>
+    <!-- Data Sources Attribution -->
+    <DataSourcesSection sources={[
+      { label: "Forum stats", source: "Discourse API", url: "https://community.n8n.io", note: "updated daily" },
+      { label: "Discord stats", source: "Discord API", note: "updated daily" },
+      { label: "Reddit stats", source: "Reddit API", url: "https://reddit.com/r/n8n", note: "updated daily" },
+      { label: "Bluesky posts", source: "Bluesky API", note: "keyword search, updated daily" },
+    ]} />
   </div>
 </BaseLayout>

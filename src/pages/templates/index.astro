@@ -5,6 +5,7 @@ import CategoryTreemapChart from '@/components/charts/CategoryTreemapChart.astro
 import MilestonePrediction from '@/components/cards/MilestonePrediction.astro';
 import StatCard from '@/components/cards/StatCard.astro';
 import SecondaryCTA from '@/components/cards/SecondaryCTA.astro';
+import DataSourcesSection from '@/components/DataSourcesSection.astro';
 import { fetchTemplateAnalytics } from '@/lib/api/n8n';
 import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
 import { predictMilestone, getNextMilestones } from '@/lib/utils/predictions';
@@ -626,10 +627,11 @@ const completeDataStats = allTemplatesData ? {
       ]}
     />
 
-    <!-- Note -->
-    <p class="text-sm text-gray-500 text-center mt-8">
-      Complete data from n8n.io API. Trending sample analysis based on 100 templates.
-    </p>
+    <!-- Data Sources Attribution -->
+    <DataSourcesSection sources={[
+      { label: "Templates", source: "n8n Templates API", url: "https://api.n8n.io", note: "updated daily" },
+      { label: "Insertion metrics", source: "n8n Arena", url: "https://n8narena.com", note: "community project" },
+    ]} />
   </div>
 </BaseLayout>
 

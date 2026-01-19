@@ -4,6 +4,7 @@ import StatCard from '@/components/cards/StatCard.astro';
 import MilestonePrediction from '@/components/cards/MilestonePrediction.astro';
 import CreatorsHistoryChart from '@/components/charts/CreatorsHistoryChart.astro';
 import SecondaryCTA from '@/components/cards/SecondaryCTA.astro';
+import DataSourcesSection from '@/components/DataSourcesSection.astro';
 import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
 import { predictMilestone, getNextMilestones } from '@/lib/utils/predictions';
 import { readFileSync } from 'fs';
@@ -308,10 +309,9 @@ const getProfileUrl = (username: string) => n8nUrls.creator(username);
       ]}
     />
 
-    <!-- Attribution note -->
-    <p class="text-center text-sm text-gray-500 mt-8">
-      Creator metrics powered by <a href={_attribution.url} target="_blank" rel="noopener" class="text-gray-400 hover:text-gray-300">{_attribution.source}</a>.
-      Updated daily.
-    </p>
+    <!-- Data Sources Attribution -->
+    <DataSourcesSection sources={[
+      { label: "Creator metrics", source: "n8n Arena", url: "https://n8narena.com", note: "community project, updated daily" },
+    ]} />
   </div>
 </BaseLayout>

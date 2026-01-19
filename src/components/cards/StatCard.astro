@@ -1,6 +1,13 @@
 ---
 import { formatNumber, formatChange } from '@/lib/utils/formatters';
 import MiniSparkline from '@/components/charts/MiniSparkline.astro';
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
 
 interface Props {
   label: string;
@@ -15,6 +22,7 @@ interface Props {
   animate?: boolean;    // Enable count-up animation (default: true for numbers)
   sparklineData?: number[];  // Optional time-series data for sparkline
   sparklineColor?: string;   // Optional custom color for sparkline
+  source?: SourceAttribution; // Optional data source attribution
 }
 
 const {
@@ -30,6 +38,7 @@ const {
   animate = true,
   sparklineData,
   sparklineColor = '#ff6d5a',
+  source,
 } = Astro.props;
 
 const isPositive = change !== undefined && change >= 0;
@@ -49,10 +58,13 @@ const shouldAnimate = animate && isNumeric;
 {isClickable ? (
   <a
     {...linkProps}
-    class="card stat-card block hover:border-n8n-primary/50 hover:bg-gray-800/50 transition-all cursor-pointer group"
+    class="card stat-card block hover:border-n8n-primary/50 hover:bg-gray-800/50 transition-all cursor-pointer group relative"
     data-umami-event="card-click"
     data-umami-event-target={`stat-${label.toLowerCase().replace(/\s+/g, '-')}`}
   >
+    {source && (
+      <SourceInfo source={source.source} url={source.url} note={source.note} />
+    )}
     <div class="flex items-start justify-between">
       <div>
         <p class="stat-label group-hover:text-gray-300 transition-colors">{label}</p>
@@ -92,7 +104,10 @@ const shouldAnimate = animate && isNumeric;
     </div>
   </a>
 ) : (
-  <div class="card stat-card">
+  <div class="card stat-card relative">
+    {source && (
+      <SourceInfo source={source.source} url={source.url} note={source.note} />
+    )}
     <div class="flex items-start justify-between">
       <div>
         <p class="stat-label">{label}</p>

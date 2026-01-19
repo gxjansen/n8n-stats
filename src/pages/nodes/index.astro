@@ -4,6 +4,7 @@ import NodeTreemapChart from '@/components/charts/NodeTreemapChart.astro';
 import CategoryNodesTable from '@/components/CategoryNodesTable.astro';
 import StatCard from '@/components/cards/StatCard.astro';
 import SecondaryCTA from '@/components/cards/SecondaryCTA.astro';
+import DataSourcesSection from '@/components/DataSourcesSection.astro';
 import { fetchTemplates, aggregateNodeUsage } from '@/lib/api/n8n';
 import { formatNumber, getNodeIntegrationUrl, getNodePageUrl } from '@/lib/utils/formatters';
 import { NODE_CATEGORY_COLORS, NODE_CATEGORY_ORDER } from '@/lib/utils/colors';
@@ -657,17 +658,10 @@ const lastUpdated = allNodesData?.lastUpdated
     />
 
 
-    <!-- Note -->
-    <p class="text-sm text-gray-500 text-center mt-8">
-      {hasCompleteData
-        ? `Data collected by querying each of ${totalNodes} nodes individually against ${formatNumber(totalTemplates)} templates.${lastUpdated ? ` Last updated: ${lastUpdated}.` : ''}`
-        : 'Statistics based on trending templates sample. Full data coming soon.'
-      }
-      {hasWeightedData && (
-        <span class="block mt-1">
-          Insertion metrics powered by <a href="https://n8narena.com" class="text-gray-400 hover:text-gray-300" target="_blank" rel="noopener">n8n Arena</a>.
-        </span>
-      )}
-    </p>
+    <!-- Data Sources Attribution -->
+    <DataSourcesSection sources={[
+      { label: "Node usage", source: "n8n Templates API", url: "https://api.n8n.io", note: "weekly full scan" },
+      { label: "Insertion metrics", source: "n8n Arena", url: "https://n8narena.com", note: "community project" },
+    ]} />
   </div>
 </BaseLayout>

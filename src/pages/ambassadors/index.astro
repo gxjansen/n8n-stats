@@ -4,6 +4,7 @@ import StatCard from '@/components/cards/StatCard.astro';
 import EventsMapChart from '@/components/charts/EventsMapChart.astro';
 import AmbassadorsHistoryChart from '@/components/charts/AmbassadorsHistoryChart.astro';
 import SecondaryCTA from '@/components/cards/SecondaryCTA.astro';
+import DataSourcesSection from '@/components/DataSourcesSection.astro';
 import { formatNumber } from '@/lib/utils/formatters';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -455,12 +456,9 @@ const ambassadorSparklineData = monthlyHistory.slice(-12).map(m => m.total);
       </svg>
     </SecondaryCTA>
 
-    <!-- Data Attribution -->
-    <p class="text-center text-xs text-gray-500 mt-8">
-      Ambassador data from the <a href="https://n8n.notion.site/9eefeb6356754725a1b2dd8ccecc4ffb" target="_blank" rel="noopener" class="hover:text-gray-400">n8n Ambassador Directory</a>.
-      {ambassadorData?.lastUpdated && (
-        <span> Last updated: {new Date(ambassadorData.lastUpdated).toLocaleDateString()}</span>
-      )}
-    </p>
+    <!-- Data Sources -->
+    <DataSourcesSection sources={[
+      { label: "Ambassador data", source: "n8n Notion Directory", url: "https://n8n.notion.site/9eefeb6356754725a1b2dd8ccecc4ffb", note: "scraped weekly" },
+    ]} />
   </div>
 </BaseLayout>

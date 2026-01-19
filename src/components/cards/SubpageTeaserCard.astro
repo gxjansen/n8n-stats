@@ -1,6 +1,13 @@
 ---
 import { formatNumber } from '@/lib/utils/formatters';
 import MiniSparkline from '@/components/charts/MiniSparkline.astro';
+import SourceInfo from '@/components/SourceInfo.astro';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
 
 interface Props {
   title: string;
@@ -14,6 +21,7 @@ interface Props {
   sparklineData?: number[];
   sparklineColor?: string;
   animationDelay?: number; // Stagger sparkline animations (ms)
+  source?: SourceAttribution; // Optional data source attribution
 }
 
 const {
@@ -28,6 +36,7 @@ const {
   sparklineData,
   sparklineColor,
   animationDelay = 0,
+  source,
 } = Astro.props;
 
 const hasSparkline = sparklineData && sparklineData.length > 1;
@@ -44,6 +53,9 @@ const formattedSecondaryStat = secondaryStat !== undefined
   data-umami-event="card-click"
   data-umami-event-target={title.toLowerCase()}
 >
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
   <!-- Accent bar at top -->
   <div
     class="absolute top-0 left-0 right-0 h-1 opacity-60 group-hover:opacity-100 transition-opacity"

@@ -4,6 +4,7 @@ import StatCard from '@/components/cards/StatCard.astro';
 import EventsMapChart from '@/components/charts/EventsMapChart.astro';
 import EventsHistoryChart from '@/components/charts/EventsHistoryChart.astro';
 import SecondaryCTA from '@/components/cards/SecondaryCTA.astro';
+import DataSourcesSection from '@/components/DataSourcesSection.astro';
 import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -530,12 +531,9 @@ const formatHostCities = (cities: string[]) => {
       </svg>
     </SecondaryCTA>
 
-    <!-- Data Attribution -->
-    <p class="text-center text-xs text-gray-500 mt-8">
-      Event data from the <a href="https://luma.com/n8n-events" target="_blank" rel="noopener" class="hover:text-gray-400">n8n Community Events calendar on Luma</a>.
-      {eventsData?.lastUpdated && (
-        <span> Last updated: {new Date(eventsData.lastUpdated).toLocaleDateString()}</span>
-      )}
-    </p>
+    <!-- Data Sources Attribution -->
+    <DataSourcesSection sources={[
+      { label: "Events", source: "Luma", url: "https://lu.ma/n8n-events", note: "scraped daily" },
+    ]} />
   </div>
 </BaseLayout>

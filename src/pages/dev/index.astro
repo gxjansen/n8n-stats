@@ -6,6 +6,7 @@ import GitHubHistoryChart from '@/components/charts/GitHubHistoryChart.astro';
 import GitHubIssuesChart from '@/components/charts/GitHubIssuesChart.astro';
 import ReleaseTimelineChart from '@/components/charts/ReleaseTimelineChart.astro';
 import NpmDownloadsChart from '@/components/charts/NpmDownloadsChart.astro';
+import DataSourcesSection from '@/components/DataSourcesSection.astro';
 import { formatNumber } from '@/lib/utils/formatters';
 import { predictMilestone, getNextMilestones } from '@/lib/utils/predictions';
 import { readFileSync, existsSync } from 'fs';
@@ -292,10 +293,11 @@ const icons = {
       </a>
     </div>
 
-    <!-- Attribution -->
-    <p class="text-center text-sm text-gray-500 mt-8">
-      Data from <a href="https://github.com/n8n-io/n8n" target="_blank" rel="noopener" class="text-gray-400 hover:text-gray-300">GitHub</a> and <a href="https://www.npmjs.com/package/n8n" target="_blank" rel="noopener" class="text-gray-400 hover:text-gray-300">npm</a>.
-      Updated daily.
-    </p>
+    <!-- Data Sources Attribution -->
+    <DataSourcesSection sources={[
+      { label: "GitHub stats", source: "GitHub API", url: "https://api.github.com", note: "updated daily" },
+      { label: "Historical stars", source: "ossinsight.io", note: "scaled estimates" },
+      { label: "npm downloads", source: "npm API", url: "https://npmjs.com/package/n8n", note: "updated daily" },
+    ]} />
   </div>
 </BaseLayout>
