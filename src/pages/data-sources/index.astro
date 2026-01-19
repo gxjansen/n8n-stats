@@ -117,7 +117,7 @@ import DataSourcesSection from '@/components/DataSourcesSection.astro';
               <td class="py-3 pr-4">Daily</td>
               <td class="py-3">Scraped from n8n community calendar</td>
             </tr>
-            <tr>
+            <tr class="border-b border-n8n-border/50">
               <td class="py-3 pr-4">
                 <a href="https://n8n.notion.site" target="_blank" rel="noopener noreferrer" class="text-n8n-primary hover:underline">
                   Notion Directory
@@ -127,19 +127,39 @@ import DataSourcesSection from '@/components/DataSourcesSection.astro';
               <td class="py-3 pr-4">Weekly</td>
               <td class="py-3">Scraped via Playwright (Sundays 05:00 UTC)</td>
             </tr>
+            <tr class="border-b border-n8n-border/50">
+              <td class="py-3 pr-4">
+                <a href="https://bsky.social" target="_blank" rel="noopener noreferrer" class="text-n8n-primary hover:underline">
+                  Bluesky API
+                </a>
+              </td>
+              <td class="py-3 pr-4">Posts mentioning n8n, engagement metrics</td>
+              <td class="py-3 pr-4">Daily</td>
+              <td class="py-3">Keyword search via AT Protocol</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4">
+                <a href="https://www.reddit.com/r/n8n" target="_blank" rel="noopener noreferrer" class="text-n8n-primary hover:underline">
+                  Reddit API
+                </a>
+              </td>
+              <td class="py-3 pr-4">Subscribers, active users, posts, comments</td>
+              <td class="py-3 pr-4">Daily</td>
+              <td class="py-3">Public API, no auth needed</td>
+            </tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- External Data Sources -->
+    <!-- Community Data Sources (Automated) -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-2">External Data Sources</h2>
+      <h2 class="text-2xl font-bold text-white mb-2">Community Data Sources</h2>
       <p class="text-gray-400 mb-6">
-        Some metrics aren't available from official APIs. We integrate data from trusted community projects with proper attribution.
+        Some metrics aren't available from official APIs. We integrate data from trusted community projects with proper attribution. These are fetched automatically alongside the primary sources.
       </p>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 gap-4">
         <div class="card p-5">
           <div class="flex items-center gap-3 mb-3">
             <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
@@ -155,32 +175,91 @@ import DataSourcesSection from '@/components/DataSourcesSection.astro';
             </div>
           </div>
           <p class="text-gray-400 text-sm mb-3">
-            Creator metrics including template inserters (imports), rich creator profiles, and engagement data. The n8n API doesn't expose inserter metrics, making this an essential community data source.
+            Creator metrics including template inserters (imports), rich creator profiles, and engagement data. The n8n API doesn't expose inserter metrics, making this an essential community data source. Fetched daily via <a href="https://github.com/teds-tech-talks/n8n-community-leaderboard" target="_blank" rel="noopener noreferrer" class="text-n8n-primary hover:underline">Ted's GitHub repository</a>.
           </p>
           <div class="text-xs text-gray-500">
-            Attribution: "Creator metrics powered by n8n Arena"
+            Attribution: "Creator metrics powered by n8n Arena" | Updated daily
           </div>
         </div>
+      </div>
+    </section>
 
-        <div class="card p-5">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center">
-              <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-              </svg>
-            </div>
-            <div>
-              <h3 class="text-white font-semibold">Historical Backfill</h3>
-              <span class="text-gray-400 text-sm">star-history.com, ossinsight.io</span>
-            </div>
-          </div>
-          <p class="text-gray-400 text-sm mb-3">
-            Historical GitHub star data from before we started tracking. Used to provide longer-term trends. These data points are marked as "estimated" in our visualizations.
-          </p>
-          <div class="text-xs text-gray-500">
-            Note: Pre-2026 star data is scaled estimates
-          </div>
-        </div>
+    <!-- Historical Backfill Sources (One-off) -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-2">Historical Backfill Sources</h2>
+      <p class="text-gray-400 mb-6">
+        One-off data collection scripts used to backfill historical data from before we started tracking. These are not automated - they were run manually to seed historical time series.
+      </p>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-n8n-border text-left">
+              <th class="py-3 pr-4 text-gray-300 font-semibold">Source</th>
+              <th class="py-3 pr-4 text-gray-300 font-semibold">Data Backfilled</th>
+              <th class="py-3 pr-4 text-gray-300 font-semibold">Period</th>
+              <th class="py-3 text-gray-300 font-semibold">Notes</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-400">
+            <tr class="border-b border-n8n-border/50">
+              <td class="py-3 pr-4">
+                <a href="https://star-history.com" target="_blank" rel="noopener noreferrer" class="text-n8n-primary hover:underline">
+                  star-history.com
+                </a>
+              </td>
+              <td class="py-3 pr-4">GitHub star counts over time</td>
+              <td class="py-3 pr-4">2019-2025</td>
+              <td class="py-3">CSV export of star growth curve</td>
+            </tr>
+            <tr class="border-b border-n8n-border/50">
+              <td class="py-3 pr-4">
+                <a href="https://ossinsight.io" target="_blank" rel="noopener noreferrer" class="text-n8n-primary hover:underline">
+                  ossinsight.io
+                </a>
+              </td>
+              <td class="py-3 pr-4">GitHub stars, forks, issues (event-level)</td>
+              <td class="py-3 pr-4">2011-2025</td>
+              <td class="py-3">BigQuery GitHub Archive data</td>
+            </tr>
+            <tr class="border-b border-n8n-border/50">
+              <td class="py-3 pr-4">
+                <a href="https://web.archive.org" target="_blank" rel="noopener noreferrer" class="text-n8n-primary hover:underline">
+                  Wayback Machine
+                </a>
+              </td>
+              <td class="py-3 pr-4">GitHub repo stats, Reddit subscribers, Forum stats</td>
+              <td class="py-3 pr-4">Various</td>
+              <td class="py-3">Scraped from archived HTML snapshots</td>
+            </tr>
+            <tr class="border-b border-n8n-border/50">
+              <td class="py-3 pr-4">
+                <a href="https://api.npmjs.org" target="_blank" rel="noopener noreferrer" class="text-n8n-primary hover:underline">
+                  npm API (historical)
+                </a>
+              </td>
+              <td class="py-3 pr-4">Weekly download counts</td>
+              <td class="py-3 pr-4">2019-2025</td>
+              <td class="py-3">Range endpoint for historical data</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4">
+                <a href="https://bsky.social" target="_blank" rel="noopener noreferrer" class="text-n8n-primary hover:underline">
+                  Bluesky API (backfill)
+                </a>
+              </td>
+              <td class="py-3 pr-4">n8n mentions since Bluesky launch</td>
+              <td class="py-3 pr-4">Feb 2024+</td>
+              <td class="py-3">One-time historical search</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 p-4 bg-n8n-darker/50 rounded-lg border border-n8n-border/50">
+        <p class="text-gray-400 text-sm">
+          <span class="text-yellow-400 font-medium">Note:</span> Historical backfill data is marked as <code class="bg-n8n-darker px-1.5 py-0.5 rounded text-yellow-400 text-xs">estimated</code> or <code class="bg-n8n-darker px-1.5 py-0.5 rounded text-yellow-400 text-xs">wayback</code> in our data files. Charts display this data differently to distinguish it from live API measurements.
+        </p>
       </div>
     </section>
 
@@ -270,7 +349,7 @@ import DataSourcesSection from '@/components/DataSourcesSection.astro';
               <svg class="w-4 h-4 text-n8n-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
-              <span>Licensed under MIT - use freely with attribution</span>
+              <span>Licensed under MIT - use freely, attribution is always nice</span>
             </li>
           </ul>
         </div>

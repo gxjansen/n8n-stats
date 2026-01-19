@@ -341,7 +341,7 @@ const forumSparklineData = userHistory.slice(-12).map(d => d.value);
     <DataSourcesSection sources={[
       { label: "Forum stats", source: "Discourse API", url: "https://community.n8n.io", note: "updated daily" },
       { label: "Discord stats", source: "Discord API", note: "updated daily" },
-      { label: "Reddit stats", source: "Reddit API", url: "https://reddit.com/r/n8n", note: "updated daily" },
+      { label: "Reddit stats", source: "Reddit API + Wayback Machine", url: "https://reddit.com/r/n8n", note: "current via API, historical via Wayback Machine" },
       { label: "Bluesky posts", source: "Bluesky API", note: "keyword search, updated daily" },
     ]} />
   </div>
