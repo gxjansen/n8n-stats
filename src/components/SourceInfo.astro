@@ -16,7 +16,7 @@
 interface Props {
   /** Name of the data source (e.g., "GitHub API", "n8n Arena") */
   source: string;
-  /** Optional URL to the data source (displayed but not linked) */
+  /** Optional URL to the data source (displayed as clickable hostname) */
   url?: string;
   /** Optional note (e.g., "updated daily", "estimated") */
   note?: string;
@@ -34,10 +34,8 @@ const {
   size = 'sm',
 } = Astro.props;
 
-// Build tooltip content
-let tooltipContent = `Source: ${source}`;
-if (note) tooltipContent += ` (${note})`;
-if (url) tooltipContent += `\n${url}`;
+// Pass structured data to the script
+const tooltipData = JSON.stringify({ source, url, note });
 
 const positionClasses = {
   'top-right': 'absolute top-2 right-2',
@@ -55,7 +53,7 @@ const sizeClasses = {
   type="button"
   class={`source-info-btn ${positionClasses[position]} z-10 text-gray-500 hover:text-gray-300 focus:text-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-n8n-primary focus-visible:ring-offset-2 focus-visible:ring-offset-n8n-card rounded-full transition-colors`}
   aria-label={`Data source: ${source}`}
-  data-source-tooltip={tooltipContent}
+  data-source-tooltip={tooltipData}
 >
   <svg
     class={sizeClasses[size]}
@@ -74,21 +72,67 @@ const sizeClasses = {
   function initSourceInfoTooltips() {
     const buttons = document.querySelectorAll<HTMLButtonElement>('.source-info-btn');
 
+    // Helper to extract hostname from URL
+    function getHostname(url: string): string {
+      try {
+        return new URL(url).hostname;
+      } catch {
+        return url; // fallback to full URL if parsing fails
+      }
+    }
+
     buttons.forEach((btn) => {
       if (btn.dataset.initialized) return;
       btn.dataset.initialized = 'true';
 
-      const tooltipText = btn.dataset.sourceTooltip || '';
+      // Parse structured data
+      let data: { source: string; url?: string; note?: string } = { source: 'Unknown' };
+      try {
+        data = JSON.parse(btn.dataset.sourceTooltip || '{}');
+      } catch {
+        // Fallback for old format
+        data = { source: btn.dataset.sourceTooltip || 'Unknown' };
+      }
+
       let tooltip: HTMLDivElement | null = null;
       let isVisible = false;
+      let hideTimeout: number | null = null;
 
       function createTooltip() {
         tooltip = document.createElement('div');
         tooltip.className = 'source-info-tooltip';
         tooltip.setAttribute('role', 'tooltip');
-        tooltip.innerHTML = tooltipText.replace(/\n/g, '<br>');
+
+        // Build structured HTML content
+        let html = `<span class="tooltip-source">Source: ${data.source}</span>`;
+        if (data.note) html += ` <span class="tooltip-note">(${data.note})</span>`;
+        if (data.url) {
+          const hostname = getHostname(data.url);
+          html += `<br><a href="${data.url}" target="_blank" rel="noopener" class="tooltip-link">${hostname}</a>`;
+        }
+
+        tooltip.innerHTML = html;
         document.body.appendChild(tooltip);
+
+        // Keep tooltip open when mouse enters it
+        tooltip.addEventListener('mouseenter', cancelHide);
+        tooltip.addEventListener('mouseleave', scheduleHide);
+
         return tooltip;
+      }
+
+      function cancelHide() {
+        if (hideTimeout) {
+          clearTimeout(hideTimeout);
+          hideTimeout = null;
+        }
+      }
+
+      function scheduleHide() {
+        cancelHide();
+        hideTimeout = window.setTimeout(() => {
+          hideTooltip();
+        }, 100);
       }
 
       function positionTooltip() {
@@ -119,6 +163,7 @@ const sizeClasses = {
       }
 
       function showTooltip() {
+        cancelHide();
         if (isVisible) return;
         isVisible = true;
 
@@ -128,7 +173,7 @@ const sizeClasses = {
 
         // Track analytics
         if (typeof umami !== 'undefined') {
-          umami.track('source-info-view', { source: tooltipText.split('\n')[0] });
+          umami.track('source-info-view', { source: `Source: ${data.source}` });
         }
       }
 
@@ -151,7 +196,7 @@ const sizeClasses = {
 
       // Mouse events
       btn.addEventListener('mouseenter', showTooltip);
-      btn.addEventListener('mouseleave', hideTooltip);
+      btn.addEventListener('mouseleave', scheduleHide);
 
       // Focus events (keyboard navigation)
       btn.addEventListener('focus', showTooltip);
@@ -207,6 +252,16 @@ const sizeClasses = {
   .source-info-tooltip.visible {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto; /* Allow clicking links */
+  }
+
+  .source-info-tooltip .tooltip-link {
+    color: #ff6d5a; /* n8n primary color */
+    text-decoration: none;
+  }
+
+  .source-info-tooltip .tooltip-link:hover {
+    text-decoration: underline;
   }
 
   /* Arrow pointing down (tooltip above button) */
