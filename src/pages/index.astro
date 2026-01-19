@@ -250,24 +250,45 @@ if (realGithubData.length >= 2) {
 }
 
 // Weekly growth metrics (n8n Arena data is all real)
-const creatorsPerWeek = latestCreators && prevCreators
-  ? latestCreators.total - prevCreators.total
-  : null;
+// IMPORTANT: Normalize to actual weekly rate based on days between measurements
+// This handles cases where data collection skips weeks (e.g., 21 days between measurements)
+// Without normalization, we'd show 3 weeks of growth as if it were 1 week
+let creatorsPerWeek = null;
+let insertersPerWeek = null;
 
-const insertersPerWeek = latestCreators && prevCreators
-  ? latestCreators.totalInserters - prevCreators.totalInserters
-  : null;
+if (latestCreators && prevCreators) {
+  const daysBetween = Math.max(1, Math.round(
+    (new Date(latestCreators.date).getTime() - new Date(prevCreators.date).getTime()) / (1000 * 60 * 60 * 24)
+  ));
+  const weeksBetween = daysBetween / 7;
+  
+  // Calculate raw difference and normalize to per-week rate
+  const creatorsGrowth = latestCreators.total - prevCreators.total;
+  const insertersGrowth = latestCreators.totalInserters - prevCreators.totalInserters;
+  
+  creatorsPerWeek = Math.round(creatorsGrowth / weeksBetween);
+  insertersPerWeek = Math.round(insertersGrowth / weeksBetween);
+}
 
-// Calculate conversion rates for current and previous week
+// Calculate conversion rates for current and previous snapshots
 const currentConversionRate = latestCreators && latestCreators.totalViews > 0
   ? (latestCreators.totalInserters / latestCreators.totalViews) * 100
   : null;
 const prevConversionRate = prevCreators && prevCreators.totalViews > 0
   ? (prevCreators.totalInserters / prevCreators.totalViews) * 100
   : null;
-const conversionRateChange = currentConversionRate !== null && prevConversionRate !== null
-  ? currentConversionRate - prevConversionRate
-  : null;
+
+// Normalize conversion rate change to weekly basis (same as other velocity metrics)
+let conversionRateChange = null;
+if (currentConversionRate !== null && prevConversionRate !== null && latestCreators && prevCreators) {
+  const daysBetween = Math.max(1, Math.round(
+    (new Date(latestCreators.date).getTime() - new Date(prevCreators.date).getTime()) / (1000 * 60 * 60 * 24)
+  ));
+  const weeksBetween = daysBetween / 7;
+  
+  const absoluteChange = currentConversionRate - prevConversionRate;
+  conversionRateChange = absoluteChange / weeksBetween;
+}
 
 // Get weekly data for sparklines (all real from n8n Arena)
 const creatorTotals = recentCreatorData.map(d => d.total);
@@ -401,8 +422,8 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         />
         <VelocityCard
           label="Conversion Rate"
-          value={conversionRateChange !== null ? `${conversionRateChange >= 0 ? '+' : ''}${conversionRateChange.toFixed(2)}%` : null}
-          subtitle="Views → imports change"
+          value={conversionRateChange !== null ? `${conversionRateChange >= 0 ? '+' : ''}${conversionRateChange.toFixed(2)}%/week` : null}
+          subtitle="Views → imports weekly change"
           trend={conversionTrend}
           color="#4bc0c0"
           to="/creators"
