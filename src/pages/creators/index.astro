@@ -5,6 +5,7 @@ import MilestonePrediction from '@/components/cards/MilestonePrediction.astro';
 import CreatorsHistoryChart from '@/components/charts/CreatorsHistoryChart.astro';
 import SecondaryCTA from '@/components/cards/SecondaryCTA.astro';
 import DataSourcesSection from '@/components/DataSourcesSection.astro';
+import SourceInfo from '@/components/SourceInfo.astro';
 import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
 import { predictMilestone, getNextMilestones } from '@/lib/utils/predictions';
 import { readFileSync } from 'fs';
@@ -148,7 +149,10 @@ const getProfileUrl = (username: string) => n8nUrls.creator(username);
 
     <!-- Trending This Week -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">Trending This Week</h2>
+      <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+        Trending This Week
+        <SourceInfo source="n8n Arena" url="https://n8narena.com" note="community project" position="inline" />
+      </h2>
       <p class="text-gray-400 mb-4">Creators with the most workflow insertions in the past 7 days.</p>
       <div class="ranking-grid" style={`--ranking-rows: ${Math.ceil(trendingWeekly.length / 2)}`}>
         {trendingWeekly.map((creator, index) => (
@@ -184,7 +188,10 @@ const getProfileUrl = (username: string) => n8nUrls.creator(username);
 
     <!-- Top by Total Inserters -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">Top by Total Inserters</h2>
+      <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+        Top by Total Inserters
+        <SourceInfo source="n8n Arena" url="https://n8narena.com" note="community project" position="inline" />
+      </h2>
       <p class="text-gray-400 mb-4">Creators whose workflows have been used the most (all time).</p>
       <div class="ranking-grid" style={`--ranking-rows: ${Math.ceil(topByInserters.length / 2)}`}>
         {topByInserters.map((creator, index) => (
@@ -220,7 +227,10 @@ const getProfileUrl = (username: string) => n8nUrls.creator(username);
 
     <!-- Top by Views -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">Top by Views</h2>
+      <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+        Top by Views
+        <SourceInfo source="n8n Arena" url="https://n8narena.com" note="community project" position="inline" />
+      </h2>
       <p class="text-gray-400 mb-4">Creators with the most workflow views.</p>
       <div class="ranking-grid" style={`--ranking-rows: ${Math.ceil(topByViews.length / 2)}`}>
         {topByViews.map((creator, index) => (
@@ -256,7 +266,10 @@ const getProfileUrl = (username: string) => n8nUrls.creator(username);
 
     <!-- Top by Templates -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">Most Prolific</h2>
+      <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+        Most Prolific
+        <SourceInfo source="n8n Arena" url="https://n8narena.com" note="community project" position="inline" />
+      </h2>
       <p class="text-gray-400 mb-4">Creators with the most published templates.</p>
       <div class="ranking-grid" style={`--ranking-rows: ${Math.ceil(topByTemplates.length / 2)}`}>
         {topByTemplates.map((creator, index) => (

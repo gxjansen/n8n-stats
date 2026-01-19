@@ -5,6 +5,7 @@ import EventsMapChart from '@/components/charts/EventsMapChart.astro';
 import AmbassadorsHistoryChart from '@/components/charts/AmbassadorsHistoryChart.astro';
 import SecondaryCTA from '@/components/cards/SecondaryCTA.astro';
 import DataSourcesSection from '@/components/DataSourcesSection.astro';
+import SourceInfo from '@/components/SourceInfo.astro';
 import { formatNumber } from '@/lib/utils/formatters';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -313,7 +314,10 @@ const ambassadorSparklineData = monthlyHistory.slice(-12).map(m => m.total);
     <!-- Ambassadors by Country -->
     {byCountry.length > 0 && (
       <section class="mb-12">
-        <h2 class="text-2xl font-bold text-white mb-6">Ambassadors by Country</h2>
+        <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+          Ambassadors by Country
+          <SourceInfo source="n8n Notion Directory" url="https://n8n.notion.site/9eefeb6356754725a1b2dd8ccecc4ffb" note="scraped weekly" position="inline" />
+        </h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           {byCountry.slice(0, 8).map((country) => {
             const code = countryToCode[country.country]?.toLowerCase();
@@ -339,7 +343,10 @@ const ambassadorSparklineData = monthlyHistory.slice(-12).map(m => m.total);
     <!-- Newest Ambassadors -->
     {newestAmbassadors.length > 0 && (
       <section class="mb-12">
-        <h2 class="text-2xl font-bold text-white mb-2">Newest Ambassadors</h2>
+        <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+          Newest Ambassadors
+          <SourceInfo source="n8n Notion Directory" url="https://n8n.notion.site/9eefeb6356754725a1b2dd8ccecc4ffb" note="scraped weekly" position="inline" />
+        </h2>
         <p class="text-gray-400 mb-6">Recently joined community ambassadors</p>
 
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -392,7 +399,10 @@ const ambassadorSparklineData = monthlyHistory.slice(-12).map(m => m.total);
     <!-- Founding Ambassadors -->
     {foundingAmbassadors.length > 0 && (
       <section class="mb-12">
-        <h2 class="text-2xl font-bold text-white mb-2">Founding Ambassadors</h2>
+        <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+          Founding Ambassadors
+          <SourceInfo source="n8n Notion Directory" url="https://n8n.notion.site/9eefeb6356754725a1b2dd8ccecc4ffb" note="scraped weekly" position="inline" />
+        </h2>
         <p class="text-gray-400 mb-6">The earliest members of the ambassador program</p>
 
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">

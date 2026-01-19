@@ -5,6 +5,7 @@ import CategoryNodesTable from '@/components/CategoryNodesTable.astro';
 import StatCard from '@/components/cards/StatCard.astro';
 import SecondaryCTA from '@/components/cards/SecondaryCTA.astro';
 import DataSourcesSection from '@/components/DataSourcesSection.astro';
+import SourceInfo from '@/components/SourceInfo.astro';
 import { fetchTemplates, aggregateNodeUsage } from '@/lib/api/n8n';
 import { formatNumber, getNodeIntegrationUrl, getNodePageUrl } from '@/lib/utils/formatters';
 import { NODE_CATEGORY_COLORS, NODE_CATEGORY_ORDER } from '@/lib/utils/colors';
@@ -321,7 +322,15 @@ const lastUpdated = allNodesData?.lastUpdated
 
     <!-- Top 10 Overall -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-2">Top 10 Most Used Nodes</h2>
+      <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+        Top 10 Most Used Nodes
+        <SourceInfo
+          source={hasWeightedData ? "n8n Arena" : "n8n Templates API"}
+          url={hasWeightedData ? "https://n8narena.com" : "https://api.n8n.io"}
+          note={hasWeightedData ? "weighted by insertions" : "weekly full scan"}
+          position="inline"
+        />
+      </h2>
       <p class="text-gray-400 mb-6">
         {hasWeightedData
           ? 'Ranked by estimated deployments (node usage weighted by template insertions).'
@@ -367,7 +376,10 @@ const lastUpdated = allNodesData?.lastUpdated
     {llmModels.length > 0 && (
       <section id="llm-models" class="mb-12 scroll-mt-20">
         <div class="flex items-center gap-3 mb-2">
-          <h2 class="text-2xl font-bold text-white">LLM Provider Breakdown</h2>
+          <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+            LLM Provider Breakdown
+            <SourceInfo source="n8n Templates API" url="https://api.n8n.io" note="updated daily" position="inline" />
+          </h2>
           <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded">AI</span>
         </div>
         <p class="text-gray-400 mb-6">
@@ -530,7 +542,10 @@ const lastUpdated = allNodesData?.lastUpdated
     <!-- Trending Boost Section -->
     {trendingBoostNodes.length > 0 && (
       <section class="mb-12">
-        <h2 class="text-2xl font-bold text-white mb-2">Hot in Trending Templates</h2>
+        <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+          Hot in Trending Templates
+          <SourceInfo source="n8n Templates API" url="https://api.n8n.io" note="top 100 trending" position="inline" />
+        </h2>
         <p class="text-gray-400 mb-6">
           Nodes that appear more often in the top 100 trending templates compared to all {formatNumber(totalTemplates)} templates.
         </p>
@@ -575,7 +590,10 @@ const lastUpdated = allNodesData?.lastUpdated
     <!-- Unused Nodes Section -->
     {unusedNodes.length > 0 && (
       <section class="mb-12">
-        <h2 class="text-2xl font-bold text-white mb-2">Nodes With Zero Usage</h2>
+        <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+          Nodes With Zero Usage
+          <SourceInfo source="n8n Templates API" url="https://api.n8n.io" note="weekly full scan" position="inline" />
+        </h2>
         <p class="text-gray-400 mb-6">
           These {unusedNodes.length} nodes don't appear in any of the {formatNumber(totalTemplates)} public templates.
         </p>

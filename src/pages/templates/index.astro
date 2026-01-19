@@ -6,6 +6,7 @@ import MilestonePrediction from '@/components/cards/MilestonePrediction.astro';
 import StatCard from '@/components/cards/StatCard.astro';
 import SecondaryCTA from '@/components/cards/SecondaryCTA.astro';
 import DataSourcesSection from '@/components/DataSourcesSection.astro';
+import SourceInfo from '@/components/SourceInfo.astro';
 import { fetchTemplateAnalytics } from '@/lib/api/n8n';
 import { formatNumber, n8nUrls } from '@/lib/utils/formatters';
 import { predictMilestone, getNextMilestones } from '@/lib/utils/predictions';
@@ -179,7 +180,10 @@ const completeDataStats = allTemplatesData ? {
 
     <!-- AI Dominance - uses complete API data -->
     <section class="mb-12 ai-templates-section">
-      <h2 class="text-2xl font-bold text-white mb-6">AI in Templates</h2>
+      <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+        AI in Templates
+        <SourceInfo source="n8n Templates API" url="https://api.n8n.io" note="updated daily" position="inline" />
+      </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="card ai-adoption-inline">
           <h4 class="text-lg font-semibold text-white mb-4">AI Adoption</h4>
@@ -272,7 +276,10 @@ const completeDataStats = allTemplatesData ? {
     <section class="mb-12">
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h2 class="text-2xl font-bold text-white">Trending Template Creators</h2>
+          <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+            Trending Template Creators
+            <SourceInfo source="n8n Templates API" url="https://api.n8n.io" note="top 100 trending" position="inline" />
+          </h2>
           <p class="text-gray-400 mt-1">
             Creators with the most templates in n8n.io's current top 100 trending list
           </p>
@@ -337,7 +344,10 @@ const completeDataStats = allTemplatesData ? {
     <section class="mb-12">
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h2 class="text-2xl font-bold text-white">Most Used Nodes</h2>
+          <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+            Most Used Nodes
+            <SourceInfo source="n8n Templates API" url="https://api.n8n.io" note="updated daily" position="inline" />
+          </h2>
           <p class="text-gray-400 mt-1">
             Nodes appearing in the most templates across all {formatNumber(analytics.totalWorkflows)} workflows
           </p>
@@ -372,7 +382,10 @@ const completeDataStats = allTemplatesData ? {
     <section class="mb-12">
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h2 class="text-2xl font-bold text-white">Workflow Complexity</h2>
+          <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+            Workflow Complexity
+            <SourceInfo source="n8n Templates API" url="https://api.n8n.io" note="updated daily" position="inline" />
+          </h2>
           <p class="text-gray-400 mt-1">
             Distribution of nodes per template across all {formatNumber(analytics.totalWorkflows)} templates
           </p>
@@ -466,7 +479,10 @@ const completeDataStats = allTemplatesData ? {
     <section class="mb-12">
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h2 class="text-2xl font-bold text-white">Most Viewed Templates</h2>
+          <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+            Most Viewed Templates
+            <SourceInfo source="n8n Templates API" url="https://api.n8n.io" note="top 100 trending" position="inline" />
+          </h2>
           <p class="text-gray-400 mt-1">
             Highest view counts among the top 100 trending templates
           </p>
@@ -518,7 +534,10 @@ const completeDataStats = allTemplatesData ? {
     <!-- Trending Templates Sample Analysis -->
     <section class="mb-12">
       <div class="mb-6">
-        <h2 class="text-2xl font-bold text-white mb-2">Views Distribution</h2>
+        <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+          Views Distribution
+          <SourceInfo source="n8n Templates API" url="https://api.n8n.io" note="top 100 trending" position="inline" />
+        </h2>
         <p class="text-gray-400">
           How views are distributed among the top 100 trending templates. Click a segment to see templates in that tier.
         </p>
