@@ -8,6 +8,19 @@ import { join } from 'path';
 
 const DATA_DIR = join(process.cwd(), 'public', 'data', 'external');
 
+// Usernames to exclude (n8n team accounts and company/organization accounts)
+const EXCLUDED_USERNAMES = [
+  'n8n-team',           // Official n8n team account
+  'oneclick-ai',        // Oneclick AI Squad (company)
+  'oneclick-it',        // OneClick IT Consultancy P Limited (company)
+];
+
+// Name overrides for cases where n8n Arena has incorrect data
+// Maps username to correct display name
+const NAME_OVERRIDES: Record<string, string> = {
+  'harshil1712': 'Harshil Agrawal',  // n8n Arena incorrectly shows "ghagrawal17"
+};
+
 // n8n Arena data URLs
 const N8N_ARENA_CREATORS_URL = 'https://raw.githubusercontent.com/teds-tech-talks/n8n-community-leaderboard/main/stats_aggregate_creators.json';
 const N8N_ARENA_WORKFLOWS_URL = 'https://raw.githubusercontent.com/teds-tech-talks/n8n-community-leaderboard/main/stats_aggregate_workflows.json';
@@ -122,10 +135,10 @@ async function fetchN8nArenaCreators(): Promise<N8nArenaCreator[]> {
 
 function processCreators(rawCreators: N8nArenaCreator[]): ProcessedCreator[] {
   return rawCreators
-    .filter(c => c.user_username && c.user_username !== 'n8n-team') // Exclude n8n team
+    .filter(c => c.user_username && !EXCLUDED_USERNAMES.includes(c.user_username))
     .map(c => ({
       username: c.user_username,
-      name: c.user?.name || c.user_username,
+      name: NAME_OVERRIDES[c.user_username] || c.user?.name || c.user_username,
       bio: c.user?.bio || '',
       verified: c.user?.verified || false,
       avatar: c.user?.avatar || '',

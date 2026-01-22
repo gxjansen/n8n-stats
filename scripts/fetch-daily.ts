@@ -9,6 +9,13 @@ import { join } from 'path';
 
 const SNAPSHOTS_DIR = join(process.cwd(), 'public', 'data', 'snapshots');
 
+// Usernames to exclude (n8n team accounts and company/organization accounts)
+const EXCLUDED_USERNAMES = [
+  'n8n-team',           // Official n8n team account
+  'oneclick-ai',        // Oneclick AI Squad (company)
+  'oneclick-it',        // OneClick IT Consultancy P Limited (company)
+];
+
 // API endpoints
 const APIS = {
   github: 'https://api.github.com/repos/n8n-io/n8n',
@@ -185,8 +192,8 @@ async function fetchCreators(): Promise<CreatorsSnapshot> {
 
   const data = await response.json();
 
-  // Filter out n8n-team and calculate totals
-  const creators = data.filter((c: any) => c.user_username && c.user_username !== 'n8n-team');
+  // Filter out excluded accounts (n8n team and companies)
+  const creators = data.filter((c: any) => c.user_username && !EXCLUDED_USERNAMES.includes(c.user_username));
 
   const total = creators.length;
   const verified = creators.filter((c: any) => c.user?.verified).length;

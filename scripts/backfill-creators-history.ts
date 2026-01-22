@@ -7,6 +7,14 @@ import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
 const HISTORY_PATH = join(process.cwd(), 'public', 'data', 'history', 'creators-stats.json');
+
+// Usernames to exclude (n8n team accounts and company/organization accounts)
+const EXCLUDED_USERNAMES = [
+  'n8n-team',           // Official n8n team account
+  'oneclick-ai',        // Oneclick AI Squad (company)
+  'oneclick-it',        // OneClick IT Consultancy P Limited (company)
+];
+
 const REPO_OWNER = 'teds-tech-talks';
 const REPO_NAME = 'n8n-community-leaderboard';
 const FILE_PATH = 'stats_aggregate_creators.json';
@@ -68,7 +76,7 @@ async function getFileAtCommit(sha: string): Promise<any[]> {
 }
 
 function calculateStats(data: any[], date: string, sha: string): CreatorStats {
-  const creators = data.filter((c: any) => c.user_username && c.user_username !== 'n8n-team');
+  const creators = data.filter((c: any) => c.user_username && !EXCLUDED_USERNAMES.includes(c.user_username));
 
   return {
     date,
