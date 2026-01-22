@@ -13,6 +13,7 @@ const EXCLUDED_USERNAMES = [
   'n8n-team',           // Official n8n team account
   'oneclick-ai',        // Oneclick AI Squad (company)
   'oneclick-it',        // OneClick IT Consultancy P Limited (company)
+  'weblineindia',       // WeblineIndia (company)
 ];
 
 // Name overrides for cases where n8n Arena has incorrect data
