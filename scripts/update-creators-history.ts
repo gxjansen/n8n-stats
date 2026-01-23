@@ -42,6 +42,7 @@ interface CreatorsHistory {
 // Paths
 const DATA_DIR = join(process.cwd(), 'public', 'data');
 const EXTERNAL_FILE = join(DATA_DIR, 'external', 'n8narena-creators.json');
+const META_FILE = join(DATA_DIR, 'external', 'n8narena.meta.json');
 const HISTORY_FILE = join(DATA_DIR, 'history', 'creators.json');
 
 function main() {
@@ -59,6 +60,13 @@ function main() {
 
   console.log(`Read ${creators.length} creators from external data`);
 
+  // Read meta file for attribution
+  let fetchedAt = new Date().toISOString();
+  if (existsSync(META_FILE)) {
+    const meta = JSON.parse(readFileSync(META_FILE, 'utf-8'));
+    fetchedAt = meta.fetchedAt || fetchedAt;
+  }
+
   // Take top 100 for the history file
   const topCreators = creators.slice(0, 100);
 
@@ -67,14 +75,19 @@ function main() {
   const totalInserters = creators.reduce((sum, c) => sum + c.totalInserters, 0);
   const verifiedCreators = creators.filter(c => c.verified).length;
 
-  // Build history object (matches existing format)
-  const history: CreatorsHistory = {
+  // Build history object (matches existing format expected by page)
+  const history = {
     lastUpdated: new Date().toISOString(),
     totalCreators: creators.length,
     verifiedCreators,
     totalViews,
     totalInserters,
     creators: topCreators,
+    _attribution: {
+      source: 'n8n Arena',
+      url: 'https://n8narena.com',
+      fetchedAt,
+    },
   };
 
   writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2));
