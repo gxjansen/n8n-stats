@@ -41,6 +41,7 @@ jobs:
       - name: Update all history data
         if: github.event_name != 'push'
         run: npm run update-all-history
+        continue-on-error: true  # Don't fail build if external APIs are unavailable
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
