@@ -26,6 +26,9 @@ const NAME_OVERRIDES: Record<string, string> = {
 const N8N_ARENA_CREATORS_URL = 'https://raw.githubusercontent.com/teds-tech-talks/n8n-community-leaderboard/main/stats_aggregate_creators.json';
 const N8N_ARENA_WORKFLOWS_URL = 'https://raw.githubusercontent.com/teds-tech-talks/n8n-community-leaderboard/main/stats_aggregate_workflows.json';
 
+// n8n.io API for authoritative template counts
+const N8N_IO_CREATORS_API = 'https://api.n8n.io/api/creators';
+
 interface N8nArenaCreator {
   user_username: string;
   sum_unique_visitors: number;
@@ -134,17 +137,63 @@ async function fetchN8nArenaCreators(): Promise<N8nArenaCreator[]> {
   return data;
 }
 
-function processCreators(rawCreators: N8nArenaCreator[]): ProcessedCreator[] {
-  return rawCreators
-    .filter(c => c.user_username && !EXCLUDED_USERNAMES.includes(c.user_username))
-    .map(c => ({
+/**
+ * Fetch actual template count from n8n.io's creator API
+ * This is the authoritative source for published template counts
+ */
+async function fetchN8nTemplateCount(username: string): Promise<number | null> {
+  try {
+    const response = await fetch(`${N8N_IO_CREATORS_API}/${username}`, {
+      headers: { 'User-Agent': 'n8n-pulse' },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.data?.workflowsCount ?? null;
+    }
+  } catch {
+    // Silent fail, use Arena count as fallback
+  }
+  return null;
+}
+
+async function processCreators(rawCreators: N8nArenaCreator[]): Promise<ProcessedCreator[]> {
+  const filtered = rawCreators
+    .filter(c => c.user_username && !EXCLUDED_USERNAMES.includes(c.user_username));
+
+  // Sort by inserters first to prioritize API calls for top creators
+  const sorted = filtered.sort((a, b) =>
+    (b.sum_unique_inserters || 0) - (a.sum_unique_inserters || 0)
+  );
+
+  // Enrich top 200 creators with n8n.io template counts
+  const enrichLimit = Math.min(200, sorted.length);
+  console.log(`Enriching template counts for top ${enrichLimit} creators from n8n.io API...`);
+
+  const enriched: ProcessedCreator[] = [];
+
+  for (let i = 0; i < sorted.length; i++) {
+    const c = sorted[i];
+
+    let actualTemplateCount = c.unique_count_template_url || 0;
+
+    // Fetch from n8n.io for top creators
+    if (i < enrichLimit) {
+      const n8nCount = await fetchN8nTemplateCount(c.user_username);
+      if (n8nCount !== null) {
+        actualTemplateCount = n8nCount;
+      }
+      // Rate limit: wait 100ms between requests (~10 req/sec)
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    enriched.push({
       username: c.user_username,
       name: NAME_OVERRIDES[c.user_username] || c.user?.name || c.user_username,
       bio: c.user?.bio || '',
       verified: c.user?.verified || false,
       avatar: c.user?.avatar || '',
       links: c.user?.links || [],
-      templateCount: c.unique_count_template_url || 0,
+      templateCount: actualTemplateCount,  // Now from n8n.io API for top creators
       totalViews: c.sum_unique_visitors || 0,
       totalInserters: c.sum_unique_inserters || 0,
       monthlyViews: c.sum_unique_monthly_visitors || 0,
@@ -153,8 +202,17 @@ function processCreators(rawCreators: N8nArenaCreator[]): ProcessedCreator[] {
       weeklyInserters: c.sum_unique_weekly_inserters || 0,
       earliestWorkflow: c.min_earliest_wf || '',
       _source: 'n8narena' as const,
-    }))
-    .sort((a, b) => b.totalInserters - a.totalInserters); // Sort by inserters
+    });
+
+    // Progress logging every 50 creators
+    if (i < enrichLimit && (i + 1) % 50 === 0) {
+      console.log(`  Enriched ${i + 1}/${enrichLimit} creators...`);
+    }
+  }
+
+  console.log(`Completed enriching ${enrichLimit} creators with n8n.io template counts`);
+
+  return enriched;
 }
 
 async function fetchN8nArenaWorkflows(): Promise<N8nArenaWorkflow[]> {
@@ -242,7 +300,7 @@ async function main() {
   try {
     // === CREATORS DATA ===
     const rawCreators = await fetchN8nArenaCreators();
-    const creators = processCreators(rawCreators);
+    const creators = await processCreators(rawCreators);
 
     // Save processed creators data
     const creatorsPath = join(DATA_DIR, 'n8narena-creators.json');
