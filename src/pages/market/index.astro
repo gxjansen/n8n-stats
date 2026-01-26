@@ -446,11 +446,9 @@ const icons = {
 </script>
 
 <script>
-  import { Chart, registerables } from 'chart.js';
+  import { Chart } from '@/lib/utils/chartRegistry';
   import 'chartjs-adapter-date-fns';  // Required for TimeScale
   import { initChartWhenVisible } from '../../lib/utils/lazyChart';
-
-  Chart.register(...registerables);
 
   // Colors
   const COLORS = {
