@@ -3,13 +3,16 @@ import '@/styles/global.css';
 import { ClientRouter, fade } from 'astro:transitions';
 import { n8nUrls } from '@/lib/utils/formatters';
 import PlaygroundCTA from '@/components/PlaygroundCTA.astro';
+import Schema from '@/components/Schema.astro';
 
 interface Props {
   title: string;
   description?: string;
+  breadcrumbs?: Array<{ name: string; url: string }>;
+  isHomepage?: boolean;
 }
 
-const { title, description = 'Community health dashboard and ecosystem explorer for n8n' } = Astro.props;
+const { title, description = 'Community health dashboard and ecosystem explorer for n8n', breadcrumbs, isHomepage } = Astro.props;
 
 // Get current path to conditionally show PlaygroundCTA
 const currentPath = Astro.url.pathname;
@@ -46,6 +49,12 @@ const buildTime = new Date();
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content="https://n8n-pulse.gui.do/og-image.png" />
     <meta name="twitter:creator" content="@guido" />
+
+    <!-- Structured Data -->
+    {isHomepage && <Schema type="WebSite" />}
+    {breadcrumbs && breadcrumbs.length > 0 && (
+      <Schema type="BreadcrumbList" breadcrumbs={breadcrumbs} />
+    )}
 
     <!-- Fonts - self-hosted Inter, preloaded for faster FCP -->
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
@@ -321,7 +330,7 @@ const buildTime = new Date();
         <!-- Row 1: Made by + Links -->
         <div class="flex flex-col items-center gap-4 text-sm text-gray-400">
           <p>
-            Made by <a href="https://gui.do?utm_source=n8n-pulse&utm_medium=referral&utm_campaign=footer" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors" data-umami-event="external-click" data-umami-event-target="gui-do-footer">Guido X Jansen</a>
+            Made by <a href="https://gui.do?utm_source=n8n-pulse&utm_medium=referral&utm_campaign=footer" target="_blank" rel="me noopener noreferrer" class="hover:text-white transition-colors" data-umami-event="external-click" data-umami-event-target="gui-do-footer">Guido X Jansen</a>
           </p>
           <div class="grid grid-cols-2 md:flex md:items-center gap-x-6 gap-y-2 text-center">
             <a href={n8nUrls.home()} target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors whitespace-nowrap" data-umami-event="external-click" data-umami-event-target="n8n-io">

@@ -172,7 +172,12 @@ const rank = allNodesData?.nodes.all.findIndex((n) => n.type === nodeType) + 1;
 
 <BaseLayout
   title={`${node.displayName} - Node Statistics`}
-  description={`Usage statistics for ${node.displayName} node in n8n workflow templates`}
+  description={`Usage statistics for ${node.displayName} node in n8n workflow templates. See usage rank, template count, and weekly trends.`}
+  breadcrumbs={[
+    { name: 'Home', url: '/' },
+    { name: 'Nodes', url: '/nodes' },
+    { name: node.displayName, url: `/nodes/${slug}` }
+  ]}
 >
   <div class="container-narrow py-12">
     <!-- Breadcrumb -->

@@ -1,0 +1,42 @@
+---
+interface Props {
+  type: 'WebSite' | 'BreadcrumbList';
+  breadcrumbs?: Array<{ name: string; url: string }>;
+}
+
+const { type, breadcrumbs } = Astro.props;
+const siteUrl = 'https://n8n-pulse.gui.do';
+
+const schemas: Record<string, object | null> = {
+  WebSite: {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "n8n Pulse",
+    "alternateName": "n8n Community Stats",
+    "url": siteUrl,
+    "description": "Community health dashboard and ecosystem explorer for n8n",
+    "author": {
+      "@type": "Person",
+      "name": "Guido X Jansen",
+      "url": "https://gui.do",
+      "sameAs": ["https://twitter.com/guido"]
+    }
+  },
+  BreadcrumbList: breadcrumbs ? {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": breadcrumbs.map((crumb, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "name": crumb.name,
+      "item": `${siteUrl}${crumb.url}`
+    }))
+  } : null,
+};
+
+const schema = schemas[type];
+---
+
+{schema && (
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+)}

@@ -373,7 +373,11 @@ const starsToMilestone = nextMilestone - githubStats.stars;
 const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilestone / starsPerDay) : null;
 ---
 
-<BaseLayout title="Dashboard">
+<BaseLayout
+  title="n8n Community Stats & Trends Dashboard"
+  description="Track n8n ecosystem growth, discover trending templates, and explore community metrics. Real-time stats on GitHub stars, forum activity, and workflow automation trends."
+  isHomepage={true}
+>
   <div class="container-narrow py-12">
     <!-- Hero -->
     <div class="text-center mb-12">
