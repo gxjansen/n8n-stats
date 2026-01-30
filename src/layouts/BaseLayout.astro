@@ -375,6 +375,11 @@ const buildTime = new Date();
     <!-- Error tracking with Umami -->
     <script is:inline>
       (function() {
+        // Skip error tracking on localhost/dev environments
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+          return;
+        }
+
         // Wait for Umami to load
         function trackError(type, data) {
           if (typeof umami !== 'undefined') {
