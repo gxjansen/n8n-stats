@@ -38,6 +38,11 @@ test.describe('Smoke Tests - All Pages Load', () => {
     await expect(page.locator('body')).toBeVisible();
   });
 
+  test('ambassadors page loads', async ({ page }) => {
+    await page.goto('/ambassadors');
+    await expect(page.locator('body')).toBeVisible();
+  });
+
   test('playground page loads', async ({ page }) => {
     await page.goto('/playground');
     await expect(page.locator('body')).toBeVisible();
@@ -111,6 +116,38 @@ test.describe('Data Display', () => {
     // Should show some common node names
     const content = await page.textContent('body');
     expect(content).toMatch(/HTTP|Webhook|Code|AI/i);
+  });
+});
+
+test.describe('Ambassador Map', () => {
+  test('ambassadors page has map container with pins', async ({ page }) => {
+    await page.goto('/ambassadors');
+    // Map container should be present
+    const mapContainer = page.locator('#ambassador-map-container');
+    await expect(mapContainer).toBeVisible();
+
+    // Wait for pins to render (they load after SVG map)
+    await page.waitForSelector('.amb-pin', { timeout: 10000 });
+    const pins = page.locator('.amb-pin');
+    const pinCount = await pins.count();
+    expect(pinCount).toBeGreaterThan(0);
+  });
+
+  test('clicking a pin opens a popover', async ({ page }) => {
+    await page.goto('/ambassadors');
+    await page.waitForSelector('.amb-pin', { timeout: 10000 });
+
+    // Click the first pin
+    const firstPin = page.locator('.amb-pin').first();
+    await firstPin.click();
+
+    // Popover should become visible
+    const popover = page.locator('#amb-popover');
+    await expect(popover).not.toHaveClass(/hidden/);
+
+    // Popover should contain ambassador names
+    const popoverText = await popover.textContent();
+    expect(popoverText?.length).toBeGreaterThan(0);
   });
 });
 
