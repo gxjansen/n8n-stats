@@ -1,0 +1,595 @@
+---
+/**
+ * Ambassador Map Chart
+ * Displays ambassador avatar pins on a world map with auto-rotation,
+ * click-to-expand popovers, and collision resolution for dense regions.
+ *
+ * Map source: SVG-World-Map by Raphael Lepuschitz (MIT License)
+ * https://github.com/raphaellepuschitz/SVG-World-Map
+ */
+
+import SourceInfo from '@/components/SourceInfo.astro';
+import { latLngToXY, resolveCollisions, MAP_WIDTH, MAP_HEIGHT } from '@/lib/utils/projection';
+
+interface SourceAttribution {
+  source: string;
+  url?: string;
+  note?: string;
+}
+
+interface AmbassadorPin {
+  name: string;
+  avatarUrl?: string;
+  joinDate: string;
+  profileUrl?: string;
+}
+
+interface CountryPinData {
+  country: string;
+  countryCode: string;
+  lat: number;
+  lng: number;
+  count: number;
+  ambassadors: AmbassadorPin[];
+}
+
+interface Props {
+  pins: CountryPinData[];
+  highlightedCountries: string[];
+  source?: SourceAttribution;
+}
+
+const { pins, highlightedCountries = [], source } = Astro.props;
+
+// Project pin positions into SVG coordinate space
+const projectedPins = pins.map(pin => {
+  const { x, y } = latLngToXY(pin.lat, pin.lng);
+  return { ...pin, x, y };
+});
+
+// Resolve collisions (especially for Europe) -- minDistance of 18 in SVG units
+const resolvedPins = resolveCollisions(projectedPins, 18);
+
+// Serialize data for client-side JS
+const pinsJson = JSON.stringify(resolvedPins.map(p => ({
+  country: p.country,
+  countryCode: p.countryCode,
+  x: p.x,
+  y: p.y,
+  count: p.count,
+  ambassadors: p.ambassadors,
+})));
+
+const countriesJson = JSON.stringify(highlightedCountries);
+---
+
+<div id="ambassador-map-container" class="card relative">
+  {source && (
+    <SourceInfo source={source.source} url={source.url} note={source.note} />
+  )}
+  <div class="relative rounded-lg">
+    <div class="amb-map-wrapper relative">
+      <!-- Base world map (fetched and injected inline) -->
+      <div
+        id="amb-world-map-container"
+        class="w-full h-auto"
+        aria-label="World map showing ambassador locations"
+      >
+        <div class="flex items-center justify-center h-32 text-gray-500">
+          Loading map...
+        </div>
+      </div>
+    </div>
+
+    <!-- Pin overlay: sibling of wrapper so it has a clean stacking context for clicks -->
+    <div id="amb-pin-overlay" class="absolute inset-0 z-20"></div>
+
+    <!-- Popover container -->
+    <div id="amb-popover" class="absolute hidden z-30" role="dialog" aria-label="Ambassador details">
+      <div class="bg-gray-900 border border-gray-700 rounded-lg shadow-xl min-w-[200px] max-w-[280px]">
+        <div id="amb-popover-header" class="px-3 py-2 border-b border-gray-700 font-semibold text-white text-sm"></div>
+        <div id="amb-popover-list" class="max-h-64 overflow-y-auto p-2 space-y-2"></div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="flex flex-wrap items-center justify-center gap-4 md:gap-6 mt-2 text-sm text-gray-400">
+      <div class="flex items-center gap-2">
+        <span class="w-6 h-6 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 border-2 border-green-500/30 flex items-center justify-center text-[8px] font-bold text-green-400">AB</span>
+        <span>Ambassador (click for details)</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="w-4 h-3 rounded-sm" style="background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.4);"></span>
+        <span>Country with ambassadors</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ pinsJson, countriesJson, mapWidth: MAP_WIDTH, mapHeight: MAP_HEIGHT }}>
+  window.__ambassadorPins = JSON.parse(pinsJson);
+  window.__ambassadorCountries = JSON.parse(countriesJson);
+  window.__ambassadorMapWidth = mapWidth;
+  window.__ambassadorMapHeight = mapHeight;
+</script>
+
+<style>
+  .amb-map-wrapper {
+    background: transparent;
+    aspect-ratio: 1000 / 507;
+  }
+
+  /* Pin entrance animation */
+  .amb-pin {
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity 300ms ease, transform 300ms ease;
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  .amb-pin.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Avatar image in pin */
+  .amb-pin-avatar {
+    transition: opacity 0.6s ease-in-out;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 9999px;
+    object-fit: cover;
+  }
+
+  .amb-pin-initials {
+    transition: opacity 0.6s ease-in-out;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.05));
+    color: #4ade80;
+  }
+
+  /* Count badge */
+  .amb-pin-count {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    background: #16a34a;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 9999px;
+    min-width: 16px;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  /* Reduced motion: no animations */
+  @media (prefers-reduced-motion: reduce) {
+    .amb-pin {
+      transition: none;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .amb-pin-avatar,
+    .amb-pin-initials {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initAmbassadorMap() {
+    const mapContainer = document.getElementById('amb-world-map-container');
+    const pinOverlay = document.getElementById('amb-pin-overlay');
+    const popover = document.getElementById('amb-popover');
+    const popoverHeader = document.getElementById('amb-popover-header');
+    const popoverList = document.getElementById('amb-popover-list');
+    const wrapper = document.querySelector('.amb-map-wrapper') as HTMLElement | null;
+
+    if (!mapContainer || !pinOverlay || !popover || !popoverHeader || !popoverList || !wrapper) return;
+
+    const pins: Array<{
+      country: string;
+      countryCode: string;
+      x: number;
+      y: number;
+      count: number;
+      ambassadors: Array<{
+        name: string;
+        avatarUrl?: string;
+        joinDate: string;
+        profileUrl?: string;
+      }>;
+    }> = (window as any).__ambassadorPins || [];
+
+    const highlightedCountries: string[] = (window as any).__ambassadorCountries || [];
+    const SVG_WIDTH: number = (window as any).__ambassadorMapWidth || 1000;
+    const SVG_HEIGHT: number = (window as any).__ambassadorMapHeight || 507.209;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Track rotation intervals for cleanup
+    const rotationIntervals: number[] = [];
+    let activePopoverCountry: string | null = null;
+
+    function getInitials(name: string): string {
+      return name
+        .split(' ')
+        .map(n => n.charAt(0))
+        .slice(0, 2)
+        .join('')
+        .toUpperCase();
+    }
+
+    // Style the SVG map with green highlights instead of orange
+    function styleSvgMap(svgElement: SVGElement) {
+      const worldRect = svgElement.getElementById('World');
+      if (worldRect) worldRect.setAttribute('fill', 'transparent');
+
+      const ocean = svgElement.getElementById('Ocean');
+      if (ocean) {
+        ocean.setAttribute('fill', 'transparent');
+        ocean.setAttribute('stroke', 'none');
+      }
+
+      const allGroups = svgElement.querySelectorAll('g[id]');
+      allGroups.forEach((group: Element) => {
+        const countryCode = group.getAttribute('id');
+        if (!countryCode || countryCode.length !== 2) return;
+
+        const isHighlighted = highlightedCountries.includes(countryCode);
+        const paths = group.querySelectorAll('path');
+
+        paths.forEach((path: Element) => {
+          if (isHighlighted) {
+            path.setAttribute('fill', 'rgba(34, 197, 94, 0.2)');
+            path.setAttribute('stroke', 'rgba(34, 197, 94, 0.4)');
+            path.setAttribute('stroke-width', '0.5');
+          } else {
+            path.setAttribute('fill', '#252540');
+            path.setAttribute('stroke', '#3a3a5e');
+            path.setAttribute('stroke-width', '0.3');
+          }
+        });
+      });
+
+      const standalonePaths = svgElement.querySelectorAll(':scope > path, :scope > g:not([id]) path');
+      standalonePaths.forEach((path: Element) => {
+        const id = path.getAttribute('id');
+        if (id === 'Ocean' || id === 'World') return;
+        path.setAttribute('fill', '#252540');
+        path.setAttribute('stroke', '#3a3a5e');
+        path.setAttribute('stroke-width', '0.3');
+      });
+    }
+
+    async function loadMapSvg() {
+      try {
+        const response = await fetch('/images/world-robinson.svg');
+        if (!response.ok) throw new Error('Failed to load map');
+
+        const svgText = await response.text();
+        const parser = new DOMParser();
+        const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+        const svgElement = svgDoc.querySelector('svg');
+
+        if (svgElement) {
+          svgElement.classList.add('w-full', 'h-auto');
+          mapContainer.innerHTML = '';
+          mapContainer.appendChild(svgElement);
+          styleSvgMap(svgElement);
+        }
+      } catch (error) {
+        console.error('Error loading map SVG:', error);
+        mapContainer.innerHTML = '<div class="flex items-center justify-center h-full text-red-400">Failed to load map</div>';
+      }
+    }
+
+    function getPinSize(): number {
+      return window.innerWidth < 480 ? 24 : 28;
+    }
+
+    function createPinElements() {
+      pinOverlay.innerHTML = '';
+
+      const containerRect = wrapper.getBoundingClientRect();
+      const containerWidth = containerRect.width;
+      const containerHeight = containerRect.height;
+      const pinSize = getPinSize();
+
+      pins.forEach((pin, index) => {
+        const pixelX = (pin.x / SVG_WIDTH) * containerWidth;
+        const pixelY = (pin.y / SVG_HEIGHT) * containerHeight;
+
+        const pinEl = document.createElement('div');
+        pinEl.className = 'amb-pin';
+        pinEl.setAttribute('role', 'button');
+        pinEl.setAttribute('tabindex', '0');
+        pinEl.setAttribute('aria-label', `${pin.country}: ${pin.count} ambassador${pin.count !== 1 ? 's' : ''}`);
+        pinEl.dataset.country = pin.country;
+        pinEl.dataset.umamiEvent = 'ambassador-map-click';
+        pinEl.dataset.umamiEventTarget = pin.country;
+        pinEl.style.position = 'absolute';
+        pinEl.style.left = `${pixelX - pinSize / 2}px`;
+        pinEl.style.top = `${pixelY - pinSize / 2}px`;
+        pinEl.style.width = `${pinSize}px`;
+        pinEl.style.height = `${pinSize}px`;
+        pinEl.style.borderRadius = '9999px';
+        pinEl.style.border = '2px solid rgba(34, 197, 94, 0.3)';
+        pinEl.style.overflow = 'hidden';
+        pinEl.style.zIndex = '10';
+
+        if (!prefersReducedMotion) {
+          pinEl.style.transitionDelay = `${index * 30}ms`;
+        }
+
+        // Create stacked avatar layers for rotation
+        const ambassadors = pin.ambassadors;
+        ambassadors.forEach((amb, ambIdx) => {
+          if (amb.avatarUrl) {
+            const img = document.createElement('img');
+            img.src = amb.avatarUrl;
+            img.alt = amb.name;
+            img.loading = 'lazy';
+            img.className = 'amb-pin-avatar';
+            img.style.opacity = ambIdx === 0 ? '1' : '0';
+            img.dataset.ambIndex = String(ambIdx);
+            pinEl.appendChild(img);
+          } else {
+            const div = document.createElement('div');
+            div.className = 'amb-pin-initials';
+            div.style.opacity = ambIdx === 0 ? '1' : '0';
+            div.style.fontSize = pinSize < 26 ? '8px' : '10px';
+            div.textContent = getInitials(amb.name);
+            div.dataset.ambIndex = String(ambIdx);
+            pinEl.appendChild(div);
+          }
+        });
+
+        // Count badge
+        if (pin.count > 1) {
+          const badge = document.createElement('span');
+          badge.className = 'amb-pin-count';
+          badge.textContent = `+${pin.count - 1}`;
+          pinEl.appendChild(badge);
+        }
+
+        // Click handler
+        pinEl.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openPopover(pin, pixelX, pixelY);
+        });
+        pinEl.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            e.stopPropagation();
+            openPopover(pin, pixelX, pixelY);
+          }
+        });
+
+        pinOverlay.appendChild(pinEl);
+
+        // Set up rotation for multi-ambassador pins
+        if (ambassadors.length > 1 && !prefersReducedMotion) {
+          const randomOffset = Math.random() * 3000;
+          const layers = pinEl.querySelectorAll('[data-amb-index]') as NodeListOf<HTMLElement>;
+          let currentIndex = 0;
+
+          const startRotation = () => {
+            const intervalId = window.setInterval(() => {
+              const nextIndex = (currentIndex + 1) % ambassadors.length;
+              layers.forEach((layer) => {
+                const idx = parseInt(layer.dataset.ambIndex || '0', 10);
+                layer.style.opacity = idx === nextIndex ? '1' : '0';
+              });
+              currentIndex = nextIndex;
+            }, 3000);
+            rotationIntervals.push(intervalId);
+          };
+
+          setTimeout(startRotation, randomOffset);
+        }
+      });
+
+      // Staggered entrance animation via IntersectionObserver
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const allPins = pinOverlay.querySelectorAll('.amb-pin');
+              allPins.forEach((pin) => pin.classList.add('visible'));
+              observer.disconnect();
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(wrapper);
+    }
+
+    function openPopover(
+      pin: typeof pins[0],
+      anchorX: number,
+      anchorY: number
+    ) {
+      if (activePopoverCountry === pin.country) {
+        closePopover();
+        return;
+      }
+      activePopoverCountry = pin.country;
+
+      popoverHeader.textContent = `${pin.country} (${pin.count})`;
+
+      popoverList.innerHTML = '';
+      pin.ambassadors.forEach((amb) => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center gap-2 p-1.5 rounded hover:bg-gray-800/50';
+
+        const avatarHtml = amb.avatarUrl
+          ? `<img src="${amb.avatarUrl}" alt="${amb.name}" class="w-8 h-8 rounded-full object-cover ring-1 ring-green-500/30 flex-shrink-0" loading="lazy">`
+          : `<div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center text-xs font-bold text-green-400 flex-shrink-0">${getInitials(amb.name)}</div>`;
+
+        const nameHtml = amb.profileUrl
+          ? `<a href="${amb.profileUrl}" target="_blank" rel="noopener noreferrer" class="text-white text-sm font-medium hover:text-green-400 transition-colors truncate" data-umami-event="ambassador-popover-click" data-umami-event-target="${amb.name}">${amb.name}</a>`
+          : `<span class="text-white text-sm font-medium truncate">${amb.name}</span>`;
+
+        item.innerHTML = `
+          ${avatarHtml}
+          <div class="min-w-0 flex-1">
+            ${nameHtml}
+            <div class="text-xs text-gray-400">${amb.joinDate}</div>
+          </div>
+        `;
+
+        popoverList.appendChild(item);
+      });
+
+      // Position popover
+      const containerRect = wrapper.getBoundingClientRect();
+      const isMobile = window.innerWidth < 480;
+
+      popover.classList.remove('hidden');
+
+      if (isMobile) {
+        // Anchor at bottom of map container
+        popover.style.left = '8px';
+        popover.style.right = '8px';
+        popover.style.bottom = '8px';
+        popover.style.top = 'auto';
+        popover.style.maxWidth = 'none';
+      } else {
+        // Position near the pin, clamped to container
+        const popRect = popover.getBoundingClientRect();
+        let left = anchorX + 16;
+        let top = anchorY - 20;
+
+        // Clamp right edge
+        if (left + 280 > containerRect.width) {
+          left = anchorX - 280 - 16;
+        }
+        // Clamp left
+        if (left < 8) left = 8;
+        // Clamp bottom
+        if (top + popRect.height > containerRect.height - 8) {
+          top = containerRect.height - popRect.height - 8;
+        }
+        // Clamp top
+        if (top < 8) top = 8;
+
+        popover.style.left = `${left}px`;
+        popover.style.top = `${top}px`;
+        popover.style.right = 'auto';
+        popover.style.bottom = 'auto';
+        popover.style.maxWidth = '280px';
+      }
+
+      // Focus the popover for accessibility
+      popover.setAttribute('tabindex', '-1');
+      popover.focus();
+    }
+
+    function closePopover() {
+      popover.classList.add('hidden');
+      activePopoverCountry = null;
+
+      // Return focus to the pin that opened it
+      const activePinEl = pinOverlay.querySelector(`.amb-pin[data-country="${activePopoverCountry}"]`) as HTMLElement;
+      if (activePinEl) activePinEl.focus();
+    }
+
+    // Close popover on click outside
+    document.addEventListener('click', (e) => {
+      if (activePopoverCountry && !popover.contains(e.target as Node)) {
+        const clickedPin = (e.target as HTMLElement).closest('.amb-pin');
+        if (!clickedPin) {
+          closePopover();
+        }
+      }
+    });
+
+    // Close popover on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && activePopoverCountry) {
+        const countryToFocus = activePopoverCountry;
+        closePopover();
+        // Focus back on the pin
+        const pinEl = pinOverlay.querySelector(`.amb-pin[data-country="${countryToFocus}"]`) as HTMLElement;
+        if (pinEl) pinEl.focus();
+      }
+    });
+
+    // Resize handler: reposition pins
+    let resizeTimeout: number | null = null;
+    const resizeObserver = new ResizeObserver(() => {
+      if (resizeTimeout) clearTimeout(resizeTimeout);
+      resizeTimeout = window.setTimeout(() => {
+        repositionPins();
+      }, 100);
+    });
+    resizeObserver.observe(wrapper);
+
+    function repositionPins() {
+      const containerRect = wrapper.getBoundingClientRect();
+      const containerWidth = containerRect.width;
+      const containerHeight = containerRect.height;
+      const pinSize = getPinSize();
+      const pinEls = pinOverlay.querySelectorAll('.amb-pin') as NodeListOf<HTMLElement>;
+
+      pinEls.forEach((pinEl, index) => {
+        if (index >= pins.length) return;
+        const pin = pins[index];
+        const pixelX = (pin.x / SVG_WIDTH) * containerWidth;
+        const pixelY = (pin.y / SVG_HEIGHT) * containerHeight;
+
+        pinEl.style.left = `${pixelX - pinSize / 2}px`;
+        pinEl.style.top = `${pixelY - pinSize / 2}px`;
+        pinEl.style.width = `${pinSize}px`;
+        pinEl.style.height = `${pinSize}px`;
+      });
+
+      // Close popover on resize
+      if (activePopoverCountry) closePopover();
+    }
+
+    // Pause rotation when off-screen
+    const visibilityObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            // Pause: clear intervals
+            rotationIntervals.forEach((id) => clearInterval(id));
+            rotationIntervals.length = 0;
+          }
+          // Note: rotation restarts are not re-initiated here to keep
+          // implementation simple. The initial rotation setup handles it.
+        });
+      },
+      { threshold: 0 }
+    );
+    visibilityObserver.observe(wrapper);
+
+    // Initialize
+    loadMapSvg();
+    createPinElements();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAmbassadorMap);
+  } else {
+    initAmbassadorMap();
+  }
+</script>

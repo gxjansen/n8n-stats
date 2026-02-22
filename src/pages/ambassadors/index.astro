@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import StatCard from '@/components/cards/StatCard.astro';
-import EventsMapChart from '@/components/charts/EventsMapChart.astro';
+import AmbassadorMapChart from '@/components/charts/AmbassadorMapChart.astro';
 import AmbassadorsHistoryChart from '@/components/charts/AmbassadorsHistoryChart.astro';
 import SecondaryCTA from '@/components/cards/SecondaryCTA.astro';
 import DataSourcesSection from '@/components/DataSourcesSection.astro';
@@ -167,6 +167,64 @@ const highlightedCountries = [...new Set(
     .filter((code): code is string => !!code)
 )];
 
+// Group ambassadors by country for map pins
+interface CountryPinData {
+  country: string;
+  countryCode: string;
+  lat: number;
+  lng: number;
+  count: number;
+  ambassadors: Array<{
+    name: string;
+    avatarUrl?: string;
+    joinDate: string;
+    profileUrl?: string;
+  }>;
+}
+
+const pinsByCountry: CountryPinData[] = byCountry
+  .filter(c => c.coordinates)
+  .map(c => {
+    const code = countryToCode[c.country] || '';
+    // Get all ambassadors for this country, sorted newest-first
+    const countryAmbassadors = ambassadors
+      .filter(a => a.country === c.country)
+      .map(a => ({
+        ...a,
+        _parsed: (() => {
+          const monthNames: Record<string, number> = {
+            'january': 0, 'february': 1, 'march': 2, 'april': 3,
+            'may': 4, 'june': 5, 'july': 6, 'august': 7,
+            'september': 8, 'october': 9, 'november': 10, 'december': 11,
+          };
+          const match = a.joinDate?.match(/^([A-Za-z]+)\s+(\d{1,2}),?\s+(\d{4})$/);
+          if (match) {
+            const month = monthNames[match[1].toLowerCase()];
+            if (month !== undefined) return new Date(parseInt(match[3]), month, parseInt(match[2]));
+          }
+          const d = new Date(a.joinDate);
+          return isNaN(d.getTime()) ? new Date(0) : d;
+        })(),
+      }))
+      .sort((a, b) => b._parsed.getTime() - a._parsed.getTime())
+      .map(a => ({
+        name: a.name,
+        avatarUrl: a.avatarUrl,
+        joinDate: a.joinDate,
+        profileUrl: a.communityProfileUrl || a.linkedinUrl || undefined,
+      }));
+
+    return {
+      country: c.country,
+      countryCode: code,
+      lat: c.coordinates!.lat,
+      lng: c.coordinates!.lng,
+      count: c.count,
+      ambassadors: countryAmbassadors,
+    };
+  })
+  .filter(c => c.ambassadors.length > 0);
+
 // Get initials for avatar placeholder
 function getInitials(name: string): string {
   return name
@@ -287,7 +345,7 @@ const ambassadorSparklineData = monthlyHistory.slice(-12).map(m => m.total);
     )}
 
     <!-- World Map -->
-    {locations.length > 0 && (
+    {pinsByCountry.length > 0 && (
       <section class="mb-12">
         <div class="flex items-center gap-3 mb-6">
           <svg class="w-6 h-6 text-n8n-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -298,14 +356,9 @@ const ambassadorSparklineData = monthlyHistory.slice(-12).map(m => m.total);
         <p class="text-gray-400 mb-6">
           Where n8n ambassadors are based around the world.
         </p>
-        <EventsMapChart
-          locations={locations}
+        <AmbassadorMapChart
+          pins={pinsByCountry}
           highlightedCountries={highlightedCountries}
-          legendLabels={{
-            location: null,
-            multiple: null,
-            country: 'Country with ambassadors',
-          }}
           source={{ source: "n8n Notion Directory", url: "https://n8n.notion.site/9eefeb6356754725a1b2dd8ccecc4ffb", note: "scraped weekly" }}
         />
       </section>
