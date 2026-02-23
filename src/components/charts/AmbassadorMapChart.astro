@@ -343,25 +343,33 @@ const countriesJson = JSON.stringify(highlightedCountries);
         const withAvatars = ambassadors.filter(a => a.avatarUrl);
         const displayList = withAvatars.length > 0 ? withAvatars : ambassadors;
 
+        function createInitialsDiv(name: string, ambIdx: number, isActive: boolean): HTMLDivElement {
+          const div = document.createElement('div');
+          div.className = 'amb-pin-initials';
+          div.style.opacity = isActive ? '1' : '0';
+          div.style.fontSize = pinSize < 26 ? '8px' : '10px';
+          div.textContent = getInitials(name);
+          div.dataset.ambIndex = String(ambIdx);
+          return div;
+        }
+
         displayList.forEach((amb, ambIdx) => {
+          const isActive = ambIdx === 0;
           if (amb.avatarUrl) {
             const img = document.createElement('img');
             img.src = amb.avatarUrl;
             img.alt = amb.name;
-            img.loading = 'lazy';
             img.className = 'amb-pin-avatar';
-            img.style.opacity = ambIdx === 0 ? '1' : '0';
+            img.style.opacity = isActive ? '1' : '0';
             img.dataset.ambIndex = String(ambIdx);
+            // If the image fails to load, swap in initials fallback
+            img.onerror = () => {
+              const fallback = createInitialsDiv(amb.name, ambIdx, img.style.opacity === '1');
+              img.replaceWith(fallback);
+            };
             pinEl.appendChild(img);
           } else {
-            // Initials fallback -- only used when NO ambassadors have avatars
-            const div = document.createElement('div');
-            div.className = 'amb-pin-initials';
-            div.style.opacity = ambIdx === 0 ? '1' : '0';
-            div.style.fontSize = pinSize < 26 ? '8px' : '10px';
-            div.textContent = getInitials(amb.name);
-            div.dataset.ambIndex = String(ambIdx);
-            pinEl.appendChild(div);
+            pinEl.appendChild(createInitialsDiv(amb.name, ambIdx, isActive));
           }
         });
 
@@ -444,9 +452,10 @@ const countriesJson = JSON.stringify(highlightedCountries);
         const item = document.createElement('div');
         item.className = 'flex items-center gap-2 p-1.5 rounded hover:bg-gray-800/50';
 
+        const initialsHtml = `<div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-500/35 to-green-500/15 flex items-center justify-center text-xs font-bold text-green-300 flex-shrink-0">${getInitials(amb.name)}</div>`;
         const avatarHtml = amb.avatarUrl
-          ? `<img src="${amb.avatarUrl}" alt="${amb.name}" class="w-8 h-8 rounded-full object-cover ring-1 ring-green-500/30 flex-shrink-0" loading="lazy">`
-          : `<div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center text-xs font-bold text-green-400 flex-shrink-0">${getInitials(amb.name)}</div>`;
+          ? `<img src="${amb.avatarUrl}" alt="${amb.name}" class="w-8 h-8 rounded-full object-cover ring-1 ring-green-500/30 flex-shrink-0" loading="lazy" onerror="this.outerHTML=this.dataset.fallback" data-fallback='${initialsHtml.replace(/'/g, "&#39;")}'>`
+          : initialsHtml;
 
         const nameHtml = amb.profileUrl
           ? `<a href="${amb.profileUrl}" target="_blank" rel="noopener noreferrer" class="text-white text-sm font-medium hover:text-green-400 transition-colors truncate" data-umami-event="ambassador-popover-click" data-umami-event-target="${amb.name}">${amb.name}</a>`
