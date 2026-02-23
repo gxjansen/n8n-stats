@@ -7,7 +7,8 @@
 import { chromium } from '@playwright/test';
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import { writeFile as writeFileAsync } from 'fs/promises';
-import { join, extname } from 'path';
+import { join } from 'path';
+import sharp from 'sharp';
 
 const NOTION_PAGE_URL = 'https://n8n.notion.site/9eefeb6356754725a1b2dd8ccecc4ffb';
 const AMBASSADORS_PATH = join(process.cwd(), 'public', 'data', 'history', 'ambassadors.json');
@@ -1064,22 +1065,11 @@ async function downloadAvatars(ambassadors: Ambassador[], requestContext: any): 
           throw new Error(`HTTP ${response.status()}`);
         }
 
-        // Verify content-type is an image and derive extension from it
+        // Verify content-type is an image
         const contentType = response.headers()['content-type'] || '';
         if (!contentType.startsWith('image/')) {
           throw new Error(`Not an image: ${contentType}`);
         }
-
-        // Determine extension from actual content-type (not URL)
-        const ctToExt: Record<string, string> = {
-          'image/jpeg': 'jpg',
-          'image/png': 'png',
-          'image/webp': 'webp',
-          'image/gif': 'gif',
-        };
-        const ext = ctToExt[contentType.split(';')[0].trim()] || 'jpg';
-        const filename = `${ambassador.id}.${ext}`;
-        const filepath = join(AVATARS_DIR, filename);
 
         const buffer = await response.body();
 
@@ -1088,7 +1078,14 @@ async function downloadAvatars(ambassadors: Ambassador[], requestContext: any): 
           throw new Error('Empty response body');
         }
 
-        await writeFileAsync(filepath, buffer);
+        // Resize to 64x64 (2x for retina at 32px pins) and convert to WebP
+        const filename = `${ambassador.id}.webp`;
+        const filepath = join(AVATARS_DIR, filename);
+        await sharp(buffer)
+          .resize(64, 64, { fit: 'cover' })
+          .webp({ quality: 80 })
+          .toFile(filepath);
+
         ambassador.avatarUrl = `/images/ambassadors/${filename}`;
         downloaded++;
         success = true;
