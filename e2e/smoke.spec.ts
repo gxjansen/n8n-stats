@@ -7,8 +7,8 @@ test.describe('Smoke Tests - All Pages Load', () => {
     await expect(page.locator('body')).toBeVisible();
   });
 
-  test('github page loads', async ({ page }) => {
-    await page.goto('/github');
+  test('dev page loads', async ({ page }) => {
+    await page.goto('/dev');
     await expect(page.locator('body')).toBeVisible();
     await expect(page.locator('h1, h2').first()).toBeVisible();
   });
@@ -60,14 +60,14 @@ test.describe('Homepage Content', () => {
   test('displays navigation', async ({ page }) => {
     await page.goto('/');
     // Check for nav links in the header navigation
-    await expect(page.getByRole('link', { name: 'GitHub', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Dev', exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Discussions', exact: true })).toBeVisible();
   });
 });
 
 test.describe('Charts Render', () => {
-  test('github page has charts', async ({ page }) => {
-    await page.goto('/github');
+  test('dev page has charts', async ({ page }) => {
+    await page.goto('/dev');
     // Charts use canvas elements
     await page.waitForSelector('canvas', { timeout: 10000 });
     const canvases = page.locator('canvas');
@@ -83,10 +83,10 @@ test.describe('Charts Render', () => {
 });
 
 test.describe('Navigation', () => {
-  test('can navigate from homepage to github', async ({ page }) => {
+  test('can navigate from homepage to dev', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('link', { name: /github/i }).first().click();
-    await expect(page).toHaveURL(/\/github/);
+    await page.getByRole('link', { name: /dev/i }).first().click();
+    await expect(page).toHaveURL(/\/dev/);
   });
 
   test('can navigate from homepage to discussions', async ({ page }) => {
@@ -103,8 +103,8 @@ test.describe('Navigation', () => {
 });
 
 test.describe('Data Display', () => {
-  test('github page shows star count', async ({ page }) => {
-    await page.goto('/github');
+  test('dev page shows star count', async ({ page }) => {
+    await page.goto('/dev');
     // Look for large numbers (star count)
     const content = await page.textContent('body');
     // Star count should be visible as a formatted number (e.g., "166K" or "166,000")
@@ -154,8 +154,8 @@ test.describe('Ambassador Map', () => {
 test.describe('External Links', () => {
   test('external links have tracking parameters', async ({ page }) => {
     await page.goto('/');
-    // Find links to n8n.io
-    const n8nLinks = page.locator('a[href*="n8n.io"]');
+    // Find links to n8n.io main site (exclude subdomains like api.n8n.io, community.n8n.io)
+    const n8nLinks = page.locator('a[href^="https://n8n.io"]');
     const count = await n8nLinks.count();
 
     if (count > 0) {
