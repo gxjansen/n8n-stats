@@ -96,7 +96,7 @@ const countriesJson = JSON.stringify(highlightedCountries);
     <div class="flex flex-wrap items-center justify-center gap-4 md:gap-6 mt-2 text-sm text-gray-400">
       <div class="flex items-center gap-2">
         <span class="w-6 h-6 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 border-2 border-green-500/30 flex items-center justify-center text-[8px] font-bold text-green-400">AB</span>
-        <span>Ambassador (click for details)</span>
+        <span>Ambassador (hover for country, click for details)</span>
       </div>
       <div class="flex items-center gap-2">
         <span class="w-4 h-3 rounded-sm" style="background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.4);"></span>
@@ -131,6 +131,39 @@ const countriesJson = JSON.stringify(highlightedCountries);
   .amb-pin.visible {
     opacity: 1;
     transform: scale(1);
+  }
+
+  /* Country name tooltip on hover */
+  .amb-pin::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(17, 17, 30, 0.95);
+    color: #e2e8f0;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 150ms ease;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    z-index: 50;
+  }
+
+  .amb-pin:hover::after {
+    opacity: 1;
+  }
+
+  /* Hide tooltip on touch devices where hover isn't meaningful */
+  @media (hover: none) {
+    .amb-pin::after {
+      display: none;
+    }
   }
 
   /* Avatar image in pin */
@@ -304,6 +337,7 @@ const countriesJson = JSON.stringify(highlightedCountries);
         pinEl.setAttribute('tabindex', '0');
         pinEl.setAttribute('aria-label', `${pin.country}: ${pin.count} ambassador${pin.count !== 1 ? 's' : ''}`);
         pinEl.dataset.country = pin.country;
+        pinEl.dataset.tooltip = pin.country;
         pinEl.dataset.umamiEvent = 'ambassador-map-click';
         pinEl.dataset.umamiEventTarget = pin.country;
         pinEl.style.position = 'absolute';
