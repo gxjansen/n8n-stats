@@ -345,14 +345,21 @@ const countriesJson = JSON.stringify(highlightedCountries);
         pinEl.style.top = `${pixelY - pinSize / 2}px`;
         pinEl.style.width = `${pinSize}px`;
         pinEl.style.height = `${pinSize}px`;
-        pinEl.style.borderRadius = '9999px';
-        pinEl.style.border = '2px solid rgba(34, 197, 94, 0.3)';
-        pinEl.style.overflow = 'hidden';
         pinEl.style.zIndex = '10';
 
         if (!prefersReducedMotion) {
           pinEl.style.transitionDelay = `${index * 30}ms`;
         }
+
+        // Inner element clips the circular avatar; outer pin stays overflow:visible for tooltip
+        const pinInner = document.createElement('div');
+        pinInner.className = 'amb-pin-inner';
+        pinInner.style.width = '100%';
+        pinInner.style.height = '100%';
+        pinInner.style.borderRadius = '9999px';
+        pinInner.style.border = '2px solid rgba(34, 197, 94, 0.3)';
+        pinInner.style.overflow = 'hidden';
+        pinInner.style.position = 'relative';
 
         // Only rotate through ambassadors who have avatar images.
         // Those without avatars still appear in the popover list.
@@ -379,7 +386,7 @@ const countriesJson = JSON.stringify(highlightedCountries);
               fallback.dataset.ambIndex = img.dataset.ambIndex!;
               img.replaceWith(fallback);
             };
-            pinEl.appendChild(img);
+            pinInner.appendChild(img);
           } else {
             // Initials fallback -- only used when NO ambassadors have avatars
             const div = document.createElement('div');
@@ -388,9 +395,11 @@ const countriesJson = JSON.stringify(highlightedCountries);
             div.style.fontSize = pinSize < 26 ? '8px' : '10px';
             div.textContent = getInitials(amb.name);
             div.dataset.ambIndex = String(ambIdx);
-            pinEl.appendChild(div);
+            pinInner.appendChild(div);
           }
         });
+
+        pinEl.appendChild(pinInner);
 
         // Click handler
         pinEl.addEventListener('click', (e) => {
