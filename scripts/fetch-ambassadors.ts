@@ -1052,21 +1052,6 @@ async function downloadAvatars(ambassadors: Ambassador[], requestContext: any): 
       continue;
     }
 
-    // Determine file extension from URL path
-    let ext: string;
-    try {
-      const urlPath = new URL(ambassador.avatarUrl).pathname;
-      ext = extname(urlPath).replace('.', '').toLowerCase();
-    } catch {
-      ext = '';
-    }
-    if (!['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext)) {
-      ext = 'jpg';
-    }
-
-    const filename = `${ambassador.id}.${ext}`;
-    const filepath = join(AVATARS_DIR, filename);
-
     let success = false;
     const maxRetries = 3;
 
@@ -1079,11 +1064,22 @@ async function downloadAvatars(ambassadors: Ambassador[], requestContext: any): 
           throw new Error(`HTTP ${response.status()}`);
         }
 
-        // Verify content-type is an image
+        // Verify content-type is an image and derive extension from it
         const contentType = response.headers()['content-type'] || '';
         if (!contentType.startsWith('image/')) {
           throw new Error(`Not an image: ${contentType}`);
         }
+
+        // Determine extension from actual content-type (not URL)
+        const ctToExt: Record<string, string> = {
+          'image/jpeg': 'jpg',
+          'image/png': 'png',
+          'image/webp': 'webp',
+          'image/gif': 'gif',
+        };
+        const ext = ctToExt[contentType.split(';')[0].trim()] || 'jpg';
+        const filename = `${ambassador.id}.${ext}`;
+        const filepath = join(AVATARS_DIR, filename);
 
         const buffer = await response.body();
 
