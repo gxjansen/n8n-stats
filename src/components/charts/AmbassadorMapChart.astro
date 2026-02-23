@@ -352,6 +352,16 @@ const countriesJson = JSON.stringify(highlightedCountries);
             img.className = 'amb-pin-avatar';
             img.style.opacity = ambIdx === 0 ? '1' : '0';
             img.dataset.ambIndex = String(ambIdx);
+            img.onerror = () => {
+              // Swap to initials fallback if image fails to load
+              const fallback = document.createElement('div');
+              fallback.className = 'amb-pin-initials';
+              fallback.style.opacity = img.style.opacity;
+              fallback.style.fontSize = getPinSize() < 26 ? '8px' : '10px';
+              fallback.textContent = getInitials(amb.name);
+              fallback.dataset.ambIndex = img.dataset.ambIndex!;
+              img.replaceWith(fallback);
+            };
             pinEl.appendChild(img);
           } else {
             // Initials fallback -- only used when NO ambassadors have avatars
@@ -445,7 +455,7 @@ const countriesJson = JSON.stringify(highlightedCountries);
         item.className = 'flex items-center gap-2 p-1.5 rounded hover:bg-gray-800/50';
 
         const avatarHtml = amb.avatarUrl
-          ? `<img src="${amb.avatarUrl}" alt="${amb.name}" class="w-8 h-8 rounded-full object-cover ring-1 ring-green-500/30 flex-shrink-0" loading="lazy">`
+          ? `<img src="${amb.avatarUrl}" alt="${amb.name}" class="w-8 h-8 rounded-full object-cover ring-1 ring-green-500/30 flex-shrink-0" loading="lazy" data-initials="${getInitials(amb.name)}">`
           : `<div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center text-xs font-bold text-green-400 flex-shrink-0">${getInitials(amb.name)}</div>`;
 
         const nameHtml = amb.profileUrl
@@ -461,6 +471,17 @@ const countriesJson = JSON.stringify(highlightedCountries);
         `;
 
         popoverList.appendChild(item);
+      });
+
+      // Attach onerror handlers to popover avatar images
+      popoverList.querySelectorAll('img[data-initials]').forEach((img: Element) => {
+        (img as HTMLImageElement).onerror = function() {
+          const initials = this.dataset.initials || '';
+          const div = document.createElement('div');
+          div.className = 'w-8 h-8 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center text-xs font-bold text-green-400 flex-shrink-0';
+          div.textContent = initials;
+          this.replaceWith(div);
+        };
       });
 
       // Position popover

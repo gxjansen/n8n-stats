@@ -426,6 +426,8 @@ const ambassadorSparklineData = monthlyHistory.slice(-12).map(m => m.total);
                     alt={ambassador.name}
                     class="w-14 h-14 mx-auto mb-3 rounded-full object-cover ring-2 ring-green-500/30"
                     loading="lazy"
+                    data-initials={getInitials(ambassador.name)}
+                    onerror="const d=document.createElement('div');d.className='w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center text-lg font-bold text-green-400';d.textContent=this.dataset.initials;this.replaceWith(d)"
                   />
                 ) : (
                   <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center text-lg font-bold text-green-400">
@@ -482,6 +484,8 @@ const ambassadorSparklineData = monthlyHistory.slice(-12).map(m => m.total);
                     alt={ambassador.name}
                     class="w-14 h-14 mx-auto mb-3 rounded-full object-cover ring-2 ring-amber-500/30"
                     loading="lazy"
+                    data-initials={getInitials(ambassador.name)}
+                    onerror="const d=document.createElement('div');d.className='w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-amber-500/20 to-amber-500/5 flex items-center justify-center text-lg font-bold text-amber-400';d.textContent=this.dataset.initials;this.replaceWith(d)"
                   />
                 ) : (
                   <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-amber-500/20 to-amber-500/5 flex items-center justify-center text-lg font-bold text-amber-400">
