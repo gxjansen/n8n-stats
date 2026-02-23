@@ -6,7 +6,8 @@
 
 import { chromium } from '@playwright/test';
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { writeFile as writeFileAsync } from 'fs/promises';
+import { join, extname } from 'path';
 
 const NOTION_PAGE_URL = 'https://n8n.notion.site/9eefeb6356754725a1b2dd8ccecc4ffb';
 const AMBASSADORS_PATH = join(process.cwd(), 'public', 'data', 'history', 'ambassadors.json');
@@ -985,6 +986,11 @@ async function scrapeAmbassadors(): Promise<Ambassador[]> {
       }
     }
 
+    // Download avatar images while browser session is still active
+    // (Notion CDN requires session cookies to serve images)
+    console.log('\nDownloading avatar images...');
+    await downloadAvatars(ambassadors, context.request);
+
     return ambassadors;
 
   } finally {
@@ -1015,6 +1021,92 @@ function detectDeparted(
 ): Ambassador[] {
   const currentIds = new Set(current.map(a => a.id));
   return previous.filter(a => !currentIds.has(a.id));
+}
+
+const AVATARS_DIR = join(process.cwd(), 'public', 'images', 'ambassadors');
+
+/**
+ * Download ambassador avatar images to local static files.
+ * Uses Playwright's request context to share browser session cookies
+ * (Notion CDN requires authentication cookies to serve images).
+ * Replaces external avatarUrl with local path, or clears it on failure.
+ */
+async function downloadAvatars(ambassadors: Ambassador[], requestContext: any): Promise<void> {
+  if (!existsSync(AVATARS_DIR)) {
+    mkdirSync(AVATARS_DIR, { recursive: true });
+  }
+
+  let downloaded = 0;
+  let failed = 0;
+  let skipped = 0;
+
+  for (const ambassador of ambassadors) {
+    if (!ambassador.avatarUrl) {
+      skipped++;
+      continue;
+    }
+
+    // Skip already-local paths (idempotent re-runs)
+    if (ambassador.avatarUrl.startsWith('/images/')) {
+      skipped++;
+      continue;
+    }
+
+    let success = false;
+    const maxRetries = 3;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        // Use Playwright's request context which shares browser cookies
+        const response = await requestContext.get(ambassador.avatarUrl, { timeout: 10000 });
+
+        if (!response.ok()) {
+          throw new Error(`HTTP ${response.status()}`);
+        }
+
+        // Verify content-type is an image and derive extension from it
+        const contentType = response.headers()['content-type'] || '';
+        if (!contentType.startsWith('image/')) {
+          throw new Error(`Not an image: ${contentType}`);
+        }
+
+        // Determine extension from actual content-type (not URL)
+        const ctToExt: Record<string, string> = {
+          'image/jpeg': 'jpg',
+          'image/png': 'png',
+          'image/webp': 'webp',
+          'image/gif': 'gif',
+        };
+        const ext = ctToExt[contentType.split(';')[0].trim()] || 'jpg';
+        const filename = `${ambassador.id}.${ext}`;
+        const filepath = join(AVATARS_DIR, filename);
+
+        const buffer = await response.body();
+
+        // Verify non-empty
+        if (buffer.length === 0) {
+          throw new Error('Empty response body');
+        }
+
+        await writeFileAsync(filepath, buffer);
+        ambassador.avatarUrl = `/images/ambassadors/${filename}`;
+        downloaded++;
+        success = true;
+        break;
+      } catch (e: any) {
+        if (attempt === maxRetries) {
+          console.warn(`  Failed to download avatar for ${ambassador.name} after ${maxRetries} attempts: ${e.message}`);
+        }
+      }
+    }
+
+    if (!success) {
+      ambassador.avatarUrl = undefined;
+      failed++;
+    }
+  }
+
+  console.log(`\nAvatar downloads: ${downloaded} downloaded, ${failed} failed, ${skipped} skipped`);
 }
 
 async function main() {
