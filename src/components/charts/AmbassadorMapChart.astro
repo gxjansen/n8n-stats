@@ -159,23 +159,6 @@ const countriesJson = JSON.stringify(highlightedCountries);
     color: #bbf7d0;
   }
 
-  /* Count badge */
-  .amb-pin-count {
-    position: absolute;
-    top: -4px;
-    right: -6px;
-    background: #16a34a;
-    color: white;
-    font-size: 9px;
-    font-weight: 700;
-    line-height: 1;
-    padding: 2px 4px;
-    border-radius: 9999px;
-    min-width: 16px;
-    text-align: center;
-    pointer-events: none;
-  }
-
   /* Reduced motion: no animations */
   @media (prefers-reduced-motion: reduce) {
     .amb-pin {
@@ -300,7 +283,7 @@ const countriesJson = JSON.stringify(highlightedCountries);
     }
 
     function getPinSize(): number {
-      return window.innerWidth < 480 ? 24 : 28;
+      return window.innerWidth < 480 ? 28 : 32;
     }
 
     function createPinElements() {
@@ -374,14 +357,6 @@ const countriesJson = JSON.stringify(highlightedCountries);
             pinEl.appendChild(div);
           }
         });
-
-        // Count badge
-        if (pin.count > 1) {
-          const badge = document.createElement('span');
-          badge.className = 'amb-pin-count';
-          badge.textContent = `+${pin.count - 1}`;
-          pinEl.appendChild(badge);
-        }
 
         // Click handler
         pinEl.addEventListener('click', (e) => {
