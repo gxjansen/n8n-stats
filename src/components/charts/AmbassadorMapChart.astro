@@ -155,8 +155,8 @@ const countriesJson = JSON.stringify(highlightedCountries);
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.05));
-    color: #4ade80;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.35), rgba(34, 197, 94, 0.15));
+    color: #bbf7d0;
   }
 
   /* Count badge */
@@ -337,9 +337,13 @@ const countriesJson = JSON.stringify(highlightedCountries);
           pinEl.style.transitionDelay = `${index * 30}ms`;
         }
 
-        // Create stacked avatar layers for rotation
+        // Only rotate through ambassadors who have avatar images.
+        // Those without avatars still appear in the popover list.
         const ambassadors = pin.ambassadors;
-        ambassadors.forEach((amb, ambIdx) => {
+        const withAvatars = ambassadors.filter(a => a.avatarUrl);
+        const displayList = withAvatars.length > 0 ? withAvatars : ambassadors;
+
+        displayList.forEach((amb, ambIdx) => {
           if (amb.avatarUrl) {
             const img = document.createElement('img');
             img.src = amb.avatarUrl;
@@ -350,6 +354,7 @@ const countriesJson = JSON.stringify(highlightedCountries);
             img.dataset.ambIndex = String(ambIdx);
             pinEl.appendChild(img);
           } else {
+            // Initials fallback -- only used when NO ambassadors have avatars
             const div = document.createElement('div');
             div.className = 'amb-pin-initials';
             div.style.opacity = ambIdx === 0 ? '1' : '0';
@@ -383,15 +388,15 @@ const countriesJson = JSON.stringify(highlightedCountries);
 
         pinOverlay.appendChild(pinEl);
 
-        // Set up rotation for multi-ambassador pins
-        if (ambassadors.length > 1 && !prefersReducedMotion) {
+        // Set up rotation for multi-ambassador pins (only those in displayList)
+        if (displayList.length > 1 && !prefersReducedMotion) {
           const randomOffset = Math.random() * 3000;
           const layers = pinEl.querySelectorAll('[data-amb-index]') as NodeListOf<HTMLElement>;
           let currentIndex = 0;
 
           const startRotation = () => {
             const intervalId = window.setInterval(() => {
-              const nextIndex = (currentIndex + 1) % ambassadors.length;
+              const nextIndex = (currentIndex + 1) % displayList.length;
               layers.forEach((layer) => {
                 const idx = parseInt(layer.dataset.ambIndex || '0', 10);
                 layer.style.opacity = idx === nextIndex ? '1' : '0';
