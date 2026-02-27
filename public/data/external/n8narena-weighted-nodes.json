@@ -1,1267 +1,1274 @@
 {
-  "lastUpdated": "2026-02-26T06:20:41.549Z",
+  "lastUpdated": "2026-02-27T06:17:18.617Z",
   "totalWorkflows": 8753,
-  "totalInserters": 2166716,
+  "totalInserters": 2172537,
   "nodes": [
     {
       "type": "n8n-nodes-base.stickyNote",
-      "weightedScore": 10622260,
+      "weightedScore": 10655817,
       "templateCount": 7743,
       "totalNodeUsages": 45781,
       "avgInsertersPerTemplate": 221
     },
     {
       "type": "n8n-nodes-base.httpRequest",
-      "weightedScore": 3578690,
+      "weightedScore": 3588568,
       "templateCount": 4384,
       "totalNodeUsages": 12179,
-      "avgInsertersPerTemplate": 237
+      "avgInsertersPerTemplate": 238
     },
     {
       "type": "n8n-nodes-base.set",
-      "weightedScore": 2894959,
+      "weightedScore": 2902067,
       "templateCount": 4501,
       "totalNodeUsages": 10492,
-      "avgInsertersPerTemplate": 247
+      "avgInsertersPerTemplate": 248
     },
     {
       "type": "n8n-nodes-base.code",
-      "weightedScore": 1601924,
+      "weightedScore": 1608150,
       "templateCount": 4265,
       "totalNodeUsages": 11029,
-      "avgInsertersPerTemplate": 170
+      "avgInsertersPerTemplate": 171
     },
     {
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "weightedScore": 1457486,
+      "weightedScore": 1460985,
       "templateCount": 2135,
       "totalNodeUsages": 3537,
-      "avgInsertersPerTemplate": 435
+      "avgInsertersPerTemplate": 436
     },
     {
       "type": "@n8n/n8n-nodes-langchain.agent",
-      "weightedScore": 1451084,
+      "weightedScore": 1455859,
       "templateCount": 2980,
       "totalNodeUsages": 4643,
-      "avgInsertersPerTemplate": 353
+      "avgInsertersPerTemplate": 354
     },
     {
       "type": "n8n-nodes-base.googleSheets",
-      "weightedScore": 1360242,
+      "weightedScore": 1367772,
       "templateCount": 2643,
       "totalNodeUsages": 6031,
-      "avgInsertersPerTemplate": 200
+      "avgInsertersPerTemplate": 201
     },
     {
       "type": "n8n-nodes-base.if",
-      "weightedScore": 1171704,
+      "weightedScore": 1174757,
       "templateCount": 3721,
       "totalNodeUsages": 6804,
       "avgInsertersPerTemplate": 179
     },
     {
       "type": "n8n-nodes-base.telegram",
-      "weightedScore": 760875,
+      "weightedScore": 763290,
       "templateCount": 1101,
       "totalNodeUsages": 2744,
       "avgInsertersPerTemplate": 292
     },
     {
       "type": "n8n-nodes-base.wait",
-      "weightedScore": 721481,
+      "weightedScore": 723943,
       "templateCount": 1575,
       "totalNodeUsages": 2534,
-      "avgInsertersPerTemplate": 251
+      "avgInsertersPerTemplate": 252
     },
     {
       "type": "@n8n/n8n-nodes-langchain.openAi",
-      "weightedScore": 675035,
+      "weightedScore": 677295,
       "templateCount": 1124,
       "totalNodeUsages": 1821,
-      "avgInsertersPerTemplate": 344
+      "avgInsertersPerTemplate": 345
     },
     {
       "type": "n8n-nodes-base.manualTrigger",
-      "weightedScore": 608365,
+      "weightedScore": 609453,
       "templateCount": 2194,
       "totalNodeUsages": 2194,
-      "avgInsertersPerTemplate": 277
+      "avgInsertersPerTemplate": 278
     },
     {
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
-      "weightedScore": 603012,
+      "weightedScore": 605225,
       "templateCount": 908,
       "totalNodeUsages": 1154,
-      "avgInsertersPerTemplate": 629
+      "avgInsertersPerTemplate": 632
     },
     {
       "type": "n8n-nodes-base.merge",
-      "weightedScore": 602461,
+      "weightedScore": 603881,
       "templateCount": 1704,
       "totalNodeUsages": 2540,
       "avgInsertersPerTemplate": 234
     },
     {
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
-      "weightedScore": 516995,
+      "weightedScore": 518861,
       "templateCount": 1455,
       "totalNodeUsages": 2147,
-      "avgInsertersPerTemplate": 246
+      "avgInsertersPerTemplate": 247
     },
     {
       "type": "n8n-nodes-base.googleDrive",
-      "weightedScore": 480255,
+      "weightedScore": 482274,
       "templateCount": 1009,
       "totalNodeUsages": 1950,
-      "avgInsertersPerTemplate": 261
+      "avgInsertersPerTemplate": 262
     },
     {
       "type": "n8n-nodes-base.scheduleTrigger",
-      "weightedScore": 472073,
+      "weightedScore": 473494,
       "templateCount": 2216,
       "totalNodeUsages": 2498,
       "avgInsertersPerTemplate": 193
     },
     {
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
-      "weightedScore": 469325,
+      "weightedScore": 471083,
       "templateCount": 645,
       "totalNodeUsages": 645,
-      "avgInsertersPerTemplate": 728
+      "avgInsertersPerTemplate": 730
     },
     {
       "type": "n8n-nodes-base.gmail",
-      "weightedScore": 445149,
+      "weightedScore": 446762,
       "templateCount": 1583,
       "totalNodeUsages": 2579,
-      "avgInsertersPerTemplate": 161
+      "avgInsertersPerTemplate": 162
     },
     {
       "type": "n8n-nodes-base.splitOut",
-      "weightedScore": 394381,
+      "weightedScore": 395604,
       "templateCount": 1139,
       "totalNodeUsages": 1711,
       "avgInsertersPerTemplate": 260
     },
     {
       "type": "n8n-nodes-base.splitInBatches",
-      "weightedScore": 375566,
+      "weightedScore": 376927,
       "templateCount": 1561,
       "totalNodeUsages": 2014,
       "avgInsertersPerTemplate": 180
     },
     {
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-      "weightedScore": 374903,
+      "weightedScore": 376683,
       "templateCount": 876,
       "totalNodeUsages": 1478,
-      "avgInsertersPerTemplate": 308
+      "avgInsertersPerTemplate": 310
     },
     {
       "type": "n8n-nodes-base.switch",
-      "weightedScore": 338329,
+      "weightedScore": 339260,
       "templateCount": 1184,
       "totalNodeUsages": 1598,
-      "avgInsertersPerTemplate": 238
+      "avgInsertersPerTemplate": 239
     },
     {
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "weightedScore": 331989,
+      "weightedScore": 333184,
       "templateCount": 775,
       "totalNodeUsages": 1213,
       "avgInsertersPerTemplate": 299
     },
     {
       "type": "n8n-nodes-base.filter",
-      "weightedScore": 285043,
+      "weightedScore": 285792,
       "templateCount": 776,
       "totalNodeUsages": 1189,
       "avgInsertersPerTemplate": 250
     },
     {
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
-      "weightedScore": 284856,
+      "weightedScore": 285215,
       "templateCount": 239,
       "totalNodeUsages": 629,
       "avgInsertersPerTemplate": 595
     },
     {
       "type": "n8n-nodes-base.aggregate",
-      "weightedScore": 266242,
+      "weightedScore": 267189,
       "templateCount": 902,
       "totalNodeUsages": 1290,
       "avgInsertersPerTemplate": 235
     },
     {
       "type": "n8n-nodes-base.whatsApp",
-      "weightedScore": 262875,
+      "weightedScore": 263709,
       "templateCount": 158,
       "totalNodeUsages": 350,
-      "avgInsertersPerTemplate": 552
+      "avgInsertersPerTemplate": 553
     },
     {
       "type": "n8n-nodes-base.webhook",
-      "weightedScore": 259528,
+      "weightedScore": 260106,
       "templateCount": 1425,
       "totalNodeUsages": 1703,
       "avgInsertersPerTemplate": 142
     },
     {
       "type": "n8n-nodes-base.respondToWebhook",
-      "weightedScore": 250101,
+      "weightedScore": 250598,
       "templateCount": 675,
       "totalNodeUsages": 1229,
       "avgInsertersPerTemplate": 209
     },
     {
       "type": "n8n-nodes-base.noOp",
-      "weightedScore": 248376,
+      "weightedScore": 248840,
       "templateCount": 770,
       "totalNodeUsages": 1215,
-      "avgInsertersPerTemplate": 191
+      "avgInsertersPerTemplate": 192
     },
     {
       "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
-      "weightedScore": 248110,
+      "weightedScore": 248558,
       "templateCount": 273,
       "totalNodeUsages": 468,
-      "avgInsertersPerTemplate": 477
+      "avgInsertersPerTemplate": 478
     },
     {
       "type": "@blotato/n8n-nodes-blotato.blotato",
-      "weightedScore": 246201,
+      "weightedScore": 247895,
       "templateCount": 62,
       "totalNodeUsages": 329,
-      "avgInsertersPerTemplate": 612
+      "avgInsertersPerTemplate": 617
     },
     {
       "type": "n8n-nodes-base.extractFromFile",
-      "weightedScore": 214909,
+      "weightedScore": 215549,
       "templateCount": 531,
       "totalNodeUsages": 748,
-      "avgInsertersPerTemplate": 293
+      "avgInsertersPerTemplate": 294
     },
     {
       "type": "n8n-nodes-base.formTrigger",
-      "weightedScore": 212495,
+      "weightedScore": 213133,
       "templateCount": 895,
       "totalNodeUsages": 925,
-      "avgInsertersPerTemplate": 234
+      "avgInsertersPerTemplate": 235
     },
     {
       "type": "n8n-nodes-base.executeWorkflowTrigger",
-      "weightedScore": 192515,
+      "weightedScore": 192816,
       "templateCount": 472,
       "totalNodeUsages": 472,
-      "avgInsertersPerTemplate": 408
+      "avgInsertersPerTemplate": 409
     },
     {
       "type": "n8n-nodes-base.telegramTrigger",
-      "weightedScore": 190468,
+      "weightedScore": 191020,
       "templateCount": 620,
       "totalNodeUsages": 626,
-      "avgInsertersPerTemplate": 305
+      "avgInsertersPerTemplate": 306
     },
     {
       "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
-      "weightedScore": 187686,
+      "weightedScore": 188198,
       "templateCount": 75,
       "totalNodeUsages": 90,
-      "avgInsertersPerTemplate": 2454
+      "avgInsertersPerTemplate": 2461
     },
     {
       "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
-      "weightedScore": 182212,
+      "weightedScore": 182548,
       "templateCount": 296,
       "totalNodeUsages": 315,
-      "avgInsertersPerTemplate": 598
+      "avgInsertersPerTemplate": 599
     },
     {
       "type": "n8n-nodes-base.gmailTool",
-      "weightedScore": 181641,
+      "weightedScore": 182293,
       "templateCount": 133,
       "totalNodeUsages": 310,
-      "avgInsertersPerTemplate": 551
-    },
-    {
-      "type": "n8n-nodes-base.html",
-      "weightedScore": 167515,
-      "templateCount": 280,
-      "totalNodeUsages": 398,
-      "avgInsertersPerTemplate": 362
-    },
-    {
-      "type": "@n8n/n8n-nodes-langchain.toolThink",
-      "weightedScore": 154645,
-      "templateCount": 179,
-      "totalNodeUsages": 240,
-      "avgInsertersPerTemplate": 579
-    },
-    {
-      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
-      "weightedScore": 154412,
-      "templateCount": 196,
-      "totalNodeUsages": 208,
-      "avgInsertersPerTemplate": 766
-    },
-    {
-      "type": "n8n-nodes-base.googleSheetsTool",
-      "weightedScore": 139696,
-      "templateCount": 221,
-      "totalNodeUsages": 478,
-      "avgInsertersPerTemplate": 273
-    },
-    {
-      "type": "n8n-nodes-base.airtable",
-      "weightedScore": 135536,
-      "templateCount": 366,
-      "totalNodeUsages": 1119,
-      "avgInsertersPerTemplate": 114
-    },
-    {
-      "type": "n8n-nodes-base.googleCalendarTool",
-      "weightedScore": 133182,
-      "templateCount": 118,
-      "totalNodeUsages": 353,
-      "avgInsertersPerTemplate": 564
-    },
-    {
-      "type": "n8n-nodes-base.facebookGraphApi",
-      "weightedScore": 126409,
-      "templateCount": 114,
-      "totalNodeUsages": 263,
       "avgInsertersPerTemplate": 553
     },
     {
+      "type": "n8n-nodes-base.html",
+      "weightedScore": 167762,
+      "templateCount": 280,
+      "totalNodeUsages": 398,
+      "avgInsertersPerTemplate": 363
+    },
+    {
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "weightedScore": 155287,
+      "templateCount": 179,
+      "totalNodeUsages": 240,
+      "avgInsertersPerTemplate": 581
+    },
+    {
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "weightedScore": 154706,
+      "templateCount": 196,
+      "totalNodeUsages": 208,
+      "avgInsertersPerTemplate": 767
+    },
+    {
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "weightedScore": 140058,
+      "templateCount": 221,
+      "totalNodeUsages": 478,
+      "avgInsertersPerTemplate": 274
+    },
+    {
+      "type": "n8n-nodes-base.airtable",
+      "weightedScore": 135938,
+      "templateCount": 366,
+      "totalNodeUsages": 1119,
+      "avgInsertersPerTemplate": 115
+    },
+    {
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "weightedScore": 133590,
+      "templateCount": 118,
+      "totalNodeUsages": 353,
+      "avgInsertersPerTemplate": 566
+    },
+    {
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "weightedScore": 126620,
+      "templateCount": 114,
+      "totalNodeUsages": 263,
+      "avgInsertersPerTemplate": 554
+    },
+    {
       "type": "n8n-nodes-base.httpRequestTool",
-      "weightedScore": 118729,
+      "weightedScore": 119729,
       "templateCount": 270,
       "totalNodeUsages": 1925,
-      "avgInsertersPerTemplate": 290
+      "avgInsertersPerTemplate": 294
     },
     {
       "type": "n8n-nodes-base.form",
-      "weightedScore": 104284,
+      "weightedScore": 104464,
       "templateCount": 137,
       "totalNodeUsages": 287,
-      "avgInsertersPerTemplate": 392
+      "avgInsertersPerTemplate": 393
     },
     {
       "type": "n8n-nodes-base.slack",
-      "weightedScore": 102771,
+      "weightedScore": 103048,
       "templateCount": 1056,
       "totalNodeUsages": 1618,
       "avgInsertersPerTemplate": 65
     },
     {
       "type": "n8n-nodes-base.limit",
-      "weightedScore": 102285,
+      "weightedScore": 102526,
       "templateCount": 305,
       "totalNodeUsages": 396,
       "avgInsertersPerTemplate": 313
     },
     {
       "type": "n8n-nodes-base.convertToFile",
-      "weightedScore": 101240,
+      "weightedScore": 101445,
       "templateCount": 379,
       "totalNodeUsages": 489,
       "avgInsertersPerTemplate": 205
     },
     {
       "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
-      "weightedScore": 100148,
+      "weightedScore": 100273,
       "templateCount": 81,
       "totalNodeUsages": 265,
-      "avgInsertersPerTemplate": 522
+      "avgInsertersPerTemplate": 523
     },
     {
       "type": "n8n-nodes-base.function",
-      "weightedScore": 90924,
+      "weightedScore": 91009,
       "templateCount": 330,
       "totalNodeUsages": 614,
       "avgInsertersPerTemplate": 146
     },
     {
       "type": "n8n-nodes-base.executeWorkflow",
-      "weightedScore": 90237,
+      "weightedScore": 90440,
       "templateCount": 213,
       "totalNodeUsages": 378,
       "avgInsertersPerTemplate": 285
     },
     {
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
-      "weightedScore": 89389,
+      "weightedScore": 90071,
       "templateCount": 407,
       "totalNodeUsages": 727,
-      "avgInsertersPerTemplate": 161
+      "avgInsertersPerTemplate": 162
     },
     {
       "type": "n8n-nodes-base.removeDuplicates",
-      "weightedScore": 83304,
+      "weightedScore": 83475,
       "templateCount": 133,
       "totalNodeUsages": 166,
-      "avgInsertersPerTemplate": 438
+      "avgInsertersPerTemplate": 439
     },
     {
       "type": "n8n-nodes-base.microsoftOutlook",
-      "weightedScore": 83219,
+      "weightedScore": 83398,
       "templateCount": 77,
       "totalNodeUsages": 162,
-      "avgInsertersPerTemplate": 324
+      "avgInsertersPerTemplate": 325
     },
     {
       "type": "n8n-nodes-base.googleDocs",
-      "weightedScore": 82856,
+      "weightedScore": 83057,
       "templateCount": 182,
       "totalNodeUsages": 314,
-      "avgInsertersPerTemplate": 304
+      "avgInsertersPerTemplate": 305
     },
     {
       "type": "n8n-nodes-base.emailSend",
-      "weightedScore": 81777,
+      "weightedScore": 81957,
       "templateCount": 476,
       "totalNodeUsages": 668,
       "avgInsertersPerTemplate": 128
     },
     {
       "type": "n8n-nodes-base.openAi",
-      "weightedScore": 81608,
+      "weightedScore": 81685,
       "templateCount": 99,
       "totalNodeUsages": 169,
-      "avgInsertersPerTemplate": 373
+      "avgInsertersPerTemplate": 374
     },
     {
       "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
-      "weightedScore": 80992,
+      "weightedScore": 81105,
       "templateCount": 75,
       "totalNodeUsages": 145,
-      "avgInsertersPerTemplate": 581
+      "avgInsertersPerTemplate": 582
     },
     {
       "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
-      "weightedScore": 80148,
+      "weightedScore": 80284,
       "templateCount": 43,
       "totalNodeUsages": 83,
-      "avgInsertersPerTemplate": 930
+      "avgInsertersPerTemplate": 931
     },
     {
       "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
-      "weightedScore": 79442,
+      "weightedScore": 79653,
       "templateCount": 118,
       "totalNodeUsages": 222,
-      "avgInsertersPerTemplate": 350
+      "avgInsertersPerTemplate": 351
     },
     {
       "type": "n8n-nodes-base.notion",
-      "weightedScore": 79044,
+      "weightedScore": 79184,
       "templateCount": 264,
       "totalNodeUsages": 613,
       "avgInsertersPerTemplate": 127
     },
     {
       "type": "n8n-nodes-base.googleDriveTrigger",
-      "weightedScore": 78748,
+      "weightedScore": 78975,
       "templateCount": 227,
       "totalNodeUsages": 270,
       "avgInsertersPerTemplate": 250
     },
     {
       "type": "n8n-nodes-base.whatsAppTrigger",
-      "weightedScore": 77926,
+      "weightedScore": 78137,
       "templateCount": 101,
       "totalNodeUsages": 101,
-      "avgInsertersPerTemplate": 772
+      "avgInsertersPerTemplate": 774
     },
     {
       "type": "n8n-nodes-base.linkedIn",
-      "weightedScore": 75685,
+      "weightedScore": 75850,
       "templateCount": 118,
       "totalNodeUsages": 143,
-      "avgInsertersPerTemplate": 617
+      "avgInsertersPerTemplate": 618
     },
     {
       "type": "n8n-nodes-base.gmailTrigger",
-      "weightedScore": 75201,
+      "weightedScore": 75477,
       "templateCount": 281,
       "totalNodeUsages": 299,
-      "avgInsertersPerTemplate": 261
+      "avgInsertersPerTemplate": 262
     },
     {
       "type": "n8n-nodes-base.markdown",
-      "weightedScore": 74715,
+      "weightedScore": 74809,
       "templateCount": 187,
       "totalNodeUsages": 215,
       "avgInsertersPerTemplate": 368
     },
     {
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-      "weightedScore": 70994,
+      "weightedScore": 71183,
       "templateCount": 208,
       "totalNodeUsages": 326,
-      "avgInsertersPerTemplate": 204
+      "avgInsertersPerTemplate": 205
     },
     {
       "type": "n8n-nodes-base.rssFeedRead",
-      "weightedScore": 68473,
+      "weightedScore": 68706,
       "templateCount": 154,
       "totalNodeUsages": 380,
       "avgInsertersPerTemplate": 189
     },
     {
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "weightedScore": 68015,
+      "templateCount": 74,
+      "totalNodeUsages": 79,
+      "avgInsertersPerTemplate": 916
+    },
+    {
       "type": "@n8n/n8n-nodes-langchain.informationExtractor",
-      "weightedScore": 67885,
+      "weightedScore": 67997,
       "templateCount": 193,
       "totalNodeUsages": 251,
       "avgInsertersPerTemplate": 237
     },
     {
-      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
-      "weightedScore": 67881,
-      "templateCount": 74,
-      "totalNodeUsages": 79,
-      "avgInsertersPerTemplate": 914
-    },
-    {
       "type": "n8n-nodes-base.googleCalendar",
-      "weightedScore": 66962,
+      "weightedScore": 67100,
       "templateCount": 183,
       "totalNodeUsages": 292,
       "avgInsertersPerTemplate": 223
     },
     {
       "type": "n8n-nodes-base.stopAndError",
-      "weightedScore": 62677,
+      "weightedScore": 62902,
       "templateCount": 148,
       "totalNodeUsages": 211,
       "avgInsertersPerTemplate": 215
     },
     {
       "type": "n8n-nodes-base.youTube",
-      "weightedScore": 62281,
+      "weightedScore": 62498,
       "templateCount": 113,
       "totalNodeUsages": 168,
-      "avgInsertersPerTemplate": 396
+      "avgInsertersPerTemplate": 397
     },
     {
       "type": "n8n-nodes-base.twitter",
-      "weightedScore": 61598,
+      "weightedScore": 61700,
       "templateCount": 117,
       "totalNodeUsages": 136,
-      "avgInsertersPerTemplate": 517
+      "avgInsertersPerTemplate": 518
     },
     {
       "type": "@n8n/n8n-nodes-langchain.chainSummarization",
-      "weightedScore": 58082,
+      "weightedScore": 58191,
       "templateCount": 76,
       "totalNodeUsages": 81,
-      "avgInsertersPerTemplate": 754
+      "avgInsertersPerTemplate": 755
     },
     {
       "type": "n8n-nodes-base.postgres",
-      "weightedScore": 57380,
+      "weightedScore": 57581,
       "templateCount": 207,
       "totalNodeUsages": 767,
       "avgInsertersPerTemplate": 119
     },
     {
       "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
-      "weightedScore": 57301,
+      "weightedScore": 57449,
       "templateCount": 49,
       "totalNodeUsages": 83,
-      "avgInsertersPerTemplate": 607
+      "avgInsertersPerTemplate": 609
     },
     {
       "type": "n8n-nodes-base.redis",
-      "weightedScore": 56267,
+      "weightedScore": 56430,
       "templateCount": 60,
       "totalNodeUsages": 267,
       "avgInsertersPerTemplate": 196
     },
     {
       "type": "n8n-nodes-base.readBinaryFile",
-      "weightedScore": 55666,
+      "weightedScore": 55747,
       "templateCount": 42,
       "totalNodeUsages": 54,
-      "avgInsertersPerTemplate": 1058
+      "avgInsertersPerTemplate": 1059
     },
     {
       "type": "n8n-nodes-base.readWriteFile",
-      "weightedScore": 54321,
+      "weightedScore": 54419,
       "templateCount": 132,
       "totalNodeUsages": 246,
-      "avgInsertersPerTemplate": 252
+      "avgInsertersPerTemplate": 253
     },
     {
       "type": "n8n-nodes-base.rssFeedReadTool",
-      "weightedScore": 53274,
+      "weightedScore": 54080,
       "templateCount": 11,
       "totalNodeUsages": 20,
-      "avgInsertersPerTemplate": 4764
+      "avgInsertersPerTemplate": 4838
     },
     {
       "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
-      "weightedScore": 51468,
+      "weightedScore": 51556,
       "templateCount": 91,
       "totalNodeUsages": 174,
-      "avgInsertersPerTemplate": 251
-    },
-    {
-      "type": "n8n-nodes-base.itemLists",
-      "weightedScore": 49123,
-      "templateCount": 62,
-      "totalNodeUsages": 82,
-      "avgInsertersPerTemplate": 506
+      "avgInsertersPerTemplate": 252
     },
     {
       "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
-      "weightedScore": 49114,
+      "weightedScore": 49340,
       "templateCount": 119,
       "totalNodeUsages": 166,
-      "avgInsertersPerTemplate": 199
+      "avgInsertersPerTemplate": 200
+    },
+    {
+      "type": "n8n-nodes-base.itemLists",
+      "weightedScore": 49192,
+      "templateCount": 62,
+      "totalNodeUsages": 82,
+      "avgInsertersPerTemplate": 507
     },
     {
       "type": "n8n-nodes-base.cron",
-      "weightedScore": 48927,
+      "weightedScore": 49020,
       "templateCount": 237,
       "totalNodeUsages": 258,
       "avgInsertersPerTemplate": 182
     },
     {
-      "type": "n8n-nodes-base.github",
-      "weightedScore": 48670,
-      "templateCount": 92,
-      "totalNodeUsages": 215,
-      "avgInsertersPerTemplate": 212
-    },
-    {
       "type": "n8n-nodes-base.supabase",
-      "weightedScore": 48655,
+      "weightedScore": 48778,
       "templateCount": 122,
       "totalNodeUsages": 431,
       "avgInsertersPerTemplate": 191
     },
     {
+      "type": "n8n-nodes-base.github",
+      "weightedScore": 48768,
+      "templateCount": 92,
+      "totalNodeUsages": 215,
+      "avgInsertersPerTemplate": 212
+    },
+    {
       "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
-      "weightedScore": 48527,
+      "weightedScore": 48657,
       "templateCount": 312,
       "totalNodeUsages": 344,
       "avgInsertersPerTemplate": 88
     },
     {
       "type": "n8n-nodes-base.n8n",
-      "weightedScore": 47232,
+      "weightedScore": 47368,
       "templateCount": 131,
       "totalNodeUsages": 240,
       "avgInsertersPerTemplate": 223
     },
     {
       "type": "n8n-nodes-base.summarize",
-      "weightedScore": 45793,
+      "weightedScore": 45889,
       "templateCount": 108,
       "totalNodeUsages": 157,
       "avgInsertersPerTemplate": 263
     },
     {
       "type": "n8n-nodes-base.baserowTool",
-      "weightedScore": 43580,
+      "weightedScore": 43738,
       "templateCount": 4,
       "totalNodeUsages": 10,
-      "avgInsertersPerTemplate": 5447
+      "avgInsertersPerTemplate": 5467
     },
     {
       "type": "n8n-nodes-base.googleTasksTool",
-      "weightedScore": 43460,
+      "weightedScore": 43696,
       "templateCount": 13,
       "totalNodeUsages": 56,
-      "avgInsertersPerTemplate": 1138
+      "avgInsertersPerTemplate": 1145
     },
     {
       "type": "n8n-nodes-base.mongoDb",
-      "weightedScore": 41593,
+      "weightedScore": 41646,
       "templateCount": 24,
       "totalNodeUsages": 139,
       "avgInsertersPerTemplate": 421
     },
     {
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
-      "weightedScore": 39620,
+      "weightedScore": 39711,
       "templateCount": 62,
       "totalNodeUsages": 89,
-      "avgInsertersPerTemplate": 615
+      "avgInsertersPerTemplate": 617
     },
     {
       "type": "n8n-nodes-base.googleSheetsTrigger",
-      "weightedScore": 39593,
+      "weightedScore": 39706,
       "templateCount": 195,
       "totalNodeUsages": 208,
-      "avgInsertersPerTemplate": 149
+      "avgInsertersPerTemplate": 150
     },
     {
       "type": "@n8n/n8n-nodes-langchain.toolCalculator",
-      "weightedScore": 39238,
+      "weightedScore": 39282,
       "templateCount": 117,
       "totalNodeUsages": 153,
       "avgInsertersPerTemplate": 274
     },
     {
       "type": "n8n-nodes-base.discord",
-      "weightedScore": 38953,
+      "weightedScore": 39023,
       "templateCount": 132,
       "totalNodeUsages": 222,
-      "avgInsertersPerTemplate": 221
+      "avgInsertersPerTemplate": 222
     },
     {
       "type": "n8n-nodes-base.wordpress",
-      "weightedScore": 38922,
+      "weightedScore": 38965,
       "templateCount": 114,
       "totalNodeUsages": 140,
       "avgInsertersPerTemplate": 298
     },
     {
       "type": "@n8n/n8n-nodes-langchain.manualChatTrigger",
-      "weightedScore": 38180,
+      "weightedScore": 38206,
       "templateCount": 11,
       "totalNodeUsages": 11,
-      "avgInsertersPerTemplate": 3471
+      "avgInsertersPerTemplate": 3473
     },
     {
       "type": "@n8n/n8n-nodes-langchain.textClassifier",
-      "weightedScore": 37440,
+      "weightedScore": 37515,
       "templateCount": 113,
       "totalNodeUsages": 121,
-      "avgInsertersPerTemplate": 298
+      "avgInsertersPerTemplate": 299
     },
     {
       "type": "n8n-nodes-base.executeCommand",
-      "weightedScore": 34624,
+      "weightedScore": 34740,
       "templateCount": 73,
       "totalNodeUsages": 175,
-      "avgInsertersPerTemplate": 262
+      "avgInsertersPerTemplate": 263
     },
     {
       "type": "@n8n/n8n-nodes-langchain.agentTool",
-      "weightedScore": 33370,
+      "weightedScore": 33493,
       "templateCount": 88,
       "totalNodeUsages": 297,
-      "avgInsertersPerTemplate": 78
+      "avgInsertersPerTemplate": 79
     },
     {
       "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
-      "weightedScore": 32556,
+      "weightedScore": 32591,
       "templateCount": 37,
       "totalNodeUsages": 42,
-      "avgInsertersPerTemplate": 859
-    },
-    {
-      "type": "n8n-nodes-base.writeBinaryFile",
-      "weightedScore": 31601,
-      "templateCount": 41,
-      "totalNodeUsages": 50,
-      "avgInsertersPerTemplate": 731
+      "avgInsertersPerTemplate": 860
     },
     {
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
-      "weightedScore": 31510,
+      "weightedScore": 31659,
       "templateCount": 197,
       "totalNodeUsages": 284,
-      "avgInsertersPerTemplate": 93
+      "avgInsertersPerTemplate": 94
+    },
+    {
+      "type": "n8n-nodes-base.writeBinaryFile",
+      "weightedScore": 31657,
+      "templateCount": 41,
+      "totalNodeUsages": 50,
+      "avgInsertersPerTemplate": 733
     },
     {
       "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
-      "weightedScore": 29621,
+      "weightedScore": 29673,
       "templateCount": 90,
       "totalNodeUsages": 109,
-      "avgInsertersPerTemplate": 275
+      "avgInsertersPerTemplate": 276
     },
     {
       "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
-      "weightedScore": 29569,
+      "weightedScore": 29626,
       "templateCount": 104,
       "totalNodeUsages": 124,
       "avgInsertersPerTemplate": 277
     },
     {
       "type": "n8n-nodes-base.functionItem",
-      "weightedScore": 29198,
+      "weightedScore": 29207,
       "templateCount": 34,
       "totalNodeUsages": 50,
-      "avgInsertersPerTemplate": 463
+      "avgInsertersPerTemplate": 464
     },
     {
       "type": "@n8n/n8n-nodes-langchain.vectorStoreMongoDBAtlas",
-      "weightedScore": 29055,
+      "weightedScore": 29160,
       "templateCount": 11,
       "totalNodeUsages": 26,
-      "avgInsertersPerTemplate": 1271
+      "avgInsertersPerTemplate": 1275
     },
     {
       "type": "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter",
-      "weightedScore": 28811,
+      "weightedScore": 28847,
       "templateCount": 28,
       "totalNodeUsages": 29,
-      "avgInsertersPerTemplate": 1007
+      "avgInsertersPerTemplate": 1008
     },
     {
       "type": "n8n-nodes-base.spreadsheetFile",
-      "weightedScore": 28785,
+      "weightedScore": 28822,
       "templateCount": 53,
       "totalNodeUsages": 64,
       "avgInsertersPerTemplate": 481
     },
     {
       "type": "n8n-nodes-base.htmlExtract",
-      "weightedScore": 27596,
+      "weightedScore": 27615,
       "templateCount": 20,
       "totalNodeUsages": 26,
-      "avgInsertersPerTemplate": 925
+      "avgInsertersPerTemplate": 926
     },
     {
       "type": "n8n-nodes-mcp.mcpClientTool",
-      "weightedScore": 26635,
+      "weightedScore": 26671,
       "templateCount": 60,
       "totalNodeUsages": 110,
       "avgInsertersPerTemplate": 247
     },
     {
       "type": "n8n-nodes-base.sort",
-      "weightedScore": 26361,
+      "weightedScore": 26420,
       "templateCount": 96,
       "totalNodeUsages": 120,
-      "avgInsertersPerTemplate": 225
+      "avgInsertersPerTemplate": 226
     },
     {
       "type": "n8n-nodes-base.dateTime",
-      "weightedScore": 24644,
+      "weightedScore": 24692,
       "templateCount": 84,
       "totalNodeUsages": 127,
-      "avgInsertersPerTemplate": 240
+      "avgInsertersPerTemplate": 241
     },
     {
       "type": "n8n-nodes-base.postgresTool",
-      "weightedScore": 22757,
+      "weightedScore": 22772,
       "templateCount": 31,
       "totalNodeUsages": 77,
       "avgInsertersPerTemplate": 310
     },
     {
       "type": "n8n-nodes-base.jira",
-      "weightedScore": 22628,
+      "weightedScore": 22706,
       "templateCount": 83,
       "totalNodeUsages": 150,
       "avgInsertersPerTemplate": 82
     },
     {
       "type": "@n8n/n8n-nodes-langchain.chainRetrievalQa",
-      "weightedScore": 22570,
+      "weightedScore": 22589,
       "templateCount": 28,
       "totalNodeUsages": 28,
-      "avgInsertersPerTemplate": 806
+      "avgInsertersPerTemplate": 807
     },
     {
       "type": "n8n-nodes-base.mySql",
-      "weightedScore": 22024,
+      "weightedScore": 22050,
       "templateCount": 28,
       "totalNodeUsages": 51,
-      "avgInsertersPerTemplate": 368
+      "avgInsertersPerTemplate": 369
     },
     {
       "type": "@n8n/n8n-nodes-langchain.retrieverVectorStore",
-      "weightedScore": 21105,
+      "weightedScore": 21123,
       "templateCount": 25,
       "totalNodeUsages": 25,
-      "avgInsertersPerTemplate": 844
+      "avgInsertersPerTemplate": 845
     },
     {
       "type": "n8n-nodes-base.slackTool",
-      "weightedScore": 21037,
+      "weightedScore": 21078,
       "templateCount": 22,
       "totalNodeUsages": 37,
-      "avgInsertersPerTemplate": 249
+      "avgInsertersPerTemplate": 250
     },
     {
       "type": "n8n-nodes-base.n8nTrainingCustomerDatastore",
-      "weightedScore": 20618,
+      "weightedScore": 20637,
       "templateCount": 9,
       "totalNodeUsages": 9,
-      "avgInsertersPerTemplate": 2291
+      "avgInsertersPerTemplate": 2293
     },
     {
       "type": "n8n-nodes-base.crypto",
-      "weightedScore": 19594,
+      "weightedScore": 19617,
       "templateCount": 68,
       "totalNodeUsages": 107,
       "avgInsertersPerTemplate": 121
     },
     {
       "type": "@n8n/n8n-nodes-langchain.memoryManager",
-      "weightedScore": 19451,
+      "weightedScore": 19463,
       "templateCount": 21,
       "totalNodeUsages": 30,
       "avgInsertersPerTemplate": 575
     },
     {
       "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
-      "weightedScore": 18461,
+      "weightedScore": 18501,
       "templateCount": 16,
       "totalNodeUsages": 28,
-      "avgInsertersPerTemplate": 593
+      "avgInsertersPerTemplate": 594
     },
     {
       "type": "n8n-nodes-base.editImage",
-      "weightedScore": 17799,
+      "weightedScore": 17840,
       "templateCount": 68,
       "totalNodeUsages": 108,
       "avgInsertersPerTemplate": 174
     },
     {
       "type": "n8n-nodes-base.hubspot",
-      "weightedScore": 17768,
+      "weightedScore": 17814,
       "templateCount": 156,
       "totalNodeUsages": 276,
       "avgInsertersPerTemplate": 59
     },
     {
       "type": "n8n-nodes-base.googleAnalytics",
-      "weightedScore": 17345,
+      "weightedScore": 17373,
       "templateCount": 21,
       "totalNodeUsages": 54,
       "avgInsertersPerTemplate": 322
     },
     {
       "type": "n8n-nodes-base.airtableTool",
-      "weightedScore": 17139,
+      "weightedScore": 17190,
       "templateCount": 41,
       "totalNodeUsages": 118,
-      "avgInsertersPerTemplate": 139
+      "avgInsertersPerTemplate": 140
     },
     {
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
-      "weightedScore": 16923,
+      "weightedScore": 16953,
       "templateCount": 67,
       "totalNodeUsages": 86,
       "avgInsertersPerTemplate": 194
     },
     {
       "type": "n8n-nodes-base.emailReadImap",
-      "weightedScore": 16689,
+      "weightedScore": 16716,
       "templateCount": 71,
       "totalNodeUsages": 75,
       "avgInsertersPerTemplate": 233
     },
     {
       "type": "@n8n/n8n-nodes-langchain.toolCode",
-      "weightedScore": 16551,
+      "weightedScore": 16657,
       "templateCount": 57,
       "totalNodeUsages": 89,
-      "avgInsertersPerTemplate": 269
+      "avgInsertersPerTemplate": 271
     },
     {
       "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
-      "weightedScore": 16537,
+      "weightedScore": 16575,
       "templateCount": 50,
       "totalNodeUsages": 89,
       "avgInsertersPerTemplate": 213
     },
     {
       "type": "n8n-nodes-base.xml",
-      "weightedScore": 16108,
+      "weightedScore": 16127,
       "templateCount": 71,
       "totalNodeUsages": 85,
       "avgInsertersPerTemplate": 187
     },
     {
       "type": "n8n-nodes-base.nocoDb",
-      "weightedScore": 15857,
+      "weightedScore": 15868,
       "templateCount": 34,
       "totalNodeUsages": 148,
       "avgInsertersPerTemplate": 157
     },
     {
       "type": "CUSTOM.scrapeNinja",
-      "weightedScore": 14958,
+      "weightedScore": 15027,
       "templateCount": 1,
       "totalNodeUsages": 3,
-      "avgInsertersPerTemplate": 4986
+      "avgInsertersPerTemplate": 5009
     },
     {
       "type": "n8n-nodes-base.supabaseTool",
-      "weightedScore": 13994,
+      "weightedScore": 14013,
       "templateCount": 21,
       "totalNodeUsages": 77,
       "avgInsertersPerTemplate": 67
     },
     {
       "type": "n8n-nodes-base.moveBinaryData",
-      "weightedScore": 13815,
+      "weightedScore": 13973,
       "templateCount": 41,
       "totalNodeUsages": 47,
-      "avgInsertersPerTemplate": 261
+      "avgInsertersPerTemplate": 265
     },
     {
       "type": "n8n-nodes-base.reddit",
-      "weightedScore": 12939,
+      "weightedScore": 12966,
       "templateCount": 61,
       "totalNodeUsages": 128,
       "avgInsertersPerTemplate": 151
     },
     {
       "type": "n8n-nodes-base.googleDocsTool",
-      "weightedScore": 12662,
+      "weightedScore": 12680,
       "templateCount": 44,
       "totalNodeUsages": 73,
       "avgInsertersPerTemplate": 201
     },
     {
       "type": "n8n-nodes-base.twilio",
-      "weightedScore": 12655,
+      "weightedScore": 12671,
       "templateCount": 76,
       "totalNodeUsages": 108,
       "avgInsertersPerTemplate": 110
     },
     {
-      "type": "n8n-nodes-base.errorTrigger",
-      "weightedScore": 12196,
-      "templateCount": 145,
-      "totalNodeUsages": 145,
-      "avgInsertersPerTemplate": 84
-    },
-    {
       "type": "n8n-nodes-base.dataTable",
-      "weightedScore": 12183,
+      "weightedScore": 12319,
       "templateCount": 153,
       "totalNodeUsages": 623,
       "avgInsertersPerTemplate": 28
     },
     {
+      "type": "n8n-nodes-base.errorTrigger",
+      "weightedScore": 12275,
+      "templateCount": 145,
+      "totalNodeUsages": 145,
+      "avgInsertersPerTemplate": 85
+    },
+    {
       "type": "@n8n/n8n-nodes-langchain.documentBinaryInputLoader",
-      "weightedScore": 12127,
+      "weightedScore": 12144,
       "templateCount": 3,
       "totalNodeUsages": 3,
-      "avgInsertersPerTemplate": 4042
+      "avgInsertersPerTemplate": 4048
     },
     {
       "type": "n8n-nodes-base.microsoftExcel",
-      "weightedScore": 12018,
+      "weightedScore": 12035,
       "templateCount": 23,
       "totalNodeUsages": 42,
       "avgInsertersPerTemplate": 464
     },
     {
       "type": "n8n-nodes-base.microsoftOneDrive",
-      "weightedScore": 11487,
+      "weightedScore": 11503,
       "templateCount": 17,
       "totalNodeUsages": 41,
       "avgInsertersPerTemplate": 419
     },
     {
       "type": "n8n-nodes-base.readPDF",
-      "weightedScore": 11291,
+      "weightedScore": 11300,
       "templateCount": 6,
       "totalNodeUsages": 6,
-      "avgInsertersPerTemplate": 1882
+      "avgInsertersPerTemplate": 1883
+    },
+    {
+      "type": "n8n-nodes-base.perplexity",
+      "weightedScore": 10848,
+      "templateCount": 44,
+      "totalNodeUsages": 57,
+      "avgInsertersPerTemplate": 230
     },
     {
       "type": "n8n-nodes-base.executionData",
-      "weightedScore": 10806,
+      "weightedScore": 10826,
       "templateCount": 21,
       "totalNodeUsages": 44,
       "avgInsertersPerTemplate": 390
     },
     {
-      "type": "n8n-nodes-base.perplexity",
-      "weightedScore": 10789,
-      "templateCount": 44,
-      "totalNodeUsages": 57,
-      "avgInsertersPerTemplate": 228
-    },
-    {
       "type": "n8n-nodes-base.ssh",
-      "weightedScore": 10711,
+      "weightedScore": 10771,
       "templateCount": 45,
       "totalNodeUsages": 125,
-      "avgInsertersPerTemplate": 93
+      "avgInsertersPerTemplate": 94
     },
     {
       "type": "n8n-nodes-base.airtop",
-      "weightedScore": 10330,
+      "weightedScore": 10344,
       "templateCount": 44,
       "totalNodeUsages": 151,
       "avgInsertersPerTemplate": 89
     },
     {
       "type": "@n8n/n8n-nodes-langchain.lmOpenAi",
-      "weightedScore": 9968,
+      "weightedScore": 9982,
       "templateCount": 7,
       "totalNodeUsages": 7,
-      "avgInsertersPerTemplate": 1424
+      "avgInsertersPerTemplate": 1426
     },
     {
       "type": "n8n-nodes-base.aiTransform",
-      "weightedScore": 9814,
+      "weightedScore": 9853,
       "templateCount": 11,
       "totalNodeUsages": 16,
-      "avgInsertersPerTemplate": 874
+      "avgInsertersPerTemplate": 878
     },
     {
       "type": "n8n-nodes-base.hackerNews",
-      "weightedScore": 9655,
+      "weightedScore": 9671,
       "templateCount": 12,
       "totalNodeUsages": 12,
-      "avgInsertersPerTemplate": 805
+      "avgInsertersPerTemplate": 806
     },
     {
       "type": "n8n-nodes-base.todoist",
-      "weightedScore": 9193,
+      "weightedScore": 9206,
       "templateCount": 17,
       "totalNodeUsages": 47,
       "avgInsertersPerTemplate": 154
     },
     {
       "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
-      "weightedScore": 8991,
+      "weightedScore": 9015,
       "templateCount": 40,
       "totalNodeUsages": 47,
-      "avgInsertersPerTemplate": 208
+      "avgInsertersPerTemplate": 209
     },
     {
       "type": "n8n-nodes-base.s3",
-      "weightedScore": 8976,
+      "weightedScore": 8998,
       "templateCount": 22,
       "totalNodeUsages": 44,
-      "avgInsertersPerTemplate": 381
+      "avgInsertersPerTemplate": 382
     },
     {
       "type": "@apify/n8n-nodes-apify.apify",
-      "weightedScore": 8824,
+      "weightedScore": 8879,
       "templateCount": 74,
       "totalNodeUsages": 124,
-      "avgInsertersPerTemplate": 63
+      "avgInsertersPerTemplate": 64
     },
     {
       "type": "n8n-nodes-base.spotify",
-      "weightedScore": 8604,
+      "weightedScore": 8607,
       "templateCount": 21,
       "totalNodeUsages": 72,
       "avgInsertersPerTemplate": 96
     },
     {
       "type": "n8n-nodes-base.dateTimeTool",
-      "weightedScore": 8476,
+      "weightedScore": 8500,
       "templateCount": 23,
       "totalNodeUsages": 27,
-      "avgInsertersPerTemplate": 330
+      "avgInsertersPerTemplate": 331
     },
     {
       "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
-      "weightedScore": 8307,
+      "weightedScore": 8312,
       "templateCount": 19,
       "totalNodeUsages": 27,
-      "avgInsertersPerTemplate": 266
+      "avgInsertersPerTemplate": 267
     },
     {
       "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
-      "weightedScore": 8213,
+      "weightedScore": 8242,
       "templateCount": 128,
       "totalNodeUsages": 176,
       "avgInsertersPerTemplate": 48
     },
     {
       "type": "@n8n/n8n-nodes-langchain.vectorStorePineconeLoad",
-      "weightedScore": 7943,
+      "weightedScore": 7949,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 7943
+      "avgInsertersPerTemplate": 7949
     },
     {
       "type": "@n8n/n8n-nodes-langchain.vectorStorePineconeInsert",
-      "weightedScore": 7943,
+      "weightedScore": 7949,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 7943
+      "avgInsertersPerTemplate": 7949
     },
     {
       "type": "@n8n/n8n-nodes-langchain.code",
-      "weightedScore": 7913,
+      "weightedScore": 7921,
       "templateCount": 14,
       "totalNodeUsages": 16,
       "avgInsertersPerTemplate": 501
     },
     {
       "type": "n8n-nodes-base.evaluation",
-      "weightedScore": 7681,
+      "weightedScore": 7812,
       "templateCount": 18,
       "totalNodeUsages": 70,
       "avgInsertersPerTemplate": 112
     },
     {
       "type": "n8n-nodes-base.dropbox",
-      "weightedScore": 7474,
+      "weightedScore": 7479,
       "templateCount": 19,
       "totalNodeUsages": 28,
       "avgInsertersPerTemplate": 291
     },
     {
       "type": "n8n-nodes-base.googleDriveTool",
-      "weightedScore": 7463,
+      "weightedScore": 7476,
       "templateCount": 19,
       "totalNodeUsages": 65,
-      "avgInsertersPerTemplate": 122
+      "avgInsertersPerTemplate": 123
     },
     {
       "type": "n8n-nodes-base.salesforce",
-      "weightedScore": 7333,
+      "weightedScore": 7363,
       "templateCount": 31,
       "totalNodeUsages": 61,
       "avgInsertersPerTemplate": 107
     },
     {
       "type": "n8n-nodes-upload-post.uploadPost",
-      "weightedScore": 7258,
+      "weightedScore": 7275,
       "templateCount": 17,
       "totalNodeUsages": 26,
-      "avgInsertersPerTemplate": 265
+      "avgInsertersPerTemplate": 266
     },
     {
       "type": "n8n-nodes-base.theHive",
-      "weightedScore": 7220,
+      "weightedScore": 7239,
       "templateCount": 4,
       "totalNodeUsages": 17,
-      "avgInsertersPerTemplate": 443
+      "avgInsertersPerTemplate": 445
     },
     {
       "type": "@n8n/n8n-nodes-langchain.lmOllama",
-      "weightedScore": 7011,
+      "weightedScore": 7014,
       "templateCount": 23,
       "totalNodeUsages": 26,
       "avgInsertersPerTemplate": 284
     },
     {
       "type": "@n8n/n8n-nodes-langchain.embeddingsMistralCloud",
-      "weightedScore": 6912,
+      "weightedScore": 6917,
       "templateCount": 10,
       "totalNodeUsages": 21,
       "avgInsertersPerTemplate": 366
     },
     {
       "type": "n8n-nodes-base.baserow",
-      "weightedScore": 6782,
+      "weightedScore": 6787,
       "templateCount": 28,
       "totalNodeUsages": 67,
       "avgInsertersPerTemplate": 115
     },
     {
       "type": "n8n-nodes-base.compareDatasets",
-      "weightedScore": 6743,
+      "weightedScore": 6754,
       "templateCount": 38,
       "totalNodeUsages": 45,
       "avgInsertersPerTemplate": 161
     },
     {
       "type": "@n8n/n8n-nodes-langchain.rerankerCohere",
-      "weightedScore": 6592,
+      "weightedScore": 6615,
       "templateCount": 30,
       "totalNodeUsages": 39,
       "avgInsertersPerTemplate": 165
+    },
+    {
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "weightedScore": 6604,
+      "templateCount": 51,
+      "totalNodeUsages": 79,
+      "avgInsertersPerTemplate": 119
     },
     {
       "type": "n8n-nodes-base.pipedriveTool",
@@ -1271,162 +1278,155 @@
       "avgInsertersPerTemplate": 39
     },
     {
-      "type": "n8n-nodes-base.rssFeedReadTrigger",
-      "weightedScore": 6581,
-      "templateCount": 51,
-      "totalNodeUsages": 79,
-      "avgInsertersPerTemplate": 118
-    },
-    {
       "type": "@n8n/n8n-nodes-langchain.sentimentAnalysis",
-      "weightedScore": 6530,
+      "weightedScore": 6542,
       "templateCount": 32,
       "totalNodeUsages": 34,
       "avgInsertersPerTemplate": 204
     },
     {
       "type": "n8n-nodes-base.localFileTrigger",
-      "weightedScore": 6455,
+      "weightedScore": 6464,
       "templateCount": 15,
       "totalNodeUsages": 15,
-      "avgInsertersPerTemplate": 430
+      "avgInsertersPerTemplate": 431
     },
     {
       "type": "n8n-nodes-youtube-transcription.youtubeTranscripter",
-      "weightedScore": 6232,
+      "weightedScore": 6239,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 6232
+      "avgInsertersPerTemplate": 6239
     },
     {
       "type": "n8n-nodes-postiz.postiz",
-      "weightedScore": 6108,
+      "weightedScore": 6129,
       "templateCount": 12,
       "totalNodeUsages": 21,
-      "avgInsertersPerTemplate": 336
+      "avgInsertersPerTemplate": 338
     },
     {
       "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
-      "weightedScore": 5907,
+      "weightedScore": 5915,
       "templateCount": 13,
       "totalNodeUsages": 17,
       "avgInsertersPerTemplate": 246
     },
     {
       "type": "n8n-nodes-base.uproc",
-      "weightedScore": 5907,
+      "weightedScore": 5909,
       "templateCount": 10,
       "totalNodeUsages": 11,
       "avgInsertersPerTemplate": 584
     },
     {
       "type": "n8n-nodes-base.pipedrive",
-      "weightedScore": 5850,
+      "weightedScore": 5861,
       "templateCount": 35,
       "totalNodeUsages": 110,
       "avgInsertersPerTemplate": 55
     },
     {
       "type": "n8n-nodes-base.perplexityTool",
-      "weightedScore": 5780,
+      "weightedScore": 5821,
       "templateCount": 43,
       "totalNodeUsages": 57,
-      "avgInsertersPerTemplate": 110
+      "avgInsertersPerTemplate": 111
     },
     {
       "type": "n8n-nodes-base.microsoftTeams",
-      "weightedScore": 5758,
+      "weightedScore": 5763,
       "templateCount": 26,
       "totalNodeUsages": 40,
       "avgInsertersPerTemplate": 106
     },
     {
       "type": "@elevenlabs/n8n-nodes-elevenlabs.elevenLabs",
-      "weightedScore": 5680,
+      "weightedScore": 5706,
       "templateCount": 20,
       "totalNodeUsages": 24,
-      "avgInsertersPerTemplate": 217
+      "avgInsertersPerTemplate": 218
     },
     {
       "type": "n8n-nodes-base.ftp",
-      "weightedScore": 5613,
+      "weightedScore": 5620,
       "templateCount": 25,
       "totalNodeUsages": 55,
-      "avgInsertersPerTemplate": 181
+      "avgInsertersPerTemplate": 182
     },
     {
       "type": "@n8n/n8n-nodes-langchain.chat",
-      "weightedScore": 5336,
+      "weightedScore": 5353,
       "templateCount": 30,
       "totalNodeUsages": 50,
-      "avgInsertersPerTemplate": 97
+      "avgInsertersPerTemplate": 98
     },
     {
       "type": "n8n-nodes-base.urlScanIo",
-      "weightedScore": 5070,
+      "weightedScore": 5091,
       "templateCount": 5,
       "totalNodeUsages": 7,
-      "avgInsertersPerTemplate": 524
+      "avgInsertersPerTemplate": 526
     },
     {
       "type": "n8n-nodes-base.airtopTool",
-      "weightedScore": 5018,
+      "weightedScore": 5023,
       "templateCount": 7,
       "totalNodeUsages": 51,
       "avgInsertersPerTemplate": 127
     },
     {
       "type": "n8n-nodes-base.wooCommerce",
-      "weightedScore": 4975,
+      "weightedScore": 4982,
       "templateCount": 25,
       "totalNodeUsages": 38,
-      "avgInsertersPerTemplate": 127
+      "avgInsertersPerTemplate": 128
     },
     {
       "type": "n8n-nodes-scrapegraphai.scrapegraphAi",
-      "weightedScore": 4895,
+      "weightedScore": 4898,
       "templateCount": 52,
       "totalNodeUsages": 80,
       "avgInsertersPerTemplate": 52
     },
     {
       "type": "@tavily/n8n-nodes-tavily.tavilyTool",
-      "weightedScore": 4832,
+      "weightedScore": 4848,
       "templateCount": 24,
       "totalNodeUsages": 29,
       "avgInsertersPerTemplate": 166
     },
     {
       "type": "n8n-nodes-base.microsoftOutlookTool",
-      "weightedScore": 4785,
+      "weightedScore": 4809,
       "templateCount": 5,
       "totalNodeUsages": 11,
-      "avgInsertersPerTemplate": 539
+      "avgInsertersPerTemplate": 541
     },
     {
       "type": "n8n-nodes-base.openWeatherMap",
-      "weightedScore": 4653,
+      "weightedScore": 4658,
       "templateCount": 24,
       "totalNodeUsages": 27,
       "avgInsertersPerTemplate": 187
     },
     {
       "type": "n8n-nodes-evolution-api.evolutionApi",
-      "weightedScore": 4581,
+      "weightedScore": 4605,
       "templateCount": 18,
       "totalNodeUsages": 49,
-      "avgInsertersPerTemplate": 114
+      "avgInsertersPerTemplate": 115
     },
     {
       "type": "n8n-nodes-base.microsoftOutlookTrigger",
-      "weightedScore": 4371,
+      "weightedScore": 4389,
       "templateCount": 19,
       "totalNodeUsages": 20,
-      "avgInsertersPerTemplate": 226
+      "avgInsertersPerTemplate": 227
     },
     {
       "type": "n8n-nodes-base.compression",
-      "weightedScore": 4314,
+      "weightedScore": 4317,
       "templateCount": 25,
       "totalNodeUsages": 25,
       "avgInsertersPerTemplate": 173
@@ -1440,31 +1440,31 @@
     },
     {
       "type": "n8n-nodes-mcp.mcpClient",
-      "weightedScore": 4122,
+      "weightedScore": 4124,
       "templateCount": 20,
       "totalNodeUsages": 46,
       "avgInsertersPerTemplate": 99
     },
     {
       "type": "n8n-nodes-base.graphql",
-      "weightedScore": 4071,
+      "weightedScore": 4072,
       "templateCount": 23,
       "totalNodeUsages": 49,
       "avgInsertersPerTemplate": 84
     },
     {
       "type": "n8n-nodes-base.cryptoTool",
-      "weightedScore": 4039,
+      "weightedScore": 4054,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 4039
+      "avgInsertersPerTemplate": 4054
     },
     {
       "type": "n8n-nodes-base.todoistTool",
-      "weightedScore": 4019,
+      "weightedScore": 4042,
       "templateCount": 5,
       "totalNodeUsages": 33,
-      "avgInsertersPerTemplate": 110
+      "avgInsertersPerTemplate": 111
     },
     {
       "type": "n8n-nodes-base.mattermost",
@@ -1475,178 +1475,178 @@
     },
     {
       "type": "n8n-nodes-base.awsS3",
-      "weightedScore": 3901,
+      "weightedScore": 3908,
       "templateCount": 30,
       "totalNodeUsages": 55,
       "avgInsertersPerTemplate": 84
     },
     {
+      "type": "n8n-nodes-base.googleContactsTool",
+      "weightedScore": 3867,
+      "templateCount": 4,
+      "totalNodeUsages": 8,
+      "avgInsertersPerTemplate": 964
+    },
+    {
       "type": "n8n-nodes-base.shopify",
-      "weightedScore": 3849,
+      "weightedScore": 3860,
       "templateCount": 33,
       "totalNodeUsages": 46,
       "avgInsertersPerTemplate": 80
     },
     {
-      "type": "n8n-nodes-base.googleContactsTool",
-      "weightedScore": 3849,
-      "templateCount": 4,
-      "totalNodeUsages": 8,
-      "avgInsertersPerTemplate": 959
+      "type": "n8n-nodes-base.telegramTool",
+      "weightedScore": 3768,
+      "templateCount": 19,
+      "totalNodeUsages": 21,
+      "avgInsertersPerTemplate": 191
     },
     {
       "type": "n8n-nodes-base.odoo",
-      "weightedScore": 3734,
+      "weightedScore": 3738,
       "templateCount": 16,
       "totalNodeUsages": 50,
-      "avgInsertersPerTemplate": 152
-    },
-    {
-      "type": "n8n-nodes-base.telegramTool",
-      "weightedScore": 3726,
-      "templateCount": 19,
-      "totalNodeUsages": 21,
-      "avgInsertersPerTemplate": 189
+      "avgInsertersPerTemplate": 153
     },
     {
       "type": "n8n-nodes-base.nextCloud",
-      "weightedScore": 3666,
+      "weightedScore": 3671,
       "templateCount": 11,
       "totalNodeUsages": 28,
       "avgInsertersPerTemplate": 152
     },
     {
       "type": "n8n-nodes-base.notionTool",
-      "weightedScore": 3618,
+      "weightedScore": 3631,
       "templateCount": 23,
       "totalNodeUsages": 73,
       "avgInsertersPerTemplate": 136
     },
     {
       "type": "n8n-nodes-base.clickUp",
-      "weightedScore": 3509,
+      "weightedScore": 3523,
       "templateCount": 52,
       "totalNodeUsages": 74,
       "avgInsertersPerTemplate": 46
     },
     {
       "type": "n8n-nodes-base.debugHelper",
-      "weightedScore": 3441,
+      "weightedScore": 3444,
       "templateCount": 6,
       "totalNodeUsages": 7,
       "avgInsertersPerTemplate": 570
     },
     {
       "type": "n8n-nodes-base.mautic",
-      "weightedScore": 3427,
+      "weightedScore": 3430,
       "templateCount": 10,
       "totalNodeUsages": 25,
       "avgInsertersPerTemplate": 109
     },
     {
       "type": "n8n-nodes-base.zendesk",
-      "weightedScore": 3344,
+      "weightedScore": 3355,
       "templateCount": 38,
       "totalNodeUsages": 67,
       "avgInsertersPerTemplate": 44
     },
     {
       "type": "n8n-nodes-hdw.hdwLinkedin",
-      "weightedScore": 3325,
+      "weightedScore": 3335,
       "templateCount": 1,
       "totalNodeUsages": 5,
-      "avgInsertersPerTemplate": 665
+      "avgInsertersPerTemplate": 667
     },
     {
       "type": "n8n-nodes-base.mistralAi",
-      "weightedScore": 3314,
+      "weightedScore": 3329,
       "templateCount": 11,
       "totalNodeUsages": 13,
-      "avgInsertersPerTemplate": 285
+      "avgInsertersPerTemplate": 287
     },
     {
       "type": "@n8n/n8n-nodes-langchain.outputParserItemList",
-      "weightedScore": 3287,
+      "weightedScore": 3291,
       "templateCount": 8,
       "totalNodeUsages": 9,
       "avgInsertersPerTemplate": 388
     },
     {
+      "type": "@n8n/n8n-nodes-langchain.lmChatXAiGrok",
+      "weightedScore": 3274,
+      "templateCount": 20,
+      "totalNodeUsages": 21,
+      "avgInsertersPerTemplate": 155
+    },
+    {
       "type": "n8n-nodes-base.wooCommerceTool",
-      "weightedScore": 3259,
+      "weightedScore": 3271,
       "templateCount": 9,
       "totalNodeUsages": 51,
       "avgInsertersPerTemplate": 154
     },
     {
-      "type": "@n8n/n8n-nodes-langchain.lmChatXAiGrok",
-      "weightedScore": 3257,
-      "templateCount": 20,
-      "totalNodeUsages": 21,
-      "avgInsertersPerTemplate": 154
-    },
-    {
       "type": "n8n-nodes-base.mySqlTool",
-      "weightedScore": 3234,
+      "weightedScore": 3237,
       "templateCount": 5,
       "totalNodeUsages": 10,
-      "avgInsertersPerTemplate": 307
+      "avgInsertersPerTemplate": 308
     },
     {
       "type": "n8n-nodes-base.jiraTool",
-      "weightedScore": 3165,
+      "weightedScore": 3170,
       "templateCount": 8,
       "totalNodeUsages": 52,
-      "avgInsertersPerTemplate": 213
+      "avgInsertersPerTemplate": 214
     },
     {
       "type": "n8n-nodes-base.renameKeys",
-      "weightedScore": 3148,
+      "weightedScore": 3160,
       "templateCount": 15,
       "totalNodeUsages": 20,
-      "avgInsertersPerTemplate": 206
+      "avgInsertersPerTemplate": 207
     },
     {
       "type": "n8n-nodes-base.mondayCom",
-      "weightedScore": 3145,
+      "weightedScore": 3147,
       "templateCount": 27,
       "totalNodeUsages": 42,
       "avgInsertersPerTemplate": 63
     },
     {
       "type": "n8n-nodes-base.telegramBot",
-      "weightedScore": 3084,
+      "weightedScore": 3102,
       "templateCount": 1,
       "totalNodeUsages": 6,
-      "avgInsertersPerTemplate": 514
+      "avgInsertersPerTemplate": 517
     },
     {
       "type": "n8n-nodes-base.trello",
-      "weightedScore": 3010,
+      "weightedScore": 3013,
       "templateCount": 33,
       "totalNodeUsages": 50,
       "avgInsertersPerTemplate": 75
     },
     {
       "type": "n8n-nodes-base.twilioTrigger",
-      "weightedScore": 3009,
+      "weightedScore": 3011,
       "templateCount": 8,
       "totalNodeUsages": 8,
       "avgInsertersPerTemplate": 376
     },
     {
       "type": "n8n-nodes-base.gitlab",
-      "weightedScore": 2996,
+      "weightedScore": 3006,
       "templateCount": 13,
       "totalNodeUsages": 35,
       "avgInsertersPerTemplate": 85
     },
     {
       "type": "n8n-nodes-base.apiTemplateIo",
-      "weightedScore": 2976,
+      "weightedScore": 2989,
       "templateCount": 10,
       "totalNodeUsages": 10,
-      "avgInsertersPerTemplate": 298
+      "avgInsertersPerTemplate": 299
     },
     {
       "type": "n8n-nodes-base.notionTrigger",
@@ -1657,101 +1657,101 @@
     },
     {
       "type": "@n8n/n8n-nodes-langchain.embeddingsCohere",
-      "weightedScore": 2856,
+      "weightedScore": 2860,
       "templateCount": 12,
       "totalNodeUsages": 29,
       "avgInsertersPerTemplate": 107
     },
     {
       "type": "n8n-nodes-base.quickbooks",
-      "weightedScore": 2849,
+      "weightedScore": 2856,
       "templateCount": 33,
       "totalNodeUsages": 88,
       "avgInsertersPerTemplate": 37
     },
     {
       "type": "n8n-nodes-base.githubTrigger",
-      "weightedScore": 2835,
+      "weightedScore": 2838,
       "templateCount": 28,
       "totalNodeUsages": 30,
       "avgInsertersPerTemplate": 96
     },
     {
       "type": "@brightdata/n8n-nodes-brightdata.brightData",
-      "weightedScore": 2786,
+      "weightedScore": 2795,
       "templateCount": 17,
       "totalNodeUsages": 28,
       "avgInsertersPerTemplate": 93
     },
     {
       "type": "n8n-nodes-base.asana",
-      "weightedScore": 2708,
+      "weightedScore": 2717,
       "templateCount": 25,
       "totalNodeUsages": 38,
       "avgInsertersPerTemplate": 72
     },
     {
-      "type": "@n8n/n8n-nodes-langchain.textSplitterCharacterTextSplitter",
-      "weightedScore": 2672,
-      "templateCount": 26,
-      "totalNodeUsages": 30,
-      "avgInsertersPerTemplate": 92
-    },
-    {
       "type": "n8n-nodes-base.evaluationTrigger",
-      "weightedScore": 2648,
+      "weightedScore": 2690,
       "templateCount": 18,
       "totalNodeUsages": 24,
       "avgInsertersPerTemplate": 112
     },
     {
+      "type": "@n8n/n8n-nodes-langchain.textSplitterCharacterTextSplitter",
+      "weightedScore": 2678,
+      "templateCount": 26,
+      "totalNodeUsages": 30,
+      "avgInsertersPerTemplate": 93
+    },
+    {
       "type": "n8n-nodes-base.typeformTrigger",
-      "weightedScore": 2629,
+      "weightedScore": 2633,
       "templateCount": 42,
       "totalNodeUsages": 43,
-      "avgInsertersPerTemplate": 62
+      "avgInsertersPerTemplate": 63
     },
     {
       "type": "n8n-nodes-base.googleSlides",
-      "weightedScore": 2595,
+      "weightedScore": 2600,
       "templateCount": 21,
       "totalNodeUsages": 30,
       "avgInsertersPerTemplate": 111
     },
     {
       "type": "n8n-nodes-base.phantombuster",
-      "weightedScore": 2478,
+      "weightedScore": 2483,
       "templateCount": 12,
       "totalNodeUsages": 63,
       "avgInsertersPerTemplate": 49
     },
     {
       "type": "n8n-nodes-base.googleCalendarTrigger",
-      "weightedScore": 2454,
+      "weightedScore": 2459,
       "templateCount": 26,
       "totalNodeUsages": 39,
       "avgInsertersPerTemplate": 65
     },
     {
       "type": "n8n-nodes-base.gitlabTrigger",
-      "weightedScore": 2440,
+      "weightedScore": 2443,
       "templateCount": 3,
       "totalNodeUsages": 5,
       "avgInsertersPerTemplate": 344
     },
     {
       "type": "@n8n/n8n-nodes-langchain.vectorStoreWeaviate",
-      "weightedScore": 2427,
+      "weightedScore": 2431,
       "templateCount": 5,
       "totalNodeUsages": 8,
-      "avgInsertersPerTemplate": 244
+      "avgInsertersPerTemplate": 245
     },
     {
       "type": "n8n-nodes-base.webflow",
-      "weightedScore": 2400,
+      "weightedScore": 2403,
       "templateCount": 6,
       "totalNodeUsages": 12,
-      "avgInsertersPerTemplate": 292
+      "avgInsertersPerTemplate": 293
     },
     {
       "type": "n8n-nodes-base.readBinaryFiles",
@@ -1762,17 +1762,17 @@
     },
     {
       "type": "n8n-nodes-base.twitterTool",
-      "weightedScore": 2192,
+      "weightedScore": 2196,
       "templateCount": 11,
       "totalNodeUsages": 28,
-      "avgInsertersPerTemplate": 65
+      "avgInsertersPerTemplate": 66
     },
     {
       "type": "@n8n/n8n-nodes-langchain.lmOpenHuggingFaceInference",
-      "weightedScore": 2132,
+      "weightedScore": 2143,
       "templateCount": 3,
       "totalNodeUsages": 3,
-      "avgInsertersPerTemplate": 711
+      "avgInsertersPerTemplate": 714
     },
     {
       "type": "n8n-nodes-qdrant.qdrant",
@@ -1783,52 +1783,66 @@
     },
     {
       "type": "n8n-nodes-base.wordpressTool",
-      "weightedScore": 2111,
+      "weightedScore": 2112,
       "templateCount": 5,
       "totalNodeUsages": 20,
       "avgInsertersPerTemplate": 389
     },
     {
       "type": "n8n-nodes-base.mindee",
-      "weightedScore": 2101,
+      "weightedScore": 2105,
       "templateCount": 5,
       "totalNodeUsages": 5,
-      "avgInsertersPerTemplate": 420
+      "avgInsertersPerTemplate": 421
     },
     {
       "type": "n8n-nodes-base.slackTrigger",
-      "weightedScore": 2079,
+      "weightedScore": 2083,
       "templateCount": 53,
       "totalNodeUsages": 53,
       "avgInsertersPerTemplate": 39
     },
     {
       "type": "n8n-nodes-hdw.hdwLinkedinManagement",
-      "weightedScore": 1995,
+      "weightedScore": 2001,
       "templateCount": 1,
       "totalNodeUsages": 3,
-      "avgInsertersPerTemplate": 665
+      "avgInsertersPerTemplate": 667
     },
     {
       "type": "n8n-nodes-base.clearbit",
-      "weightedScore": 1937,
+      "weightedScore": 1939,
       "templateCount": 15,
       "totalNodeUsages": 20,
       "avgInsertersPerTemplate": 101
     },
     {
+      "type": "@blotato/n8n-nodes-blotato.blotatoTool",
+      "weightedScore": 1929,
+      "templateCount": 4,
+      "totalNodeUsages": 19,
+      "avgInsertersPerTemplate": 84
+    },
+    {
       "type": "n8n-nodes-brightdata.brightData",
-      "weightedScore": 1923,
+      "weightedScore": 1925,
       "templateCount": 8,
       "totalNodeUsages": 16,
       "avgInsertersPerTemplate": 128
     },
     {
       "type": "n8n-nodes-base.calendlyTrigger",
-      "weightedScore": 1899,
+      "weightedScore": 1904,
       "templateCount": 22,
       "totalNodeUsages": 22,
-      "avgInsertersPerTemplate": 86
+      "avgInsertersPerTemplate": 87
+    },
+    {
+      "type": "n8n-nodes-serpapi.serpApi",
+      "weightedScore": 1900,
+      "templateCount": 27,
+      "totalNodeUsages": 32,
+      "avgInsertersPerTemplate": 45
     },
     {
       "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
@@ -1838,15 +1852,8 @@
       "avgInsertersPerTemplate": 256
     },
     {
-      "type": "n8n-nodes-serpapi.serpApi",
-      "weightedScore": 1891,
-      "templateCount": 27,
-      "totalNodeUsages": 32,
-      "avgInsertersPerTemplate": 45
-    },
-    {
       "type": "n8n-nodes-base.jotFormTrigger",
-      "weightedScore": 1888,
+      "weightedScore": 1894,
       "templateCount": 69,
       "totalNodeUsages": 69,
       "avgInsertersPerTemplate": 27
@@ -1867,10 +1874,10 @@
     },
     {
       "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
-      "weightedScore": 1752,
+      "weightedScore": 1767,
       "templateCount": 22,
       "totalNodeUsages": 36,
-      "avgInsertersPerTemplate": 56
+      "avgInsertersPerTemplate": 57
     },
     {
       "type": "n8n-nodes-base.interval",
@@ -1881,38 +1888,38 @@
     },
     {
       "type": "n8n-nodes-base.googleContacts",
-      "weightedScore": 1728,
+      "weightedScore": 1729,
       "templateCount": 7,
       "totalNodeUsages": 13,
       "avgInsertersPerTemplate": 118
     },
     {
-      "type": "@blotato/n8n-nodes-blotato.blotatoTool",
-      "weightedScore": 1635,
-      "templateCount": 4,
-      "totalNodeUsages": 19,
-      "avgInsertersPerTemplate": 74
-    },
-    {
       "type": "n8n-nodes-base.wooCommerceTrigger",
-      "weightedScore": 1629,
+      "weightedScore": 1631,
       "templateCount": 16,
       "totalNodeUsages": 16,
       "avgInsertersPerTemplate": 102
     },
     {
       "type": "n8n-nodes-scrapeless.scrapeless",
-      "weightedScore": 1625,
+      "weightedScore": 1628,
       "templateCount": 7,
       "totalNodeUsages": 17,
-      "avgInsertersPerTemplate": 96
+      "avgInsertersPerTemplate": 97
     },
     {
       "type": "n8n-nodes-base.microsoftSql",
-      "weightedScore": 1593,
+      "weightedScore": 1598,
       "templateCount": 6,
       "totalNodeUsages": 7,
-      "avgInsertersPerTemplate": 258
+      "avgInsertersPerTemplate": 259
+    },
+    {
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "weightedScore": 1593,
+      "templateCount": 36,
+      "totalNodeUsages": 37,
+      "avgInsertersPerTemplate": 44
     },
     {
       "type": "n8n-nodes-base.spotifyTool",
@@ -1922,15 +1929,8 @@
       "avgInsertersPerTemplate": 154
     },
     {
-      "type": "n8n-nodes-base.shopifyTrigger",
-      "weightedScore": 1587,
-      "templateCount": 36,
-      "totalNodeUsages": 37,
-      "avgInsertersPerTemplate": 44
-    },
-    {
       "type": "n8n-nodes-base.start",
-      "weightedScore": 1583,
+      "weightedScore": 1588,
       "templateCount": 16,
       "totalNodeUsages": 16,
       "avgInsertersPerTemplate": 99
@@ -1943,64 +1943,64 @@
       "avgInsertersPerTemplate": 40
     },
     {
+      "type": "@devlikeapro/n8n-nodes-waha.wahaTrigger",
+      "weightedScore": 1576,
+      "templateCount": 3,
+      "totalNodeUsages": 3,
+      "avgInsertersPerTemplate": 525
+    },
+    {
       "type": "@n8n/n8n-nodes-langchain.googleGeminiTool",
-      "weightedScore": 1573,
+      "weightedScore": 1574,
       "templateCount": 5,
       "totalNodeUsages": 8,
       "avgInsertersPerTemplate": 112
     },
     {
-      "type": "@devlikeapro/n8n-nodes-waha.wahaTrigger",
-      "weightedScore": 1569,
-      "templateCount": 3,
-      "totalNodeUsages": 3,
-      "avgInsertersPerTemplate": 523
-    },
-    {
       "type": "n8n-nodes-base.linkedInTool",
-      "weightedScore": 1553,
+      "weightedScore": 1557,
       "templateCount": 3,
       "totalNodeUsages": 6,
       "avgInsertersPerTemplate": 206
     },
     {
       "type": "n8n-nodes-base.zohoCrm",
-      "weightedScore": 1538,
+      "weightedScore": 1551,
       "templateCount": 18,
       "totalNodeUsages": 37,
       "avgInsertersPerTemplate": 51
     },
     {
       "type": "n8n-nodes-base.airtableTrigger",
-      "weightedScore": 1519,
+      "weightedScore": 1528,
       "templateCount": 29,
       "totalNodeUsages": 39,
       "avgInsertersPerTemplate": 52
     },
     {
       "type": "@gotohuman/n8n-nodes-gotohuman.gotoHuman",
-      "weightedScore": 1495,
+      "weightedScore": 1496,
       "templateCount": 12,
       "totalNodeUsages": 16,
       "avgInsertersPerTemplate": 81
     },
     {
       "type": "n8n-nodes-base.zoom",
-      "weightedScore": 1486,
+      "weightedScore": 1490,
       "templateCount": 13,
       "totalNodeUsages": 15,
       "avgInsertersPerTemplate": 114
     },
     {
       "type": "n8n-nodes-base.postgresTrigger",
-      "weightedScore": 1473,
+      "weightedScore": 1482,
       "templateCount": 5,
       "totalNodeUsages": 5,
-      "avgInsertersPerTemplate": 295
+      "avgInsertersPerTemplate": 296
     },
     {
       "type": "n8n-nodes-base.linear",
-      "weightedScore": 1465,
+      "weightedScore": 1468,
       "templateCount": 10,
       "totalNodeUsages": 15,
       "avgInsertersPerTemplate": 101
@@ -2014,87 +2014,87 @@
     },
     {
       "type": "n8n-nodes-base.sendGrid",
-      "weightedScore": 1422,
+      "weightedScore": 1427,
       "templateCount": 25,
       "totalNodeUsages": 34,
-      "avgInsertersPerTemplate": 50
-    },
-    {
-      "type": "@n8n/n8n-nodes-langchain.memoryMongoDbChat",
-      "weightedScore": 1415,
-      "templateCount": 11,
-      "totalNodeUsages": 14,
-      "avgInsertersPerTemplate": 122
+      "avgInsertersPerTemplate": 51
     },
     {
       "type": "n8n-nodes-base.jinaAi",
-      "weightedScore": 1409,
+      "weightedScore": 1423,
       "templateCount": 12,
       "totalNodeUsages": 17,
       "avgInsertersPerTemplate": 86
     },
     {
+      "type": "@n8n/n8n-nodes-langchain.memoryMongoDbChat",
+      "weightedScore": 1418,
+      "templateCount": 11,
+      "totalNodeUsages": 14,
+      "avgInsertersPerTemplate": 122
+    },
+    {
       "type": "@devlikeapro/n8n-nodes-chatwoot.chatWoot",
-      "weightedScore": 1398,
+      "weightedScore": 1410,
       "templateCount": 1,
       "totalNodeUsages": 6,
-      "avgInsertersPerTemplate": 233
+      "avgInsertersPerTemplate": 235
     },
     {
       "type": "n8n-nodes-base.discordTool",
-      "weightedScore": 1374,
+      "weightedScore": 1377,
       "templateCount": 9,
       "totalNodeUsages": 20,
       "avgInsertersPerTemplate": 118
     },
     {
       "type": "n8n-nodes-base.n8nTrigger",
-      "weightedScore": 1352,
+      "weightedScore": 1355,
       "templateCount": 7,
       "totalNodeUsages": 7,
-      "avgInsertersPerTemplate": 193
+      "avgInsertersPerTemplate": 194
     },
     {
       "type": "n8n-nodes-hdw.hdwWebParserTool",
-      "weightedScore": 1330,
+      "weightedScore": 1334,
       "templateCount": 1,
       "totalNodeUsages": 2,
-      "avgInsertersPerTemplate": 665
+      "avgInsertersPerTemplate": 667
     },
     {
       "type": "n8n-nodes-base.googleTasks",
-      "weightedScore": 1301,
+      "weightedScore": 1302,
       "templateCount": 12,
       "totalNodeUsages": 14,
       "avgInsertersPerTemplate": 100
     },
     {
       "type": "n8n-nodes-base.stripeTrigger",
-      "weightedScore": 1300,
+      "weightedScore": 1301,
       "templateCount": 21,
       "totalNodeUsages": 22,
       "avgInsertersPerTemplate": 62
     },
     {
       "type": "@custom-js/n8n-nodes-pdf-toolkit.html2Pdf",
-      "weightedScore": 1280,
+      "weightedScore": 1283,
       "templateCount": 6,
       "totalNodeUsages": 6,
-      "avgInsertersPerTemplate": 213
-    },
-    {
-      "type": "n8n-nodes-aimlapi.aimlApi",
-      "weightedScore": 1275,
-      "templateCount": 11,
-      "totalNodeUsages": 13,
-      "avgInsertersPerTemplate": 102
+      "avgInsertersPerTemplate": 214
     },
     {
       "type": "n8n-nodes-base.serviceNow",
-      "weightedScore": 1272,
+      "weightedScore": 1278,
       "templateCount": 12,
       "totalNodeUsages": 15,
-      "avgInsertersPerTemplate": 96
+      "avgInsertersPerTemplate": 97
+    },
+    {
+      "type": "n8n-nodes-aimlapi.aimlApi",
+      "weightedScore": 1277,
+      "templateCount": 11,
+      "totalNodeUsages": 13,
+      "avgInsertersPerTemplate": 102
     },
     {
       "type": "n8n-nodes-base.freshdesk",
@@ -2105,21 +2105,21 @@
     },
     {
       "type": "@n8n/n8n-nodes-langchain.lmChatVercelAiGateway",
-      "weightedScore": 1260,
+      "weightedScore": 1265,
       "templateCount": 1,
       "totalNodeUsages": 5,
-      "avgInsertersPerTemplate": 252
+      "avgInsertersPerTemplate": 253
     },
     {
       "type": "n8n-nodes-base.hunter",
-      "weightedScore": 1260,
+      "weightedScore": 1261,
       "templateCount": 23,
       "totalNodeUsages": 23,
       "avgInsertersPerTemplate": 55
     },
     {
       "type": "n8n-nodes-base.dataTableTool",
-      "weightedScore": 1228,
+      "weightedScore": 1234,
       "templateCount": 18,
       "totalNodeUsages": 43,
       "avgInsertersPerTemplate": 56
@@ -2132,6 +2132,13 @@
       "avgInsertersPerTemplate": 101
     },
     {
+      "type": "n8n-nodes-base.googleBigQuery",
+      "weightedScore": 1207,
+      "templateCount": 12,
+      "totalNodeUsages": 26,
+      "avgInsertersPerTemplate": 62
+    },
+    {
       "type": "n8n-nodes-dataforseo.dataForSeo",
       "weightedScore": 1200,
       "templateCount": 3,
@@ -2139,15 +2146,8 @@
       "avgInsertersPerTemplate": 155
     },
     {
-      "type": "n8n-nodes-base.googleBigQuery",
-      "weightedScore": 1194,
-      "templateCount": 12,
-      "totalNodeUsages": 26,
-      "avgInsertersPerTemplate": 62
-    },
-    {
       "type": "n8n-nodes-base.snowflake",
-      "weightedScore": 1186,
+      "weightedScore": 1187,
       "templateCount": 4,
       "totalNodeUsages": 19,
       "avgInsertersPerTemplate": 107
@@ -2168,21 +2168,21 @@
     },
     {
       "type": "n8n-nodes-base.jiraTrigger",
-      "weightedScore": 1152,
+      "weightedScore": 1156,
       "templateCount": 7,
       "totalNodeUsages": 7,
       "avgInsertersPerTemplate": 165
     },
     {
       "type": "n8n-nodes-base.homeAssistant",
-      "weightedScore": 1149,
+      "weightedScore": 1152,
       "templateCount": 5,
       "totalNodeUsages": 8,
-      "avgInsertersPerTemplate": 219
+      "avgInsertersPerTemplate": 220
     },
     {
       "type": "n8n-nodes-base.bitly",
-      "weightedScore": 1139,
+      "weightedScore": 1140,
       "templateCount": 3,
       "totalNodeUsages": 3,
       "avgInsertersPerTemplate": 380
@@ -2196,45 +2196,45 @@
     },
     {
       "type": "@n8n/n8n-nodes-langchain.toolWolframAlpha",
-      "weightedScore": 1118,
+      "weightedScore": 1120,
       "templateCount": 2,
       "totalNodeUsages": 2,
-      "avgInsertersPerTemplate": 559
+      "avgInsertersPerTemplate": 560
     },
     {
       "type": "n8n-nodes-base.microsoftToDo",
-      "weightedScore": 1110,
+      "weightedScore": 1113,
       "templateCount": 3,
       "totalNodeUsages": 8,
-      "avgInsertersPerTemplate": 136
+      "avgInsertersPerTemplate": 137
     },
     {
       "type": "@n8n/n8n-nodes-langchain.modelSelector",
-      "weightedScore": 1104,
+      "weightedScore": 1107,
       "templateCount": 5,
       "totalNodeUsages": 5,
       "avgInsertersPerTemplate": 221
     },
     {
       "type": "n8n-nodes-base.emailSendTool",
-      "weightedScore": 1094,
+      "weightedScore": 1095,
       "templateCount": 6,
       "totalNodeUsages": 7,
       "avgInsertersPerTemplate": 182
     },
     {
       "type": "n8n-nodes-base.openWeatherMapTool",
-      "weightedScore": 1093,
+      "weightedScore": 1094,
       "templateCount": 3,
       "totalNodeUsages": 3,
-      "avgInsertersPerTemplate": 364
+      "avgInsertersPerTemplate": 365
     },
     {
       "type": "n8n-nodes-base.shopifyTool",
-      "weightedScore": 1080,
+      "weightedScore": 1093,
       "templateCount": 7,
       "totalNodeUsages": 31,
-      "avgInsertersPerTemplate": 75
+      "avgInsertersPerTemplate": 76
     },
     {
       "type": "n8n-nodes-1shot.oneShot",
@@ -2245,35 +2245,35 @@
     },
     {
       "type": "n8n-nodes-base.sms77",
-      "weightedScore": 1026,
+      "weightedScore": 1028,
       "templateCount": 3,
       "totalNodeUsages": 3,
-      "avgInsertersPerTemplate": 342
-    },
-    {
-      "type": "n8n-nodes-base.dhl",
-      "weightedScore": 1025,
-      "templateCount": 1,
-      "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 1025
+      "avgInsertersPerTemplate": 343
     },
     {
       "type": "@brave/n8n-nodes-brave-search.braveSearchTool",
-      "weightedScore": 1019,
+      "weightedScore": 1026,
       "templateCount": 3,
       "totalNodeUsages": 9,
-      "avgInsertersPerTemplate": 119
+      "avgInsertersPerTemplate": 120
+    },
+    {
+      "type": "n8n-nodes-base.dhl",
+      "weightedScore": 1026,
+      "templateCount": 1,
+      "totalNodeUsages": 1,
+      "avgInsertersPerTemplate": 1026
     },
     {
       "type": "n8n-nodes-base.microsoftSharePoint",
-      "weightedScore": 1004,
+      "weightedScore": 1011,
       "templateCount": 14,
       "totalNodeUsages": 50,
       "avgInsertersPerTemplate": 26
     },
     {
       "type": "n8n-nodes-base.redisTool",
-      "weightedScore": 999,
+      "weightedScore": 1000,
       "templateCount": 4,
       "totalNodeUsages": 11,
       "avgInsertersPerTemplate": 230
@@ -2287,21 +2287,21 @@
     },
     {
       "type": "n8n-nodes-base.quickChart",
-      "weightedScore": 995,
+      "weightedScore": 996,
       "templateCount": 7,
       "totalNodeUsages": 7,
       "avgInsertersPerTemplate": 142
     },
     {
       "type": "n8n-nodes-base.hubspotTool",
-      "weightedScore": 981,
+      "weightedScore": 983,
       "templateCount": 6,
       "totalNodeUsages": 10,
       "avgInsertersPerTemplate": 116
     },
     {
       "type": "n8n-nodes-base.highLevel",
-      "weightedScore": 971,
+      "weightedScore": 973,
       "templateCount": 22,
       "totalNodeUsages": 29,
       "avgInsertersPerTemplate": 34
@@ -2322,7 +2322,7 @@
     },
     {
       "type": "n8n-nodes-base.gumroadTrigger",
-      "weightedScore": 951,
+      "weightedScore": 952,
       "templateCount": 5,
       "totalNodeUsages": 5,
       "avgInsertersPerTemplate": 190
@@ -2336,45 +2336,52 @@
     },
     {
       "type": "n8n-nodes-base.googleAds",
-      "weightedScore": 910,
+      "weightedScore": 922,
       "templateCount": 6,
       "totalNodeUsages": 6,
-      "avgInsertersPerTemplate": 152
+      "avgInsertersPerTemplate": 154
     },
     {
       "type": "n8n-nodes-base.pushbullet",
-      "weightedScore": 891,
+      "weightedScore": 892,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 891
+      "avgInsertersPerTemplate": 892
     },
     {
       "type": "n8n-nodes-elevenlabs.elevenLabs",
-      "weightedScore": 891,
+      "weightedScore": 892,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 891
+      "avgInsertersPerTemplate": 892
     },
     {
       "type": "@muench-dev/n8n-nodes-bluesky.bluesky",
-      "weightedScore": 891,
+      "weightedScore": 892,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 891
+      "avgInsertersPerTemplate": 892
     },
     {
       "type": "@watzon/n8n-nodes-perplexity.perplexity",
-      "weightedScore": 891,
+      "weightedScore": 892,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 891
+      "avgInsertersPerTemplate": 892
     },
     {
       "type": "n8n-nodes-base.lemlist",
-      "weightedScore": 878,
+      "weightedScore": 879,
       "templateCount": 7,
       "totalNodeUsages": 8,
       "avgInsertersPerTemplate": 122
+    },
+    {
+      "type": "n8n-nodes-base.stravaTrigger",
+      "weightedScore": 878,
+      "templateCount": 4,
+      "totalNodeUsages": 4,
+      "avgInsertersPerTemplate": 220
     },
     {
       "type": "n8n-nodes-base.googleTranslate",
@@ -2384,18 +2391,11 @@
       "avgInsertersPerTemplate": 97
     },
     {
-      "type": "n8n-nodes-base.stravaTrigger",
-      "weightedScore": 876,
-      "templateCount": 4,
-      "totalNodeUsages": 4,
-      "avgInsertersPerTemplate": 219
-    },
-    {
       "type": "n8n-nodes-base.webflowTool",
-      "weightedScore": 848,
+      "weightedScore": 851,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 848
+      "avgInsertersPerTemplate": 851
     },
     {
       "type": "n8n-nodes-document-generator.DocumentGenerator",
@@ -2406,14 +2406,14 @@
     },
     {
       "type": "@n8n/n8n-nodes-langchain.documentJsonInputLoader",
-      "weightedScore": 808,
+      "weightedScore": 809,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 808
+      "avgInsertersPerTemplate": 809
     },
     {
       "type": "@n8n/n8n-nodes-langchain.vectorStoreMilvus",
-      "weightedScore": 803,
+      "weightedScore": 804,
       "templateCount": 5,
       "totalNodeUsages": 9,
       "avgInsertersPerTemplate": 86
@@ -2441,7 +2441,7 @@
     },
     {
       "type": "@n8n/n8n-nodes-langchain.toolSearXng",
-      "weightedScore": 725,
+      "weightedScore": 726,
       "templateCount": 2,
       "totalNodeUsages": 2,
       "avgInsertersPerTemplate": 363
@@ -2455,21 +2455,21 @@
     },
     {
       "type": "n8n-nodes-base.mailchimp",
-      "weightedScore": 715,
+      "weightedScore": 717,
       "templateCount": 18,
       "totalNodeUsages": 24,
       "avgInsertersPerTemplate": 37
     },
     {
       "type": "@vlm-run/n8n-nodes-vlmrun.vlmRun",
-      "weightedScore": 684,
+      "weightedScore": 690,
       "templateCount": 19,
       "totalNodeUsages": 23,
       "avgInsertersPerTemplate": 28
     },
     {
       "type": "@decodo/n8n-nodes-decodo.decodo",
-      "weightedScore": 665,
+      "weightedScore": 673,
       "templateCount": 40,
       "totalNodeUsages": 57,
       "avgInsertersPerTemplate": 15
@@ -2483,17 +2483,24 @@
     },
     {
       "type": "n8n-nodes-base.elevenLabs",
-      "weightedScore": 642,
+      "weightedScore": 643,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 642
+      "avgInsertersPerTemplate": 643
     },
     {
       "type": "@custom-js/n8n-nodes-pdf-toolkit.PdfToPng",
-      "weightedScore": 640,
+      "weightedScore": 642,
       "templateCount": 1,
       "totalNodeUsages": 2,
-      "avgInsertersPerTemplate": 320
+      "avgInsertersPerTemplate": 321
+    },
+    {
+      "type": "n8n-nodes-base.facebookLeadAdsTrigger",
+      "weightedScore": 623,
+      "templateCount": 3,
+      "totalNodeUsages": 3,
+      "avgInsertersPerTemplate": 208
     },
     {
       "type": "n8n-nodes-base.asanaTrigger",
@@ -2501,13 +2508,6 @@
       "templateCount": 3,
       "totalNodeUsages": 3,
       "avgInsertersPerTemplate": 208
-    },
-    {
-      "type": "n8n-nodes-base.facebookLeadAdsTrigger",
-      "weightedScore": 621,
-      "templateCount": 3,
-      "totalNodeUsages": 3,
-      "avgInsertersPerTemplate": 207
     },
     {
       "type": "n8n-nodes-base.taiga",
@@ -2518,14 +2518,14 @@
     },
     {
       "type": "n8n-nodes-base.cortex",
-      "weightedScore": 610,
+      "weightedScore": 613,
       "templateCount": 2,
       "totalNodeUsages": 3,
-      "avgInsertersPerTemplate": 281
+      "avgInsertersPerTemplate": 282
     },
     {
       "type": "n8n-nodes-base.mqttTrigger",
-      "weightedScore": 593,
+      "weightedScore": 594,
       "templateCount": 6,
       "totalNodeUsages": 6,
       "avgInsertersPerTemplate": 99
@@ -2538,6 +2538,13 @@
       "avgInsertersPerTemplate": 67
     },
     {
+      "type": "n8n-nodes-browseract-workflows.browserAct",
+      "weightedScore": 582,
+      "templateCount": 12,
+      "totalNodeUsages": 25,
+      "avgInsertersPerTemplate": 24
+    },
+    {
       "type": "n8n-nodes-base.raindrop",
       "weightedScore": 581,
       "templateCount": 3,
@@ -2545,11 +2552,11 @@
       "avgInsertersPerTemplate": 113
     },
     {
-      "type": "n8n-nodes-browseract-workflows.browserAct",
-      "weightedScore": 579,
-      "templateCount": 12,
-      "totalNodeUsages": 25,
-      "avgInsertersPerTemplate": 24
+      "type": "n8n-nodes-base.githubTool",
+      "weightedScore": 578,
+      "templateCount": 9,
+      "totalNodeUsages": 54,
+      "avgInsertersPerTemplate": 36
     },
     {
       "type": "@n8n/n8n-nodes-langchain.retrieverWorkflow",
@@ -2560,24 +2567,17 @@
     },
     {
       "type": "n8n-nodes-base.dropcontact",
-      "weightedScore": 573,
+      "weightedScore": 574,
       "templateCount": 6,
       "totalNodeUsages": 6,
       "avgInsertersPerTemplate": 96
     },
     {
       "type": "n8n-nodes-tesseractjs.tesseractNode",
-      "weightedScore": 563,
+      "weightedScore": 566,
       "templateCount": 5,
       "totalNodeUsages": 5,
       "avgInsertersPerTemplate": 113
-    },
-    {
-      "type": "n8n-nodes-base.githubTool",
-      "weightedScore": 558,
-      "templateCount": 9,
-      "totalNodeUsages": 54,
-      "avgInsertersPerTemplate": 34
     },
     {
       "type": "n8n-nodes-base.coinGecko",
@@ -2602,7 +2602,7 @@
     },
     {
       "type": "n8n-nodes-base.googleCloudStorage",
-      "weightedScore": 545,
+      "weightedScore": 546,
       "templateCount": 12,
       "totalNodeUsages": 23,
       "avgInsertersPerTemplate": 26
@@ -2629,6 +2629,13 @@
       "avgInsertersPerTemplate": 133
     },
     {
+      "type": "@n8n/n8n-nodes-langchain.guardrails",
+      "weightedScore": 526,
+      "templateCount": 11,
+      "totalNodeUsages": 28,
+      "avgInsertersPerTemplate": 30
+    },
+    {
       "type": "n8n-nodes-browserflow.browserflow",
       "weightedScore": 525,
       "templateCount": 8,
@@ -2636,25 +2643,25 @@
       "avgInsertersPerTemplate": 26
     },
     {
-      "type": "@n8n/n8n-nodes-langchain.guardrails",
-      "weightedScore": 522,
-      "templateCount": 11,
-      "totalNodeUsages": 28,
-      "avgInsertersPerTemplate": 30
-    },
-    {
       "type": "n8n-nodes-base.calTrigger",
-      "weightedScore": 517,
+      "weightedScore": 518,
       "templateCount": 7,
       "totalNodeUsages": 7,
       "avgInsertersPerTemplate": 74
     },
     {
       "type": "@tavily/n8n-nodes-tavily.tavily",
-      "weightedScore": 510,
+      "weightedScore": 512,
       "templateCount": 12,
       "totalNodeUsages": 13,
       "avgInsertersPerTemplate": 42
+    },
+    {
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "weightedScore": 505,
+      "templateCount": 13,
+      "totalNodeUsages": 16,
+      "avgInsertersPerTemplate": 38
     },
     {
       "type": "n8n-nodes-base.hackerNewsTool",
@@ -2671,11 +2678,11 @@
       "avgInsertersPerTemplate": 61
     },
     {
-      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "type": "n8n-nodes-google-pagespeed.googlePageSpeed",
       "weightedScore": 496,
-      "templateCount": 13,
-      "totalNodeUsages": 16,
-      "avgInsertersPerTemplate": 37
+      "templateCount": 1,
+      "totalNodeUsages": 4,
+      "avgInsertersPerTemplate": 124
     },
     {
       "type": "n8n-nodes-base.zammad",
@@ -2683,13 +2690,6 @@
       "templateCount": 6,
       "totalNodeUsages": 15,
       "avgInsertersPerTemplate": 40
-    },
-    {
-      "type": "n8n-nodes-google-pagespeed.googlePageSpeed",
-      "weightedScore": 492,
-      "templateCount": 1,
-      "totalNodeUsages": 4,
-      "avgInsertersPerTemplate": 123
     },
     {
       "type": "n8n-nodes-hdw.hdwLinkedinTool",
@@ -2700,28 +2700,28 @@
     },
     {
       "type": "n8n-nodes-base.linearTrigger",
-      "weightedScore": 482,
+      "weightedScore": 483,
       "templateCount": 6,
       "totalNodeUsages": 7,
       "avgInsertersPerTemplate": 76
     },
     {
       "type": "n8n-nodes-base.nasa",
-      "weightedScore": 470,
+      "weightedScore": 472,
       "templateCount": 13,
       "totalNodeUsages": 13,
       "avgInsertersPerTemplate": 36
     },
     {
       "type": "n8n-nodes-base.whatsAppTool",
-      "weightedScore": 467,
+      "weightedScore": 468,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 467
+      "avgInsertersPerTemplate": 468
     },
     {
       "type": "n8n-nodes-pdforge.pdforge",
-      "weightedScore": 465,
+      "weightedScore": 466,
       "templateCount": 3,
       "totalNodeUsages": 3,
       "avgInsertersPerTemplate": 155
@@ -2742,7 +2742,7 @@
     },
     {
       "type": "n8n-nodes-base.uptimeRobot",
-      "weightedScore": 450,
+      "weightedScore": 451,
       "templateCount": 3,
       "totalNodeUsages": 5,
       "avgInsertersPerTemplate": 69
@@ -2753,6 +2753,13 @@
       "templateCount": 8,
       "totalNodeUsages": 15,
       "avgInsertersPerTemplate": 30
+    },
+    {
+      "type": "n8n-nodes-base.xero",
+      "weightedScore": 446,
+      "templateCount": 11,
+      "totalNodeUsages": 22,
+      "avgInsertersPerTemplate": 22
     },
     {
       "type": "n8n-nodes-base.rocketchat",
@@ -2769,11 +2776,11 @@
       "avgInsertersPerTemplate": 89
     },
     {
-      "type": "n8n-nodes-base.xero",
-      "weightedScore": 441,
-      "templateCount": 11,
-      "totalNodeUsages": 22,
-      "avgInsertersPerTemplate": 21
+      "type": "n8n-nodes-base.mailgun",
+      "weightedScore": 440,
+      "templateCount": 9,
+      "totalNodeUsages": 21,
+      "avgInsertersPerTemplate": 40
     },
     {
       "type": "n8n-nodes-base.snowflakeTool",
@@ -2781,13 +2788,6 @@
       "templateCount": 1,
       "totalNodeUsages": 2,
       "avgInsertersPerTemplate": 220
-    },
-    {
-      "type": "n8n-nodes-base.mailgun",
-      "weightedScore": 439,
-      "templateCount": 9,
-      "totalNodeUsages": 21,
-      "avgInsertersPerTemplate": 40
     },
     {
       "type": "n8n-nodes-klicktipp.klicktipp",
@@ -2798,7 +2798,7 @@
     },
     {
       "type": "n8n-nodes-base.matrix",
-      "weightedScore": 432,
+      "weightedScore": 433,
       "templateCount": 5,
       "totalNodeUsages": 11,
       "avgInsertersPerTemplate": 23
@@ -2818,18 +2818,18 @@
       "avgInsertersPerTemplate": 48
     },
     {
+      "type": "n8n-nodes-base.stripeTool",
+      "weightedScore": 421,
+      "templateCount": 5,
+      "totalNodeUsages": 45,
+      "avgInsertersPerTemplate": 14
+    },
+    {
       "type": "CUSTOM.searchApiTool",
       "weightedScore": 418,
       "templateCount": 1,
       "totalNodeUsages": 1,
       "avgInsertersPerTemplate": 418
-    },
-    {
-      "type": "n8n-nodes-base.stripeTool",
-      "weightedScore": 411,
-      "templateCount": 5,
-      "totalNodeUsages": 45,
-      "avgInsertersPerTemplate": 13
     },
     {
       "type": "n8n-nodes-base.microsoftOneDriveTrigger",
@@ -2840,17 +2840,24 @@
     },
     {
       "type": "n8n-nodes-base.ghostTool",
-      "weightedScore": 404,
+      "weightedScore": 408,
       "templateCount": 1,
       "totalNodeUsages": 4,
-      "avgInsertersPerTemplate": 101
+      "avgInsertersPerTemplate": 102
     },
     {
       "type": "n8n-nodes-base.pipedriveTrigger",
-      "weightedScore": 394,
+      "weightedScore": 395,
       "templateCount": 10,
       "totalNodeUsages": 11,
       "avgInsertersPerTemplate": 35
+    },
+    {
+      "type": "@n8n/n8n-nodes-langchain.lmChatAwsBedrock",
+      "weightedScore": 390,
+      "templateCount": 4,
+      "totalNodeUsages": 5,
+      "avgInsertersPerTemplate": 69
     },
     {
       "type": "n8n-nodes-supadata.supadata",
@@ -2860,32 +2867,46 @@
       "avgInsertersPerTemplate": 195
     },
     {
-      "type": "@n8n/n8n-nodes-langchain.lmChatAwsBedrock",
-      "weightedScore": 382,
-      "templateCount": 4,
-      "totalNodeUsages": 5,
-      "avgInsertersPerTemplate": 67
-    },
-    {
       "type": "n8n-nodes-base.jinaAiTool",
-      "weightedScore": 379,
+      "weightedScore": 381,
       "templateCount": 8,
       "totalNodeUsages": 10,
       "avgInsertersPerTemplate": 43
     },
     {
       "type": "n8n-nodes-base.googleBusinessProfileTrigger",
-      "weightedScore": 378,
+      "weightedScore": 379,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 378
+      "avgInsertersPerTemplate": 379
     },
     {
       "type": "n8n-nodes-base.elasticsearch",
-      "weightedScore": 373,
+      "weightedScore": 374,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 373
+      "avgInsertersPerTemplate": 374
+    },
+    {
+      "type": "n8n-nodes-htmlcsstopdf.htmlcsstopdf",
+      "weightedScore": 373,
+      "templateCount": 42,
+      "totalNodeUsages": 47,
+      "avgInsertersPerTemplate": 9
+    },
+    {
+      "type": "n8n-nodes-contextualai.contextualAi",
+      "weightedScore": 372,
+      "templateCount": 2,
+      "totalNodeUsages": 3,
+      "avgInsertersPerTemplate": 147
+    },
+    {
+      "type": "n8n-nodes-base.facebookTrigger",
+      "weightedScore": 371,
+      "templateCount": 3,
+      "totalNodeUsages": 3,
+      "avgInsertersPerTemplate": 124
     },
     {
       "type": "n8n-nodes-base.webflowTrigger",
@@ -2895,36 +2916,22 @@
       "avgInsertersPerTemplate": 53
     },
     {
-      "type": "n8n-nodes-contextualai.contextualAi",
-      "weightedScore": 367,
-      "templateCount": 2,
-      "totalNodeUsages": 3,
-      "avgInsertersPerTemplate": 144
-    },
-    {
-      "type": "n8n-nodes-htmlcsstopdf.htmlcsstopdf",
-      "weightedScore": 366,
-      "templateCount": 42,
-      "totalNodeUsages": 47,
-      "avgInsertersPerTemplate": 9
-    },
-    {
       "type": "n8n-nodes-base.clickUpTrigger",
-      "weightedScore": 365,
+      "weightedScore": 366,
       "templateCount": 8,
       "totalNodeUsages": 8,
       "avgInsertersPerTemplate": 46
     },
     {
-      "type": "n8n-nodes-base.facebookTrigger",
-      "weightedScore": 365,
-      "templateCount": 3,
-      "totalNodeUsages": 3,
-      "avgInsertersPerTemplate": 122
+      "type": "@bedrijfsdatanl/n8n-nodes-prospectpro.prospectpro",
+      "weightedScore": 363,
+      "templateCount": 5,
+      "totalNodeUsages": 17,
+      "avgInsertersPerTemplate": 21
     },
     {
       "type": "n8n-nodes-templated.templated",
-      "weightedScore": 361,
+      "weightedScore": 363,
       "templateCount": 3,
       "totalNodeUsages": 4,
       "avgInsertersPerTemplate": 72
@@ -2938,10 +2945,10 @@
     },
     {
       "type": "n8n-nodes-mediafx.mediaFX",
-      "weightedScore": 351,
+      "weightedScore": 353,
       "templateCount": 2,
       "totalNodeUsages": 2,
-      "avgInsertersPerTemplate": 176
+      "avgInsertersPerTemplate": 177
     },
     {
       "type": "n8n-nodes-base.awsTextract",
@@ -2952,17 +2959,17 @@
     },
     {
       "type": "n8n-nodes-puppeteer.puppeteer",
-      "weightedScore": 343,
+      "weightedScore": 344,
       "templateCount": 7,
       "totalNodeUsages": 7,
       "avgInsertersPerTemplate": 49
     },
     {
       "type": "@custom-js/n8n-nodes-pdf-toolkit.PdfToText",
-      "weightedScore": 342,
+      "weightedScore": 344,
       "templateCount": 1,
       "totalNodeUsages": 2,
-      "avgInsertersPerTemplate": 171
+      "avgInsertersPerTemplate": 172
     },
     {
       "type": "n8n-nodes-base.mauticTrigger",
@@ -3000,6 +3007,13 @@
       "avgInsertersPerTemplate": 19
     },
     {
+      "type": "n8n-nodes-base.pushover",
+      "weightedScore": 330,
+      "templateCount": 6,
+      "totalNodeUsages": 7,
+      "avgInsertersPerTemplate": 53
+    },
+    {
       "type": "n8n-nodes-base.neo4j",
       "weightedScore": 330,
       "templateCount": 1,
@@ -3014,13 +3028,6 @@
       "avgInsertersPerTemplate": 66
     },
     {
-      "type": "n8n-nodes-base.pushover",
-      "weightedScore": 328,
-      "templateCount": 6,
-      "totalNodeUsages": 7,
-      "avgInsertersPerTemplate": 53
-    },
-    {
       "type": "@horka.tv/n8n-nodes-storage-kv.keyValueStorage",
       "weightedScore": 328,
       "templateCount": 1,
@@ -3033,13 +3040,6 @@
       "templateCount": 3,
       "totalNodeUsages": 3,
       "avgInsertersPerTemplate": 109
-    },
-    {
-      "type": "@bedrijfsdatanl/n8n-nodes-prospectpro.prospectpro",
-      "weightedScore": 327,
-      "templateCount": 5,
-      "totalNodeUsages": 17,
-      "avgInsertersPerTemplate": 20
     },
     {
       "type": "n8n-nodes-base.git",
@@ -3057,10 +3057,10 @@
     },
     {
       "type": "n8n-nodes-gemini-search.geminiSearchToolTool",
-      "weightedScore": 316,
+      "weightedScore": 318,
       "templateCount": 4,
       "totalNodeUsages": 4,
-      "avgInsertersPerTemplate": 79
+      "avgInsertersPerTemplate": 80
     },
     {
       "type": "n8n-nodes-base.mqtt",
@@ -3078,7 +3078,7 @@
     },
     {
       "type": "@firefliesai/n8n-nodes-fireflies.fireflies",
-      "weightedScore": 308,
+      "weightedScore": 309,
       "templateCount": 7,
       "totalNodeUsages": 11,
       "avgInsertersPerTemplate": 39
@@ -3113,10 +3113,17 @@
     },
     {
       "type": "n8n-nodes-base.googleChat",
-      "weightedScore": 303,
+      "weightedScore": 304,
       "templateCount": 4,
       "totalNodeUsages": 6,
       "avgInsertersPerTemplate": 74
+    },
+    {
+      "type": "n8n-nodes-brightdata.brightDataTool",
+      "weightedScore": 298,
+      "templateCount": 2,
+      "totalNodeUsages": 2,
+      "avgInsertersPerTemplate": 149
     },
     {
       "type": "n8n-nodes-base.awsSes",
@@ -3124,13 +3131,6 @@
       "templateCount": 4,
       "totalNodeUsages": 5,
       "avgInsertersPerTemplate": 67
-    },
-    {
-      "type": "n8n-nodes-brightdata.brightDataTool",
-      "weightedScore": 296,
-      "templateCount": 2,
-      "totalNodeUsages": 2,
-      "avgInsertersPerTemplate": 148
     },
     {
       "type": "n8n-nodes-base.onfleetTrigger",
@@ -3148,7 +3148,7 @@
     },
     {
       "type": "n8n-nodes-pdfco.PDFco Api",
-      "weightedScore": 291,
+      "weightedScore": 292,
       "templateCount": 12,
       "totalNodeUsages": 16,
       "avgInsertersPerTemplate": 23
@@ -3169,7 +3169,7 @@
     },
     {
       "type": "n8n-nodes-globals.globalConstants",
-      "weightedScore": 279,
+      "weightedScore": 280,
       "templateCount": 3,
       "totalNodeUsages": 4,
       "avgInsertersPerTemplate": 93
@@ -3197,15 +3197,22 @@
     },
     {
       "type": "n8n-nodes-base.clickUpTool",
-      "weightedScore": 268,
+      "weightedScore": 269,
       "templateCount": 4,
       "totalNodeUsages": 13,
-      "avgInsertersPerTemplate": 18
+      "avgInsertersPerTemplate": 19
     },
     {
       "type": "n8n-nodes-craftmypdf.craftMyPdf",
-      "weightedScore": 261,
+      "weightedScore": 262,
       "templateCount": 4,
+      "totalNodeUsages": 4,
+      "avgInsertersPerTemplate": 66
+    },
+    {
+      "type": "n8n-nodes-base.hunterTool",
+      "weightedScore": 258,
+      "templateCount": 2,
       "totalNodeUsages": 4,
       "avgInsertersPerTemplate": 65
     },
@@ -3218,10 +3225,10 @@
     },
     {
       "type": "n8n-nodes-duckduckgo-search.duckDuckGo",
-      "weightedScore": 256,
+      "weightedScore": 257,
       "templateCount": 2,
       "totalNodeUsages": 2,
-      "avgInsertersPerTemplate": 128
+      "avgInsertersPerTemplate": 129
     },
     {
       "type": "n8n-nodes-base.graphqlTool",
@@ -3236,13 +3243,6 @@
       "templateCount": 1,
       "totalNodeUsages": 1,
       "avgInsertersPerTemplate": 255
-    },
-    {
-      "type": "n8n-nodes-base.hunterTool",
-      "weightedScore": 254,
-      "templateCount": 2,
-      "totalNodeUsages": 4,
-      "avgInsertersPerTemplate": 64
     },
     {
       "type": "n8n-nodes-base.awsRekognition",
@@ -3266,6 +3266,13 @@
       "avgInsertersPerTemplate": 38
     },
     {
+      "type": "n8n-nodes-base.securityScorecard",
+      "weightedScore": 240,
+      "templateCount": 1,
+      "totalNodeUsages": 3,
+      "avgInsertersPerTemplate": 80
+    },
+    {
       "type": "n8n-nodes-base.microsoftToDoTool",
       "weightedScore": 239,
       "templateCount": 2,
@@ -3287,11 +3294,11 @@
       "avgInsertersPerTemplate": 79
     },
     {
-      "type": "n8n-nodes-base.securityScorecard",
-      "weightedScore": 234,
+      "type": "n8n-nodes-signal-cli-rest-api.signal",
+      "weightedScore": 236,
       "templateCount": 1,
-      "totalNodeUsages": 3,
-      "avgInsertersPerTemplate": 78
+      "totalNodeUsages": 4,
+      "avgInsertersPerTemplate": 59
     },
     {
       "type": "n8n-nodes-crawl-and-scrape.crawleeNode",
@@ -3308,18 +3315,18 @@
       "avgInsertersPerTemplate": 42
     },
     {
-      "type": "n8n-nodes-signal-cli-rest-api.signal",
-      "weightedScore": 228,
-      "templateCount": 1,
-      "totalNodeUsages": 4,
-      "avgInsertersPerTemplate": 57
-    },
-    {
       "type": "@n8n/n8n-nodes-langchain.vectorStoreRedis",
       "weightedScore": 228,
       "templateCount": 3,
       "totalNodeUsages": 6,
       "avgInsertersPerTemplate": 38
+    },
+    {
+      "type": "@decodo/n8n-nodes-decodo.decodoTool",
+      "weightedScore": 227,
+      "templateCount": 11,
+      "totalNodeUsages": 11,
+      "avgInsertersPerTemplate": 21
     },
     {
       "type": "n8n-nodes-base.figmaTrigger",
@@ -3350,18 +3357,11 @@
       "avgInsertersPerTemplate": 225
     },
     {
-      "type": "@decodo/n8n-nodes-decodo.decodoTool",
-      "weightedScore": 223,
-      "templateCount": 11,
-      "totalNodeUsages": 11,
-      "avgInsertersPerTemplate": 20
-    },
-    {
       "type": "n8n-nodes-docxtemplater.docxTemplater",
-      "weightedScore": 223,
+      "weightedScore": 224,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 223
+      "avgInsertersPerTemplate": 224
     },
     {
       "type": "n8n-nodes-base.harvest",
@@ -3369,6 +3369,13 @@
       "templateCount": 2,
       "totalNodeUsages": 2,
       "avgInsertersPerTemplate": 111
+    },
+    {
+      "type": "n8n-nodes-browseract.browserAct",
+      "weightedScore": 222,
+      "templateCount": 38,
+      "totalNodeUsages": 42,
+      "avgInsertersPerTemplate": 6
     },
     {
       "type": "n8n-nodes-youtube-transcription-kasha.youtubeTranscripter",
@@ -3397,13 +3404,6 @@
       "templateCount": 1,
       "totalNodeUsages": 4,
       "avgInsertersPerTemplate": 55
-    },
-    {
-      "type": "n8n-nodes-browseract.browserAct",
-      "weightedScore": 219,
-      "templateCount": 38,
-      "totalNodeUsages": 42,
-      "avgInsertersPerTemplate": 6
     },
     {
       "type": "n8n-nodes-base.lingvaNex",
@@ -3469,6 +3469,13 @@
       "avgInsertersPerTemplate": 39
     },
     {
+      "type": "n8n-nodes-veed.veed",
+      "weightedScore": 193,
+      "templateCount": 3,
+      "totalNodeUsages": 3,
+      "avgInsertersPerTemplate": 64
+    },
+    {
       "type": "CUSTOM.klicktippTrigger",
       "weightedScore": 192,
       "templateCount": 1,
@@ -3483,11 +3490,11 @@
       "avgInsertersPerTemplate": 15
     },
     {
-      "type": "n8n-nodes-veed.veed",
-      "weightedScore": 189,
-      "templateCount": 3,
-      "totalNodeUsages": 3,
-      "avgInsertersPerTemplate": 63
+      "type": "n8n-nodes-base.jwt",
+      "weightedScore": 188,
+      "templateCount": 9,
+      "totalNodeUsages": 11,
+      "avgInsertersPerTemplate": 17
     },
     {
       "type": "n8n-nodes-youtube-transcription-dmr.youtubeTranscripter",
@@ -3518,13 +3525,6 @@
       "avgInsertersPerTemplate": 37
     },
     {
-      "type": "n8n-nodes-base.jwt",
-      "weightedScore": 186,
-      "templateCount": 9,
-      "totalNodeUsages": 11,
-      "avgInsertersPerTemplate": 17
-    },
-    {
       "type": "n8n-nodes-base.gotify",
       "weightedScore": 178,
       "templateCount": 2,
@@ -3553,6 +3553,13 @@
       "avgInsertersPerTemplate": 32
     },
     {
+      "type": "n8n-nodes-base.box",
+      "weightedScore": 169,
+      "templateCount": 5,
+      "totalNodeUsages": 7,
+      "avgInsertersPerTemplate": 34
+    },
+    {
       "type": "n8n-nodes-datastore.datastore",
       "weightedScore": 168,
       "templateCount": 1,
@@ -3560,11 +3567,11 @@
       "avgInsertersPerTemplate": 42
     },
     {
-      "type": "n8n-nodes-base.box",
+      "type": "n8n-nodes-oxylabs-ai-studio.oxylabsAiStudio",
       "weightedScore": 168,
-      "templateCount": 5,
-      "totalNodeUsages": 7,
-      "avgInsertersPerTemplate": 33
+      "templateCount": 1,
+      "totalNodeUsages": 2,
+      "avgInsertersPerTemplate": 84
     },
     {
       "type": "n8n-nodes-base.azureStorage",
@@ -3574,11 +3581,25 @@
       "avgInsertersPerTemplate": 16
     },
     {
-      "type": "n8n-nodes-oxylabs-ai-studio.oxylabsAiStudio",
+      "type": "n8n-nodes-base.oracleDatabase",
       "weightedScore": 164,
+      "templateCount": 2,
+      "totalNodeUsages": 11,
+      "avgInsertersPerTemplate": 13
+    },
+    {
+      "type": "n8n-nodes-preview-upload-post.uploadPost",
+      "weightedScore": 163,
       "templateCount": 1,
-      "totalNodeUsages": 2,
-      "avgInsertersPerTemplate": 82
+      "totalNodeUsages": 1,
+      "avgInsertersPerTemplate": 163
+    },
+    {
+      "type": "n8n-nodes-advanced-output-parser.advancedOutputParser",
+      "weightedScore": 162,
+      "templateCount": 1,
+      "totalNodeUsages": 1,
+      "avgInsertersPerTemplate": 162
     },
     {
       "type": "n8n-nodes-base.tapfiliate",
@@ -3586,20 +3607,6 @@
       "templateCount": 1,
       "totalNodeUsages": 3,
       "avgInsertersPerTemplate": 54
-    },
-    {
-      "type": "n8n-nodes-advanced-output-parser.advancedOutputParser",
-      "weightedScore": 161,
-      "templateCount": 1,
-      "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 161
-    },
-    {
-      "type": "n8n-nodes-preview-upload-post.uploadPost",
-      "weightedScore": 160,
-      "templateCount": 1,
-      "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 160
     },
     {
       "type": "n8n-nodes-base.wordPress",
@@ -3651,11 +3658,11 @@
       "avgInsertersPerTemplate": 6
     },
     {
-      "type": "n8n-nodes-base.oracleDatabase",
+      "type": "@n8n/n8n-nodes-langchain.ollama",
       "weightedScore": 156,
       "templateCount": 2,
-      "totalNodeUsages": 11,
-      "avgInsertersPerTemplate": 12
+      "totalNodeUsages": 2,
+      "avgInsertersPerTemplate": 78
     },
     {
       "type": "n8n-nodes-base.twilioTool",
@@ -3670,13 +3677,6 @@
       "templateCount": 2,
       "totalNodeUsages": 3,
       "avgInsertersPerTemplate": 47
-    },
-    {
-      "type": "@n8n/n8n-nodes-langchain.ollama",
-      "weightedScore": 153,
-      "templateCount": 2,
-      "totalNodeUsages": 2,
-      "avgInsertersPerTemplate": 77
     },
     {
       "type": "n8n-nodes-base.zohoCrmTool",
@@ -3708,10 +3708,10 @@
     },
     {
       "type": "n8n-nodes-word2text.word2text",
-      "weightedScore": 140,
+      "weightedScore": 141,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 140
+      "avgInsertersPerTemplate": 141
     },
     {
       "type": "n8n-nodes-base.rabbitmqTrigger",
@@ -3785,10 +3785,17 @@
     },
     {
       "type": "@n8n/n8n-nodes-langchain.ollamaTool",
-      "weightedScore": 126,
+      "weightedScore": 127,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 126
+      "avgInsertersPerTemplate": 127
+    },
+    {
+      "type": "n8n-nodes-cloudinary.cloudinary",
+      "weightedScore": 126,
+      "templateCount": 3,
+      "totalNodeUsages": 4,
+      "avgInsertersPerTemplate": 21
     },
     {
       "type": "n8n-nodes-max.max",
@@ -3796,13 +3803,6 @@
       "templateCount": 1,
       "totalNodeUsages": 2,
       "avgInsertersPerTemplate": 63
-    },
-    {
-      "type": "n8n-nodes-cloudinary.cloudinary",
-      "weightedScore": 124,
-      "templateCount": 3,
-      "totalNodeUsages": 4,
-      "avgInsertersPerTemplate": 21
     },
     {
       "type": "@n8n/n8n-nodes-langchain.lmChatCohere",
@@ -3840,6 +3840,20 @@
       "avgInsertersPerTemplate": 118
     },
     {
+      "type": "@seranking/n8n-nodes-seranking.seRanking",
+      "weightedScore": 118,
+      "templateCount": 7,
+      "totalNodeUsages": 45,
+      "avgInsertersPerTemplate": 2
+    },
+    {
+      "type": "@searchapi/n8n-nodes-searchapi.searchApiTool",
+      "weightedScore": 117,
+      "templateCount": 1,
+      "totalNodeUsages": 1,
+      "avgInsertersPerTemplate": 117
+    },
+    {
       "type": "n8n-nodes-base.cloudflareTool",
       "weightedScore": 116,
       "templateCount": 1,
@@ -3848,17 +3862,10 @@
     },
     {
       "type": "n8n-nodes-feishu-lite.feishuNode",
-      "weightedScore": 115,
+      "weightedScore": 116,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 115
-    },
-    {
-      "type": "@seranking/n8n-nodes-seranking.seRanking",
-      "weightedScore": 114,
-      "templateCount": 7,
-      "totalNodeUsages": 45,
-      "avgInsertersPerTemplate": 2
+      "avgInsertersPerTemplate": 116
     },
     {
       "type": "n8n-nodes-bluesky-enhanced.bluesky",
@@ -3873,13 +3880,6 @@
       "templateCount": 1,
       "totalNodeUsages": 2,
       "avgInsertersPerTemplate": 56
-    },
-    {
-      "type": "@searchapi/n8n-nodes-searchapi.searchApiTool",
-      "weightedScore": 111,
-      "templateCount": 1,
-      "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 111
     },
     {
       "type": "@bedrijfsdatanl/n8n-nodes-bedrijfsdata.bedrijfsdata",
@@ -4015,6 +4015,13 @@
       "avgInsertersPerTemplate": 47
     },
     {
+      "type": "n8n-nodes-base.coda",
+      "weightedScore": 94,
+      "templateCount": 2,
+      "totalNodeUsages": 2,
+      "avgInsertersPerTemplate": 47
+    },
+    {
       "type": "n8n-nodes-rapiwa.rapiwa",
       "weightedScore": 94,
       "templateCount": 23,
@@ -4036,11 +4043,11 @@
       "avgInsertersPerTemplate": 20
     },
     {
-      "type": "n8n-nodes-base.coda",
+      "type": "n8n-nodes-connectsafely-ai.connectSafelyLinkedIn",
       "weightedScore": 93,
-      "templateCount": 2,
-      "totalNodeUsages": 2,
-      "avgInsertersPerTemplate": 47
+      "templateCount": 7,
+      "totalNodeUsages": 11,
+      "avgInsertersPerTemplate": 10
     },
     {
       "type": "n8n-nodes-nostrobots.nostrobotsread",
@@ -4055,13 +4062,6 @@
       "templateCount": 2,
       "totalNodeUsages": 2,
       "avgInsertersPerTemplate": 46
-    },
-    {
-      "type": "n8n-nodes-connectsafely-ai.connectSafelyLinkedIn",
-      "weightedScore": 92,
-      "templateCount": 7,
-      "totalNodeUsages": 11,
-      "avgInsertersPerTemplate": 10
     },
     {
       "type": "@brave/n8n-nodes-brave-search.braveSearch",
@@ -4106,6 +4106,13 @@
       "avgInsertersPerTemplate": 86
     },
     {
+      "type": "@scrapeops/n8n-nodes-scrapeops.ScrapeOps",
+      "weightedScore": 86,
+      "templateCount": 5,
+      "totalNodeUsages": 8,
+      "avgInsertersPerTemplate": 9
+    },
+    {
       "type": "n8n-nodes-trilox.trilox",
       "weightedScore": 84,
       "templateCount": 1,
@@ -4113,25 +4120,18 @@
       "avgInsertersPerTemplate": 14
     },
     {
+      "type": "n8n-nodes-base.payPal",
+      "weightedScore": 82,
+      "templateCount": 4,
+      "totalNodeUsages": 4,
+      "avgInsertersPerTemplate": 21
+    },
+    {
       "type": "@exploriumai/n8n-nodes-explorium-ai.exploriumApiNode",
       "weightedScore": 82,
       "templateCount": 4,
       "totalNodeUsages": 14,
       "avgInsertersPerTemplate": 7
-    },
-    {
-      "type": "@scrapeops/n8n-nodes-scrapeops.ScrapeOps",
-      "weightedScore": 82,
-      "templateCount": 5,
-      "totalNodeUsages": 8,
-      "avgInsertersPerTemplate": 9
-    },
-    {
-      "type": "n8n-nodes-base.payPal",
-      "weightedScore": 81,
-      "templateCount": 4,
-      "totalNodeUsages": 4,
-      "avgInsertersPerTemplate": 20
     },
     {
       "type": "n8n-nodes-base.taigaTrigger",
@@ -4288,6 +4288,13 @@
       "avgInsertersPerTemplate": 69
     },
     {
+      "type": "@mookielianhd/n8n-nodes-instagram.instagram",
+      "weightedScore": 69,
+      "templateCount": 3,
+      "totalNodeUsages": 3,
+      "avgInsertersPerTemplate": 23
+    },
+    {
       "type": "n8n-nodes-base.gongTool",
       "weightedScore": 68,
       "templateCount": 1,
@@ -4309,7 +4316,7 @@
       "avgInsertersPerTemplate": 10
     },
     {
-      "type": "@mookielianhd/n8n-nodes-instagram.instagram",
+      "type": "n8n-nodes-base.intercom",
       "weightedScore": 67,
       "templateCount": 3,
       "totalNodeUsages": 3,
@@ -4321,13 +4328,6 @@
       "templateCount": 1,
       "totalNodeUsages": 22,
       "avgInsertersPerTemplate": 3
-    },
-    {
-      "type": "n8n-nodes-base.intercom",
-      "weightedScore": 66,
-      "templateCount": 3,
-      "totalNodeUsages": 3,
-      "avgInsertersPerTemplate": 22
     },
     {
       "type": "n8n-nodes-base.sendy",
@@ -4386,6 +4386,13 @@
       "avgInsertersPerTemplate": 32
     },
     {
+      "type": "CUSTOM.instantly",
+      "weightedScore": 64,
+      "templateCount": 1,
+      "totalNodeUsages": 8,
+      "avgInsertersPerTemplate": 8
+    },
+    {
       "type": "n8n-nodes-aiscraper.aiScraper",
       "weightedScore": 63,
       "templateCount": 1,
@@ -4421,6 +4428,13 @@
       "avgInsertersPerTemplate": 63
     },
     {
+      "type": "n8n-nodes-pdf-page-extract.pdfPageExtract",
+      "weightedScore": 62,
+      "templateCount": 1,
+      "totalNodeUsages": 1,
+      "avgInsertersPerTemplate": 62
+    },
+    {
       "type": "n8n-nodes-base.copperTool",
       "weightedScore": 62,
       "templateCount": 1,
@@ -4435,21 +4449,14 @@
       "avgInsertersPerTemplate": 62
     },
     {
-      "type": "n8n-nodes-pdf-page-extract.pdfPageExtract",
-      "weightedScore": 61,
+      "type": "n8n-nodes-imap.imap",
+      "weightedScore": 62,
       "templateCount": 1,
       "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 61
+      "avgInsertersPerTemplate": 62
     },
     {
       "type": "n8n-nodes-base.wiseTrigger",
-      "weightedScore": 61,
-      "templateCount": 1,
-      "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 61
-    },
-    {
-      "type": "n8n-nodes-imap.imap",
       "weightedScore": 61,
       "templateCount": 1,
       "totalNodeUsages": 1,
@@ -4498,7 +4505,21 @@
       "avgInsertersPerTemplate": 15
     },
     {
+      "type": "@custom-js/n8n-nodes-pdf-toolkit-v2.pdfToolkit",
+      "weightedScore": 60,
+      "templateCount": 1,
+      "totalNodeUsages": 4,
+      "avgInsertersPerTemplate": 15
+    },
+    {
       "type": "n8n-nodes-base.rabbitmq",
+      "weightedScore": 59,
+      "templateCount": 1,
+      "totalNodeUsages": 1,
+      "avgInsertersPerTemplate": 59
+    },
+    {
+      "type": "n8n-nodes-signal-cli-rest-api.signalTrigger",
       "weightedScore": 59,
       "templateCount": 1,
       "totalNodeUsages": 1,
@@ -4526,11 +4547,11 @@
       "avgInsertersPerTemplate": 19
     },
     {
-      "type": "n8n-nodes-signal-cli-rest-api.signalTrigger",
+      "type": "n8n-nodes-run-node-with-credentials-x.runNodeWithCredentialsX",
       "weightedScore": 57,
-      "templateCount": 1,
-      "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 57
+      "templateCount": 2,
+      "totalNodeUsages": 7,
+      "avgInsertersPerTemplate": 6
     },
     {
       "type": "n8n-nodes-base.philipsHueTool",
@@ -4538,6 +4559,13 @@
       "templateCount": 1,
       "totalNodeUsages": 4,
       "avgInsertersPerTemplate": 14
+    },
+    {
+      "type": "CUSTOM.searchApi",
+      "weightedScore": 56,
+      "templateCount": 1,
+      "totalNodeUsages": 1,
+      "avgInsertersPerTemplate": 56
     },
     {
       "type": "n8n-nodes-base.peekalink",
@@ -4554,18 +4582,11 @@
       "avgInsertersPerTemplate": 56
     },
     {
-      "type": "@custom-js/n8n-nodes-pdf-toolkit-v2.pdfToolkit",
+      "type": "n8n-nodes-pdf4me.PDF4me",
       "weightedScore": 56,
       "templateCount": 1,
-      "totalNodeUsages": 4,
-      "avgInsertersPerTemplate": 14
-    },
-    {
-      "type": "CUSTOM.searchApi",
-      "weightedScore": 55,
-      "templateCount": 1,
-      "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 55
+      "totalNodeUsages": 2,
+      "avgInsertersPerTemplate": 28
     },
     {
       "type": "n8n-nodes-base.marketstack",
@@ -4631,13 +4652,6 @@
       "avgInsertersPerTemplate": 18
     },
     {
-      "type": "n8n-nodes-pdf4me.PDF4me",
-      "weightedScore": 54,
-      "templateCount": 1,
-      "totalNodeUsages": 2,
-      "avgInsertersPerTemplate": 27
-    },
-    {
       "type": "n8n-nodes-streak-crm.streakTool",
       "weightedScore": 54,
       "templateCount": 1,
@@ -4650,6 +4664,13 @@
       "templateCount": 1,
       "totalNodeUsages": 1,
       "avgInsertersPerTemplate": 53
+    },
+    {
+      "type": "n8n-nodes-dataforseo.dataForSeoSerpApi",
+      "weightedScore": 52,
+      "templateCount": 2,
+      "totalNodeUsages": 4,
+      "avgInsertersPerTemplate": 25
     },
     {
       "type": "n8n-nodes-base.linearTool",
@@ -4701,13 +4722,6 @@
       "avgInsertersPerTemplate": 9
     },
     {
-      "type": "n8n-nodes-run-node-with-credentials-x.runNodeWithCredentialsX",
-      "weightedScore": 51,
-      "templateCount": 2,
-      "totalNodeUsages": 7,
-      "avgInsertersPerTemplate": 6
-    },
-    {
       "type": "n8n-nodes-oracle-database-parameterization.Oracle Database with Parameterization",
       "weightedScore": 50,
       "templateCount": 1,
@@ -4743,11 +4757,11 @@
       "avgInsertersPerTemplate": 50
     },
     {
-      "type": "n8n-nodes-dataforseo.dataForSeoSerpApi",
-      "weightedScore": 49,
-      "templateCount": 2,
-      "totalNodeUsages": 4,
-      "avgInsertersPerTemplate": 25
+      "type": "n8n-nodes-base.eventbriteTrigger",
+      "weightedScore": 50,
+      "templateCount": 3,
+      "totalNodeUsages": 3,
+      "avgInsertersPerTemplate": 17
     },
     {
       "type": "n8n-nodes-document-generator.documentGenerator",
@@ -4757,18 +4771,18 @@
       "avgInsertersPerTemplate": 49
     },
     {
-      "type": "n8n-nodes-base.eventbriteTrigger",
-      "weightedScore": 49,
-      "templateCount": 3,
-      "totalNodeUsages": 3,
-      "avgInsertersPerTemplate": 16
-    },
-    {
       "type": "n8n-nodes-klicktipp.klicktippTrigger",
       "weightedScore": 49,
       "templateCount": 8,
       "totalNodeUsages": 9,
       "avgInsertersPerTemplate": 6
+    },
+    {
+      "type": "@bedrijfsdatanl/n8n-nodes-prospectpro.prospectproTrigger",
+      "weightedScore": 49,
+      "templateCount": 3,
+      "totalNodeUsages": 3,
+      "avgInsertersPerTemplate": 16
     },
     {
       "type": "n8n-nodes-base.awsS3Tool",
@@ -4839,13 +4853,6 @@
       "templateCount": 2,
       "totalNodeUsages": 2,
       "avgInsertersPerTemplate": 23
-    },
-    {
-      "type": "@bedrijfsdatanl/n8n-nodes-prospectpro.prospectproTrigger",
-      "weightedScore": 45,
-      "templateCount": 3,
-      "totalNodeUsages": 3,
-      "avgInsertersPerTemplate": 15
     },
     {
       "type": "n8n-nodes-jsoncut.jsonCut",
@@ -4932,6 +4939,13 @@
       "avgInsertersPerTemplate": 2
     },
     {
+      "type": "n8n-nodes-uploadtourl.uploadToUrl",
+      "weightedScore": 38,
+      "templateCount": 4,
+      "totalNodeUsages": 8,
+      "avgInsertersPerTemplate": 5
+    },
+    {
       "type": "n8n-nodes-base.surveyMonkeyTrigger",
       "weightedScore": 37,
       "templateCount": 1,
@@ -4960,11 +4974,11 @@
       "avgInsertersPerTemplate": 36
     },
     {
-      "type": "n8n-nodes-uploadtourl.uploadToUrl",
+      "type": "n8n-nodes-linked-api.linkedApi",
       "weightedScore": 36,
-      "templateCount": 4,
-      "totalNodeUsages": 8,
-      "avgInsertersPerTemplate": 5
+      "templateCount": 1,
+      "totalNodeUsages": 6,
+      "avgInsertersPerTemplate": 6
     },
     {
       "type": "n8n-nodes-base.profitWell",
@@ -4995,6 +5009,13 @@
       "avgInsertersPerTemplate": 11
     },
     {
+      "type": "@custom-js/n8n-nodes-pdf-toolkit.ExtractPages",
+      "weightedScore": 33,
+      "templateCount": 1,
+      "totalNodeUsages": 1,
+      "avgInsertersPerTemplate": 33
+    },
+    {
       "type": "n8n-nodes-instantly.instantly",
       "weightedScore": 33,
       "templateCount": 1,
@@ -5021,13 +5042,6 @@
       "templateCount": 1,
       "totalNodeUsages": 16,
       "avgInsertersPerTemplate": 2
-    },
-    {
-      "type": "@custom-js/n8n-nodes-pdf-toolkit.ExtractPages",
-      "weightedScore": 32,
-      "templateCount": 1,
-      "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 32
     },
     {
       "type": "n8n-nodes-base.theHiveProjectTrigger",
@@ -5058,6 +5072,13 @@
       "avgInsertersPerTemplate": 15
     },
     {
+      "type": "n8n-nodes-base.awsSqs",
+      "weightedScore": 30,
+      "templateCount": 1,
+      "totalNodeUsages": 1,
+      "avgInsertersPerTemplate": 30
+    },
+    {
       "type": "n8n-nodes-base.stackby",
       "weightedScore": 30,
       "templateCount": 1,
@@ -5086,13 +5107,6 @@
       "avgInsertersPerTemplate": 30
     },
     {
-      "type": "n8n-nodes-linked-api.linkedApi",
-      "weightedScore": 30,
-      "templateCount": 1,
-      "totalNodeUsages": 6,
-      "avgInsertersPerTemplate": 5
-    },
-    {
       "type": "@ledgers/n8n-nodes-ledgers-cloud.ledgers",
       "weightedScore": 29,
       "templateCount": 2,
@@ -5112,13 +5126,6 @@
       "templateCount": 1,
       "totalNodeUsages": 4,
       "avgInsertersPerTemplate": 7
-    },
-    {
-      "type": "n8n-nodes-base.awsSqs",
-      "weightedScore": 28,
-      "templateCount": 1,
-      "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 28
     },
     {
       "type": "n8n-nodes-base.postmarkTrigger",
@@ -5716,6 +5723,20 @@
       "avgInsertersPerTemplate": 14
     },
     {
+      "type": "@decodo/n8n-nodes-preview-decodo.decodo",
+      "weightedScore": 14,
+      "templateCount": 1,
+      "totalNodeUsages": 1,
+      "avgInsertersPerTemplate": 14
+    },
+    {
+      "type": "n8n-nodes-aliexpress-affiliate.aliExpressAffiliate",
+      "weightedScore": 14,
+      "templateCount": 1,
+      "totalNodeUsages": 2,
+      "avgInsertersPerTemplate": 7
+    },
+    {
       "type": "n8n-nodes-trilox.triloxTrigger",
       "weightedScore": 14,
       "templateCount": 1,
@@ -5731,13 +5752,6 @@
     },
     {
       "type": "n8n-nodes-base.flowTrigger",
-      "weightedScore": 13,
-      "templateCount": 1,
-      "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 13
-    },
-    {
-      "type": "@decodo/n8n-nodes-preview-decodo.decodo",
       "weightedScore": 13,
       "templateCount": 1,
       "totalNodeUsages": 1,
@@ -5849,11 +5863,11 @@
       "avgInsertersPerTemplate": 12
     },
     {
-      "type": "n8n-nodes-aliexpress-affiliate.aliExpressAffiliate",
+      "type": "n8n-nodes-tmpfiles.tmpfiles",
       "weightedScore": 12,
       "templateCount": 1,
-      "totalNodeUsages": 2,
-      "avgInsertersPerTemplate": 6
+      "totalNodeUsages": 1,
+      "avgInsertersPerTemplate": 12
     },
     {
       "type": "@custom-js/n8n-nodes-pdf-toolkit.sslChecker",
@@ -5877,6 +5891,13 @@
       "avgInsertersPerTemplate": 11
     },
     {
+      "type": "n8n-nodes-robotframework.robotFramework",
+      "weightedScore": 11,
+      "templateCount": 1,
+      "totalNodeUsages": 1,
+      "avgInsertersPerTemplate": 11
+    },
+    {
       "type": "@wizaco/n8n-nodes-wiza.wiza",
       "weightedScore": 11,
       "templateCount": 2,
@@ -5884,7 +5905,7 @@
       "avgInsertersPerTemplate": 4
     },
     {
-      "type": "n8n-nodes-tmpfiles.tmpfiles",
+      "type": "n8n-nodes-abyssale.abyssale",
       "weightedScore": 11,
       "templateCount": 1,
       "totalNodeUsages": 1,
@@ -5975,13 +5996,6 @@
       "avgInsertersPerTemplate": 3
     },
     {
-      "type": "n8n-nodes-robotframework.robotFramework",
-      "weightedScore": 10,
-      "templateCount": 1,
-      "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 10
-    },
-    {
       "type": "n8n-nodes-infranodus.infranodus",
       "weightedScore": 10,
       "templateCount": 1,
@@ -5994,13 +6008,6 @@
       "templateCount": 1,
       "totalNodeUsages": 2,
       "avgInsertersPerTemplate": 5
-    },
-    {
-      "type": "n8n-nodes-abyssale.abyssale",
-      "weightedScore": 10,
-      "templateCount": 1,
-      "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 10
     },
     {
       "type": "n8n-nodes-base.clearbitTool",
@@ -6080,6 +6087,13 @@
       "avgInsertersPerTemplate": 3
     },
     {
+      "type": "n8n-nodes-dataforseo.dataForSeoLabsApi",
+      "weightedScore": 9,
+      "templateCount": 7,
+      "totalNodeUsages": 8,
+      "avgInsertersPerTemplate": 1
+    },
+    {
       "type": "n8n-nodes-magic-inbox.magicInbox",
       "weightedScore": 8,
       "templateCount": 1,
@@ -6150,6 +6164,13 @@
       "avgInsertersPerTemplate": 1
     },
     {
+      "type": "n8n-nodes-base.pushoverTool",
+      "weightedScore": 6,
+      "templateCount": 1,
+      "totalNodeUsages": 1,
+      "avgInsertersPerTemplate": 6
+    },
+    {
       "type": "n8n-nodes-sourcegeek.sourcegeek",
       "weightedScore": 6,
       "templateCount": 2,
@@ -6176,13 +6197,6 @@
       "templateCount": 1,
       "totalNodeUsages": 5,
       "avgInsertersPerTemplate": 1
-    },
-    {
-      "type": "n8n-nodes-base.pushoverTool",
-      "weightedScore": 5,
-      "templateCount": 1,
-      "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 5
     },
     {
       "type": "n8n-nodes-base.travisCiTool",
@@ -6213,13 +6227,6 @@
       "avgInsertersPerTemplate": 2
     },
     {
-      "type": "n8n-nodes-dataforseo.dataForSeoLabsApi",
-      "weightedScore": 5,
-      "templateCount": 7,
-      "totalNodeUsages": 8,
-      "avgInsertersPerTemplate": 1
-    },
-    {
       "type": "n8n-nodes-basecamp.basecamp4",
       "weightedScore": 5,
       "templateCount": 1,
@@ -6248,6 +6255,13 @@
       "avgInsertersPerTemplate": 1
     },
     {
+      "type": "CUSTOM.portApiAi",
+      "weightedScore": 4,
+      "templateCount": 1,
+      "totalNodeUsages": 1,
+      "avgInsertersPerTemplate": 4
+    },
+    {
       "type": "n8n-nodes-infranodus.infranodusTool",
       "weightedScore": 4,
       "templateCount": 1,
@@ -6267,6 +6281,20 @@
       "templateCount": 1,
       "totalNodeUsages": 1,
       "avgInsertersPerTemplate": 4
+    },
+    {
+      "type": "n8n-nodes-superchat.superchat",
+      "weightedScore": 4,
+      "templateCount": 1,
+      "totalNodeUsages": 1,
+      "avgInsertersPerTemplate": 4
+    },
+    {
+      "type": "@lusha-org/n8n-nodes-lusha.lusha",
+      "weightedScore": 4,
+      "templateCount": 10,
+      "totalNodeUsages": 12,
+      "avgInsertersPerTemplate": 0
     },
     {
       "type": "n8n-nodes-base.urlScanIoTool",
@@ -6297,32 +6325,11 @@
       "avgInsertersPerTemplate": 3
     },
     {
-      "type": "CUSTOM.portApiAi",
-      "weightedScore": 3,
-      "templateCount": 1,
-      "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 3
-    },
-    {
       "type": "@cloudconvert/n8n-nodes-cloudconvert.cloudConvert",
       "weightedScore": 3,
       "templateCount": 1,
       "totalNodeUsages": 1,
       "avgInsertersPerTemplate": 3
-    },
-    {
-      "type": "n8n-nodes-superchat.superchat",
-      "weightedScore": 3,
-      "templateCount": 1,
-      "totalNodeUsages": 1,
-      "avgInsertersPerTemplate": 3
-    },
-    {
-      "type": "@lusha-org/n8n-nodes-lusha.lusha",
-      "weightedScore": 2,
-      "templateCount": 10,
-      "totalNodeUsages": 12,
-      "avgInsertersPerTemplate": 0
     },
     {
       "type": "n8n-nodes-base.instagram",
@@ -6490,13 +6497,6 @@
       "weightedScore": 0,
       "templateCount": 2,
       "totalNodeUsages": 2,
-      "avgInsertersPerTemplate": 0
-    },
-    {
-      "type": "CUSTOM.instantly",
-      "weightedScore": 0,
-      "templateCount": 1,
-      "totalNodeUsages": 8,
       "avgInsertersPerTemplate": 0
     }
   ]
