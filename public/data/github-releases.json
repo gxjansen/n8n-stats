@@ -1,17 +1,33 @@
 [
   {
-    "tagName": "n8n@2.22.2",
-    "name": "n8n@2.22.2",
-    "publishedAt": "2026-05-22T10:01:57Z",
-    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%402.22.2",
+    "tagName": "n8n@1.123.47",
+    "name": "n8n@1.123.47",
+    "publishedAt": "2026-05-25T10:04:27Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%401.123.47",
+    "prerelease": false,
+    "body": "## [1.123.47](https://github.com/n8n-io/n8n/compare/n8n@1.123.46...n8n@1.123.47) (2026-05-25)\n\n\n### Bug Fixes\n\n* Fix 16 security issues in vm2, ws, protobufjs and 4 more ([#30852](https://github.com/n8n-io/n8n/issues/30852)) ([0ec59b6](https://github.com/n8n-io/n8n/commit/0ec59b6e43e0411f5af174e8cccd356de7f3be85))\n* Fix security issue in urllib3 via minor version upgrade from 2.6.3 to 2.7.0 in packages ([#31058](https://github.com/n8n-io/n8n/issues/31058)) ([7ac1341](https://github.com/n8n-io/n8n/commit/7ac134188eb3331a348050dcc6ba68d57f155fa4))"
+  },
+  {
+    "tagName": "n8n@2.22.3",
+    "name": "n8n@2.22.3",
+    "publishedAt": "2026-05-25T10:45:36Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%402.22.3",
     "prerelease": true,
-    "body": "## [2.22.2](https://github.com/n8n-io/n8n/compare/n8n@2.22.1...n8n@2.22.2) (2026-05-22)\n\n\n### Bug Fixes\n\n* **core:** Acquire expression isolate for scheduled polls ([#30741](https://github.com/n8n-io/n8n/issues/30741)) ([27ae0d7](https://github.com/n8n-io/n8n/commit/27ae0d7eb83b8e46935569e8694c536a03aeb4e6))\n* **core:** Report scheduled-poll isolate acquisition failures via __emitError ([#30791](https://github.com/n8n-io/n8n/issues/30791)) ([61597f0](https://github.com/n8n-io/n8n/commit/61597f03addb4d613e9016a8b08ee24bce09c1c9))\n* Fixes PostHog group identify call site after init ([#30800](https://github.com/n8n-io/n8n/issues/30800)) ([c9b1220](https://github.com/n8n-io/n8n/commit/c9b1220726bf5857b91bdfd29dc3001866716647))"
+    "body": "## [2.22.3](https://github.com/n8n-io/n8n/compare/n8n@2.22.2...n8n@2.22.3) (2026-05-25)\n\n\n### Bug Fixes\n\n* **core:** Surface SSO claims and role mapping diagnostics ([#30839](https://github.com/n8n-io/n8n/issues/30839)) ([1ffadf5](https://github.com/n8n-io/n8n/commit/1ffadf5bbc3bb0405cc2e39bdd0dcdcec380a638))"
   },
   {
     "tagName": "beta",
     "name": "beta",
-    "publishedAt": "2026-05-22T10:01:59Z",
+    "publishedAt": "2026-05-25T10:45:38Z",
     "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/beta",
+    "prerelease": true,
+    "body": "## [2.22.3](https://github.com/n8n-io/n8n/compare/n8n@2.22.2...n8n@2.22.3) (2026-05-25)\n\n\n### Bug Fixes\n\n* **core:** Surface SSO claims and role mapping diagnostics ([#30839](https://github.com/n8n-io/n8n/issues/30839)) ([1ffadf5](https://github.com/n8n-io/n8n/commit/1ffadf5bbc3bb0405cc2e39bdd0dcdcec380a638))"
+  },
+  {
+    "tagName": "n8n@2.22.2",
+    "name": "n8n@2.22.2",
+    "publishedAt": "2026-05-22T10:01:57Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%402.22.2",
     "prerelease": true,
     "body": "## [2.22.2](https://github.com/n8n-io/n8n/compare/n8n@2.22.1...n8n@2.22.2) (2026-05-22)\n\n\n### Bug Fixes\n\n* **core:** Acquire expression isolate for scheduled polls ([#30741](https://github.com/n8n-io/n8n/issues/30741)) ([27ae0d7](https://github.com/n8n-io/n8n/commit/27ae0d7eb83b8e46935569e8694c536a03aeb4e6))\n* **core:** Report scheduled-poll isolate acquisition failures via __emitError ([#30791](https://github.com/n8n-io/n8n/issues/30791)) ([61597f0](https://github.com/n8n-io/n8n/commit/61597f03addb4d613e9016a8b08ee24bce09c1c9))\n* Fixes PostHog group identify call site after init ([#30800](https://github.com/n8n-io/n8n/issues/30800)) ([c9b1220](https://github.com/n8n-io/n8n/commit/c9b1220726bf5857b91bdfd29dc3001866716647))"
   },
