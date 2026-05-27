@@ -1,5 +1,45 @@
 [
   {
+    "tagName": "stable",
+    "name": "stable",
+    "publishedAt": "2026-05-27T07:12:07Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/stable",
+    "prerelease": false,
+    "body": "## [2.21.8](https://github.com/n8n-io/n8n/compare/n8n@2.21.7...n8n@2.21.8) (2026-05-27)"
+  },
+  {
+    "tagName": "n8n@2.21.8",
+    "name": "n8n@2.21.8",
+    "publishedAt": "2026-05-27T07:12:05Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%402.21.8",
+    "prerelease": false,
+    "body": "## [2.21.8](https://github.com/n8n-io/n8n/compare/n8n@2.21.7...n8n@2.21.8) (2026-05-27)"
+  },
+  {
+    "tagName": "n8n@1.123.48",
+    "name": "n8n@1.123.48",
+    "publishedAt": "2026-05-27T07:04:18Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%401.123.48",
+    "prerelease": false,
+    "body": "## [1.123.48](https://github.com/n8n-io/n8n/compare/n8n@1.123.47...n8n@1.123.48) (2026-05-27)"
+  },
+  {
+    "tagName": "n8n@2.22.4",
+    "name": "n8n@2.22.4",
+    "publishedAt": "2026-05-27T07:15:31Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%402.22.4",
+    "prerelease": true,
+    "body": "## [2.22.4](https://github.com/n8n-io/n8n/compare/n8n@2.22.3...n8n@2.22.4) (2026-05-27)\n\n\n### Bug Fixes\n\n* **core:** Remove aggressive temp directory cleanup in binary data rename ([#31165](https://github.com/n8n-io/n8n/issues/31165)) ([978840d](https://github.com/n8n-io/n8n/commit/978840db54cb6c27596b661fafe6af8bb734180b))"
+  },
+  {
+    "tagName": "beta",
+    "name": "beta",
+    "publishedAt": "2026-05-27T07:15:33Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/beta",
+    "prerelease": true,
+    "body": "## [2.22.4](https://github.com/n8n-io/n8n/compare/n8n@2.22.3...n8n@2.22.4) (2026-05-27)\n\n\n### Bug Fixes\n\n* **core:** Remove aggressive temp directory cleanup in binary data rename ([#31165](https://github.com/n8n-io/n8n/issues/31165)) ([978840d](https://github.com/n8n-io/n8n/commit/978840db54cb6c27596b661fafe6af8bb734180b))"
+  },
+  {
     "tagName": "n8n@1.123.47",
     "name": "n8n@1.123.47",
     "publishedAt": "2026-05-25T10:04:27Z",
@@ -16,28 +56,12 @@
     "body": "## [2.22.3](https://github.com/n8n-io/n8n/compare/n8n@2.22.2...n8n@2.22.3) (2026-05-25)\n\n\n### Bug Fixes\n\n* **core:** Surface SSO claims and role mapping diagnostics ([#30839](https://github.com/n8n-io/n8n/issues/30839)) ([1ffadf5](https://github.com/n8n-io/n8n/commit/1ffadf5bbc3bb0405cc2e39bdd0dcdcec380a638))"
   },
   {
-    "tagName": "beta",
-    "name": "beta",
-    "publishedAt": "2026-05-25T10:45:38Z",
-    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/beta",
-    "prerelease": true,
-    "body": "## [2.22.3](https://github.com/n8n-io/n8n/compare/n8n@2.22.2...n8n@2.22.3) (2026-05-25)\n\n\n### Bug Fixes\n\n* **core:** Surface SSO claims and role mapping diagnostics ([#30839](https://github.com/n8n-io/n8n/issues/30839)) ([1ffadf5](https://github.com/n8n-io/n8n/commit/1ffadf5bbc3bb0405cc2e39bdd0dcdcec380a638))"
-  },
-  {
     "tagName": "n8n@2.22.2",
     "name": "n8n@2.22.2",
     "publishedAt": "2026-05-22T10:01:57Z",
     "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%402.22.2",
     "prerelease": true,
     "body": "## [2.22.2](https://github.com/n8n-io/n8n/compare/n8n@2.22.1...n8n@2.22.2) (2026-05-22)\n\n\n### Bug Fixes\n\n* **core:** Acquire expression isolate for scheduled polls ([#30741](https://github.com/n8n-io/n8n/issues/30741)) ([27ae0d7](https://github.com/n8n-io/n8n/commit/27ae0d7eb83b8e46935569e8694c536a03aeb4e6))\n* **core:** Report scheduled-poll isolate acquisition failures via __emitError ([#30791](https://github.com/n8n-io/n8n/issues/30791)) ([61597f0](https://github.com/n8n-io/n8n/commit/61597f03addb4d613e9016a8b08ee24bce09c1c9))\n* Fixes PostHog group identify call site after init ([#30800](https://github.com/n8n-io/n8n/issues/30800)) ([c9b1220](https://github.com/n8n-io/n8n/commit/c9b1220726bf5857b91bdfd29dc3001866716647))"
-  },
-  {
-    "tagName": "stable",
-    "name": "stable",
-    "publishedAt": "2026-05-21T14:13:05Z",
-    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/stable",
-    "prerelease": false,
-    "body": "## [2.21.7](https://github.com/n8n-io/n8n/compare/n8n@2.21.5...n8n@2.21.7) (2026-05-21)\n\n\n### Bug Fixes\n\n* **core:** Acquire expression isolate for scheduled polls ([#30742](https://github.com/n8n-io/n8n/issues/30742)) ([6167d4a](https://github.com/n8n-io/n8n/commit/6167d4a3623d1a7ac73922737b71fb840b69ac9f))\n* **core:** Populate manual user id on webhook execution data path ([#30781](https://github.com/n8n-io/n8n/issues/30781)) ([50c55aa](https://github.com/n8n-io/n8n/commit/50c55aa94b7d8605854d323ae527b7dc354b2448))\n* **core:** Report scheduled-poll isolate acquisition failures via __emitError ([#30792](https://github.com/n8n-io/n8n/issues/30792)) ([6321390](https://github.com/n8n-io/n8n/commit/6321390a361d53c2322f047a943153e45c5846a0))\n* **core:** Validate non-empty prompts in AI vendor nodes before API calls ([#30820](https://github.com/n8n-io/n8n/issues/30820)) ([15d0dbb](https://github.com/n8n-io/n8n/commit/15d0dbbcaf5899f33b1e3c49005a37e7ef565aae))"
   },
   {
     "tagName": "n8n@2.21.7",
