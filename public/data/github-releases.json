@@ -2,10 +2,58 @@
   {
     "tagName": "stable",
     "name": "stable",
-    "publishedAt": "2026-08-20T08:21:56Z",
+    "publishedAt": "2026-08-21T10:23:34Z",
     "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/stable",
     "prerelease": false,
-    "body": "## [2.35.5](https://github.com/n8n-io/n8n/compare/n8n@2.35.4...n8n@2.35.5) (2026-08-20)\n\n\n### Bug Fixes\n\n* **core:** Avoid restarting task runners that are only slow ([#36610](https://github.com/n8n-io/n8n/issues/36610)) ([7ee5295](https://github.com/n8n-io/n8n/commit/7ee5295ed58ccf2b7921ac22a6fc89a315b11bfe))\n* **core:** Only init the expression engine for commands that evaluate expressions ([#36648](https://github.com/n8n-io/n8n/issues/36648)) ([af53a1a](https://github.com/n8n-io/n8n/commit/af53a1a71c8ec3428ef130e524bcc645a82d4ddf))\n* **core:** Release test-webhook isolate only after teardown completes ([#36632](https://github.com/n8n-io/n8n/issues/36632)) ([17926a0](https://github.com/n8n-io/n8n/commit/17926a0e8b665bc99a71ef8b7baa35ec85494c65))\n* **editor:** Restore Edit Fields type selector styles ([#36628](https://github.com/n8n-io/n8n/issues/36628)) ([f97d74f](https://github.com/n8n-io/n8n/commit/f97d74fc039da374eaa2b4e701b19f8c0a1e8ad9))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/36682?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
+    "body": "## [2.35.7](https://github.com/n8n-io/n8n/compare/n8n@2.35.6...n8n@2.35.7) (2026-08-21)\n\n\n### Bug Fixes\n\n* **core:** Raise AI Assistant model verification token limit ([#36798](https://github.com/n8n-io/n8n/issues/36798)) ([f87affe](https://github.com/n8n-io/n8n/commit/f87affed36c476ab472b52e797ad1cf59ba59058))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/36806?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
+  },
+  {
+    "tagName": "n8n@2.35.7",
+    "name": "n8n@2.35.7",
+    "publishedAt": "2026-08-21T10:23:33Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%402.35.7",
+    "prerelease": false,
+    "body": "## [2.35.7](https://github.com/n8n-io/n8n/compare/n8n@2.35.6...n8n@2.35.7) (2026-08-21)\n\n\n### Bug Fixes\n\n* **core:** Raise AI Assistant model verification token limit ([#36798](https://github.com/n8n-io/n8n/issues/36798)) ([f87affe](https://github.com/n8n-io/n8n/commit/f87affed36c476ab472b52e797ad1cf59ba59058))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/36806?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
+  },
+  {
+    "tagName": "n8n@2.35.6",
+    "name": "n8n@2.35.6",
+    "publishedAt": "2026-08-21T07:58:47Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%402.35.6",
+    "prerelease": false,
+    "body": "## [2.35.6](https://github.com/n8n-io/n8n/compare/n8n@2.35.5...n8n@2.35.6) (2026-08-21)\n\n\n### Bug Fixes\n\n* **core:** Normalize env values before schema-based parsing ([#36732](https://github.com/n8n-io/n8n/issues/36732)) ([0664c7d](https://github.com/n8n-io/n8n/commit/0664c7db291d4ebc4c483fdc1b9178fb07d3f434))\n* **core:** Resolve end-user credentials when loading node parameters ([#36517](https://github.com/n8n-io/n8n/issues/36517)) ([6f6d04b](https://github.com/n8n-io/n8n/commit/6f6d04b29ee774e40e97956df0400956aeaf9cd7))\n* **core:** Wrap a trigger's closeFunction in an expression isolate at creation time ([#36698](https://github.com/n8n-io/n8n/issues/36698)) ([eb85ccd](https://github.com/n8n-io/n8n/commit/eb85ccde78b22d76ff5c640960f9fe1adff77465))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/36788?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
+  },
+  {
+    "tagName": "n8n@1.123.75",
+    "name": "n8n@1.123.75",
+    "publishedAt": "2026-08-21T07:59:01Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%401.123.75",
+    "prerelease": false,
+    "body": "## [1.123.75](https://github.com/n8n-io/n8n/compare/n8n@1.123.74...n8n@1.123.75) (2026-08-21)\n\n\n### Bug Fixes\n\n* **core:** Normalize env values before schema-based parsing ([#36733](https://github.com/n8n-io/n8n/issues/36733)) ([5c9153e](https://github.com/n8n-io/n8n/commit/5c9153e013b33d6f0f8557716ea1ab0c353435fe))\n* **core:** Only init the expression engine for commands that evaluate expressions ([#36649](https://github.com/n8n-io/n8n/issues/36649)) ([16a8676](https://github.com/n8n-io/n8n/commit/16a867684aa8f95a9fba92bce50bb5ddf8bd1962))\n* **core:** Release test-webhook isolate only after teardown completes ([#36633](https://github.com/n8n-io/n8n/issues/36633)) ([a75e5ed](https://github.com/n8n-io/n8n/commit/a75e5ed20a5e59be33df846a68842e89455bb012))\n* **core:** Wrap a trigger's closeFunction in an expression isolate at creation time ([#36699](https://github.com/n8n-io/n8n/issues/36699)) ([fccd046](https://github.com/n8n-io/n8n/commit/fccd046c97b97a4b55ba66bce725d793b94c1f39))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/36790?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->"
+  },
+  {
+    "tagName": "n8n@2.36.5",
+    "name": "n8n@2.36.5",
+    "publishedAt": "2026-08-21T10:30:07Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%402.36.5",
+    "prerelease": true,
+    "body": "## [2.36.5](https://github.com/n8n-io/n8n/compare/n8n@2.36.4...n8n@2.36.5) (2026-08-21)\n\n\n### Bug Fixes\n\n* **core:** Raise AI Assistant model verification token limit ([#36797](https://github.com/n8n-io/n8n/issues/36797)) ([ec5244b](https://github.com/n8n-io/n8n/commit/ec5244bb2c82bb3a5531b5c88539a14ea7b1dd01))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/36807?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
+  },
+  {
+    "tagName": "n8n@2.36.4",
+    "name": "n8n@2.36.4",
+    "publishedAt": "2026-08-21T08:07:29Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%402.36.4",
+    "prerelease": true,
+    "body": "## [2.36.4](https://github.com/n8n-io/n8n/compare/n8n@2.36.3...n8n@2.36.4) (2026-08-21)\n\n\n### Bug Fixes\n\n* **core:** Normalize env values before schema-based parsing ([#36731](https://github.com/n8n-io/n8n/issues/36731)) ([cac2d34](https://github.com/n8n-io/n8n/commit/cac2d348e767c1126853dbf70c458401cba98192))\n* **core:** Validate chat and MCP trigger auth modes for end-user credentials ([#36717](https://github.com/n8n-io/n8n/issues/36717)) ([9c1c59b](https://github.com/n8n-io/n8n/commit/9c1c59b041749896a9d93279915cca5a2a786e48))\n* **core:** Wrap a trigger's closeFunction in an expression isolate at creation time ([#36697](https://github.com/n8n-io/n8n/issues/36697)) ([c72f2c1](https://github.com/n8n-io/n8n/commit/c72f2c17c8590f002ad8a2f4e88bbb0d98c932cb))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/36789?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
+  },
+  {
+    "tagName": "beta",
+    "name": "beta",
+    "publishedAt": "2026-08-21T10:30:09Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/beta",
+    "prerelease": true,
+    "body": "## [2.36.5](https://github.com/n8n-io/n8n/compare/n8n@2.36.4...n8n@2.36.5) (2026-08-21)\n\n\n### Bug Fixes\n\n* **core:** Raise AI Assistant model verification token limit ([#36797](https://github.com/n8n-io/n8n/issues/36797)) ([ec5244b](https://github.com/n8n-io/n8n/commit/ec5244bb2c82bb3a5531b5c88539a14ea7b1dd01))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/36807?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
   },
   {
     "tagName": "n8n@2.35.5",
@@ -28,14 +76,6 @@
     "name": "n8n@2.36.3",
     "publishedAt": "2026-08-20T08:00:25Z",
     "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%402.36.3",
-    "prerelease": true,
-    "body": "## [2.36.3](https://github.com/n8n-io/n8n/compare/n8n@2.36.2...n8n@2.36.3) (2026-08-20)\n\n\n### Bug Fixes\n\n* **core:** Avoid restarting task runners that are only slow ([#36609](https://github.com/n8n-io/n8n/issues/36609)) ([4aa1fa6](https://github.com/n8n-io/n8n/commit/4aa1fa67d7f7dfa098bb7d4b12b37c21865726cb))\n* **core:** Only init the expression engine for commands that evaluate expressions ([#36647](https://github.com/n8n-io/n8n/issues/36647)) ([f212a8e](https://github.com/n8n-io/n8n/commit/f212a8e27a183af3f2d5d08f087a3766ea885cdf))\n* **core:** Release test-webhook isolate only after teardown completes ([#36631](https://github.com/n8n-io/n8n/issues/36631)) ([3c52e79](https://github.com/n8n-io/n8n/commit/3c52e79293274ececf0aa38016af7ff3845b0a31))\n* **editor:** Restore Edit Fields type selector styles ([#36627](https://github.com/n8n-io/n8n/issues/36627)) ([be46cc8](https://github.com/n8n-io/n8n/commit/be46cc8c825b131ef7b54188fd6bf66e8185e0a3))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/36684?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
-  },
-  {
-    "tagName": "beta",
-    "name": "beta",
-    "publishedAt": "2026-08-20T08:00:27Z",
-    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/beta",
     "prerelease": true,
     "body": "## [2.36.3](https://github.com/n8n-io/n8n/compare/n8n@2.36.2...n8n@2.36.3) (2026-08-20)\n\n\n### Bug Fixes\n\n* **core:** Avoid restarting task runners that are only slow ([#36609](https://github.com/n8n-io/n8n/issues/36609)) ([4aa1fa6](https://github.com/n8n-io/n8n/commit/4aa1fa67d7f7dfa098bb7d4b12b37c21865726cb))\n* **core:** Only init the expression engine for commands that evaluate expressions ([#36647](https://github.com/n8n-io/n8n/issues/36647)) ([f212a8e](https://github.com/n8n-io/n8n/commit/f212a8e27a183af3f2d5d08f087a3766ea885cdf))\n* **core:** Release test-webhook isolate only after teardown completes ([#36631](https://github.com/n8n-io/n8n/issues/36631)) ([3c52e79](https://github.com/n8n-io/n8n/commit/3c52e79293274ececf0aa38016af7ff3845b0a31))\n* **editor:** Restore Edit Fields type selector styles ([#36627](https://github.com/n8n-io/n8n/issues/36627)) ([be46cc8](https://github.com/n8n-io/n8n/commit/be46cc8c825b131ef7b54188fd6bf66e8185e0a3))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/36684?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
   },
