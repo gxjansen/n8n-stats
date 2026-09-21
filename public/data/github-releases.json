@@ -2,10 +2,34 @@
   {
     "tagName": "stable",
     "name": "stable",
-    "publishedAt": "2026-09-18T07:54:06Z",
+    "publishedAt": "2026-09-21T07:41:34Z",
     "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/stable",
     "prerelease": false,
-    "body": "## [2.39.8](https://github.com/n8n-io/n8n/compare/n8n@2.39.7...n8n@2.39.8) (2026-09-18)\n\n\n### Bug Fixes\n\n* **core:** Repair data-encryption keys stored as the raw instance key ([#38911](https://github.com/n8n-io/n8n/issues/38911)) ([954f6d8](https://github.com/n8n-io/n8n/commit/954f6d8c8cebfec2f635b7668fe141d4e1e222d5))\n* **core:** Sweep parents parked on a finished sub-execution ([#38949](https://github.com/n8n-io/n8n/issues/38949)) ([496b7cb](https://github.com/n8n-io/n8n/commit/496b7cb5ad60da20839cda73052776011ec848d7))\n* **editor:** Fix blank workflow previews in AI Assistant ([#38915](https://github.com/n8n-io/n8n/issues/38915)) ([058bb8a](https://github.com/n8n-io/n8n/commit/058bb8afa6f630a678271e4b07d527d5f7225a47))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/39021?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
+    "body": "## [2.39.9](https://github.com/n8n-io/n8n/compare/n8n@2.39.8...n8n@2.39.9) (2026-09-21)\n\n\n### Bug Fixes\n\n* **API:** Resolve HTTP 405 error on PATCH /credentials/{credentialId} public API endpoint ([#38982](https://github.com/n8n-io/n8n/issues/38982)) ([48dccc2](https://github.com/n8n-io/n8n/commit/48dccc20c80db6dda03bfa877e39e3f409bc11b5))\n* **core:** Tear down workflow triggers when publication meets a node type the instance cannot load ([#39057](https://github.com/n8n-io/n8n/issues/39057)) ([badfc76](https://github.com/n8n-io/n8n/commit/badfc7613cbac5b3c7b4df93db75871403b517c6))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/39144?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
+  },
+  {
+    "tagName": "n8n@2.39.9",
+    "name": "n8n@2.39.9",
+    "publishedAt": "2026-09-21T07:41:33Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%402.39.9",
+    "prerelease": false,
+    "body": "## [2.39.9](https://github.com/n8n-io/n8n/compare/n8n@2.39.8...n8n@2.39.9) (2026-09-21)\n\n\n### Bug Fixes\n\n* **API:** Resolve HTTP 405 error on PATCH /credentials/{credentialId} public API endpoint ([#38982](https://github.com/n8n-io/n8n/issues/38982)) ([48dccc2](https://github.com/n8n-io/n8n/commit/48dccc20c80db6dda03bfa877e39e3f409bc11b5))\n* **core:** Tear down workflow triggers when publication meets a node type the instance cannot load ([#39057](https://github.com/n8n-io/n8n/issues/39057)) ([badfc76](https://github.com/n8n-io/n8n/commit/badfc7613cbac5b3c7b4df93db75871403b517c6))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/39144?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
+  },
+  {
+    "tagName": "n8n@2.40.4",
+    "name": "n8n@2.40.4",
+    "publishedAt": "2026-09-21T07:32:15Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%402.40.4",
+    "prerelease": true,
+    "body": "## [2.40.4](https://github.com/n8n-io/n8n/compare/n8n@2.40.3...n8n@2.40.4) (2026-09-21)\n\n\n### Bug Fixes\n\n* **core:** Tear down workflow triggers when publication meets a node type the instance cannot load ([#39056](https://github.com/n8n-io/n8n/issues/39056)) ([6a941e4](https://github.com/n8n-io/n8n/commit/6a941e4a99ad8b99164b36a76c31f4581966012a))\n\n\n### Performance Improvements\n\n* **core:** Stop loading project members when listing credentials ([#39095](https://github.com/n8n-io/n8n/issues/39095)) ([b9b79ae](https://github.com/n8n-io/n8n/commit/b9b79ae6d0a2aa8adc65da5eb94951755101db70))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/39143?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
+  },
+  {
+    "tagName": "beta",
+    "name": "beta",
+    "publishedAt": "2026-09-21T07:32:17Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/beta",
+    "prerelease": true,
+    "body": "## [2.40.4](https://github.com/n8n-io/n8n/compare/n8n@2.40.3...n8n@2.40.4) (2026-09-21)\n\n\n### Bug Fixes\n\n* **core:** Tear down workflow triggers when publication meets a node type the instance cannot load ([#39056](https://github.com/n8n-io/n8n/issues/39056)) ([6a941e4](https://github.com/n8n-io/n8n/commit/6a941e4a99ad8b99164b36a76c31f4581966012a))\n\n\n### Performance Improvements\n\n* **core:** Stop loading project members when listing credentials ([#39095](https://github.com/n8n-io/n8n/issues/39095)) ([b9b79ae](https://github.com/n8n-io/n8n/commit/b9b79ae6d0a2aa8adc65da5eb94951755101db70))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/39143?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
   },
   {
     "tagName": "n8n@2.39.8",
@@ -20,14 +44,6 @@
     "name": "n8n@2.40.3",
     "publishedAt": "2026-09-18T07:39:34Z",
     "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%402.40.3",
-    "prerelease": true,
-    "body": "## [2.40.3](https://github.com/n8n-io/n8n/compare/n8n@2.40.2...n8n@2.40.3) (2026-09-18)\n\n\n### Bug Fixes\n\n* **core:** Repair data-encryption keys stored as the raw instance key ([#38910](https://github.com/n8n-io/n8n/issues/38910)) ([a8e0e7c](https://github.com/n8n-io/n8n/commit/a8e0e7c3844510321894bf661cc0610baeae8fc3))\n* **editor:** Fix blank workflow previews in AI Assistant ([#38914](https://github.com/n8n-io/n8n/issues/38914)) ([2049d15](https://github.com/n8n-io/n8n/commit/2049d15dbe7e7e034165d76048dde92a8b28a36f))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/39020?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
-  },
-  {
-    "tagName": "beta",
-    "name": "beta",
-    "publishedAt": "2026-09-18T07:39:36Z",
-    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/beta",
     "prerelease": true,
     "body": "## [2.40.3](https://github.com/n8n-io/n8n/compare/n8n@2.40.2...n8n@2.40.3) (2026-09-18)\n\n\n### Bug Fixes\n\n* **core:** Repair data-encryption keys stored as the raw instance key ([#38910](https://github.com/n8n-io/n8n/issues/38910)) ([a8e0e7c](https://github.com/n8n-io/n8n/commit/a8e0e7c3844510321894bf661cc0610baeae8fc3))\n* **editor:** Fix blank workflow previews in AI Assistant ([#38914](https://github.com/n8n-io/n8n/issues/38914)) ([2049d15](https://github.com/n8n-io/n8n/commit/2049d15dbe7e7e034165d76048dde92a8b28a36f))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/39020?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
   },
