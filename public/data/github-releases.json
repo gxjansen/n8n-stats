@@ -2,10 +2,34 @@
   {
     "tagName": "stable",
     "name": "stable",
-    "publishedAt": "2026-09-30T06:04:40Z",
+    "publishedAt": "2026-10-01T08:05:11Z",
     "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/stable",
     "prerelease": false,
-    "body": "## [2.41.4](https://github.com/n8n-io/n8n/compare/n8n@2.41.3...n8n@2.41.4) (2026-09-30)\n\n\n### Bug Fixes\n\n* **API:** Return an execution when its stored trace context is incomplete ([#39827](https://github.com/n8n-io/n8n/issues/39827)) ([940f65e](https://github.com/n8n-io/n8n/commit/940f65e55e234b91773e4628f8ac15506f7e644f))\n* **core:** Count a database ping as successful when its reply arrives during event-loop lag ([#39757](https://github.com/n8n-io/n8n/issues/39757)) ([fe3c5bc](https://github.com/n8n-io/n8n/commit/fe3c5bceb7c2c955863427e2f3f17a8b56eb7d8c))\n* **core:** Store queue job results only for executions this process enqueued ([#39725](https://github.com/n8n-io/n8n/issues/39725)) ([af4fa9b](https://github.com/n8n-io/n8n/commit/af4fa9bbe341e86235510fcd4106009bff2e27e4))\n* **editor:** Show remaining credits on Assistant banner for Cloud UBB ([#39912](https://github.com/n8n-io/n8n/issues/39912)) ([1d655e3](https://github.com/n8n-io/n8n/commit/1d655e3e194d699471d2c6db0095b7d3445da5ea))\n\n\n### Features\n\n* Add an n8n Assistant onboarding thread for new Cloud signups ([#39771](https://github.com/n8n-io/n8n/issues/39771)) ([afafb02](https://github.com/n8n-io/n8n/commit/afafb025ff363e24e9e484d9d78f316f25054604))\n* **editor:** Route assistant credit CTAs to top-up for UBB accounts ([#39854](https://github.com/n8n-io/n8n/issues/39854)) ([dc84b24](https://github.com/n8n-io/n8n/commit/dc84b24c3b82f3af166d2a99e498638d3840aef3))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/39940?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
+    "body": "## [2.41.5](https://github.com/n8n-io/n8n/compare/n8n@2.41.4...n8n@2.41.5) (2026-10-01)\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/40038?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
+  },
+  {
+    "tagName": "n8n@2.41.5",
+    "name": "n8n@2.41.5",
+    "publishedAt": "2026-10-01T08:05:09Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%402.41.5",
+    "prerelease": false,
+    "body": "## [2.41.5](https://github.com/n8n-io/n8n/compare/n8n@2.41.4...n8n@2.41.5) (2026-10-01)\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/40038?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
+  },
+  {
+    "tagName": "n8n@2.42.2",
+    "name": "n8n@2.42.2",
+    "publishedAt": "2026-10-01T08:08:01Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%402.42.2",
+    "prerelease": true,
+    "body": "## [2.42.2](https://github.com/n8n-io/n8n/compare/n8n@2.42.1...n8n@2.42.2) (2026-10-01)\n\n\n### Bug Fixes\n\n* **core:** Stop waiting on Bull job.finished() for queued executions ([#39945](https://github.com/n8n-io/n8n/issues/39945)) ([c7841e5](https://github.com/n8n-io/n8n/commit/c7841e551ffb264ef602cbf57e7852b6829ec651))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/40039?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
+  },
+  {
+    "tagName": "beta",
+    "name": "beta",
+    "publishedAt": "2026-10-01T08:08:02Z",
+    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/beta",
+    "prerelease": true,
+    "body": "## [2.42.2](https://github.com/n8n-io/n8n/compare/n8n@2.42.1...n8n@2.42.2) (2026-10-01)\n\n\n### Bug Fixes\n\n* **core:** Stop waiting on Bull job.finished() for queued executions ([#39945](https://github.com/n8n-io/n8n/issues/39945)) ([c7841e5](https://github.com/n8n-io/n8n/commit/c7841e551ffb264ef602cbf57e7852b6829ec651))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/40039?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
   },
   {
     "tagName": "n8n@2.41.4",
@@ -28,14 +52,6 @@
     "name": "n8n@2.42.1",
     "publishedAt": "2026-09-30T05:56:25Z",
     "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/n8n%402.42.1",
-    "prerelease": true,
-    "body": "## [2.42.1](https://github.com/n8n-io/n8n/compare/n8n@2.42.0...n8n@2.42.1) (2026-09-30)\n\n\n### Bug Fixes\n\n* **API:** Emit valid schemas for untyped values in the Public API spec ([#39917](https://github.com/n8n-io/n8n/issues/39917)) ([ed56d85](https://github.com/n8n-io/n8n/commit/ed56d85f441c0eb287bc7c739f109d5c69a347a6))\n* **API:** Return an execution when its stored trace context is incomplete ([#39836](https://github.com/n8n-io/n8n/issues/39836)) ([e710744](https://github.com/n8n-io/n8n/commit/e710744967605e2d3ace8a8e1b8f2f85569026e1))\n* **editor:** Show remaining credits on Assistant banner for Cloud UBB ([#39911](https://github.com/n8n-io/n8n/issues/39911)) ([14b6bfd](https://github.com/n8n-io/n8n/commit/14b6bfd6763f270122e0c75423d05a031d605c69))\n\n\n### Features\n\n* **editor:** Show n8n logo on canvas in canvas-only mode ([#39914](https://github.com/n8n-io/n8n/issues/39914)) ([10140d1](https://github.com/n8n-io/n8n/commit/10140d19ddf99995aa4506d82f96dd47a93ed083))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/39939?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
-  },
-  {
-    "tagName": "beta",
-    "name": "beta",
-    "publishedAt": "2026-09-30T05:56:27Z",
-    "htmlUrl": "https://github.com/n8n-io/n8n/releases/tag/beta",
     "prerelease": true,
     "body": "## [2.42.1](https://github.com/n8n-io/n8n/compare/n8n@2.42.0...n8n@2.42.1) (2026-09-30)\n\n\n### Bug Fixes\n\n* **API:** Emit valid schemas for untyped values in the Public API spec ([#39917](https://github.com/n8n-io/n8n/issues/39917)) ([ed56d85](https://github.com/n8n-io/n8n/commit/ed56d85f441c0eb287bc7c739f109d5c69a347a6))\n* **API:** Return an execution when its stored trace context is incomplete ([#39836](https://github.com/n8n-io/n8n/issues/39836)) ([e710744](https://github.com/n8n-io/n8n/commit/e710744967605e2d3ace8a8e1b8f2f85569026e1))\n* **editor:** Show remaining credits on Assistant banner for Cloud UBB ([#39911](https://github.com/n8n-io/n8n/issues/39911)) ([14b6bfd](https://github.com/n8n-io/n8n/commit/14b6bfd6763f270122e0c75423d05a031d605c69))\n\n\n### Features\n\n* **editor:** Show n8n logo on canvas in canvas-only mode ([#39914](https://github.com/n8n-io/n8n/issues/39914)) ([10140d1](https://github.com/n8n-io/n8n/commit/10140d19ddf99995aa4506d82f96dd47a93ed083))\n\n<!-- This is an auto-generated description by cubic. -->\n<a href=\"https://cubic.dev/pr/n8n-io/n8n/pull/39939?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n<!-- End of auto-generated description by cubic. -->\n\n"
   },
