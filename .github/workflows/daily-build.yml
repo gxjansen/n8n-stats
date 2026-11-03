@@ -34,18 +34,64 @@ jobs:
 
       # Only fetch fresh data on schedule or manual trigger, not on every push
       - name: Fetch external data (n8n Arena)
+        id: external
         if: github.event_name != 'push'
         run: npm run fetch-external
         continue-on-error: true  # Don't fail build if external source unavailable
 
-      - name: Update all history data
+      # One step per source so a single failing API doesn't block the others.
+      # Failures don't stop the deploy; the "Report failed data sources" step
+      # at the end marks the run as failed so it gets noticed.
+      - name: Update github history
+        id: github
         if: github.event_name != 'push'
-        run: npm run update-all-history
-        continue-on-error: true  # Don't fail build if external APIs are unavailable
+        run: npm run update-github-history
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update community history
+        id: community
+        if: github.event_name != 'push'
+        run: npm run update-community-history
+        continue-on-error: true
+      - name: Update templates history
+        id: templates
+        if: github.event_name != 'push'
+        run: npm run update-templates-history
+        continue-on-error: true
+      - name: Update discord history
+        id: discord
+        if: github.event_name != 'push'
+        run: npm run update-discord-history
+        continue-on-error: true
+      - name: Update bluesky history
+        id: bluesky
+        if: github.event_name != 'push'
+        run: npm run update-bluesky-history
+        continue-on-error: true
+        env:
           BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
           BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+      - name: Update bluesky-profile history
+        id: bluesky_profile
+        if: github.event_name != 'push'
+        run: npm run update-bluesky-profile-history
+        continue-on-error: true
+      - name: Update reddit history
+        id: reddit
+        if: github.event_name != 'push'
+        run: npm run update-reddit-history
+        continue-on-error: true
+      - name: Update creators history
+        id: creators
+        if: github.event_name != 'push'
+        run: npm run update-creators-history
+        continue-on-error: true
+      - name: Update events
+        id: events
+        if: github.event_name != 'push'
+        run: npm run update-events
+        continue-on-error: true
 
       - name: Commit data updates
         if: github.event_name != 'push'
@@ -54,6 +100,7 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add public/data/
           git diff --staged --quiet || git commit -m "🔧 chore(data): daily data update [skip ci]"
+          git pull --rebase
           git push
 
       - name: Build site
@@ -66,7 +113,31 @@ jobs:
           production-branch: main
           production-deploy: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Fail loudly instead of skipping the deploy when secrets are missing
+          fails-without-credentials: true
+          # Workflow token lacks deployments/statuses write; skip those API calls
+          enable-github-deployment: false
+          enable-commit-status: false
           deploy-message: 'Daily build - ${{ github.sha }}'
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+      - name: Report failed data sources
+        if: always() && github.event_name != 'push'
+        run: |
+          failed=""
+          [ "${{ steps.external.outcome }}" = "failure" ] && failed="$failed external"
+          [ "${{ steps.github.outcome }}" = "failure" ] && failed="$failed github"
+          [ "${{ steps.community.outcome }}" = "failure" ] && failed="$failed community"
+          [ "${{ steps.templates.outcome }}" = "failure" ] && failed="$failed templates"
+          [ "${{ steps.discord.outcome }}" = "failure" ] && failed="$failed discord"
+          [ "${{ steps.bluesky.outcome }}" = "failure" ] && failed="$failed bluesky"
+          [ "${{ steps.bluesky_profile.outcome }}" = "failure" ] && failed="$failed bluesky_profile"
+          [ "${{ steps.reddit.outcome }}" = "failure" ] && failed="$failed reddit"
+          [ "${{ steps.creators.outcome }}" = "failure" ] && failed="$failed creators"
+          [ "${{ steps.events.outcome }}" = "failure" ] && failed="$failed events"
+          if [ -n "$failed" ]; then
+            echo "::error::Data sources failed:$failed"
+            exit 1
+          fi

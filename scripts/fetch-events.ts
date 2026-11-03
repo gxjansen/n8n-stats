@@ -8,7 +8,8 @@ import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
 const LUMA_CALENDAR_API_ID = 'cal-rKZGvZjZWgFjKWW'; // n8n-events calendar
-const LUMA_API_BASE = 'https://api.lu.ma/calendar/get-items';
+// api.lu.ma is IPv6-only now; GitHub runners have no IPv6
+const LUMA_API_BASE = 'https://api.luma.com/calendar/get-items';
 const EVENTS_PATH = join(process.cwd(), 'public', 'data', 'history', 'events.json');
 const LUMA_MAPPING_PATH = join(process.cwd(), 'public', 'data', 'external', 'luma-n8n-mapping.json');
 
@@ -537,7 +538,7 @@ function aggregateHosts(events: LumaEvent[]): HostStats[] {
         // Use the effective (primary) username for merged accounts
         const isPrimaryAccount = !HOST_ACCOUNT_MERGES[host.lumaUsername];
         hostMap.set(effectiveUsername, {
-          name: host.name.trim(),  // Trim whitespace from name
+          name: (host.name ?? effectiveUsername).trim(),  // Some Luma hosts have no display name
           lumaUsername: effectiveUsername,
           lumaUrl: isPrimaryAccount ? host.lumaUrl : `https://luma.com/user/${effectiveUsername}`,
           avatarUrl: host.avatarUrl,
@@ -645,4 +646,7 @@ async function main() {
   console.log(`(offline = in-person, other types = online platforms)`);
 }
 
-main().catch(console.error);
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

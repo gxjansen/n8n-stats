@@ -6,6 +6,9 @@ on:
     - cron: '0 4 * * 0'
   workflow_dispatch: # Allow manual trigger
 
+permissions:
+  contents: write
+
 jobs:
   fetch-all-templates:
     runs-on: ubuntu-latest
@@ -16,6 +19,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ssh-key: ${{ secrets.DEPLOY_KEY }}  # GITHUB_TOKEN can't push to main
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -47,6 +51,5 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add public/data/all-templates-data.json public/data/all-nodes-data.json public/data/nodes-history.json public/data/community-nodes.json public/data/history/community-nodes.json
           git diff --staged --quiet || git commit -m "Update full templates, nodes data, community nodes, and history (weekly) [skip ci]"
+          git pull --rebase
           git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
