@@ -77,11 +77,6 @@ jobs:
         if: github.event_name != 'push'
         run: npm run update-bluesky-profile-history
         continue-on-error: true
-      - name: Update reddit history
-        id: reddit
-        if: github.event_name != 'push'
-        run: npm run update-reddit-history
-        continue-on-error: true
       - name: Update creators history
         id: creators
         if: github.event_name != 'push'
@@ -134,7 +129,6 @@ jobs:
           [ "${{ steps.discord.outcome }}" = "failure" ] && failed="$failed discord"
           [ "${{ steps.bluesky.outcome }}" = "failure" ] && failed="$failed bluesky"
           [ "${{ steps.bluesky_profile.outcome }}" = "failure" ] && failed="$failed bluesky_profile"
-          [ "${{ steps.reddit.outcome }}" = "failure" ] && failed="$failed reddit"
           [ "${{ steps.creators.outcome }}" = "failure" ] && failed="$failed creators"
           [ "${{ steps.events.outcome }}" = "failure" ] && failed="$failed events"
           if [ -n "$failed" ]; then

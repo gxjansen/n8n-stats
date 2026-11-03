@@ -29,7 +29,7 @@
     "update-community-nodes-history": "tsx scripts/update-community-nodes-history.ts",
     "fetch-landscape": "tsx scripts/fetch-landscape.ts",
     "backfill-landscape": "tsx scripts/backfill-landscape-github.ts",
-    "update-all-history": "npm run update-github-history && npm run update-community-history && npm run update-templates-history && npm run update-discord-history && npm run update-bluesky-history && npm run update-bluesky-profile-history && npm run update-reddit-history && npm run update-creators-history && npm run update-events",
+    "update-all-history": "npm run update-github-history && npm run update-community-history && npm run update-templates-history && npm run update-discord-history && npm run update-bluesky-history && npm run update-bluesky-profile-history && npm run update-creators-history && npm run update-events",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
