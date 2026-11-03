@@ -721,6 +721,14 @@ async function extractAmbassadorDetails(
         }
       }
 
+      // The gallery card shows the first image on the page; the gallery itself
+      // only renders images for cards in view, so read it from the detail page
+      const img = document.querySelector('img[src*="attachment"]');
+      const imgSrc = img?.getAttribute('src');
+      if (imgSrc) {
+        data.avatarUrl = imgSrc.startsWith('/') ? `https://n8n.notion.site${imgSrc}` : imgSrc;
+      }
+
       // Find tenure if displayed
       const tenureMatch = allText.match(/(?:Tenure|Member for)[:\s]*(\d+\s*(?:months?|years?))/i);
       if (tenureMatch) {
@@ -747,6 +755,7 @@ async function extractAmbassadorDetails(
     if (pageData.communityProfileUrl) details.communityProfileUrl = pageData.communityProfileUrl;
     if (pageData.linkedinUrl) details.linkedinUrl = pageData.linkedinUrl;
     if (pageData.tenure) details.tenure = pageData.tenure;
+    if (pageData.avatarUrl) details.avatarUrl = pageData.avatarUrl;
 
   } catch (e) {
     console.warn(`  Could not load details for ${ambassador.name}: ${e}`);
@@ -892,9 +901,9 @@ async function scrapeAmbassadors(): Promise<Ambassador[]> {
     headless: true,
   });
 
-  const context = await browser.newContext({
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  });
+  // Keep Playwright's default user agent: it matches the bundled Chromium version.
+  // A hard-coded old Chrome UA makes Notion loop on unsupported-browser.html.
+  const context = await browser.newContext();
 
   const page = await context.newPage();
 
@@ -959,8 +968,11 @@ async function scrapeAmbassadors(): Promise<Ambassador[]> {
       // Fetch details from individual pages (for joinDate, city, links)
       const details = await extractAmbassadorDetails(page, link);
       // Don't overwrite country if already extracted from gallery (more reliable)
-      const { country: _detailCountry, ...otherDetails } = details;
+      const { country: _detailCountry, avatarUrl: detailAvatar, ...otherDetails } = details;
       Object.assign(ambassador, otherDetails);
+      if (!ambassador.avatarUrl && detailAvatar) {
+        ambassador.avatarUrl = detailAvatar;
+      }
 
       // Only use detail page country if gallery didn't have one
       if (!ambassador.country && details.country) {
@@ -1043,6 +1055,8 @@ async function downloadAvatars(ambassadors: Ambassador[], requestContext: any): 
 
   for (const ambassador of ambassadors) {
     if (!ambassador.avatarUrl) {
+      const existing = join(AVATARS_DIR, `${ambassador.id}.webp`);
+      if (existsSync(existing)) ambassador.avatarUrl = `/images/ambassadors/${ambassador.id}.webp`;
       skipped++;
       continue;
     }
@@ -1098,7 +1112,9 @@ async function downloadAvatars(ambassadors: Ambassador[], requestContext: any): 
     }
 
     if (!success) {
-      ambassador.avatarUrl = undefined;
+      // Keep a previously downloaded avatar rather than dropping it
+      const existing = join(AVATARS_DIR, `${ambassador.id}.webp`);
+      ambassador.avatarUrl = existsSync(existing) ? `/images/ambassadors/${ambassador.id}.webp` : undefined;
       failed++;
     }
   }
