@@ -149,5 +149,5 @@ export function getNodeSlug(displayName: string): string {
  * Generate internal node page URL from display name
  */
 export function getNodePageUrl(displayName: string): string {
-  return `/nodes/${getNodeSlug(displayName)}`;
+  return `/nodes/${getNodeSlug(displayName)}/`;
 }

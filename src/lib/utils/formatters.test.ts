@@ -125,8 +125,8 @@ describe('getNodeSlug', () => {
 
 describe('getNodePageUrl', () => {
   it('generates internal node page URL', () => {
-    expect(getNodePageUrl('HTTP Request')).toBe('/nodes/http-request');
-    expect(getNodePageUrl('Edit Fields (Set)')).toBe('/nodes/edit-fields-set');
+    expect(getNodePageUrl('HTTP Request')).toBe('/nodes/http-request/');
+    expect(getNodePageUrl('Edit Fields (Set)')).toBe('/nodes/edit-fields-set/');
   });
 });
 

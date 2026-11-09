@@ -15,7 +15,7 @@ interface Props {
   source?: SourceAttribution;
 }
 
-const { template, href = '/templates', source } = Astro.props;
+const { template, href = '/templates/', source } = Astro.props;
 
 const displayNodes = template.nodes.slice(0, 3);
 const remainingCount = Math.max(0, template.nodes.length - 3);
