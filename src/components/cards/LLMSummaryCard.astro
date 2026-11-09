@@ -25,7 +25,7 @@ interface Props {
   source?: SourceAttribution;
 }
 
-const { llmModels, href = '/nodes', source } = Astro.props;
+const { llmModels, href = '/nodes/', source } = Astro.props;
 
 // Get top 5 models
 const topModels = llmModels.slice(0, 5);

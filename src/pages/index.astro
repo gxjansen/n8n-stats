@@ -372,7 +372,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
           subtitle="Average daily growth"
           trend={githubTrendData}
           color="#ff6d5a"
-          to="/dev"
+          to="/dev/"
           animationDelay={0}
           collecting={!hasEnoughGithubData ? {
             current: dataStatus.github.daysCollected,
@@ -387,7 +387,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
           subtitle="Template authors joined"
           trend={creatorTotals}
           color="#36a2eb"
-          to="/creators"
+          to="/creators/"
           animationDelay={200}
           source={{ source: "n8n Arena", url: "https://n8narena.com", note: "community project" }}
         />
@@ -397,7 +397,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
           subtitle="Workflows imported"
           trend={inserterTotals}
           color="#9966ff"
-          to="/templates"
+          to="/templates/"
           animationDelay={400}
           source={{ source: "n8n Arena", url: "https://n8narena.com", note: "community project" }}
         />
@@ -407,7 +407,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
           subtitle={recentConversionChange !== null ? `${recentConversionChange >= 0 ? '+' : ''}${recentConversionChange.toFixed(1)}pp from last period` : 'Views → imports'}
           trend={conversionTrend}
           color="#4bc0c0"
-          to="/creators"
+          to="/creators/"
           animationDelay={600}
           source={{ source: "n8n Arena", url: "https://n8narena.com", note: "community project" }}
         />
@@ -422,13 +422,13 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
           aiTemplates={aiTemplates}
           totalTemplates={totalWorkflows}
           topAINodes={finalAINodes}
-          href="/templates"
+          href="/templates/"
           source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "updated daily" }}
         />
         {llmModels.length > 0 && (
           <LLMSummaryCard
             llmModels={llmModels}
-            href="/nodes#llm-models"
+            href="/nodes/#llm-models"
             source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "updated daily" }}
           />
         )}
@@ -451,7 +451,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         <!-- Templates - with sparkline -->
         <SubpageTeaserCard
           title="Templates"
-          href="/templates"
+          href="/templates/"
           mainStat={totalWorkflows}
           mainLabel="workflow templates"
           secondaryStat={aiTemplates}
@@ -471,7 +471,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         <!-- Nodes -->
         <SubpageTeaserCard
           title="Nodes"
-          href="/nodes"
+          href="/nodes/"
           mainStat={topNodes.length > 0 ? topNodes[0].name : 'Loading...'}
           mainLabel="most used node"
           secondaryStat={topNodes.length > 0 ? topNodes[0].count : 0}
@@ -488,7 +488,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         <!-- Creators - with sparkline -->
         <SubpageTeaserCard
           title="Creators"
-          href="/creators"
+          href="/creators/"
           mainStat={latestCreators?.total || 0}
           mainLabel="template creators"
           secondaryStat={creatorsPerWeek !== null ? `+${creatorsPerWeek}/week` : undefined}
@@ -508,7 +508,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         <!-- Dev - with sparkline -->
         <SubpageTeaserCard
           title="Dev"
-          href="/dev"
+          href="/dev/"
           mainStat={githubStats.stars}
           mainLabel="stars on GitHub"
           secondaryStat={daysToMilestone !== null ? `${daysToMilestone} days` : undefined}
@@ -528,7 +528,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         <!-- Discussions - with sparkline -->
         <SubpageTeaserCard
           title="Discussions"
-          href="/discussions"
+          href="/discussions/"
           mainStat={latestDiscord.members + forumStats.usersCount}
           mainLabel="total members"
           secondaryStat={latestDiscord.members}
@@ -548,7 +548,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         <!-- Events - with sparkline -->
         <SubpageTeaserCard
           title="Events"
-          href="/events"
+          href="/events/"
           mainStat={eventsData.stats.upcomingCount}
           mainLabel="upcoming events"
           secondaryStat={eventsData.stats.countriesCount}
@@ -568,7 +568,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         <!-- Ambassadors - with sparkline -->
         <SubpageTeaserCard
           title="Ambassadors"
-          href="/ambassadors"
+          href="/ambassadors/"
           mainStat={ambassadorStats.total || 69}
           mainLabel="community ambassadors"
           secondaryStat={ambassadorStats.countries || 27}
@@ -588,7 +588,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         <!-- Market -->
         <SubpageTeaserCard
           title="Market"
-          href="/market"
+          href="/market/"
           mainStat="#1"
           mainLabel="in open-source automation"
           secondaryStat={marketPosition.n8nStars > 0 ? formatNumber(marketPosition.n8nStars) : formatNumber(githubStats.stars)}
@@ -622,7 +622,7 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
           <h2 class="text-2xl font-bold text-white">Trending Templates</h2>
           <p class="text-gray-400 text-sm mt-1">Ranked by n8n.io's trending algorithm (recent views + insertions)</p>
         </div>
-        <a href="/templates" class="text-n8n-primary hover:underline">
+        <a href="/templates/" class="text-n8n-primary hover:underline">
           View all &rarr;
         </a>
       </div>
@@ -641,14 +641,14 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
           <h2 class="text-2xl font-bold text-white">Most Used Nodes</h2>
           <p class="text-gray-400 text-sm mt-1">Nodes appearing in the most templates across all {formatNumber(totalWorkflows)} workflows</p>
         </div>
-        <a href="/nodes" class="text-n8n-primary hover:underline">
+        <a href="/nodes/" class="text-n8n-primary hover:underline">
           View all &rarr;
         </a>
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
         {topNodes.slice(0, 5).map((node, index) => (
-          <a href="/nodes" class="card text-center hover:border-n8n-primary/50 transition-colors group">
+          <a href="/nodes/" class="card text-center hover:border-n8n-primary/50 transition-colors group">
             <div class="text-3xl font-bold text-n8n-primary mb-2">#{index + 1}</div>
             <div class="font-medium text-white group-hover:text-n8n-primary transition-colors">{node.name}</div>
             <div class="text-sm text-gray-400 mt-1">
@@ -669,25 +669,25 @@ const daysToMilestone = starsPerDay && starsPerDay > 0 ? Math.ceil(starsToMilest
         <StatCard
           label="Workflow Templates"
           value={totalWorkflows}
-          to="/templates"
+          to="/templates/"
           source={{ source: "n8n Templates API", url: "https://api.n8n.io", note: "updated daily" }}
         />
         <StatCard
           label="GitHub Stars"
           value={githubStats.stars}
-          to="/dev"
+          to="/dev/"
           source={{ source: "GitHub API", url: "https://api.github.com", note: "updated daily" }}
         />
         <StatCard
           label="Community Members"
           value={latestDiscord.members + forumStats.usersCount}
-          to="/discussions"
+          to="/discussions/"
           source={{ source: "Discord & Discourse APIs", note: "updated daily" }}
         />
         <StatCard
           label="Community Events"
           value={eventsData.stats.totalEvents}
-          to="/events"
+          to="/events/"
           source={{ source: "Luma", url: "https://lu.ma", note: "scraped daily" }}
         />
       </div>

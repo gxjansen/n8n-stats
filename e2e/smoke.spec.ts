@@ -8,43 +8,43 @@ test.describe('Smoke Tests - All Pages Load', () => {
   });
 
   test('dev page loads', async ({ page }) => {
-    await page.goto('/dev');
+    await page.goto('/dev/');
     await expect(page.locator('body')).toBeVisible();
     await expect(page.locator('h1, h2').first()).toBeVisible();
   });
 
   test('discussions page loads', async ({ page }) => {
-    await page.goto('/discussions');
+    await page.goto('/discussions/');
     await expect(page.locator('body')).toBeVisible();
   });
 
   test('templates page loads', async ({ page }) => {
-    await page.goto('/templates');
+    await page.goto('/templates/');
     await expect(page.locator('body')).toBeVisible();
   });
 
   test('nodes page loads', async ({ page }) => {
-    await page.goto('/nodes');
+    await page.goto('/nodes/');
     await expect(page.locator('body')).toBeVisible();
   });
 
   test('creators page loads', async ({ page }) => {
-    await page.goto('/creators');
+    await page.goto('/creators/');
     await expect(page.locator('body')).toBeVisible();
   });
 
   test('events page loads', async ({ page }) => {
-    await page.goto('/events');
+    await page.goto('/events/');
     await expect(page.locator('body')).toBeVisible();
   });
 
   test('ambassadors page loads', async ({ page }) => {
-    await page.goto('/ambassadors');
+    await page.goto('/ambassadors/');
     await expect(page.locator('body')).toBeVisible();
   });
 
   test('playground page loads', async ({ page }) => {
-    await page.goto('/playground');
+    await page.goto('/playground/');
     await expect(page.locator('body')).toBeVisible();
   });
 });
@@ -67,7 +67,7 @@ test.describe('Homepage Content', () => {
 
 test.describe('Charts Render', () => {
   test('dev page has charts', async ({ page }) => {
-    await page.goto('/dev');
+    await page.goto('/dev/');
     // Charts use canvas elements
     await page.waitForSelector('canvas', { timeout: 10000 });
     const canvases = page.locator('canvas');
@@ -75,7 +75,7 @@ test.describe('Charts Render', () => {
   });
 
   test('discussions page has charts', async ({ page }) => {
-    await page.goto('/discussions');
+    await page.goto('/discussions/');
     await page.waitForSelector('canvas', { timeout: 10000 });
     const canvases = page.locator('canvas');
     await expect(canvases.first()).toBeVisible();
@@ -104,7 +104,7 @@ test.describe('Navigation', () => {
 
 test.describe('Data Display', () => {
   test('dev page shows star count', async ({ page }) => {
-    await page.goto('/dev');
+    await page.goto('/dev/');
     // Look for large numbers (star count)
     const content = await page.textContent('body');
     // Star count should be visible as a formatted number (e.g., "166K" or "166,000")
@@ -112,7 +112,7 @@ test.describe('Data Display', () => {
   });
 
   test('nodes page shows node list', async ({ page }) => {
-    await page.goto('/nodes');
+    await page.goto('/nodes/');
     // Should show some common node names
     const content = await page.textContent('body');
     expect(content).toMatch(/HTTP|Webhook|Code|AI/i);
@@ -121,7 +121,7 @@ test.describe('Data Display', () => {
 
 test.describe('Ambassador Map', () => {
   test('ambassadors page has map container with pins', async ({ page }) => {
-    await page.goto('/ambassadors');
+    await page.goto('/ambassadors/');
     // Map container should be present
     const mapContainer = page.locator('#ambassador-map-container');
     await expect(mapContainer).toBeVisible();
@@ -134,7 +134,7 @@ test.describe('Ambassador Map', () => {
   });
 
   test('clicking a pin opens a popover', async ({ page }) => {
-    await page.goto('/ambassadors');
+    await page.goto('/ambassadors/');
     await page.waitForSelector('.amb-pin', { timeout: 10000 });
 
     // Click the first pin
