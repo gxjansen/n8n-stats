@@ -1,63 +1,63 @@
 {
-  "lastUpdated": "2026-11-08T11:11:49.636Z",
-  "fetchDuration": 123,
-  "totalTemplates": 13935,
+  "lastUpdated": "2026-11-15T11:53:12.164Z",
+  "fetchDuration": 135,
+  "totalTemplates": 14148,
   "complexity": {
     "distribution": [
       {
         "nodeCount": 1,
         "label": "1",
-        "count": 1144
+        "count": 1161
       },
       {
         "nodeCount": 2,
         "label": "2",
-        "count": 2019
+        "count": 2049
       },
       {
         "nodeCount": 3,
         "label": "3",
-        "count": 2385
+        "count": 2433
       },
       {
         "nodeCount": 4,
         "label": "4",
-        "count": 2181
+        "count": 2217
       },
       {
         "nodeCount": 5,
         "label": "5",
-        "count": 1951
+        "count": 1985
       },
       {
         "nodeCount": 6,
         "label": "6",
-        "count": 1572
+        "count": 1591
       },
       {
         "nodeCount": 7,
         "label": "7",
-        "count": 1033
+        "count": 1051
       },
       {
         "nodeCount": 8,
         "label": "8",
-        "count": 560
+        "count": 566
       },
       {
         "nodeCount": 9,
         "label": "9",
-        "count": 278
+        "count": 279
       },
       {
         "nodeCount": 10,
         "label": "10",
-        "count": 174
+        "count": 177
       },
       {
         "nodeCount": 11,
         "label": "11",
-        "count": 70
+        "count": 71
       },
       {
         "nodeCount": 12,
@@ -448,87 +448,87 @@
       },
       {
         "month": "2025-10",
-        "count": 836,
-        "cumulative": 6688
+        "count": 838,
+        "cumulative": 6690
       },
       {
         "month": "2025-11",
         "count": 501,
-        "cumulative": 7189
+        "cumulative": 7191
       },
       {
         "month": "2025-12",
-        "count": 527,
-        "cumulative": 7716
+        "count": 528,
+        "cumulative": 7719
       },
       {
         "month": "2026-01",
         "count": 418,
-        "cumulative": 8134
+        "cumulative": 8137
       },
       {
         "month": "2026-02",
-        "count": 445,
-        "cumulative": 8579
+        "count": 444,
+        "cumulative": 8581
       },
       {
         "month": "2026-03",
-        "count": 452,
-        "cumulative": 9031
+        "count": 454,
+        "cumulative": 9035
       },
       {
         "month": "2026-04",
-        "count": 468,
-        "cumulative": 9499
+        "count": 467,
+        "cumulative": 9502
       },
       {
         "month": "2026-05",
         "count": 388,
-        "cumulative": 9887
+        "cumulative": 9890
       },
       {
         "month": "2026-06",
         "count": 493,
-        "cumulative": 10380
+        "cumulative": 10383
       },
       {
         "month": "2026-07",
-        "count": 740,
-        "cumulative": 11120
+        "count": 736,
+        "cumulative": 11119
       },
       {
         "month": "2026-08",
-        "count": 819,
-        "cumulative": 11939
+        "count": 823,
+        "cumulative": 11942
       },
       {
         "month": "2026-09",
-        "count": 892,
-        "cumulative": 12831
+        "count": 896,
+        "cumulative": 12838
       },
       {
         "month": "2026-10",
-        "count": 1066,
-        "cumulative": 13897
+        "count": 1093,
+        "cumulative": 13931
       },
       {
         "month": "2026-11",
-        "count": 38,
-        "cumulative": 13935
+        "count": 217,
+        "cumulative": 14148
       }
     ],
     "firstTemplate": "2019-08",
     "latestTemplate": "2026-11"
   },
   "nodes": {
-    "total": 59038,
+    "total": 59911,
     "unique": 340,
     "top100": [
       {
         "name": "n8n-nodes-base.code",
         "displayName": "Code",
-        "count": 8412,
-        "percentage": 60.4,
+        "count": 8586,
+        "percentage": 60.7,
         "categories": [
           "Development",
           "Core Nodes"
@@ -537,8 +537,8 @@
       {
         "name": "n8n-nodes-base.httpRequest",
         "displayName": "HTTP Request",
-        "count": 7219,
-        "percentage": 51.8,
+        "count": 7350,
+        "percentage": 52,
         "categories": [
           "Development",
           "Core Nodes"
@@ -547,8 +547,8 @@
       {
         "name": "n8n-nodes-base.googleSheets",
         "displayName": "Google Sheets",
-        "count": 5060,
-        "percentage": 36.3,
+        "count": 5163,
+        "percentage": 36.5,
         "categories": [
           "Data & Storage",
           "Productivity"
@@ -557,18 +557,8 @@
       {
         "name": "@n8n/n8n-nodes-langchain.agent",
         "displayName": "AI Agent",
-        "count": 4334,
-        "percentage": 31.1,
-        "categories": [
-          "AI",
-          "Langchain"
-        ]
-      },
-      {
-        "name": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-        "displayName": "OpenAI Chat Model",
-        "count": 3254,
-        "percentage": 23.4,
+        "count": 4357,
+        "percentage": 30.8,
         "categories": [
           "AI",
           "Langchain"
@@ -577,18 +567,28 @@
       {
         "name": "n8n-nodes-base.gmail",
         "displayName": "Gmail",
-        "count": 3245,
-        "percentage": 23.3,
+        "count": 3322,
+        "percentage": 23.5,
         "categories": [
           "Communication",
           "HITL"
         ]
       },
       {
+        "name": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "displayName": "OpenAI Chat Model",
+        "count": 3297,
+        "percentage": 23.3,
+        "categories": [
+          "AI",
+          "Langchain"
+        ]
+      },
+      {
         "name": "n8n-nodes-base.slack",
         "displayName": "Slack",
-        "count": 2392,
-        "percentage": 17.2,
+        "count": 2443,
+        "percentage": 17.3,
         "categories": [
           "Communication",
           "HITL"
@@ -597,7 +597,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.outputParserStructured",
         "displayName": "Structured Output Parser",
-        "count": 2295,
+        "count": 2334,
         "percentage": 16.5,
         "categories": [
           "AI",
@@ -607,7 +607,7 @@
       {
         "name": "n8n-nodes-base.telegram",
         "displayName": "Telegram",
-        "count": 1716,
+        "count": 1740,
         "percentage": 12.3,
         "categories": [
           "Communication",
@@ -617,7 +617,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.openAi",
         "displayName": "OpenAI",
-        "count": 1605,
+        "count": 1622,
         "percentage": 11.5,
         "categories": [
           "AI",
@@ -627,8 +627,8 @@
       {
         "name": "@n8n/n8n-nodes-langchain.chainLlm",
         "displayName": "Basic LLM Chain",
-        "count": 1516,
-        "percentage": 10.9,
+        "count": 1560,
+        "percentage": 11,
         "categories": [
           "AI",
           "Langchain"
@@ -637,7 +637,7 @@
       {
         "name": "n8n-nodes-base.googleDrive",
         "displayName": "Google Drive",
-        "count": 1484,
+        "count": 1503,
         "percentage": 10.6,
         "categories": [
           "Data & Storage"
@@ -646,8 +646,8 @@
       {
         "name": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
         "displayName": "Google Gemini Chat Model",
-        "count": 1312,
-        "percentage": 9.4,
+        "count": 1322,
+        "percentage": 9.3,
         "categories": [
           "AI",
           "Langchain"
@@ -656,7 +656,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
         "displayName": "Simple Memory",
-        "count": 1092,
+        "count": 1098,
         "percentage": 7.8,
         "categories": [
           "AI",
@@ -666,7 +666,7 @@
       {
         "name": "n8n-nodes-base.emailSend",
         "displayName": "Send Email",
-        "count": 752,
+        "count": 770,
         "percentage": 5.4,
         "categories": [
           "Communication",
@@ -677,7 +677,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
         "displayName": "OpenRouter Chat Model",
-        "count": 545,
+        "count": 546,
         "percentage": 3.9,
         "categories": [
           "AI",
@@ -696,7 +696,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
         "displayName": "Anthropic Chat Model",
-        "count": 470,
+        "count": 481,
         "percentage": 3.4,
         "categories": [
           "AI",
@@ -706,7 +706,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.googleGemini",
         "displayName": "Google Gemini",
-        "count": 418,
+        "count": 420,
         "percentage": 3,
         "categories": [
           "AI",
@@ -716,7 +716,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
         "displayName": "Default Data Loader",
-        "count": 405,
+        "count": 406,
         "percentage": 2.9,
         "categories": [
           "AI",
@@ -726,7 +726,7 @@
       {
         "name": "n8n-nodes-base.notion",
         "displayName": "Notion",
-        "count": 402,
+        "count": 404,
         "percentage": 2.9,
         "categories": [
           "Productivity"
@@ -743,9 +743,18 @@
         ]
       },
       {
+        "name": "n8n-nodes-base.html",
+        "displayName": "HTML",
+        "count": 355,
+        "percentage": 2.5,
+        "categories": [
+          "Core Nodes"
+        ]
+      },
+      {
         "name": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
         "displayName": "Embeddings OpenAI",
-        "count": 353,
+        "count": 354,
         "percentage": 2.5,
         "categories": [
           "AI",
@@ -753,18 +762,9 @@
         ]
       },
       {
-        "name": "n8n-nodes-base.html",
-        "displayName": "HTML",
-        "count": 351,
-        "percentage": 2.5,
-        "categories": [
-          "Core Nodes"
-        ]
-      },
-      {
         "name": "n8n-nodes-base.googleCalendar",
         "displayName": "Google Calendar",
-        "count": 315,
+        "count": 323,
         "percentage": 2.3,
         "categories": [
           "Productivity"
@@ -773,7 +773,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.informationExtractor",
         "displayName": "Information Extractor",
-        "count": 312,
+        "count": 316,
         "percentage": 2.2,
         "categories": [
           "AI",
@@ -783,7 +783,7 @@
       {
         "name": "n8n-nodes-base.whatsApp",
         "displayName": "WhatsApp Business Cloud",
-        "count": 281,
+        "count": 286,
         "percentage": 2,
         "categories": [
           "Communication",
@@ -793,18 +793,8 @@
       {
         "name": "@n8n/n8n-nodes-langchain.toolWorkflow",
         "displayName": "Call n8n Workflow Tool",
-        "count": 263,
+        "count": 264,
         "percentage": 1.9,
-        "categories": [
-          "AI",
-          "Langchain"
-        ]
-      },
-      {
-        "name": "@n8n/n8n-nodes-langchain.lmChatGroq",
-        "displayName": "Groq Chat Model",
-        "count": 255,
-        "percentage": 1.8,
         "categories": [
           "AI",
           "Langchain"
@@ -813,16 +803,26 @@
       {
         "name": "n8n-nodes-base.googleDocs",
         "displayName": "Google Docs",
-        "count": 254,
+        "count": 259,
         "percentage": 1.8,
         "categories": [
           "Miscellaneous"
         ]
       },
       {
+        "name": "@n8n/n8n-nodes-langchain.lmChatGroq",
+        "displayName": "Groq Chat Model",
+        "count": 257,
+        "percentage": 1.8,
+        "categories": [
+          "AI",
+          "Langchain"
+        ]
+      },
+      {
         "name": "n8n-nodes-base.hubspot",
         "displayName": "HubSpot",
-        "count": 243,
+        "count": 244,
         "percentage": 1.7,
         "categories": [
           "Sales"
@@ -890,7 +890,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.mcpClientTool",
         "displayName": "MCP Client Tool",
-        "count": 158,
+        "count": 159,
         "percentage": 1.1,
         "categories": [
           "AI",
@@ -900,7 +900,7 @@
       {
         "name": "n8n-nodes-base.linkedIn",
         "displayName": "LinkedIn",
-        "count": 155,
+        "count": 157,
         "percentage": 1.1,
         "categories": [
           "Marketing",
@@ -920,11 +920,20 @@
       {
         "name": "@n8n/n8n-nodes-langchain.textClassifier",
         "displayName": "Text Classifier",
-        "count": 143,
+        "count": 145,
         "percentage": 1,
         "categories": [
           "AI",
           "Langchain"
+        ]
+      },
+      {
+        "name": "n8n-nodes-base.wordpress",
+        "displayName": "Wordpress",
+        "count": 143,
+        "percentage": 1,
+        "categories": [
+          "Marketing"
         ]
       },
       {
@@ -938,12 +947,13 @@
         ]
       },
       {
-        "name": "n8n-nodes-base.wordpress",
-        "displayName": "Wordpress",
-        "count": 141,
+        "name": "n8n-nodes-base.twilio",
+        "displayName": "Twilio",
+        "count": 140,
         "percentage": 1,
         "categories": [
-          "Marketing"
+          "Communication",
+          "Development"
         ]
       },
       {
@@ -956,19 +966,9 @@
         ]
       },
       {
-        "name": "n8n-nodes-base.twilio",
-        "displayName": "Twilio",
-        "count": 139,
-        "percentage": 1,
-        "categories": [
-          "Communication",
-          "Development"
-        ]
-      },
-      {
         "name": "n8n-nodes-base.facebookGraphApi",
         "displayName": "Facebook Graph API",
-        "count": 137,
+        "count": 138,
         "percentage": 1,
         "categories": [
           "Development"
@@ -985,18 +985,9 @@
         ]
       },
       {
-        "name": "n8n-nodes-base.twitter",
-        "displayName": "X (Formerly Twitter)",
-        "count": 128,
-        "percentage": 0.9,
-        "categories": [
-          "Marketing"
-        ]
-      },
-      {
         "name": "n8n-nodes-base.crypto",
         "displayName": "Crypto",
-        "count": 126,
+        "count": 131,
         "percentage": 0.9,
         "categories": [
           "Development",
@@ -1004,9 +995,18 @@
         ]
       },
       {
+        "name": "n8n-nodes-base.twitter",
+        "displayName": "X (Formerly Twitter)",
+        "count": 130,
+        "percentage": 0.9,
+        "categories": [
+          "Marketing"
+        ]
+      },
+      {
         "name": "n8n-nodes-base.microsoftOutlook",
         "displayName": "Microsoft Outlook",
-        "count": 126,
+        "count": 128,
         "percentage": 0.9,
         "categories": [
           "Communication",
@@ -1016,7 +1016,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
         "displayName": "Supabase Vector Store",
-        "count": 124,
+        "count": 125,
         "percentage": 0.9,
         "categories": [
           "AI",
@@ -1026,7 +1026,7 @@
       {
         "name": "n8n-nodes-base.youTube",
         "displayName": "YouTube",
-        "count": 121,
+        "count": 122,
         "percentage": 0.9,
         "categories": [
           "Marketing"
@@ -1064,7 +1064,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.toolCode",
         "displayName": "Code Tool",
-        "count": 104,
+        "count": 106,
         "percentage": 0.7,
         "categories": [
           "AI",
@@ -1144,7 +1144,7 @@
       {
         "name": "n8n-nodes-base.redis",
         "displayName": "Redis",
-        "count": 80,
+        "count": 81,
         "percentage": 0.6,
         "categories": [
           "Development",
@@ -1193,7 +1193,7 @@
       {
         "name": "n8n-nodes-base.shopify",
         "displayName": "Shopify",
-        "count": 63,
+        "count": 65,
         "percentage": 0.5,
         "categories": [
           "Sales"
@@ -1202,7 +1202,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.anthropic",
         "displayName": "Anthropic",
-        "count": 63,
+        "count": 65,
         "percentage": 0.5,
         "categories": [
           "AI",
@@ -1222,7 +1222,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
         "displayName": "DeepSeek Chat Model",
-        "count": 59,
+        "count": 61,
         "percentage": 0.4,
         "categories": [
           "AI",
@@ -1252,11 +1252,31 @@
       {
         "name": "n8n-nodes-base.microsoftTeams",
         "displayName": "Microsoft Teams",
-        "count": 50,
+        "count": 52,
         "percentage": 0.4,
         "categories": [
           "Communication",
           "HITL"
+        ]
+      },
+      {
+        "name": "n8n-nodes-base.compression",
+        "displayName": "Compression",
+        "count": 52,
+        "percentage": 0.4,
+        "categories": [
+          "Core Nodes",
+          "Data & Storage"
+        ]
+      },
+      {
+        "name": "n8n-nodes-base.highLevel",
+        "displayName": "HighLevel",
+        "count": 51,
+        "percentage": 0.4,
+        "categories": [
+          "Marketing",
+          "Sales"
         ]
       },
       {
@@ -1273,30 +1293,10 @@
         "name": "@n8n/n8n-nodes-langchain.toolWikipedia",
         "displayName": "Wikipedia",
         "count": 49,
-        "percentage": 0.4,
+        "percentage": 0.3,
         "categories": [
           "AI",
           "Langchain"
-        ]
-      },
-      {
-        "name": "n8n-nodes-base.highLevel",
-        "displayName": "HighLevel",
-        "count": 49,
-        "percentage": 0.4,
-        "categories": [
-          "Marketing",
-          "Sales"
-        ]
-      },
-      {
-        "name": "n8n-nodes-base.compression",
-        "displayName": "Compression",
-        "count": 46,
-        "percentage": 0.3,
-        "categories": [
-          "Core Nodes",
-          "Data & Storage"
         ]
       },
       {
@@ -1347,21 +1347,21 @@
         ]
       },
       {
+        "name": "n8n-nodes-base.wooCommerce",
+        "displayName": "WooCommerce",
+        "count": 38,
+        "percentage": 0.3,
+        "categories": [
+          "Sales"
+        ]
+      },
+      {
         "name": "n8n-nodes-base.nocoDb",
         "displayName": "NocoDB",
         "count": 38,
         "percentage": 0.3,
         "categories": [
           "Data & Storage"
-        ]
-      },
-      {
-        "name": "n8n-nodes-base.wooCommerce",
-        "displayName": "WooCommerce",
-        "count": 37,
-        "percentage": 0.3,
-        "categories": [
-          "Sales"
         ]
       },
       {
@@ -1418,7 +1418,7 @@
         "name": "n8n-nodes-base.trello",
         "displayName": "Trello",
         "count": 35,
-        "percentage": 0.3,
+        "percentage": 0.2,
         "categories": [
           "Productivity"
         ]
@@ -1427,7 +1427,7 @@
         "name": "n8n-nodes-base.mySql",
         "displayName": "MySQL",
         "count": 35,
-        "percentage": 0.3,
+        "percentage": 0.2,
         "categories": [
           "Development",
           "Data & Storage"
@@ -1507,8 +1507,8 @@
       {
         "name": "n8n-nodes-base.code",
         "displayName": "Code",
-        "count": 8412,
-        "percentage": 60.4,
+        "count": 8586,
+        "percentage": 60.7,
         "categories": [
           "Development",
           "Core Nodes"
@@ -1517,8 +1517,8 @@
       {
         "name": "n8n-nodes-base.httpRequest",
         "displayName": "HTTP Request",
-        "count": 7219,
-        "percentage": 51.8,
+        "count": 7350,
+        "percentage": 52,
         "categories": [
           "Development",
           "Core Nodes"
@@ -1527,8 +1527,8 @@
       {
         "name": "n8n-nodes-base.googleSheets",
         "displayName": "Google Sheets",
-        "count": 5060,
-        "percentage": 36.3,
+        "count": 5163,
+        "percentage": 36.5,
         "categories": [
           "Data & Storage",
           "Productivity"
@@ -1537,18 +1537,8 @@
       {
         "name": "@n8n/n8n-nodes-langchain.agent",
         "displayName": "AI Agent",
-        "count": 4334,
-        "percentage": 31.1,
-        "categories": [
-          "AI",
-          "Langchain"
-        ]
-      },
-      {
-        "name": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-        "displayName": "OpenAI Chat Model",
-        "count": 3254,
-        "percentage": 23.4,
+        "count": 4357,
+        "percentage": 30.8,
         "categories": [
           "AI",
           "Langchain"
@@ -1557,18 +1547,28 @@
       {
         "name": "n8n-nodes-base.gmail",
         "displayName": "Gmail",
-        "count": 3245,
-        "percentage": 23.3,
+        "count": 3322,
+        "percentage": 23.5,
         "categories": [
           "Communication",
           "HITL"
         ]
       },
       {
+        "name": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "displayName": "OpenAI Chat Model",
+        "count": 3297,
+        "percentage": 23.3,
+        "categories": [
+          "AI",
+          "Langchain"
+        ]
+      },
+      {
         "name": "n8n-nodes-base.slack",
         "displayName": "Slack",
-        "count": 2392,
-        "percentage": 17.2,
+        "count": 2443,
+        "percentage": 17.3,
         "categories": [
           "Communication",
           "HITL"
@@ -1577,7 +1577,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.outputParserStructured",
         "displayName": "Structured Output Parser",
-        "count": 2295,
+        "count": 2334,
         "percentage": 16.5,
         "categories": [
           "AI",
@@ -1587,7 +1587,7 @@
       {
         "name": "n8n-nodes-base.telegram",
         "displayName": "Telegram",
-        "count": 1716,
+        "count": 1740,
         "percentage": 12.3,
         "categories": [
           "Communication",
@@ -1597,7 +1597,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.openAi",
         "displayName": "OpenAI",
-        "count": 1605,
+        "count": 1622,
         "percentage": 11.5,
         "categories": [
           "AI",
@@ -1607,8 +1607,8 @@
       {
         "name": "@n8n/n8n-nodes-langchain.chainLlm",
         "displayName": "Basic LLM Chain",
-        "count": 1516,
-        "percentage": 10.9,
+        "count": 1560,
+        "percentage": 11,
         "categories": [
           "AI",
           "Langchain"
@@ -1617,7 +1617,7 @@
       {
         "name": "n8n-nodes-base.googleDrive",
         "displayName": "Google Drive",
-        "count": 1484,
+        "count": 1503,
         "percentage": 10.6,
         "categories": [
           "Data & Storage"
@@ -1626,8 +1626,8 @@
       {
         "name": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
         "displayName": "Google Gemini Chat Model",
-        "count": 1312,
-        "percentage": 9.4,
+        "count": 1322,
+        "percentage": 9.3,
         "categories": [
           "AI",
           "Langchain"
@@ -1636,7 +1636,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
         "displayName": "Simple Memory",
-        "count": 1092,
+        "count": 1098,
         "percentage": 7.8,
         "categories": [
           "AI",
@@ -1646,7 +1646,7 @@
       {
         "name": "n8n-nodes-base.emailSend",
         "displayName": "Send Email",
-        "count": 752,
+        "count": 770,
         "percentage": 5.4,
         "categories": [
           "Communication",
@@ -1657,7 +1657,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
         "displayName": "OpenRouter Chat Model",
-        "count": 545,
+        "count": 546,
         "percentage": 3.9,
         "categories": [
           "AI",
@@ -1676,7 +1676,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
         "displayName": "Anthropic Chat Model",
-        "count": 470,
+        "count": 481,
         "percentage": 3.4,
         "categories": [
           "AI",
@@ -1686,7 +1686,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.googleGemini",
         "displayName": "Google Gemini",
-        "count": 418,
+        "count": 420,
         "percentage": 3,
         "categories": [
           "AI",
@@ -1696,7 +1696,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
         "displayName": "Default Data Loader",
-        "count": 405,
+        "count": 406,
         "percentage": 2.9,
         "categories": [
           "AI",
@@ -1706,7 +1706,7 @@
       {
         "name": "n8n-nodes-base.notion",
         "displayName": "Notion",
-        "count": 402,
+        "count": 404,
         "percentage": 2.9,
         "categories": [
           "Productivity"
@@ -1723,9 +1723,18 @@
         ]
       },
       {
+        "name": "n8n-nodes-base.html",
+        "displayName": "HTML",
+        "count": 355,
+        "percentage": 2.5,
+        "categories": [
+          "Core Nodes"
+        ]
+      },
+      {
         "name": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
         "displayName": "Embeddings OpenAI",
-        "count": 353,
+        "count": 354,
         "percentage": 2.5,
         "categories": [
           "AI",
@@ -1733,18 +1742,9 @@
         ]
       },
       {
-        "name": "n8n-nodes-base.html",
-        "displayName": "HTML",
-        "count": 351,
-        "percentage": 2.5,
-        "categories": [
-          "Core Nodes"
-        ]
-      },
-      {
         "name": "n8n-nodes-base.googleCalendar",
         "displayName": "Google Calendar",
-        "count": 315,
+        "count": 323,
         "percentage": 2.3,
         "categories": [
           "Productivity"
@@ -1753,7 +1753,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.informationExtractor",
         "displayName": "Information Extractor",
-        "count": 312,
+        "count": 316,
         "percentage": 2.2,
         "categories": [
           "AI",
@@ -1763,7 +1763,7 @@
       {
         "name": "n8n-nodes-base.whatsApp",
         "displayName": "WhatsApp Business Cloud",
-        "count": 281,
+        "count": 286,
         "percentage": 2,
         "categories": [
           "Communication",
@@ -1773,18 +1773,8 @@
       {
         "name": "@n8n/n8n-nodes-langchain.toolWorkflow",
         "displayName": "Call n8n Workflow Tool",
-        "count": 263,
+        "count": 264,
         "percentage": 1.9,
-        "categories": [
-          "AI",
-          "Langchain"
-        ]
-      },
-      {
-        "name": "@n8n/n8n-nodes-langchain.lmChatGroq",
-        "displayName": "Groq Chat Model",
-        "count": 255,
-        "percentage": 1.8,
         "categories": [
           "AI",
           "Langchain"
@@ -1793,16 +1783,26 @@
       {
         "name": "n8n-nodes-base.googleDocs",
         "displayName": "Google Docs",
-        "count": 254,
+        "count": 259,
         "percentage": 1.8,
         "categories": [
           "Miscellaneous"
         ]
       },
       {
+        "name": "@n8n/n8n-nodes-langchain.lmChatGroq",
+        "displayName": "Groq Chat Model",
+        "count": 257,
+        "percentage": 1.8,
+        "categories": [
+          "AI",
+          "Langchain"
+        ]
+      },
+      {
         "name": "n8n-nodes-base.hubspot",
         "displayName": "HubSpot",
-        "count": 243,
+        "count": 244,
         "percentage": 1.7,
         "categories": [
           "Sales"
@@ -1870,7 +1870,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.mcpClientTool",
         "displayName": "MCP Client Tool",
-        "count": 158,
+        "count": 159,
         "percentage": 1.1,
         "categories": [
           "AI",
@@ -1880,7 +1880,7 @@
       {
         "name": "n8n-nodes-base.linkedIn",
         "displayName": "LinkedIn",
-        "count": 155,
+        "count": 157,
         "percentage": 1.1,
         "categories": [
           "Marketing",
@@ -1900,11 +1900,20 @@
       {
         "name": "@n8n/n8n-nodes-langchain.textClassifier",
         "displayName": "Text Classifier",
-        "count": 143,
+        "count": 145,
         "percentage": 1,
         "categories": [
           "AI",
           "Langchain"
+        ]
+      },
+      {
+        "name": "n8n-nodes-base.wordpress",
+        "displayName": "Wordpress",
+        "count": 143,
+        "percentage": 1,
+        "categories": [
+          "Marketing"
         ]
       },
       {
@@ -1918,12 +1927,13 @@
         ]
       },
       {
-        "name": "n8n-nodes-base.wordpress",
-        "displayName": "Wordpress",
-        "count": 141,
+        "name": "n8n-nodes-base.twilio",
+        "displayName": "Twilio",
+        "count": 140,
         "percentage": 1,
         "categories": [
-          "Marketing"
+          "Communication",
+          "Development"
         ]
       },
       {
@@ -1936,19 +1946,9 @@
         ]
       },
       {
-        "name": "n8n-nodes-base.twilio",
-        "displayName": "Twilio",
-        "count": 139,
-        "percentage": 1,
-        "categories": [
-          "Communication",
-          "Development"
-        ]
-      },
-      {
         "name": "n8n-nodes-base.facebookGraphApi",
         "displayName": "Facebook Graph API",
-        "count": 137,
+        "count": 138,
         "percentage": 1,
         "categories": [
           "Development"
@@ -1965,18 +1965,9 @@
         ]
       },
       {
-        "name": "n8n-nodes-base.twitter",
-        "displayName": "X (Formerly Twitter)",
-        "count": 128,
-        "percentage": 0.9,
-        "categories": [
-          "Marketing"
-        ]
-      },
-      {
         "name": "n8n-nodes-base.crypto",
         "displayName": "Crypto",
-        "count": 126,
+        "count": 131,
         "percentage": 0.9,
         "categories": [
           "Development",
@@ -1984,9 +1975,18 @@
         ]
       },
       {
+        "name": "n8n-nodes-base.twitter",
+        "displayName": "X (Formerly Twitter)",
+        "count": 130,
+        "percentage": 0.9,
+        "categories": [
+          "Marketing"
+        ]
+      },
+      {
         "name": "n8n-nodes-base.microsoftOutlook",
         "displayName": "Microsoft Outlook",
-        "count": 126,
+        "count": 128,
         "percentage": 0.9,
         "categories": [
           "Communication",
@@ -1996,7 +1996,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
         "displayName": "Supabase Vector Store",
-        "count": 124,
+        "count": 125,
         "percentage": 0.9,
         "categories": [
           "AI",
@@ -2006,7 +2006,7 @@
       {
         "name": "n8n-nodes-base.youTube",
         "displayName": "YouTube",
-        "count": 121,
+        "count": 122,
         "percentage": 0.9,
         "categories": [
           "Marketing"
@@ -2044,7 +2044,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.toolCode",
         "displayName": "Code Tool",
-        "count": 104,
+        "count": 106,
         "percentage": 0.7,
         "categories": [
           "AI",
@@ -2124,7 +2124,7 @@
       {
         "name": "n8n-nodes-base.redis",
         "displayName": "Redis",
-        "count": 80,
+        "count": 81,
         "percentage": 0.6,
         "categories": [
           "Development",
@@ -2173,7 +2173,7 @@
       {
         "name": "n8n-nodes-base.shopify",
         "displayName": "Shopify",
-        "count": 63,
+        "count": 65,
         "percentage": 0.5,
         "categories": [
           "Sales"
@@ -2182,7 +2182,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.anthropic",
         "displayName": "Anthropic",
-        "count": 63,
+        "count": 65,
         "percentage": 0.5,
         "categories": [
           "AI",
@@ -2202,7 +2202,7 @@
       {
         "name": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
         "displayName": "DeepSeek Chat Model",
-        "count": 59,
+        "count": 61,
         "percentage": 0.4,
         "categories": [
           "AI",
@@ -2232,11 +2232,31 @@
       {
         "name": "n8n-nodes-base.microsoftTeams",
         "displayName": "Microsoft Teams",
-        "count": 50,
+        "count": 52,
         "percentage": 0.4,
         "categories": [
           "Communication",
           "HITL"
+        ]
+      },
+      {
+        "name": "n8n-nodes-base.compression",
+        "displayName": "Compression",
+        "count": 52,
+        "percentage": 0.4,
+        "categories": [
+          "Core Nodes",
+          "Data & Storage"
+        ]
+      },
+      {
+        "name": "n8n-nodes-base.highLevel",
+        "displayName": "HighLevel",
+        "count": 51,
+        "percentage": 0.4,
+        "categories": [
+          "Marketing",
+          "Sales"
         ]
       },
       {
@@ -2253,30 +2273,10 @@
         "name": "@n8n/n8n-nodes-langchain.toolWikipedia",
         "displayName": "Wikipedia",
         "count": 49,
-        "percentage": 0.4,
+        "percentage": 0.3,
         "categories": [
           "AI",
           "Langchain"
-        ]
-      },
-      {
-        "name": "n8n-nodes-base.highLevel",
-        "displayName": "HighLevel",
-        "count": 49,
-        "percentage": 0.4,
-        "categories": [
-          "Marketing",
-          "Sales"
-        ]
-      },
-      {
-        "name": "n8n-nodes-base.compression",
-        "displayName": "Compression",
-        "count": 46,
-        "percentage": 0.3,
-        "categories": [
-          "Core Nodes",
-          "Data & Storage"
         ]
       },
       {
@@ -2327,21 +2327,21 @@
         ]
       },
       {
+        "name": "n8n-nodes-base.wooCommerce",
+        "displayName": "WooCommerce",
+        "count": 38,
+        "percentage": 0.3,
+        "categories": [
+          "Sales"
+        ]
+      },
+      {
         "name": "n8n-nodes-base.nocoDb",
         "displayName": "NocoDB",
         "count": 38,
         "percentage": 0.3,
         "categories": [
           "Data & Storage"
-        ]
-      },
-      {
-        "name": "n8n-nodes-base.wooCommerce",
-        "displayName": "WooCommerce",
-        "count": 37,
-        "percentage": 0.3,
-        "categories": [
-          "Sales"
         ]
       },
       {
@@ -2398,7 +2398,7 @@
         "name": "n8n-nodes-base.trello",
         "displayName": "Trello",
         "count": 35,
-        "percentage": 0.3,
+        "percentage": 0.2,
         "categories": [
           "Productivity"
         ]
@@ -2407,7 +2407,7 @@
         "name": "n8n-nodes-base.mySql",
         "displayName": "MySQL",
         "count": 35,
-        "percentage": 0.3,
+        "percentage": 0.2,
         "categories": [
           "Development",
           "Data & Storage"
@@ -2547,6 +2547,15 @@
         ]
       },
       {
+        "name": "@n8n/n8n-nodes-langchain.mcpClient",
+        "displayName": "MCP Client",
+        "count": 27,
+        "percentage": 0.2,
+        "categories": [
+          "Langchain"
+        ]
+      },
+      {
         "name": "n8n-nodes-base.dropbox",
         "displayName": "Dropbox",
         "count": 26,
@@ -2614,11 +2623,22 @@
         ]
       },
       {
-        "name": "@n8n/n8n-nodes-langchain.mcpClient",
-        "displayName": "MCP Client",
+        "name": "@n8n/n8n-nodes-langchain.memoryManager",
+        "displayName": "Chat Memory Manager",
         "count": 25,
         "percentage": 0.2,
         "categories": [
+          "AI",
+          "Langchain"
+        ]
+      },
+      {
+        "name": "@n8n/n8n-nodes-langchain.guardrails",
+        "displayName": "Guardrails",
+        "count": 25,
+        "percentage": 0.2,
+        "categories": [
+          "AI",
           "Langchain"
         ]
       },
@@ -2652,26 +2672,6 @@
         ]
       },
       {
-        "name": "@n8n/n8n-nodes-langchain.guardrails",
-        "displayName": "Guardrails",
-        "count": 24,
-        "percentage": 0.2,
-        "categories": [
-          "AI",
-          "Langchain"
-        ]
-      },
-      {
-        "name": "@n8n/n8n-nodes-langchain.memoryManager",
-        "displayName": "Chat Memory Manager",
-        "count": 23,
-        "percentage": 0.2,
-        "categories": [
-          "AI",
-          "Langchain"
-        ]
-      },
-      {
         "name": "n8n-nodes-base.evaluation",
         "displayName": "Evaluation",
         "count": 23,
@@ -2694,7 +2694,7 @@
         "name": "n8n-nodes-base.googleTasks",
         "displayName": "Google Tasks",
         "count": 21,
-        "percentage": 0.2,
+        "percentage": 0.1,
         "categories": [
           "Productivity"
         ]
@@ -2703,7 +2703,7 @@
         "name": "n8n-nodes-base.spotify",
         "displayName": "Spotify",
         "count": 21,
-        "percentage": 0.2,
+        "percentage": 0.1,
         "categories": [
           "Miscellaneous"
         ]
@@ -2712,7 +2712,7 @@
         "name": "@n8n/n8n-nodes-langchain.lmChatXAiGrok",
         "displayName": "xAI Grok Chat Model",
         "count": 21,
-        "percentage": 0.2,
+        "percentage": 0.1,
         "categories": [
           "AI",
           "Langchain"
@@ -2924,6 +2924,16 @@
         ]
       },
       {
+        "name": "n8n-nodes-base.microsoftSql",
+        "displayName": "Microsoft SQL",
+        "count": 12,
+        "percentage": 0.1,
+        "categories": [
+          "Development",
+          "Data & Storage"
+        ]
+      },
+      {
         "name": "@n8n/n8n-nodes-langchain.embeddingsMistralCloud",
         "displayName": "Embeddings Mistral Cloud",
         "count": 12,
@@ -2941,16 +2951,6 @@
         "categories": [
           "AI",
           "Langchain"
-        ]
-      },
-      {
-        "name": "n8n-nodes-base.microsoftSql",
-        "displayName": "Microsoft SQL",
-        "count": 11,
-        "percentage": 0.1,
-        "categories": [
-          "Development",
-          "Data & Storage"
         ]
       },
       {
@@ -3099,7 +3099,7 @@
         "name": "n8n-nodes-base.pagerDuty",
         "displayName": "PagerDuty",
         "count": 7,
-        "percentage": 0.1,
+        "percentage": 0,
         "categories": [
           "Communication",
           "Development"
@@ -3109,7 +3109,7 @@
         "name": "n8n-nodes-base.clockify",
         "displayName": "Clockify",
         "count": 7,
-        "percentage": 0.1,
+        "percentage": 0,
         "categories": [
           "Productivity"
         ]
@@ -3118,7 +3118,7 @@
         "name": "n8n-nodes-base.snowflake",
         "displayName": "Snowflake",
         "count": 7,
-        "percentage": 0.1,
+        "percentage": 0,
         "categories": [
           "Data & Storage"
         ]
@@ -3127,7 +3127,7 @@
         "name": "n8n-nodes-base.homeAssistant",
         "displayName": "Home Assistant",
         "count": 7,
-        "percentage": 0.1,
+        "percentage": 0,
         "categories": [
           "Miscellaneous"
         ]
@@ -3136,7 +3136,7 @@
         "name": "n8n-nodes-base.quickChart",
         "displayName": "QuickChart",
         "count": 7,
-        "percentage": 0.1,
+        "percentage": 0,
         "categories": [
           "Marketing"
         ]
@@ -3145,7 +3145,7 @@
         "name": "@n8n/n8n-nodes-langchain.lmChatGoogleVertex",
         "displayName": "Google Vertex Chat Model",
         "count": 7,
-        "percentage": 0.1,
+        "percentage": 0,
         "categories": [
           "AI",
           "Langchain"
@@ -3155,7 +3155,7 @@
         "name": "n8n-nodes-base.googleAds",
         "displayName": "Google Ads",
         "count": 7,
-        "percentage": 0.1,
+        "percentage": 0,
         "categories": [
           "Analytics"
         ]
@@ -4748,22 +4748,22 @@
     ]
   },
   "creators": {
-    "total": 3030,
-    "verified": 1240,
+    "total": 3118,
+    "verified": 1260,
     "top50": [
       {
         "username": "rahul08",
         "name": "Rahul Joshi",
         "verified": true,
-        "templateCount": 394,
+        "templateCount": 403,
         "totalViews": 7108
       },
       {
         "username": "oneclick-ai",
         "name": "Oneclick AI Squad",
         "verified": true,
-        "templateCount": 380,
-        "totalViews": 6090
+        "templateCount": 384,
+        "totalViews": 6103
       },
       {
         "username": "weblineindia",
@@ -4811,14 +4811,14 @@
         "username": "iamvaar",
         "name": "iamvaar",
         "verified": true,
-        "templateCount": 146,
+        "templateCount": 155,
         "totalViews": 874
       },
       {
         "username": "jiteshdugar",
         "name": "Jitesh Dugar",
         "verified": true,
-        "templateCount": 138,
+        "templateCount": 141,
         "totalViews": 3323
       },
       {
@@ -4826,7 +4826,7 @@
         "name": "Khairul Muhtadin",
         "verified": true,
         "templateCount": 122,
-        "totalViews": 93670
+        "totalViews": 94155
       },
       {
         "username": "drfiras",
